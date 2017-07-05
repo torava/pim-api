@@ -2,10 +2,21 @@
   "name": "bookkeepr",
   "version": "0.0.1",
   "description": "bookkeepr",
-  "main": "index.js",
+  "main": "src/server.js",
   "scripts": {
+    "start": "./node_modules/babel-cli/bin/babel-node.js --presets react,node6 ./src/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Teemu Orava",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-preset-node6": "^11.0.0",
+    "babel-preset-react": "^6.24.1",
+    "express": "^4.15.3",
+    "react": "^react@15.6.1",
+    "react-dom": "^15.6.1",
+    "react-router": "^4.1.1",
+    "react-router-dom": "^4.1.1"
+  }
 }
