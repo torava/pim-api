@@ -1,0 +1,27 @@
+'use strict';
+
+import React from 'react';
+import {Switch, Route} from 'react-router';
+import Layout from './Layout';
+import ReceiptListPage from './ReceiptListPage';
+import AddReceiptPage from './AddReceiptPage';
+import NotFoundPage from './NotFoundPage';
+
+export default class App extends React.Component {
+  
+
+  /*var AddReceiptPage = app.AddReceiptPage;
+  var ReceiptListPage = app.ReceiptListPage;*/
+
+  render() {
+    return (
+      <Layout>
+        <Switch>
+          <Route exact path="/" component={ReceiptListPage}/>
+          <Route path="/add" component={AddReceiptPage}/>
+          <Route path="*" component={NotFoundPage}/>
+        </Switch>
+      </Layout>
+    );
+  }
+};
