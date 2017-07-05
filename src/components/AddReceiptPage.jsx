@@ -4,6 +4,10 @@ import React from 'react';
 import {Link} from 'react-router';
 
 export default class addReceiptPage extends React.Component {
+  constructor(props) {
+    super(props);
+    this.handleUpload = this.handleUpload.bind(this);
+  }
   handleUpload(event) {
     event.preventDefault();
     console.log(event);
