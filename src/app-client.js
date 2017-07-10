@@ -1,8 +1,11 @@
-'use strict':
+'use strict';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import AppRoutes from './components/AppRoutes';
+import {BrowserRouter} from 'react-router-dom';
+import App from './components/app';
 
-window.onload = () => {
-  ReactDOM.render(<AppRoutes/>, document.getElementById('main'));
-};
+ReactDOM.render((
+  <BrowserRouter>
+    <App/>
+  </BrowserRouter>
+), document.getElementById('app'));

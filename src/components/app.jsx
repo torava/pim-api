@@ -8,11 +8,6 @@ import AddReceiptPage from './AddReceiptPage';
 import NotFoundPage from './NotFoundPage';
 
 export default class App extends React.Component {
-  
-
-  /*var AddReceiptPage = app.AddReceiptPage;
-  var ReceiptListPage = app.ReceiptListPage;*/
-
   render() {
     return (
       <Layout>

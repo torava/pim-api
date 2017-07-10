@@ -11,21 +11,30 @@ import NotFoundPage from './components/NotFoundPage';
 
 const app = new Express();
 const server = new Server(app);
-//app.set('view engine', 'ejs');
-//app.set('views', path.join(__dirname, 'views'));
 
+// define the folder that will be used for static assets
 app.use(Express.static(path.join(__dirname, 'static')));
 
 const port = process.env.PORT || 8080;
 const env = process.env.NODE_ENV || 'production';
 
-createServer((req, res) => {
+app.get('*', (req, res) => {
   const context = {};
   const html = renderToString(
     <StaticRouter location={req.url} context={context}>
       <App/>
     </StaticRouter>
   );
-  res.write('<!doctype html><div id="app">'+html+'</div>');
+  res.write('<!doctype html><div id="app">'+html+'</div>'+"\n"+'<script src="/js/bundle.js"></script>');
   res.end();
-}).listen(port);
+});
+
+server.listen(port, (err) => {
+  if (err) {
+    return console.error(err);
+  }
+  return console.info(
+    `
+      Server running on http://localhost:${port} [${env}]
+    `);
+});

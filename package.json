@@ -5,18 +5,29 @@
   "main": "src/server.js",
   "scripts": {
     "start": "./node_modules/babel-cli/bin/babel-node.js --presets react,node6 ./src/server.js",
+    "start:dev": "export NODE_ENV=development && npm run build:dev && nodemon --exec babel-node -- ./src/server.js",
+    "build": "NODE_ENV=production webpack -p",
+    "build:dev": "webpack -d",
+    "build:dev:watch": "webpack -d --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Teemu Orava",
   "license": "ISC",
   "dependencies": {
     "babel-cli": "^6.24.1",
+    "babel-core": "^6.25.0",
+    "babel-loader": "^7.1.1",
+    "babel-preset-es2017": "^6.24.1",
     "babel-preset-node6": "^11.0.0",
     "babel-preset-react": "^6.24.1",
+    "babel-register": "^6.24.1",
     "express": "^4.15.3",
+    "nodemon": "^1.11.0",
     "react": "^react@15.6.1",
     "react-dom": "^15.6.1",
     "react-router": "^4.1.1",
-    "react-router-dom": "^4.1.1"
+    "react-router-dom": "^4.1.1",
+    "webpack": "^3.1.0",
+    "webpack-node-externals": "^1.6.0"
   }
 }

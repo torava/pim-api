@@ -9,7 +9,6 @@ export default class addReceiptPage extends React.Component {
     this.handleUpload = this.handleUpload.bind(this);
   }
   handleUpload(event) {
-    event.preventDefault();
     console.log(event);
   }
   render() {
