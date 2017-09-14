@@ -3,11 +3,16 @@
 import path from 'path';
 import {Server, createServer} from 'http';
 import Express from 'express';
+import bodyParser from 'body-parser';
+import multer from 'multer';
 import React from 'react';
 import App from './components/app';
+import registerApi from './api';
 import {renderToString} from 'react-dom/server';
 import {StaticRouter, RouterContext} from 'react-router';
 import NotFoundPage from './components/NotFoundPage';
+import fs from 'fs';
+import tesseract from 'node-tesseract';
 
 const app = new Express();
 const server = new Server(app);
@@ -15,8 +20,25 @@ const server = new Server(app);
 // define the folder that will be used for static assets
 app.use(Express.static(path.join(__dirname, 'static')));
 
+
+/** bodyParser.urlencoded(options)
+ * Parses the text as URL encoded data (which is how browsers tend to send form data from regular forms set to POST)
+ * and exposes the resulting object (containing the keys and values) on req.body
+ */
+app.use(bodyParser.urlencoded({
+  extended: true,
+  limit: '50mb'
+}));
+
+/**bodyParser.json(options)
+* Parses the text as JSON and exposes the resulting object on req.body.
+*/
+app.use(bodyParser.json({limit: '50mb'}));
+
 const port = process.env.PORT || 8080;
 const env = process.env.NODE_ENV || 'production';
+
+registerApi(app);
 
 app.get('*', (req, res) => {
   const context = {};
@@ -25,7 +47,7 @@ app.get('*', (req, res) => {
       <App/>
     </StaticRouter>
   );
-  res.write('<!doctype html><div id="app">'+html+'</div>'+"\n"+'<script src="/js/bundle.js"></script>');
+  res.write('<!doctype html><style>'+fs.readFileSync('./node_modules/cropperjs/dist/cropper.css')+'</style><link rel="stylesheet" href="/css/style.css"><div id="app">'+html+'</div>'+"\n"+'<script src="/js/bundle.js"></script>');
   res.end();
 });
 
@@ -38,3 +60,5 @@ server.listen(port, (err) => {
       Server running on http://localhost:${port} [${env}]
     `);
 });
+
+export default server;

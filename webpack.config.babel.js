@@ -1,6 +1,8 @@
 import path from 'path';
 import nodeExternals from 'webpack-node-externals';
 
+import ExtractTextPlugin from 'extract-text-webpack-plugin';
+
 const client = {
   entry: {
     js: './src/app-client.js',
@@ -12,16 +14,18 @@ const client = {
   module: {
     rules: [
       {
-        test: path.join(__dirname, 'src'),
+        test: /\.jsx?$/,
         use: {
           loader: 'babel-loader',
           options: 'cacheDirectory=.babel_cache',
         },
+        include: path.join(__dirname, 'src')
       },
+      { test: /\.css$/, loader: "style-loader!css-loader" }
     ],
   },
   resolve: {
-    extensions: [".js", ".jsx"]
+    extensions: [".js", ".jsx", ".css"]
   }
 };
 
@@ -44,16 +48,18 @@ const server = {
   module: {
     rules: [
       {
-        test: path.join(__dirname, 'src'),
+        test: /\.jsx?$/,
         use: {
           loader: 'babel-loader',
           options: 'cacheDirectory=.babel_cache',
         },
+        include: path.join(__dirname, 'src')
       },
+      { test: /\.css$/, loader: "style-loader!css-loader" }
     ],
   },
   resolve: {
-    extensions: [".js", ".jsx"]
+    extensions: [".js", ".jsx", ".css"]
   }
 };
 
