@@ -5,6 +5,7 @@ const tesseract = require('node-tesseract');
 const app = express();
 const im = require('imagemagick');
 const fs = require('fs');
+const shell = require('shelljs');
 
 module.exports = function (app) {
 
@@ -270,14 +271,42 @@ app.post('/api/receipt/data/:id', function(req, res) {
   let data = req.body,
       id = req.params.id,
       filepath = upload_path+"/"+id,
-      convert_params = [filepath, '-gravity', 'northwest', '-type', 'grayscale'],
+      convert_params = [filepath, '-gravity', 'northwest'],
       language = 'fin';
+  // ./textcleaner -g -e normalize -T -f 50 -o 5 -a 0.1 -t 10 -u -s 1 -p 20 test.jpg test.png
   if (data.width && data.height)
       convert_params.push('-crop', parseInt(data.width)+'x'+parseInt(data.height)+'+'+parseInt(data.x)+'+'+parseInt(data.y));
-  convert_params.push('-adaptive-resize', '600>',
-                      '-lat', '50x50-7%',
+
+  convert_params.push('-respect-parenthesis',
+                      '-colorspace', 'gray',
+                      '-type', 'grayscale',
+                      '-normalize',
+                      '-clone', 0,
+                      '-negate',
+                      '-contrast-stretch 0',
+                      '-lat 50x50+5%',
+                      '-blur', '1x65535',
+                      '-level', '10x100%',
+                      '-compose', 'copy_opacity',
+                      '-composite',
+                      '-fill', 'white',
+                      '-opaque', 'none',
+                      '-alpha', 'off',
+                      '-background', 'white',
+                      '-deskew', '40%',
+                      '-sharpen', '0x1',
+                      '-adaptive-blur', 0.1,
+                      '-trim',
+                      '+repage',
+                      '-compose', 'over',
+                      '-bordercolor', 'white',
+                      '-border', 20,
                       filepath+'_edited');
-  console.log(convert_params);
+
+  /*convert_params.push('-adaptive-resize', '600>',
+                      '-lat', '50x50-7%',
+                      filepath+'_edited');*/
+
   im.convert(convert_params,
               function(error, stdout, stderr) {
     if (error) console.error(error);
