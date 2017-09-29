@@ -55,6 +55,6 @@ describe('Receipt', () => {
         expect(res.body.items[0].price).to.equal('4.30');
         done();
       });
-    }).timeout(15000);
+    }).timeout(30000);
   });
 });
