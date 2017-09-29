@@ -272,7 +272,7 @@ app.post('/api/receipt/data/:id', function(req, res) {
       id = req.params.id,
       filepath = upload_path+"/"+id,
       script = 'convert '+
-               '-respect-parenthesis \( '+
+               '-respect-parenthesis \\( '+
                filepath+' ',
       language = 'fin';
   // ./textcleaner -g -e normalize -T -f 50 -o 5 -a 0.1 -t 10 -u -s 1 -p 20 test.jpg test.png
@@ -282,8 +282,8 @@ app.post('/api/receipt/data/:id', function(req, res) {
   script+= 
         '-colorspace gray '+
         '-type grayscale -normalize '+
-        '\) '+
-        '\( '+
+        '\\) '+
+        '\\( '+
         '-clone 0 '+
         '-colorspace gray '+
         '-negate '+
@@ -291,7 +291,7 @@ app.post('/api/receipt/data/:id', function(req, res) {
         '-contrast-stretch 0 '+
         '-blur 1x65535 '+
         '-level 10x100% '+
-        '\) '+
+        '\\) '+
         '-compose copy_opacity '+
         '-composite '+
         '-fill white '+
