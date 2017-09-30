@@ -290,7 +290,7 @@ app.post('/api/receipt/data/:id', function(req, res) {
         '-lat 50x50+5% '+
         '-contrast-stretch 0 '+
         '-blur 1x65535 '+
-        '-level 10x100% '+
+        '-level 100x100% '+
         '\\) '+
         '-compose copy_opacity '+
         '-composite '+
@@ -300,8 +300,8 @@ app.post('/api/receipt/data/:id', function(req, res) {
         '-background white '+
         '-set option:deskew:autocrop true '+
         '-deskew 40% '+
-        '-sharpen 0x1 '+
-        '-adaptive-blur 0.1 '+
+        '-sharpen 0x3 '+
+        '-adaptive-blur 1 '+
         '-trim '+
         '+repage '+
         '-compose over '+

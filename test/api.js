@@ -41,18 +41,18 @@ describe('Receipt', () => {
     it('should POST receipt data', (done) => {
       chai.request(server)
       .post('/api/receipt/data/'+file)
-      .send({width: 561, height: 961, x: 5, y: 0})
+      //.send({width: 561, height: 961, x: 5, y: 0})
       .end((error, res) => {
         if (error) console.error(error);
         console.log(file);
         console.log(res.body);
         console.log(moment(res.body.date).format('LLLL'));
         res.should.have.status(200);
-        expect(res.body.total_price).to.be.equal('4.30');
-        expect(res.body.store).to.equal('KANNUKSEN APTEEKKI');
-        expect(res.body.address).to.equal('Siltakatu 6');
+        expect(res.body.metadata.total_price).to.be.equal(4.3);
+        expect(res.body.metadata.store).to.equal('KANNUKSEN APTEEKKI');
+        expect(res.body.metadata.address).to.equal('Siltakatu 6');
         expect(res.body.items.length).to.equal(1);
-        expect(res.body.items[0].price).to.equal('4.30');
+        expect(res.body.items[0].price).to.equal(4.3);
         done();
       });
     }).timeout(30000);
