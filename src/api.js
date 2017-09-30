@@ -271,15 +271,15 @@ app.post('/api/receipt/data/:id', function(req, res) {
   let data = req.body,
       id = req.params.id,
       filepath = upload_path+"/"+id,
-      script = 'convert '+
-               '-respect-parenthesis \\( '+
-               filepath+' ',
+      script = 'convert '+filepath+' ',
       language = 'fin';
   // ./textcleaner -g -e normalize -T -f 50 -o 5 -a 0.1 -t 10 -u -s 1 -p 20 test.jpg test.png
   if (data.width && data.height)
       script+= '-crop '+parseInt(data.width)+'x'+parseInt(data.height)+'+'+parseInt(data.x)+'+'+parseInt(data.y)+' ';
 
   script+= 
+        '-adaptive-resize 700x '+
+        '-respect-parenthesis \\( '+
         '-colorspace gray '+
         '-type grayscale -normalize '+
         '\\) '+
@@ -287,7 +287,7 @@ app.post('/api/receipt/data/:id', function(req, res) {
         '-clone 0 '+
         '-colorspace gray '+
         '-negate '+
-        '-lat 50x50+5% '+
+        '-lat 50x50+7% '+
         '-contrast-stretch 0 '+
         '-blur 1x65535 '+
         '-level 100x100% '+

@@ -41,7 +41,7 @@ describe('Receipt', () => {
     it('should POST receipt data', (done) => {
       chai.request(server)
       .post('/api/receipt/data/'+file)
-      //.send({width: 561, height: 961, x: 5, y: 0})
+      .send({width: 525, height: 955, x: 30, y: 0})
       .end((error, res) => {
         if (error) console.error(error);
         console.log(file);
