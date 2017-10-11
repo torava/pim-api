@@ -5,7 +5,7 @@ const tesseract = require('node-tesseract');
 const app = express();
 const im = require('imagemagick');
 const fs = require('fs');
-const {exec} = require('child_process');
+const child_process = require('child_process');
 
 module.exports = function (app) {
 
@@ -212,16 +212,54 @@ function getDataFromReceipt(text, language) {
   }
 
   return {
-    metadata: {
-      store: store,
-      total_price: total_price,
-      total_price_computed: total_price_computed,
-      date: date,
-      address: address,
-      vat: vat
-    },
+    store: store,
+    total_price_read: total_price,
+    total_price: total_price_computed,
+    date: date,
+    address: address,
+    vat: vat,
     items: items
   };
+}
+
+function extractTextFromFile(id, data, language, cb) {
+  let filepath = upload_path+"/"+id,
+      script = [filepath, '-auto-orient'];
+
+  // ./textcleaner -g -e normalize -T -f 50 -o 5 -a 0.1 -t 10 -u -s 1 -p 20 test.jpg test.png
+  if (data.width && data.height)
+    script = script.concat(['-crop', parseInt(data.width)+'x'+parseInt(data.height)+'+'+parseInt(data.x)+'+'+parseInt(data.y)]);
+
+  script = script.concat([
+      '-type', 'grayscale',
+      '-normalize',
+      '-adaptive-resize', '700x',
+      '-lat', '50x50-5%',
+      '-adaptive-blur', '1',
+      '-sharpen', '0x2',
+      '-set', 'option:deskew:autocrop', 'true',
+      '-deskew', '40%',
+      '-trim',
+      '+repage',
+      '-bordercolor', 'white',
+      '-border', '20',
+      '-format', 'png',
+      filepath+'_edited']);
+
+  console.log(script);
+  child_process.execFile('convert', script, function(error, stdout, stderr) {
+    if (error) console.error(error);
+    process.stdout.write(stdout);
+    process.stderr.write(stderr);
+
+    tesseract.process(filepath+'_edited', {
+      l: language in ['fin', 'eng', 'spa'] ? language : 'eng'
+    }, function(err, text) {
+      if (err) console.error(err);
+
+      cb(text);
+    });
+  });
 }
 
 app.post('/api/receipt/picture', function(req, res) {
@@ -232,11 +270,33 @@ app.post('/api/receipt/picture', function(req, res) {
       return;
     }
 
-    var file = req.file;
+    let file = req.file;
 
     res.json({
       file: file.filename
     });
+    res.end();
+  });
+});
+
+app.post('/api/receipt/data/:id', function(req, res) {
+  let data = req.body,
+      language = data.language || 'eng',
+      id = req.params.id;
+
+  extractTextFromFile(id, data, language, function(text) {
+    if (text) {
+      data.transactions[0] = getDataFromReceipt(text, language);
+      data.transactions[0].receipts = [{}];
+      data.transactions[0].receipts[0].text = text;
+      data.transactions[0].receipts[0].file = id;
+      res.json(data);
+    }
+    else {
+      res.json({
+        file: id
+      })
+    }
     res.end();
   });
 });
@@ -265,76 +325,6 @@ app.get('/api/receipt/picture/:id', function (req, res) {
 		//res.setHeader('Content-Type', 'image/jpeg');
 		fs.createReadStream(file_path).pipe(res);
 	});
-});
-
-app.post('/api/receipt/data/:id', function(req, res) {
-  let data = req.body,
-      id = req.params.id,
-      filepath = upload_path+"/"+id,
-      script = 'convert '+filepath+' ',
-      language = 'fin';
-  // ./textcleaner -g -e normalize -T -f 50 -o 5 -a 0.1 -t 10 -u -s 1 -p 20 test.jpg test.png
-  if (data.width && data.height)
-      script+= '-crop '+parseInt(data.width)+'x'+parseInt(data.height)+'+'+parseInt(data.x)+'+'+parseInt(data.y)+' ';
-
-  script+= 
-        '-adaptive-resize 700x '+
-        '-respect-parenthesis \\( '+
-        '-colorspace gray '+
-        '-type grayscale -normalize '+
-        '\\) '+
-        '\\( '+
-        '-clone 0 '+
-        '-colorspace gray '+
-        '-negate '+
-        '-lat 50x50+7% '+
-        '-contrast-stretch 0 '+
-        '-blur 1x65535 '+
-        '-level 100x100% '+
-        '\\) '+
-        '-compose copy_opacity '+
-        '-composite '+
-        '-fill white '+
-        '-opaque none '+
-        '-alpha off '+
-        '-background white '+
-        '-set option:deskew:autocrop true '+
-        '-deskew 40% '+
-        '-sharpen 0x3 '+
-        '-adaptive-blur 1 '+
-        '-trim '+
-        '+repage '+
-        '-compose over '+
-        '-bordercolor white '+
-        '-border 20 '+filepath+'_edited';
-
-  console.log(script);
-  exec(script,
-              function(error, stdout, stderr) {
-    if (error) console.error(error);
-    process.stdout.write(stdout);
-    process.stderr.write(stderr);
-
-    tesseract.process(filepath+'_edited', {
-      l: language in ['fin', 'eng', 'spa'] ? language : 'eng'
-    }, function(err, text) {
-      if (err) console.error(err);
-
-      if (text) {
-        data = getDataFromReceipt(text, language);
-        data.text = text;
-        data.file = id;
-        res.json(data);
-      }
-      else {
-        res.json({
-          file: id
-        })
-      }
-      
-      res.end();
-    });
-  });
 });
 
 }
