@@ -11,12 +11,14 @@ const moment = require('moment');
 chai.use(chaiHttp);
 
 describe('Receipt', () => {
-  var file;
+  var file,
+      transaction;
+
   describe('/POST receipt picture', () => {
     it('should POST receipt picture', (done) => {
       chai.request(server)
       .post('/api/receipt/picture')
-      .attach('file', fs.readFileSync(__dirname+'/test.jpg'), 'test.jpg')
+      .attach('file', fs.readFileSync(__dirname+'/test2.jpg'), 'test2.jpg')
       .end((error, res) => {
         if (error) console.error(error);
         file = res.body.file;
@@ -41,20 +43,36 @@ describe('Receipt', () => {
     it('should POST receipt data', (done) => {
       chai.request(server)
       .post('/api/receipt/data/'+file)
-      .send({width: 525, height: 955, x: 30, y: 0})
+      .send({width: 1395, height: 3805, x: 5, y: 0})
       .end((error, res) => {
         if (error) console.error(error);
-        console.log(file);
-        console.log(res.body);
-        console.log(moment(res.body.date).format('LLLL'));
         res.should.have.status(200);
-        expect(res.body.metadata.total_price).to.be.equal(4.3);
-        expect(res.body.metadata.store).to.equal('KANNUKSEN APTEEKKI');
-        expect(res.body.metadata.address).to.equal('Siltakatu 6');
-        expect(res.body.items.length).to.equal(1);
-        expect(res.body.items[0].price).to.equal(4.3);
+        /*expect(res.body.transactions[0].total_price).to.be.equal(11.50);
+        expect(res.body.transactions[0].total_price_read).to.be.equal(11.50);
+        expect(res.body.transactions[0].store).to.equal('K-Supermarket Herkkuduo');
+        //expect(res.body.transactions[0].date).to.be.equal(1452697800000);
+        expect(res.body.transactions[0].street_name).to.equal('Pietilänkatu');
+        expect(res.body.transactions[0].street_number).to.equal(2);
+        expect(res.body.transactions[0].postal_code).to.equal(33720);
+        expect(res.body.transactions[0].city).to.equal('Tampere');
+        expect(res.body.transactions[0].items.length).to.equal(9);
+        //expect(res.body.transactions[0].items[0].name).to.equal('Vaasan ruispalat 300g jälkiuun');
+        expect(res.body.transactions[0].items[0].price).to.equal(1.65);*/
+        transaction = res.body.transactions[0];
         done();
       });
     }).timeout(30000);
+  });
+  describe('/POST transaction', () => {
+    it('should POST transaction', (done) => {
+      chai.request(server)
+      .post('/api/transaction')
+      .send(transaction)
+      .end((error, res) => {
+        if (error) console.error(error);
+        console.log(res);
+        done();
+      });
+    }).timeout(2000);
   });
 });

@@ -1,44 +1,54 @@
-var Model = require('objection').Model;
+import {Model} from 'objection';
+import Party from './Party';
+import Receipt from './Receipt';
+import Item from './Item';
 
-/**
- * @extends Model
- * @constructor
- */
- function Transaction() {
-	Model.apply(this, arguments);
- }
+class Transaction extends Model {
+	static get tableName() {
+		return 'Transaction';
+	}
 
- Model.extend(Transaction);
- module.exports = Transaction;
+	static get jsonSchema() {
+		return {
+			type: 'object',
 
- Transaction.tableName = 'Transaction';
+			properties: {
+				id: {type: 'integer'},
+				total_price: {type: 'decimal'},
+				total_price_read: {type: 'decimal'},
+				date: { type: 'datetime', default: new Date().toISOString() },
+			}
+		}
+	}
 
- Transaction.jsonSchema = {
- 	type: 'object',
- 	required: ['name'],
+	static get relationMappings() {
+		return {
+			party: {
+				relation: Model.BelongsToOneRelation,
+				modelClass: Party,
+				join: {
+					from: 'Transaction.partyId',
+					to: 'Party.id'
+				}
+			},
+			receipts: {
+				relation: Model.HasManyRelation,
+				modelClass: Receipt,
+				join: {
+					from: 'Transaction.id',
+					to: 'Receipt.transactionId'
+				}
+			}, 
+			items: {
+				relation: Model.HasManyRelation,
+				modelClass: Item,
+				join: {
+					from: 'Transaction.id',
+					to: 'Item.transactionId'
+				}
+			}
+		}
+	};
+}
 
- 	properties: {
- 		id: {type: 'integer'},
- 		partyId: {type: 'integer'},
- 		timestamp: { type: 'string', format: 'datetime', default: new Date().toISOString() }
- 	}
- };
-
- Transaction.relationMappings = {
- 	parties: {
- 		relation: Model.HasOneRelation,
- 		modelClass: __dirname+'/Party',
- 		join: {
- 			from: 'Transaction.partyId',
- 			to: 'Party.id'
- 		}
- 	},
- 	items: {
- 		relation: Model.HasManyRelation,
- 		modelClass: __dirname+'/Item',
- 		join: {
- 			from: 'Transaction.id',
- 			to: 'Item.id'
- 		}
- 	}
- };
+module.exports = Transaction;

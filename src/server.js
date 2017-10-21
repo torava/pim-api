@@ -14,7 +14,7 @@ import NotFoundPage from './components/NotFoundPage';
 import fs from 'fs';
 import tesseract from 'node-tesseract';
 import Knex from 'knex';
-import knexConfig from './knexfile';
+import knexConfig from '../knexfile';
 import {Model} from 'objection';
 
 const app = new Express();
@@ -57,7 +57,7 @@ app.get('*', (req, res) => {
       <App/>
     </StaticRouter>
   );
-  res.write('<!doctype html><style>'+fs.readFileSync('./node_modules/cropperjs/dist/cropper.css')+'</style><link rel="stylesheet" href="/css/style.css"><div id="app">'+html+'</div>'+"\n"+'<script src="/js/bundle.js"></script>');
+  res.write('<!doctype html><meta charset="utf8"><link rel="stylesheet" href="/css/react-table.css"><link rel="stylesheet" href="/css/cropper.css"><link rel="stylesheet" href="/css/style.css"><div id="app">'+html+'</div>'+"\n"+'<script src="/js/bundle.js"></script>');
   res.end();
 });
 

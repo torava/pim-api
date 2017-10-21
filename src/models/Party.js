@@ -1,35 +1,27 @@
-var Model = require('objection').Model;
+import {Model} from 'objection';
 
-/**
- * @extends Model
- * @constructor
- */
- function Party() {
-	Model.apply(this, arguments);
- }
+class Party extends Model {
+	static get tableName() {
+		return 'Party';
+	}
 
- Model.extend(Party);
- module.exports = Party;
+	static get jsonSchema() {
+		return {
+			type: 'object',
+			required: ['name'],
 
- Party.tableName = 'Party';
+			properties: {
+				id: {type: 'integer'},
+				name: {type: 'string', minLength: 1, maxLength: 255},
+				vat: {type: 'string', minLength: 1, maxLength: 255},
+				street_name: {type: 'string', minLength: 1, maxLength: 255},
+				street_number: {type: 'string', minLength: 1, maxLength: 255},
+				postal_code: {type: 'string', minLength: 1, maxLength: 255},
+				city: {type: 'string', minLength: 1, maxLength: 255},
+				phone_number: {type: 'string', minLength: 1, maxLength: 255}
+			}
+		}
+	}
+}
 
- Party.jsonSchema = {
- 	type: 'object',
- 	required: ['name'],
-
- 	properties: {
- 		id: {type: 'integer'},
- 		name: {type: 'string', minLength: 1, maxLength: 255}
- 	}
- };
-
- Party.relationMappings = {
- 	transactions: {
- 		relation: Model.OneToManyRelation,
- 		modelClass: __dirname+'/Transaction',
- 		join: {
- 			from: 'Party.id',
- 			to: 'Transaction.partyId'
- 		}
- 	}
- };
+module.exports = Party;

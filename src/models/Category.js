@@ -1,9 +1,9 @@
 import {Model} from 'objection';
 
-class Item extends Model {
+class Category extends Model {
 
 	static get tableName() {
-		return 'Item';
+		return 'Category';
 	}
 
 	static get jsonSchema() {
@@ -13,30 +13,18 @@ class Item extends Model {
 
 			properties: {
 				id: {type: 'integer'},
-				barcode: {type: 'string'}, 
 				name: {type: 'string', minLength: 1, maxLength: 255},
-				text: {type: 'string'},
-				price: {type: 'number'},
-				quantity: {type: 'number'}
 			}
 		}
 	}
 
 	static get relationMappings() {
 		return {
-			product: {
-				relation: Model.HasOneRelation,
-				modelClass: __dirname+'/Product',
-				join: {
-					from: 'Item.productId',
-					to: 'Product.id'
-				}
-			},
-			category: {
+			parent: {
 				relation: Model.HasOneRelation,
 				modelClass: __dirname+'/Category',
 				join: {
-					from: 'Item.categoryId',
+					from: 'Category.parentId',
 					to: 'Category.id'
 				}
 			}
@@ -44,4 +32,4 @@ class Item extends Model {
 	}
 }
 
-module.exports = Item;
+module.exports = Category;

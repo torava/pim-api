@@ -1,35 +1,22 @@
-var Model = require('objection').Model;
+import {Model} from 'objection';
 
-/**
- * @extends Model
- * @constructor
- */
- function Product() {
-	Model.apply(this, arguments);
- }
+class Product extends Model {
+	static get tableName() {
+		return 'Product';
+	}
 
- Model.extend(Product);
- module.exports = Product;
+	static get jsonSchema() {
+		return {
+			type: 'object',
+			required: ['name'],
 
- Product.tableName = 'Product';
+			properties: {
+				id: {type: 'integer'},
+				name: {type: 'string', minLength: 1, maxLength: 255},
+				serial_number: {type: 'string', minLength: 1, maxLength: 255}
+			}
+		}
+	}
+}
 
- Product.jsonSchema = {
- 	type: 'object',
- 	required: ['name'],
-
- 	properties: {
- 		id: {type: 'integer'},
- 		name: {type: 'string', minLength: 1, maxLength: 255}
- 	}
- };
-
- Product.relationMappings = {
- 	items: {
- 		relation: Model.OneToManyRelation,
- 		modelClass: __dirname+'/Item',
- 		join: {
- 			from: 'Product.id',
- 			to: 'Item.productId'
- 		}
- 	}
- };
+module.exports = Product;

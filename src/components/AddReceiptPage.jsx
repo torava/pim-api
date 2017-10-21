@@ -6,6 +6,7 @@ import {Link} from 'react-router';
 import axios from 'axios';
 import Cropper from 'react-cropper';
 import moment from 'moment';
+import { Creatable } from 'react-select';
 
 class ReceiptItem extends React.Component {
   render() {
@@ -26,6 +27,7 @@ export default class addReceiptPage extends React.Component {
     super(props);
     this.onChange = this.onChange.bind(this);
     this.onUpload = this.onUpload.bind(this);
+    this.saveReceipt = this.saveReceipt.bind(this);
     this.onItemPriceChange = this.onItemPriceChange.bind(this);
     this.onDeleteItem = this.onDeleteItem.bind(this);
     this.onAddItem = this.onAddItem.bind(this);
@@ -50,7 +52,8 @@ export default class addReceiptPage extends React.Component {
       formData.append('file', files[0]);
       axios.post('/api/receipt/picture', formData)
       .then(function(response) {
-        that.setState({id: response.data.file});
+        var transactions = [{receipts:[{id: response.data.file}]}];
+        that.setState({transactions: transactions});
       })
       .catch(function(error) {
         console.error(error);
@@ -69,7 +72,7 @@ export default class addReceiptPage extends React.Component {
 
     that.setState({});
 
-    axios.post('/api/receipts/'+this.state.transactions[0].receipts[0].id, data)
+    axios.post('/api/receipt/data/'+this.state.transactions[0].receipts[0].id, data)
     .then(function(response) {
       that.setState(response.data);
     })
@@ -119,7 +122,7 @@ export default class addReceiptPage extends React.Component {
   }
   render() {
     let that = this,
-        receiptIsRead = this.state.transactions[0].receipts[0].text,
+        receiptIsRead = this.state.transactions && this.state.transactions[0].receipts[0].text,
         receiptContent = "";
     if (receiptIsRead) {
       receiptContent = (
@@ -129,11 +132,15 @@ export default class addReceiptPage extends React.Component {
           </div>
           <div style={{float:'left'}}>
             <div className="receipt-editor" style={{float:'left'}}>
-              <div>Store name: <input type="search" value={this.state.transactions[0].party.name}/></div>
+              <div>Store Name: <input type="search" value={this.state.transactions[0].party.name}/></div>
               <div>VAT: <input type="search" value={this.state.transactions[0].party.vat}/></div>
-              <div>Street: <input type="search" value={this.state.transactions[0].party.street}/></div>
+              <div>Street:
+                <input type="search" value={this.state.transactions[0].party.street_name}/>
+                <input type="search" value={this.state.transactions[0].party.street_number}/>
+              </div>
+              <div>Postal Code: <input type="search" value={this.state.transactions[0].party.postal_code}/></div>
               <div>City: <input type="search" value={this.state.transactions[0].party.city}/></div>
-              <div>Phone number: <input type="phone" value={this.state.transactions[0].party.phone}/></div>
+              <div>Phone Number: <input type="phone" value={this.state.transactions[0].party.phone_number}/></div>
               <div>Date: <input type="datetime-local" value={this.state.transactions[0].date && moment(this.state.transactions[0].date).format('YYYY-MM-DDTHH:mm:ss')}/></div>
               <div className="receipt-items">
                 {this.state.transactions[0].items.map(function(item, i){

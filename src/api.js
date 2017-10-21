@@ -1,4 +1,4 @@
-const objection = require('objection');
+const Transaction = require('./models/Transaction');
 const multer = require('multer');
 const express = require('express');
 const tesseract = require('node-tesseract');
@@ -16,11 +16,15 @@ const upload = multer({
   limits: {fileSize: 10000000}
 }).single('file');
 
+function toTitleCase(str) {
+  return str.replace(/([^\s:\-])([^\s:\-]*)/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+}
+
 function getDataFromReceipt(text, language) {
   let line, line_name, line_product_name, line_price, line_prices, line_id,
     line_total, line_date, line_address, line_vat, total_price_computed = 0,
-    total_price, store, address, vat, date, item_price,
-    items = [], line_number = 0,
+    total_price, item_price, discount,
+    items = [], line_number = 0, data = {party:{}},
     ines = text.split("\n");
   
   /*
@@ -87,34 +91,54 @@ function getDataFromReceipt(text, language) {
 
       line_id = line.match(/^[0-9]{9}$/);
 
-      line_price = line.replace(/(.,|,)/g, '.');
+      line_price = line.replace(/(\.,|,)/g, '.');
       line_prices = line_price.match(/([0-9]+\s*\.\s*[0-9]{2})/ig);
-      line_price = line_price.match(/([0-9]+\s*\.\s*[0-9]{2})([\s|T|1]1)?$/i);
-      if (line_price) item_price = parseFloat(line_price[1].replace(/\s/g, ''));
-
-      if (line_price && line_price.index && !total_price) {
-        line_product_name = line.substring(0, line_price.index);
+      line_price = line_price.match(/([0-9]+\s*\.\s*[0-9]{2})(\-)?([\s|T|1]1)?$/i);
+      if (line_price) {
+        item_price = parseFloat(line_price[1].replace(/\s/g, ''));
+        if (line_price[2] === '-') {
+          discount = true;
+          item_price = 0-item_price;
+        }
+      }
+      
+      if (line_price && line_price.index) {
+        line_product_name = line.substring(0, line_price.index-1);
         if (line_id) {
           line_product_name = line_product_name.substring(line_id[0].length);
         };
         line_product_name = line_product_name.match(/[\u00C0-\u017F-a-z0-9 -.%\/\(\){}]+/i);
       }
 
-      line_total = line.match(/(yhteensä|yhteensa)/i);
+      line_total = line.match(/^(yhteensä|yhteensa)/i);
 
-      line_address = line.match(/[\u00C0-\u017F-a-z\/\s]+ [0-9]+/i);
+      line_address = line.match(/^([\u00C0-\u017F-a-z\/]+)\s*([0-9]+)[,|\s]*([0-9]{5})\s*([\u00C0-\u017F-a-z\/]+)$/i);
 
       line_vat = line.match(/(y-tunnus )?([0-9]{7}[-|>][0-9]{1})/);
+      if (!data.party.vat && line_vat) {
+        data.party.vat = line_vat[2];
+        continue;
+      }
 
       line_date = line.match(/(([0-9]{1,2})[\.|,]([0-9]{1,2})[\.|,]([0-9]{2,4}))(\s)?(([0-9]{1,2}:)([0-9]{1,2}:)?([0-9]{1,2})?)?/);
       if (line_date) {
-        date = Date.parse(line_date[4]+'/'+line_date[3]+'/'+line_date[2]+' '+line_date[6]);
+        data.date = Date.parse(line_date[4]+'/'+line_date[3]+'/'+line_date[2]+' '+line_date[6]);
+        continue;
       }
-      console.log(line_product_name && line_product_name[0], item_price);
+
+      line_date = line.match(/(([0-9]{1,2}:)([0-9]{1,2}:)?([0-9]{1,2})?)?(\s)?(([0-9]{1,2})\-([0-9]{1,2})\-([0-9]{2,4}))/);
+      if (line_date) {
+        data.date = Date.parse(line_date[9]+'/'+line_date[8]+'/'+line_date[7]+' '+line_date[1]);
+        continue;
+      }
+      
+      
       if (line_total && line_price && line_prices.length == 1) {
-        total_price = item_price;
+        data.total_price_read = item_price;
       }
       else if (line_product_name && line_product_name.length && line_price && 
+              line_prices.length <= 2 &&
+              (!discount || line_price[2] === '-') &&
               line_product_name[0].length > 1 &&
               line_product_name[0].match(/käteinen|kateinen|käte1nen|kate1nen|taka1s1n|takaisin|yhteensä|yhteensa/i) === null) {
         items.push({
@@ -127,13 +151,13 @@ function getDataFromReceipt(text, language) {
         items[items.length-1].id = line_id[0];
       }
       else if (line_number == 0 && line_name) {
-        store = line_name[0];
+        data.party.name = toTitleCase(line_name[0]);
       }
-      else if (!address && line_address) {
-        address = line_address[0];
-      }
-      else if (!vat && line_vat) {
-        vat = line_vat[1];
+      else if (!data.party.street_name && line_address) {
+        data.party.street_name = toTitleCase(line_address[1]);
+        data.party.street_number = line_address[2];
+        data.party.postal_code = line_address[3];
+        data.party.city = toTitleCase(line_address[4]);
       }
       line_number++;
     }
@@ -167,7 +191,7 @@ function getDataFromReceipt(text, language) {
       if (line_price) item_price = parseFloat(line_price[1].replace(/\s/g, ''));
 
       if (line_price && line_price.index && !total_price) {
-        line_product_name = line.substring(0, line_price.index);
+        line_product_name = line.substring(0, line_price.index-1);
         if (line_id) {
           line_product_name = line_product_name.substring(line_id[0].length);
         };
@@ -186,6 +210,7 @@ function getDataFromReceipt(text, language) {
       }
       
       if (line_total && line_price && line_prices.length == 1) {
+        console.log('yhteensä', line);
         total_price = item_price;
       }
       else if (line_product_name && line_product_name.length && line_price && 
@@ -211,15 +236,20 @@ function getDataFromReceipt(text, language) {
     }
   }
 
-  return {
+  data.total_price = Math.round(total_price_computed*100)/100;
+  data.items = items;
+
+  /*return {
     store: store,
     total_price_read: total_price,
-    total_price: total_price_computed,
+    total_price: Math.round(total_price_computed*100)/100,
     date: date,
     address: address,
     vat: vat,
     items: items
-  };
+  };*/
+
+  return data;
 }
 
 function extractTextFromFile(id, data, language, cb) {
@@ -234,9 +264,9 @@ function extractTextFromFile(id, data, language, cb) {
       '-type', 'grayscale',
       '-normalize',
       '-adaptive-resize', '700x',
-      '-lat', '50x50-5%',
-      '-adaptive-blur', '1',
-      '-sharpen', '0x2',
+      '-lat', '50x50-9%',
+      '-adaptive-blur', '3',
+      '-sharpen', '0x5',
       '-set', 'option:deskew:autocrop', 'true',
       '-deskew', '40%',
       '-trim',
@@ -251,9 +281,8 @@ function extractTextFromFile(id, data, language, cb) {
     if (error) console.error(error);
     process.stdout.write(stdout);
     process.stderr.write(stderr);
-
     tesseract.process(filepath+'_edited', {
-      l: language in ['fin', 'eng', 'spa'] ? language : 'eng'
+      l: ['fin', 'eng', 'spa'].indexOf(language) !== -1 ? language : 'eng'
     }, function(err, text) {
       if (err) console.error(err);
 
@@ -261,6 +290,22 @@ function extractTextFromFile(id, data, language, cb) {
     });
   });
 }
+
+app.post('/api/transaction', function(req, res) {
+  Transaction.query()
+    .insertGraph(req.body)
+    .then(transaction => {
+      res.send(transaction);
+    });
+});
+
+app.get('/api/transaction', function(req, res) {
+  Transaction.query()
+    .eager('*')
+    .then(transaction => {
+      res.send(transaction);
+    });
+});
 
 app.post('/api/receipt/picture', function(req, res) {
   upload(req, res, function(err) {
@@ -281,11 +326,12 @@ app.post('/api/receipt/picture', function(req, res) {
 
 app.post('/api/receipt/data/:id', function(req, res) {
   let data = req.body,
-      language = data.language || 'eng',
+      language = data.language || 'fin',
       id = req.params.id;
 
   extractTextFromFile(id, data, language, function(text) {
     if (text) {
+      data.transactions = [];
       data.transactions[0] = getDataFromReceipt(text, language);
       data.transactions[0].receipts = [{}];
       data.transactions[0].receipts[0].text = text;
