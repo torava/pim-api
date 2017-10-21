@@ -20,12 +20,13 @@ exports.up = function(knex, Promise) {
   })
   .createTable('Item', function(table) {
     table.increments('id').primary();
-    table.string('name');
+    table.string('barcode');
     table.string('text');
     table.decimal('price', 2);
     table.integer('quantity');
     table.integer('transactionId').unsigned().references('id').inTable('Transaction');
     table.integer('productId').unsigned().references('id').inTable('Product');
+    table.integer('categoryId').unsigned().references('id').inTable('Category');
   })
   .createTable('Receipt', function(table) {
     table.increments('id').primary();
@@ -37,6 +38,11 @@ exports.up = function(knex, Promise) {
     table.increments('id').primary();
     table.string('serial_number');
     table.string('name');
+  })
+  .createTable('Category', function(table) {
+    table.increments('id').primary();
+    table.string('name');
+    table.integer('parentId').unsigned().references('id').inTable('Category');
   });
 };
 

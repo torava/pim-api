@@ -9,12 +9,10 @@ class Item extends Model {
 	static get jsonSchema() {
 		return {
 			type: 'object',
-			required: ['name'],
 
 			properties: {
 				id: {type: 'integer'},
 				barcode: {type: 'string'}, 
-				name: {type: 'string', minLength: 1, maxLength: 255},
 				text: {type: 'string'},
 				price: {type: 'number'},
 				quantity: {type: 'number'}

@@ -11,11 +11,12 @@ import { Creatable } from 'react-select';
 class ReceiptItem extends React.Component {
   render() {
     return (<div key={this.props.i}>
-            <input type="search" class="item-id" value={this.props.item.id || ''}/>
-            <input type="search" class="item-name" value={this.props.item.name || ''}/>
-            <input type="number" class="item-price" defaultValue={this.props.item.price ? parseFloat(this.props.item.price).toFixed(2) : ''}
+            <input type="search" defaultValue={this.props.item.barcode || ''}/>
+            <Creatable value={this.props.item.product.name || ''} options={this.props.state.products} labelKey="label" valueKey="name" onChange={this.props.onItemNameChange.bind(this, this.props.i)}/>
+            <Creatable value={this.props.item.category.name || ''} options={this.props.state.categories} labelKey="label" valueKey="name" onChange={this.props.onItemCategoryChange.bind(this, this.props.i)}/>
+            <input type="number" defaultValue={this.props.item.price ? parseFloat(this.props.item.price).toFixed(2) : ''}
                                  onChange={this.props.onItemPriceChange.bind(this, this.props.i)}
-                                 step={.01}/>
+                                 step={.01} style={{width:'4em'}}/>
             <button onClick={this.props.onDeleteItem.bind(this, this.props.i)}>-</button>
             <button onClick={this.props.onAddItem.bind(this, this.props.i)}>+</button>
           </div>);  
@@ -25,13 +26,22 @@ class ReceiptItem extends React.Component {
 export default class addReceiptPage extends React.Component {
   constructor(props) {
     super(props);
+
+    let that = this;
+
     this.onChange = this.onChange.bind(this);
     this.onUpload = this.onUpload.bind(this);
     this.saveReceipt = this.saveReceipt.bind(this);
     this.onItemPriceChange = this.onItemPriceChange.bind(this);
+    this.onItemNameChange = this.onItemNameChange.bind(this);
+    this.onItemCategoryChange = this.onItemCategoryChange.bind(this);
     this.onDeleteItem = this.onDeleteItem.bind(this);
     this.onAddItem = this.onAddItem.bind(this);
-    this.state = {}
+    this.state = {
+      products: [],
+      categories: [],
+      transactions: []
+    };
   }
   onChange(event) {
     let that = this;
@@ -66,11 +76,13 @@ export default class addReceiptPage extends React.Component {
     reader.readAsDataURL(files[0]);
   }
   onUpload(event) {
+    event.preventDefault();
+
     let that = this,
         data = this.cropper.getData();
     data.language = document.getElementById('language').value;
 
-    that.setState({});
+    //that.setState({});
 
     axios.post('/api/receipt/data/'+this.state.transactions[0].receipts[0].id, data)
     .then(function(response) {
@@ -87,6 +99,35 @@ export default class addReceiptPage extends React.Component {
     })
     .catch(function(error) {
       console.error(error);
+    });
+  }
+  onItemNameChange(key, element) {
+    if (!element)
+      element = {name:''};
+
+    let transactions = this.state.transactions;
+    transactions[0].items[key].product.name = element.name;
+
+    let products = this.state.products;
+    products.push({name:element.name});
+
+    this.setState({
+      transactions: transactions,
+      products: products
+    });
+  }
+  onItemCategoryChange(key, element) {
+    if (!element)
+      element = {name:''};
+      
+    let transactions = this.state.transactions;
+    transactions[0].items[key].category.name = element.name;
+
+    let categories = this.state.categories;
+    categories.push({name:element.name});
+
+    this.setState({
+      transactions: transactions
     });
   }
   onItemPriceChange(key, event) {
@@ -122,7 +163,7 @@ export default class addReceiptPage extends React.Component {
   }
   render() {
     let that = this,
-        receiptIsRead = this.state.transactions && this.state.transactions[0].receipts[0].text,
+        receiptIsRead = this.state.transactions.length && this.state.transactions[0].receipts[0].text,
         receiptContent = "";
     if (receiptIsRead) {
       receiptContent = (
@@ -132,19 +173,27 @@ export default class addReceiptPage extends React.Component {
           </div>
           <div style={{float:'left'}}>
             <div className="receipt-editor" style={{float:'left'}}>
-              <div>Store Name: <input type="search" value={this.state.transactions[0].party.name}/></div>
-              <div>VAT: <input type="search" value={this.state.transactions[0].party.vat}/></div>
+              <div>Store Name: <input type="search" defaultValue={this.state.transactions[0].party.name}/></div>
+              <div>VAT: <input type="search" defaultValue={this.state.transactions[0].party.vat}/></div>
               <div>Street:
-                <input type="search" value={this.state.transactions[0].party.street_name}/>
-                <input type="search" value={this.state.transactions[0].party.street_number}/>
+                <input type="search" defaultValue={this.state.transactions[0].party.street_name}/>
+                <input type="search" defaultValue={this.state.transactions[0].party.street_number}/>
               </div>
-              <div>Postal Code: <input type="search" value={this.state.transactions[0].party.postal_code}/></div>
-              <div>City: <input type="search" value={this.state.transactions[0].party.city}/></div>
-              <div>Phone Number: <input type="phone" value={this.state.transactions[0].party.phone_number}/></div>
-              <div>Date: <input type="datetime-local" value={this.state.transactions[0].date && moment(this.state.transactions[0].date).format('YYYY-MM-DDTHH:mm:ss')}/></div>
+              <div>Postal Code: <input type="search" defaultValue={this.state.transactions[0].party.postal_code}/></div>
+              <div>City: <input type="search" defaultValue={this.state.transactions[0].party.city}/></div>
+              <div>Phone Number: <input type="phone" defaultValue={this.state.transactions[0].party.phone_number}/></div>
+              <div>Date: <input type="datetime-local" defaultValue={this.state.transactions[0].date && moment(this.state.transactions[0].date).format('YYYY-MM-DDTHH:mm:ss')}/></div>
               <div className="receipt-items">
                 {this.state.transactions[0].items.map(function(item, i){
-                  return <ReceiptItem i={i} item={item} onDeleteItem={that.onDeleteItem} onAddItem={that.onAddItem} onItemPriceChange={that.onItemPriceChange}/>
+                  return <ReceiptItem
+                                      i={i}
+                                      item={item}
+                                      state={that.state}
+                                      onDeleteItem={that.onDeleteItem}
+                                      onAddItem={that.onAddItem}
+                                      onItemPriceChange={that.onItemPriceChange}
+                                      onItemNameChange={that.onItemNameChange}
+                                      onItemCategoryChange={that.onItemCategoryChange}/>
                 })}
               </div>
               <div>Total: <input type="number" value={this.state.transactions[0].total_price}/> ({this.state.transactions[0].total_price_read})</div>
@@ -159,14 +208,14 @@ export default class addReceiptPage extends React.Component {
     }
     return (
       <div className="add-receipt">
-        v5
+        <form>
         <input type="file" name="file" id="file" multiple draggable onChange={this.onChange}/>
         <select placeholder="Language" name="language" id="language">
-          <option value="eng">English</option>
           <option value="fin">suomi</option>
           <option value="spa">español</option>
         </select>
         <button onClick={this.onUpload}>Submit</button>
+        </form>
         <Cropper id="cropper"
                  src={this.state.src}
                  style={{width:600,height:800}}

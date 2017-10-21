@@ -1,4 +1,6 @@
 const Transaction = require('./models/Transaction');
+const Product = require('./models/Product');
+const Category = require('./models/Category');
 const multer = require('multer');
 const express = require('express');
 const tesseract = require('node-tesseract');
@@ -20,7 +22,7 @@ function toTitleCase(str) {
   return str.replace(/([^\s:\-])([^\s:\-]*)/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
 
-function getDataFromReceipt(text, language) {
+function getDataFromReceipt(result, text, language) {
   let line, line_name, line_product_name, line_price, line_prices, line_id,
     line_total, line_date, line_address, line_vat, total_price_computed = 0,
     total_price, item_price, discount,
@@ -142,9 +144,24 @@ function getDataFromReceipt(text, language) {
               line_product_name[0].length > 1 &&
               line_product_name[0].match(/käteinen|kateinen|käte1nen|kate1nen|taka1s1n|takaisin|yhteensä|yhteensa/i) === null) {
         items.push({
-          name: line_product_name[0],
+          barcode: line_id && line_id[0].trim(),
+          text: line_product_name[0],
+          category: {},
+          product: {
+            name: line_product_name[0]
+          },
           price: item_price
         });
+
+        let found = false;
+        for (i in result.products) {
+          if (result.products[i].name === line_product_name[0]) {
+            found = true;
+            break;
+          }
+        }
+        !found && result.products.push({label: line_product_name[0], name: line_product_name[0]});
+
         if (item_price) total_price_computed+= item_price;
       }
       else if (line_id && line_id[0] && items.length) {
@@ -217,8 +234,12 @@ function getDataFromReceipt(text, language) {
               line_product_name[0].length > 1 &&
               line_product_name[0].match(/subtotal|total|suma|suna|tarjeta|vuelta|uueltu/i) === null) {
         items.push({
-          id: line_id && line_id[0].trim(),
-          name: line_product_name[0],
+          barcode: line_id && line_id[0].trim(),
+          category: {},
+          text: line_product_name[0],
+          product: {
+            name: line_product_name[0]
+          },
           price: item_price
         });
         if (item_price) total_price_computed+= item_price;
@@ -249,7 +270,9 @@ function getDataFromReceipt(text, language) {
     items: items
   };*/
 
-  return data;
+  result.transactions = [data];
+  
+  return result;
 }
 
 function extractTextFromFile(id, data, language, cb) {
@@ -261,12 +284,12 @@ function extractTextFromFile(id, data, language, cb) {
     script = script.concat(['-crop', parseInt(data.width)+'x'+parseInt(data.height)+'+'+parseInt(data.x)+'+'+parseInt(data.y)]);
 
   script = script.concat([
+      '-adaptive-resize', '700x',
       '-type', 'grayscale',
       '-normalize',
-      '-adaptive-resize', '700x',
       '-lat', '50x50-9%',
       '-adaptive-blur', '3',
-      '-sharpen', '0x5',
+      '-sharpen', '0x3',
       '-set', 'option:deskew:autocrop', 'true',
       '-deskew', '40%',
       '-trim',
@@ -307,6 +330,20 @@ app.get('/api/transaction', function(req, res) {
     });
 });
 
+app.get('/api/category', function(req, res) {
+  Category.query()
+    .then(category => {
+      res.send(category);
+    });
+});
+
+app.get('/api/product', function(req, res) {
+  Product.query()
+    .then(product => {
+      res.send(product);
+    });
+});
+
 app.post('/api/receipt/picture', function(req, res) {
   upload(req, res, function(err) {
     if (err) {
@@ -329,21 +366,29 @@ app.post('/api/receipt/data/:id', function(req, res) {
       language = data.language || 'fin',
       id = req.params.id;
 
-  extractTextFromFile(id, data, language, function(text) {
-    if (text) {
-      data.transactions = [];
-      data.transactions[0] = getDataFromReceipt(text, language);
-      data.transactions[0].receipts = [{}];
-      data.transactions[0].receipts[0].text = text;
-      data.transactions[0].receipts[0].file = id;
-      res.json(data);
-    }
-    else {
-      res.json({
-        file: id
-      })
-    }
-    res.end();
+  Category.query()
+  .then(category => {
+    data.categories = category;
+    Product.query()
+    .then(product => {
+      data.products = product;
+
+      extractTextFromFile(id, data, language, function(text) {
+        if (text) {
+          data = getDataFromReceipt(data, text, language);
+          data.transactions[0].receipts = [{}];
+          data.transactions[0].receipts[0].text = text;
+          data.transactions[0].receipts[0].file = id;
+          res.json(data);
+        }
+        else {
+          res.json({
+            file: id
+          })
+        }
+        res.end();
+      });
+    });
   });
 });
 
