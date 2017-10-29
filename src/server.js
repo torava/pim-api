@@ -57,7 +57,7 @@ app.get('*', (req, res) => {
       <App/>
     </StaticRouter>
   );
-  res.write('<!doctype html><meta charset="utf8"><link rel="stylesheet" href="/css/react-select.css"><link rel="stylesheet" href="/css/react-table.css"><link rel="stylesheet" href="/css/cropper.css"><link rel="stylesheet" href="/css/style.css"><div id="app">'+html+'</div>'+"\n"+'<script src="/js/bundle.js"></script>');
+  res.write('<!doctype html><meta charset="utf8"><link rel="stylesheet" href="/css/react-table.css"><link rel="stylesheet" href="/css/cropper.css"><link rel="stylesheet" href="/css/style.css"><div id="app">'+html+'</div>'+"\n"+'<script src="/js/bundle.js"></script>');
   res.end();
 });
 

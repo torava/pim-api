@@ -6,17 +6,16 @@ import {Link} from 'react-router';
 import axios from 'axios';
 import Cropper from 'react-cropper';
 import moment from 'moment';
-import { Creatable } from 'react-select';
 
 class ReceiptItem extends React.Component {
   render() {
     return (<div key={this.props.i}>
-            <input type="search" defaultValue={this.props.item.barcode || ''}/>
-            <Creatable value={this.props.item.product.name || ''} options={this.props.state.products} labelKey="label" valueKey="name" onChange={this.props.onItemNameChange.bind(this, this.props.i)}/>
-            <Creatable value={this.props.item.category.name || ''} options={this.props.state.categories} labelKey="label" valueKey="name" onChange={this.props.onItemCategoryChange.bind(this, this.props.i)}/>
+            <input type="search" defaultValue={this.props.item.item_number|| ''} style={{width:'10em'}}/>
+            <input type="search" list="products" value={this.props.item.product.name || ''} onChange={this.props.onItemNameChange.bind(this, this.props.i)} style={{width:'18em'}}/>
+            <input type="search" list="categories" value={this.props.item.category && this.props.item.category.name || ''} onChange={this.props.onItemCategoryChange.bind(this, this.props.i)} style={{width:'11em'}}/>
             <input type="number" defaultValue={this.props.item.price ? parseFloat(this.props.item.price).toFixed(2) : ''}
                                  onChange={this.props.onItemPriceChange.bind(this, this.props.i)}
-                                 step={.01} style={{width:'4em'}}/>
+                                 step={.01} style={{width:'5em'}}/>
             <button onClick={this.props.onDeleteItem.bind(this, this.props.i)}>-</button>
             <button onClick={this.props.onAddItem.bind(this, this.props.i)}>+</button>
           </div>);  
@@ -62,7 +61,7 @@ export default class addReceiptPage extends React.Component {
       formData.append('file', files[0]);
       axios.post('/api/receipt/picture', formData)
       .then(function(response) {
-        var transactions = [{receipts:[{id: response.data.file}]}];
+        var transactions = [{receipts:[{file: response.data.file}]}];
         that.setState({transactions: transactions});
       })
       .catch(function(error) {
@@ -84,7 +83,7 @@ export default class addReceiptPage extends React.Component {
 
     //that.setState({});
 
-    axios.post('/api/receipt/data/'+this.state.transactions[0].receipts[0].id, data)
+    axios.post('/api/receipt/data/'+this.state.transactions[0].receipts[0].file, data)
     .then(function(response) {
       that.setState(response.data);
     })
@@ -101,30 +100,21 @@ export default class addReceiptPage extends React.Component {
       console.error(error);
     });
   }
-  onItemNameChange(key, element) {
-    if (!element)
-      element = {name:''};
-
+  onItemNameChange(key, event) {
     let transactions = this.state.transactions;
-    transactions[0].items[key].product.name = element.name;
-
-    let products = this.state.products;
-    products.push({name:element.name});
+    transactions[0].items[key].product = {name: event.target.value};
 
     this.setState({
-      transactions: transactions,
-      products: products
+      transactions: transactions
     });
   }
-  onItemCategoryChange(key, element) {
-    if (!element)
-      element = {name:''};
-      
+  onItemCategoryChange(key, event) {
     let transactions = this.state.transactions;
-    transactions[0].items[key].category.name = element.name;
+    transactions[0].items[key].category = {name: event.target.value};
 
+    /* todo add
     let categories = this.state.categories;
-    categories.push({name:element.name});
+    categories.push({name:element.name}); */
 
     this.setState({
       transactions: transactions
@@ -168,8 +158,18 @@ export default class addReceiptPage extends React.Component {
     if (receiptIsRead) {
       receiptContent = (
         <div className="receipt-content">
+          <datalist id="products">
+            {this.state.products.map(function(item, i) {
+              return <option value={item.name}/>
+            })}
+          </datalist>
+          <datalist id="categories">
+            {this.state.categories.map(function(item, i) {
+              return <option value={item.name}/>
+            })}
+          </datalist>
           <div className="receipt-picture" style={{float:'left'}}>
-            <img src={"/api/receipt/picture/"+this.state.transactions[0].receipts[0].file+"?"+Date.now()} style={{width:400}}/>
+            <img src={"/api/receipt/picture/"+this.state.transactions[0].receipts[0].file+"?"+Date.now()} style={{width:300}}/>
           </div>
           <div style={{float:'left'}}>
             <div className="receipt-editor" style={{float:'left'}}>
@@ -196,7 +196,7 @@ export default class addReceiptPage extends React.Component {
                                       onItemCategoryChange={that.onItemCategoryChange}/>
                 })}
               </div>
-              <div>Total: <input type="number" value={this.state.transactions[0].total_price}/> ({this.state.transactions[0].total_price_read})</div>
+              <div>Total: <input type="number" defaultValue={this.state.transactions[0].total_price} step={.01}/> ({this.state.transactions[0].total_price_read})</div>
               <button onClick={this.saveReceipt}>Submit</button>
             </div>
             <div className="receipt-text" style={{float:'left'}}>

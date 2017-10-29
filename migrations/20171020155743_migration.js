@@ -20,7 +20,7 @@ exports.up = function(knex, Promise) {
   })
   .createTable('Item', function(table) {
     table.increments('id').primary();
-    table.string('barcode');
+    table.string('item_number');
     table.string('text');
     table.decimal('price', 2);
     table.integer('quantity');
@@ -36,7 +36,7 @@ exports.up = function(knex, Promise) {
   })
   .createTable('Product', function(table) {
     table.increments('id').primary();
-    table.string('serial_number');
+    table.string('product_number');
     table.string('name');
   })
   .createTable('Category', function(table) {

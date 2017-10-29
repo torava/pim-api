@@ -12,7 +12,7 @@ class Item extends Model {
 
 			properties: {
 				id: {type: 'integer'},
-				barcode: {type: 'string'}, 
+				item_number: {type: 'string'}, 
 				text: {type: 'string'},
 				price: {type: 'number'},
 				quantity: {type: 'number'}
@@ -23,7 +23,7 @@ class Item extends Model {
 	static get relationMappings() {
 		return {
 			product: {
-				relation: Model.HasOneRelation,
+				relation: Model.BelongsToOneRelation,
 				modelClass: __dirname+'/Product',
 				join: {
 					from: 'Item.productId',
@@ -31,7 +31,7 @@ class Item extends Model {
 				}
 			},
 			category: {
-				relation: Model.HasOneRelation,
+				relation: Model.BelongsToOneRelation,
 				modelClass: __dirname+'/Category',
 				join: {
 					from: 'Item.categoryId',

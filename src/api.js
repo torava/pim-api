@@ -18,14 +18,26 @@ const upload = multer({
   limits: {fileSize: 10000000}
 }).single('file');
 
+function parseYear(year) {
+  if (year.length == 2) {
+    if (year > new Date().getFullYear().toString().substr(-2)) {
+      year = '19'+year;
+    }
+    else {
+      year = '20'+year;
+    }
+  }
+  return year;
+}
 function toTitleCase(str) {
   return str.replace(/([^\s:\-])([^\s:\-]*)/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
 
 function getDataFromReceipt(result, text, language) {
-  let line, line_name, line_product_name, line_price, line_prices, line_id,
-    line_total, line_date, line_address, line_vat, total_price_computed = 0,
-    total_price, item_price, discount,
+  let line, line_name, line_product_name, line_price, line_prices,
+    line_total, line_date, line_address, line_vat, line_item_details, quantity,
+    line_number_format, total_price_computed = 0, name, line_item, line_phone_number,
+    total_price, price, has_discount, previous_line, found_attribute,
     items = [], line_number = 0, data = {party:{}},
     ines = text.split("\n");
   
@@ -86,12 +98,181 @@ function getDataFromReceipt(result, text, language) {
     for (let i in ines) {
       line_product_name = null;
 
-      line = ines[i].trim().replace(/—/g, '-');
-      if (line.length <= 1) continue;
-      line_name = line.match(/[\u00C0-\u017F-a-z0-9 -.%\/]+/i);
-      if (!line_name || line_name[0].length <= 1) continue;
+      found_attribute = null;
 
-      line_id = line.match(/^[0-9]{9}$/);
+      line = ines[i].trim().replace(/—/g, '-');
+      line_number_format = line.replace(/\s*(\.,|\,)\s*/g, '.');
+
+      if (line.length <= 1) continue;
+      line_name = line.match(/^[\u00C0-\u017F-a-z0-9\s\-\.%\/]+$/i);
+      //if (!line_name || line_name[0].length <= 1) continue;
+
+      line_number++;
+
+      // Attributes to find only once
+      if (!data.party.vat) {
+        line_vat = line.match(/[0-9]{7}[-|>][0-9]{1}/);
+        if (line_vat) {
+          data.party.vat = line_vat[0];
+
+          found_attribute = 'party.vat';
+        }
+      }
+
+      if (!data.party.phone_number) {
+        line_phone_number = line.replace(/\s/g, '').match(/[0-9]{10}|\+[0-9]{12}/);
+        if (line_phone_number) {
+          data.party.phone_number = line_phone_number[0];
+
+          found_attribute = 'party.phone_number';
+        }
+      }
+
+      if (!data.date) {
+        // 1.1.12 1:12
+        line_date = line.match(/(([0-9]{1,2})[\.|,]([0-9]{1,2})[\.|,]([0-9]{2,4}))(\s)?(([0-9]{1,2}:)([0-9]{1,2}:)?([0-9]{1,2})?)?/);
+        if (line_date) {
+          data.date = Date.parse(parseYear(line_date[4])+'/'+line_date[3]+'/'+line_date[2]+' '+line_date[6]);
+
+          found_attribute = 'date';
+        }
+
+        // 1:12 1-1-12
+        line_date = line.match(/(([0-9]{1,2}:)([0-9]{1,2}:)?([0-9]{1,2})?)?(\s)?(([0-9]{1,2})\-([0-9]{1,2})\-([0-9]{2,4}))/);
+        if (line_date) {
+          data.date = Date.parse(parseYear(line_date[9])+'/'+line_date[8]+'/'+line_date[7]+' '+line_date[1]);
+
+          found_attribute = 'date';
+        }
+      }
+
+      if (!data.party.street_name) {
+        line_address = line.match(/^([\u00C0-\u017F-a-z\/]+)\s?([0-9]+)[,|.]?\s?([0-9]{5})[,|.]?\s?([\u00C0-\u017F-a-z\/]+)$/i);
+        if (line_address) {
+          data.party.street_name = toTitleCase(line_address[1]);
+          data.party.street_number = line_address[2];
+          data.party.postal_code = line_address[3];
+          data.party.city = toTitleCase(line_address[4]);
+
+          found_attribute = 'party.street_name';
+          continue;
+        }
+      }
+
+      if (found_attribute) {
+        previous_line = found_attribute;
+        continue;
+      }
+
+      /*price_re = /([0-9]+\s*[\.|\,|\,\.]\s*[0-9]{2})(\-)?\s?/;
+      name_re = /[\u00C0-\u017F-a-z0-9 -.%\/\(\){}]/;
+      id_re = /[0-9]+(?=\s)/;
+      quantity_re = /([0-9]+\s*[\.|\,|\,\.]\s*[0-9]{3})(\s?kg)?\sx\s(([0-9]+\s*[\.|\,|\,\.]\s*[0-9]{2})\s?)(\s?EUR\/kg)?/;
+      line_item_re = '('+id_re+')?('+name_re+')('+price_re+'){1,2}[\s|T|1|A|B]?$';
+      line_id_re = '('+id_re+')('+quantity_re+')?';*/
+
+      // store name
+      if (line_number == 1 && line_name) {
+        data.party.name = toTitleCase(line_name[0]);
+
+        previous_line = 'party.name';
+        continue;
+      }
+
+      // general attributes
+
+      // total line
+      line_total = line_number_format.match(/^(yhteensä|yhteensa).*[^0-9](([0-9]+\.[0-9]{2})(\-)?\s)?(([0-9]+\.[0-9]{2})(\-)?)$/i);
+      if (line_total) {
+        if (line_total[2]) continue;
+
+        price = parseFloat(line_total[6]);
+        
+        if (price[7] === '-') {
+          has_discount = true;
+          price = 0-price;
+        }
+
+        data.total_price_read = price;
+        previous_line = 'total_price';
+        continue;
+      }
+
+      // serial number line
+      if (previous_line === 'item' && previous_line === 'details') {
+        line_item_details = line.match(/^[0-9]+$/);
+
+        if (line_item_details) {
+          items[items.length-1].item_number = line;
+
+          previous_line = 'details';
+          continue;
+        }
+      }
+      
+      // details line
+      line_item_details = null;
+      console.log(previous_line, line);
+      if (previous_line === 'item') {
+        // 1234 1,000 x 1,00
+        line_item_details = line_number_format.match(/^(([0-9]+)\s)?((([0-9]+\.[0-9]{2,3})(\s?kg)?\s?x\s?)?(([0-9]+\.[0-9]{2})\s?)(\s?EUR\/kg)?)$/i);
+
+        if (line_item_details) {
+          items[items.length-1].item_number = line_item_details[2];
+          items[items.length-1].quantity = parseFloat(line_item_details[7]);
+          previous_line = 'details';
+          continue;
+        }
+      }
+      
+      // item line
+      if (!has_discount && !data.total_price_read) {
+        line_price = line_number_format.match(/\s(([0-9]+\.[0-9]{2})(\-)?\s?){1,2}([\s|T|1|A|B|8])?$/i);
+        if (line_price) {
+          line_item = line.substring(0, line_price.index).match(/^(([0-9]+)\s)?([\u00C0-\u017F-a-z0-9\s\-\.%\/\(\)\{\}]+)$/i);
+          if (line_item) {
+            price = parseFloat(line_price[1]);
+            name = line_item[3];
+
+            if (line_price[3] === '-') {
+              has_discount = true;
+              price = 0-price;
+            }
+
+            items.push({
+              item_number: line_item[2] || '',
+              text: line_item[0],
+              //category: {},
+              product: {
+                name: name
+              },
+              price: price,
+              quantity: quantity
+            });
+
+            let found = false;
+            for (i in result.products) {
+              if (result.products[i].name === name) {
+                found = true;
+                break;
+              }
+            }
+            !found && result.products.push({label: name, name: name});
+
+            if (price) total_price_computed+= price;
+
+            previous_line = 'item';
+            continue;
+          }
+        }
+      }
+      
+      /*// General attributes recognization
+      line_id = line.match(/^([0-9]+)\s([\u00C0-\u017F-a-z0-9 -.%\/\(\){}]+)\s([0-9]+\s*\.\s*[0-9])(\-)?\s([0-9]+\s*\.\s*[0-9])(\-)?\s([0-9]+\s*\.\s*[0-9])(\-)?([\s|T|1]1)?$/);
+
+      line_id = line.match(/^([0-9]+(?=\s))?(([0-9]+\s*\.\s*[0-9]{3})(\-)?\s?)(\skg)?\sx\s(([0-9]+\s*\.\s*[0-9]{2})(\-)?\s?)\s(EUR\/kg)/i);
+
+      line.match(/^([0-9]+(?=\s))?([\u00C0-\u017F-a-z0-9\s\-%\/\(\){}]+)(([0-9]+\s*\.\s*[0-9]{2})(\-)?\s?){1,2}[\s|T|1|A|B]?$/i);
 
       line_price = line.replace(/(\.,|,)/g, '.');
       line_prices = line_price.match(/([0-9]+\s*\.\s*[0-9]{2})/ig);
@@ -99,7 +280,7 @@ function getDataFromReceipt(result, text, language) {
       if (line_price) {
         item_price = parseFloat(line_price[1].replace(/\s/g, ''));
         if (line_price[2] === '-') {
-          discount = true;
+          has_discount = true;
           item_price = 0-item_price;
         }
       }
@@ -109,44 +290,26 @@ function getDataFromReceipt(result, text, language) {
         if (line_id) {
           line_product_name = line_product_name.substring(line_id[0].length);
         };
+        console.log(line_id, line_price, line_product_name);
         line_product_name = line_product_name.match(/[\u00C0-\u017F-a-z0-9 -.%\/\(\){}]+/i);
       }
 
       line_total = line.match(/^(yhteensä|yhteensa)/i);
-
-      line_address = line.match(/^([\u00C0-\u017F-a-z\/]+)\s*([0-9]+)[,|\s]*([0-9]{5})\s*([\u00C0-\u017F-a-z\/]+)$/i);
-
-      line_vat = line.match(/(y-tunnus )?([0-9]{7}[-|>][0-9]{1})/);
-      if (!data.party.vat && line_vat) {
-        data.party.vat = line_vat[2];
-        continue;
-      }
-
-      line_date = line.match(/(([0-9]{1,2})[\.|,]([0-9]{1,2})[\.|,]([0-9]{2,4}))(\s)?(([0-9]{1,2}:)([0-9]{1,2}:)?([0-9]{1,2})?)?/);
-      if (line_date) {
-        data.date = Date.parse(line_date[4]+'/'+line_date[3]+'/'+line_date[2]+' '+line_date[6]);
-        continue;
-      }
-
-      line_date = line.match(/(([0-9]{1,2}:)([0-9]{1,2}:)?([0-9]{1,2})?)?(\s)?(([0-9]{1,2})\-([0-9]{1,2})\-([0-9]{2,4}))/);
-      if (line_date) {
-        data.date = Date.parse(line_date[9]+'/'+line_date[8]+'/'+line_date[7]+' '+line_date[1]);
-        continue;
-      }
       
-      
+      // General attributes setting
       if (line_total && line_price && line_prices.length == 1) {
         data.total_price_read = item_price;
+        previous_line = 'total_price';
       }
       else if (line_product_name && line_product_name.length && line_price && 
               line_prices.length <= 2 &&
-              (!discount || line_price[2] === '-') &&
+              (!has_discount || line_price[2] === '-') &&
               line_product_name[0].length > 1 &&
               line_product_name[0].match(/käteinen|kateinen|käte1nen|kate1nen|taka1s1n|takaisin|yhteensä|yhteensa/i) === null) {
         items.push({
-          barcode: line_id && line_id[0].trim(),
+          barcode: line_id && line_id[0].trim() || '',
           text: line_product_name[0],
-          category: {},
+          //category: {},
           product: {
             name: line_product_name[0]
           },
@@ -163,20 +326,22 @@ function getDataFromReceipt(result, text, language) {
         !found && result.products.push({label: line_product_name[0], name: line_product_name[0]});
 
         if (item_price) total_price_computed+= item_price;
+
+        previous_line = 'item';
       }
-      else if (line_id && line_id[0] && items.length) {
+      else if (previous_line === 'item' && line_id && line_id[0] && items.length) {
         items[items.length-1].id = line_id[0];
+
+        previous_line = 'item.id';
       }
-      else if (line_number == 0 && line_name) {
+      else if (line_number == 1 && line_name) {
         data.party.name = toTitleCase(line_name[0]);
+
+        previous_line = 'party.name';
       }
-      else if (!data.party.street_name && line_address) {
-        data.party.street_name = toTitleCase(line_address[1]);
-        data.party.street_number = line_address[2];
-        data.party.postal_code = line_address[3];
-        data.party.city = toTitleCase(line_address[4]);
-      }
-      line_number++;
+      else {
+        previous_line = null;
+      }*/
     }
   }
   /* español, Argentina
@@ -287,7 +452,7 @@ function extractTextFromFile(id, data, language, cb) {
       '-adaptive-resize', '700x',
       '-type', 'grayscale',
       '-normalize',
-      '-lat', '50x50-9%',
+      '-lat', '50x50-7%',
       '-adaptive-blur', '3',
       '-sharpen', '0x3',
       '-set', 'option:deskew:autocrop', 'true',
@@ -324,7 +489,7 @@ app.post('/api/transaction', function(req, res) {
 
 app.get('/api/transaction', function(req, res) {
   Transaction.query()
-    .eager('*')
+    .eager('[items.[product, category], party, receipts]')
     .then(transaction => {
       res.send(transaction);
     });

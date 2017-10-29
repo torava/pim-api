@@ -8,7 +8,8 @@ import ReactTable from 'react-table';
 const transaction_columns = [
   {
     Header: 'Date',
-    accessor: 'date'
+    accessor: 'date',
+    Cell: props => <span>{new Date(props.value).toLocaleString()}</span>
   },
   {
     Header: 'Store',
@@ -24,7 +25,13 @@ const transaction_columns = [
 const item_columns = [
   {
     Header: 'Name',
-    accessor: 'name'
+    accessor: d => d.product.name,
+    id: 'product_name'
+  },
+  {
+    Header: 'Category',
+    accessor: d => d.category && d.category.name,
+    id: 'category_name'
   },
   {
     Header: 'Price',

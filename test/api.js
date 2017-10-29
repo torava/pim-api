@@ -47,17 +47,18 @@ describe('Receipt', () => {
       .end((error, res) => {
         if (error) console.error(error);
         res.should.have.status(200);
-        /*expect(res.body.transactions[0].total_price).to.be.equal(11.50);
+        console.log(JSON.stringify(res.body, null, '  '));
+        expect(res.body.transactions[0].total_price).to.be.equal(11.50);
         expect(res.body.transactions[0].total_price_read).to.be.equal(11.50);
-        expect(res.body.transactions[0].store).to.equal('K-Supermarket Herkkuduo');
+        expect(res.body.transactions[0].party.name).to.equal('K-Supermarket Herkkuduo');
         //expect(res.body.transactions[0].date).to.be.equal(1452697800000);
-        expect(res.body.transactions[0].street_name).to.equal('Pietilänkatu');
-        expect(res.body.transactions[0].street_number).to.equal(2);
-        expect(res.body.transactions[0].postal_code).to.equal(33720);
-        expect(res.body.transactions[0].city).to.equal('Tampere');
+        expect(res.body.transactions[0].party.street_name).to.equal('Pietilänkatu');
+        expect(res.body.transactions[0].party.street_number).to.equal('2');
+        expect(res.body.transactions[0].party.postal_code).to.equal('33720');
+        expect(res.body.transactions[0].party.city).to.equal('Tampere');
         expect(res.body.transactions[0].items.length).to.equal(9);
         //expect(res.body.transactions[0].items[0].name).to.equal('Vaasan ruispalat 300g jälkiuun');
-        expect(res.body.transactions[0].items[0].price).to.equal(1.65);*/
+        expect(res.body.transactions[0].items[0].price).to.equal(1.65);
         transaction = res.body.transactions[0];
         done();
       });
@@ -70,7 +71,6 @@ describe('Receipt', () => {
       .send(transaction)
       .end((error, res) => {
         if (error) console.error(error);
-        console.log(res);
         done();
       });
     }).timeout(2000);
