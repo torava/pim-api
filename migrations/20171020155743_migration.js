@@ -24,9 +24,10 @@ exports.up = function(knex, Promise) {
     table.string('text');
     table.decimal('price', 2);
     table.integer('quantity');
+    table.float('measure');
+    table.string('unit');
     table.integer('transactionId').unsigned().references('id').inTable('Transaction');
     table.integer('productId').unsigned().references('id').inTable('Product');
-    table.integer('categoryId').unsigned().references('id').inTable('Category');
   })
   .createTable('Receipt', function(table) {
     table.increments('id').primary();
@@ -38,11 +39,30 @@ exports.up = function(knex, Promise) {
     table.increments('id').primary();
     table.string('product_number');
     table.string('name');
+    table.integer('manufacturerId').unsigned().references('id').inTable('Manufacturer');
+    table.integer('categoryId').unsigned().references('id').inTable('Category');
+  })
+  .createTable('Manufacturer', function(table) {
+    table.increments('id').primary();
+    table.string('name');
+    table.string('factory_location');
+    table.string('manufacturer_location');
+    table.integer('ownerId').unsigned().references('id').inTable('Manufacturer');
   })
   .createTable('Category', function(table) {
     table.increments('id').primary();
     table.string('name');
     table.integer('parentId').unsigned().references('id').inTable('Category');
+  })
+  .createTable('ProductAttribute', function(table) {
+    table.string('name');
+    table.float('value');
+    table.integer('productId').unsigned().references('id').inTable('Product');
+  })
+  .createTable('CategoryAttribute', function(table) {
+    table.string('name');
+    table.float('value');
+    table.integer('categoryId').unsigned().references('id').inTable('Category');
   });
 };
 
@@ -52,5 +72,9 @@ exports.down = function(knex) {
     .dropTableIfExists('Party')
     .dropTableIfExists('Item')
     .dropTableIfExists('Receipt')
-    .dropTableIfExists('Product');
+    .dropTableIfExists('Product')
+    .dropTableIfExists('Manufacturer')
+    .dropTableIfExists('Category')
+    .dropTableIfExists('ProductAttribute')
+    .dropTableIfExists('CategoryAttribute');
 };

@@ -15,7 +15,9 @@ class Item extends Model {
 				item_number: {type: 'string'}, 
 				text: {type: 'string'},
 				price: {type: 'number'},
-				quantity: {type: 'number'}
+				quantity: {type: 'number'},
+				measure: {type: 'number'},
+				unit: {type: 'string'}
 			}
 		}
 	}
@@ -28,14 +30,6 @@ class Item extends Model {
 				join: {
 					from: 'Item.productId',
 					to: 'Product.id'
-				}
-			},
-			category: {
-				relation: Model.BelongsToOneRelation,
-				modelClass: __dirname+'/Category',
-				join: {
-					from: 'Item.categoryId',
-					to: 'Category.id'
 				}
 			}
 		}

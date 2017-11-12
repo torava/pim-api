@@ -1,9 +1,9 @@
 import {Model} from 'objection';
 
-class Category extends Model {
+class Manufacturer extends Model {
 
 	static get tableName() {
-		return 'Category';
+		return 'Manufacturer';
 	}
 
 	static get jsonSchema() {
@@ -14,30 +14,24 @@ class Category extends Model {
 			properties: {
 				id: {type: 'integer'},
 				name: {type: 'string', minLength: 1, maxLength: 255},
+        factory_location: {type: 'string', minLength: 1, maxLength: 255},
+        headquarters_location: {type: 'string', minLength: 1, maxLength: 255}
 			}
 		}
 	}
 
 	static get relationMappings() {
 		return {
-			attributes: {
-				relation:	Model.HasManyRelation,
-				modelClass: __dirname+'/CategoryAttribute',
-				join: {
-					from: 'Category.id',
-					to: 'CategoryAttribute.categoryId'
-				}
-			},
 			parent: {
 				relation: Model.BelongsToOneRelation,
-				modelClass: __dirname+'/Category',
+				modelClass: __dirname+'/Manufacturer',
 				join: {
-					from: 'Category.parentId',
-					to: 'Category.id'
+					from: 'Manufacturer.ownerId',
+					to: 'Manufacturer.id'
 				}
 			}
 		}
 	}
 }
 
-module.exports = Category;
+module.exports = Manufacturer;

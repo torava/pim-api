@@ -10,15 +10,50 @@ import moment from 'moment';
 class ReceiptItem extends React.Component {
   render() {
     return (<div key={this.props.i}>
-            <input type="search" defaultValue={this.props.item.item_number|| ''} style={{width:'10em'}}/>
-            <input type="search" list="products" value={this.props.item.product.name || ''} onChange={this.props.onItemNameChange.bind(this, this.props.i)} style={{width:'18em'}}/>
-            <input type="search" list="categories" value={this.props.item.category && this.props.item.category.name || ''} onChange={this.props.onItemCategoryChange.bind(this, this.props.i)} style={{width:'11em'}}/>
+            <input type="search" value={this.props.item.item_number || ''}
+                                 onChange={this.props.onItemNumberChange.bind(this, this.props.i)}
+                                 style={{width:'10em'}}/>
+            <input type="search" value={this.props.item.quantity || ''}
+                                 onChange={this.props.onQuantityChange.bind(this, this.props.i)}
+                                 style={{width:'5em'}}/>
+            <input type="search" value={this.props.item.measure || ''}
+                                 onChange={this.props.onMeasureChange.bind(this, this.props.i)}
+                                 style={{width:'5em'}}/>
+            <select onChange={this.props.onUnitChange.bind(this, this.props.i)}>
+              <option value="g">g</option>
+              <option value="kg">kg</option>
+              <option value="l">l</option>
+            </select>
+            <input type="search" list="products"
+                                 value={this.props.item.product.name || ''}
+                                 onChange={this.props.onItemNameChange.bind(this, this.props.i)}
+                   style={{width:'18em'}}/>
+            <input type="search" list="categories"
+                                 value={this.props.item.category && this.props.item.category.name || ''}
+                                 onChange={this.props.onItemCategoryChange.bind(this, this.props.i)}
+                                 style={{width:'11em'}}/>
             <input type="number" defaultValue={this.props.item.price ? parseFloat(this.props.item.price).toFixed(2) : ''}
                                  onChange={this.props.onItemPriceChange.bind(this, this.props.i)}
                                  step={.01} style={{width:'5em'}}/>
             <button onClick={this.props.onDeleteItem.bind(this, this.props.i)}>-</button>
-            <button onClick={this.props.onAddItem.bind(this, this.props.i)}>+</button>
-          </div>);  
+            <button onClick={this.props.onAddItem.bind(this, this.props.i)}>+</button><br/>
+            <input type="search" list="manufacturers"
+                                 value={this.props.item.product.manufacturer || this.props.item.product.manufacturer.name || ''}
+                                 onChange={this.props.onItemManufacturerChange.bind(this, this.props.i)}/>
+            Measurements<br/>
+            L<input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'length')}/>x
+            W<input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'width')}/>x
+            H<input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'height')}/><br/>
+            Nutrion<br/>
+            Energy <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'energy')}/> kcal<br/>
+            Carbohydrate <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'carbohydrate')}/> g<br/>
+            Protein <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'protein')}/> g<br/>
+            Fat <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'fat')}/> g<br/>
+            Fiber <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'fiber')}/> g<br/>
+            Environment<br/>
+            CO2 <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'co2')}/>
+            Methane <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'methane')}/>
+          </div>);
   }
 }
 
@@ -31,13 +66,21 @@ export default class addReceiptPage extends React.Component {
     this.onChange = this.onChange.bind(this);
     this.onUpload = this.onUpload.bind(this);
     this.saveReceipt = this.saveReceipt.bind(this);
+    this.onMeasureChange = this.onMeasureChange.bind(this);
+    this.onUnitChange = this.onUnitChange.bind(this);
     this.onItemPriceChange = this.onItemPriceChange.bind(this);
+    this.onItemAttributeChange = this.onItemAttributeChange.bind(this);
     this.onItemNameChange = this.onItemNameChange.bind(this);
     this.onItemCategoryChange = this.onItemCategoryChange.bind(this);
     this.onDeleteItem = this.onDeleteItem.bind(this);
     this.onAddItem = this.onAddItem.bind(this);
+    this.onFlipLeft = this.onFlipLeft.bind(this);
+    this.onFlipRight = this.onFlipRight.bind(this);
+    this.onRotate = this.onRotate.bind(this);
     this.state = {
       products: [],
+      rotate: 0,
+      rotate_adjust: 0,
       categories: [],
       transactions: []
     };
@@ -100,9 +143,27 @@ export default class addReceiptPage extends React.Component {
       console.error(error);
     });
   }
+  onItemNumberChange(key, event) {
+    let transactions = this.state.transactions;
+    transactions[0].items[key].item_number = event.target.value;
+
+    this.setState({
+      transactions: transactions
+    });
+  }
   onItemNameChange(key, event) {
     let transactions = this.state.transactions;
     transactions[0].items[key].product = {name: event.target.value};
+
+    this.setState({
+      transactions: transactions
+    });
+  }
+  onItemAttributeChange(key, attribute, event) {
+    let transactions = this.state.transactions,
+        attributes = transactions[0].items[key].product_attributes || [];
+        
+    attributes.push({name: attribute, value: event.target.value});
 
     this.setState({
       transactions: transactions
@@ -119,6 +180,35 @@ export default class addReceiptPage extends React.Component {
     this.setState({
       transactions: transactions
     });
+  }
+  onFlipLeft(event) {
+    let rotate = this.state.rotate-90;
+    this.setState({rotate:rotate});
+
+    rotate = rotate+this.state.rotate_adjust;
+    if (rotate < 0) rotate = 360+rotate%360;
+
+    this.cropper.rotateTo(rotate);
+  }
+  onFlipRight(event) {
+    let rotate = this.state.rotate+90;
+    this.setState({rotate:rotate});
+
+    rotate = rotate+this.state.rotate_adjust;
+    if (rotate < 0) rotate = 360+rotate%360;
+
+    this.cropper.rotateTo(rotate); 
+  }
+  onRotate(event) {
+    let rotate_adjust = parseInt(event.target.value);
+    this.setState({rotate_adjust:rotate_adjust});   
+
+    let rotate = this.state.rotate+rotate_adjust;
+    if (rotate < 0) rotate = 360+rotate%360;
+
+    console.log(rotate);
+
+    this.cropper.rotateTo(rotate);
   }
   onItemPriceChange(key, event) {
     let transactions = this.state.transactions;
@@ -216,6 +306,9 @@ export default class addReceiptPage extends React.Component {
         </select>
         <button onClick={this.onUpload}>Submit</button>
         </form>
+        <button onClick={this.onFlipLeft}>Flip Left</button>
+        <input type="range" min="-45" max="45" onChange={this.onRotate}/>
+        <button onClick={this.onFlipRight}>Flip Right</button>
         <Cropper id="cropper"
                  src={this.state.src}
                  style={{width:600,height:800}}
