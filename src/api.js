@@ -1,6 +1,7 @@
 const Transaction = require('./models/Transaction');
 const Product = require('./models/Product');
 const Category = require('./models/Category');
+const Manufacturer = require('./models/Manufacturer');
 const multer = require('multer');
 const express = require('express');
 const tesseract = require('node-tesseract');
@@ -36,6 +37,8 @@ function toTitleCase(str) {
 }
 
 function getDataFromReceipt(result, text, language) {
+  text = text.replace(/ﬂ|»/g, '').replace(/—/g, '-');
+
   let line, line_name, line_product_name, line_price, line_prices, item_number, line_text,
     line_total, line_date, line_address, line_vat, line_item_details, quantity,
     line_number_format, total_price_computed = 0, name, line_item, line_phone_number,
@@ -45,7 +48,7 @@ function getDataFromReceipt(result, text, language) {
 
   let ines = [];
   for (let i in lines) {
-    line = lines[i].trim().replace(/—/g, '-');
+    line = lines[i].trim();
     if (line.length > 1) {
       ines.push(line);
     }
@@ -110,7 +113,7 @@ function getDataFromReceipt(result, text, language) {
 
       found_attribute = null;
 
-      line = ines[i].trim().replace(/—/g, '-');
+      line = ines[i].trim();
       line_number_format = line.replace(/\s*(\.,|\,)\s*/g, '.');
 
       if (line.length <= 1) continue;
@@ -593,9 +596,9 @@ function extractTextFromFile(id, data, language, cb) {
   script = script.concat([
       '-adaptive-resize', '700x',
       '-contrast-stretch', '0',
-      '-lat', '50x50-12%',
-      '-adaptive-blur', '2',
-      '-sharpen', '0x4',
+      '-lat', language == 'spa' ? '50x50-3%' : '50x50-7%',
+      '-adaptive-blur', '1',
+      '-sharpen', '0x3',
       '-set', 'option:deskew:autocrop', 'true',
       '-deskew', '40%',
       '-trim',
@@ -679,20 +682,25 @@ app.post('/api/receipt/data/:id', function(req, res) {
     .then(product => {
       data.products = product;
 
-      extractTextFromFile(id, data, language, function(text) {
-        if (text) {
-          data = getDataFromReceipt(data, text, language);
-          data.transactions[0].receipts = [{}];
-          data.transactions[0].receipts[0].text = text;
-          data.transactions[0].receipts[0].file = id;
-          res.json(data);
-        }
-        else {
-          res.json({
-            file: id
-          })
-        }
-        res.end();
+      Manufacturer.query()
+      .then(manufacturer => {
+        data.manufacturers = manufacturer;
+
+        extractTextFromFile(id, data, language, function(text) {
+          if (text) {
+            data = getDataFromReceipt(data, text, language);
+            data.transactions[0].receipts = [{}];
+            data.transactions[0].receipts[0].text = text;
+            data.transactions[0].receipts[0].file = id;
+            res.json(data);
+          }
+          else {
+            res.json({
+              file: id
+            })
+          }
+          res.end();
+        });
       });
     });
   });

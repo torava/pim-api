@@ -32,7 +32,7 @@ class Product extends Model {
 				relation: Model.BelongsToOneRelation,
 				modelClass: __dirname+'/Category',
 				join: {
-					from: 'Item.categoryId',
+					from: 'Product.categoryId',
 					to: 'Category.id'
 				}
 			},

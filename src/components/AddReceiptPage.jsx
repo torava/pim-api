@@ -14,12 +14,12 @@ class ReceiptItem extends React.Component {
                                  onChange={this.props.onItemNumberChange.bind(this, this.props.i)}
                                  style={{width:'10em'}}/>
             <input type="search" value={this.props.item.quantity || ''}
-                                 onChange={this.props.onQuantityChange.bind(this, this.props.i)}
+                                 onChange={this.props.onItemQuantityChange.bind(this, this.props.i)}
                                  style={{width:'5em'}}/>
             <input type="search" value={this.props.item.measure || ''}
-                                 onChange={this.props.onMeasureChange.bind(this, this.props.i)}
+                                 onChange={this.props.onItemMeasureChange.bind(this, this.props.i)}
                                  style={{width:'5em'}}/>
-            <select onChange={this.props.onUnitChange.bind(this, this.props.i)}>
+            <select onChange={this.props.onItemUnitChange.bind(this, this.props.i)}>
               <option value="g">g</option>
               <option value="kg">kg</option>
               <option value="l">l</option>
@@ -37,22 +37,31 @@ class ReceiptItem extends React.Component {
                                  step={.01} style={{width:'5em'}}/>
             <button onClick={this.props.onDeleteItem.bind(this, this.props.i)}>-</button>
             <button onClick={this.props.onAddItem.bind(this, this.props.i)}>+</button><br/>
-            <input type="search" list="manufacturers"
-                                 value={this.props.item.product.manufacturer || this.props.item.product.manufacturer.name || ''}
-                                 onChange={this.props.onItemManufacturerChange.bind(this, this.props.i)}/>
-            Measurements<br/>
-            L<input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'length')}/>x
-            W<input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'width')}/>x
-            H<input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'height')}/><br/>
-            Nutrion<br/>
-            Energy <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'energy')}/> kcal<br/>
-            Carbohydrate <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'carbohydrate')}/> g<br/>
-            Protein <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'protein')}/> g<br/>
-            Fat <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'fat')}/> g<br/>
-            Fiber <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'fiber')}/> g<br/>
-            Environment<br/>
-            CO2 <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'co2')}/>
-            Methane <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'methane')}/>
+            <div onClick={this.props.toggle.bind(this, 'details-'+this.props.i)}>Details</div>
+            <div id={'details-'+this.props.i} style={{display:'none'}}>
+              Manufacturer <input type="search" list="manufacturers"
+                                  value={this.props.item.product.manufacturer && this.props.item.product.manufacturer.name || ''}
+                                  onChange={this.props.onItemManufacturerChange.bind(this, this.props.i)}/><br/>
+              <div onClick={this.props.toggle.bind(this, 'measurements-'+this.props.i)}>Measurements</div>
+              <div id={'measurements-'+this.props.i} style={{display:'none'}}>
+                L<input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'length')}/>x
+                W<input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'width')}/>x
+                H<input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'height')}/>
+              </div>
+              <div onClick={this.props.toggle.bind(this, 'nutrition-'+this.props.i)}>Nutrition</div>
+              <div id={'nutrition-'+this.props.i} style={{display:'none'}}>
+                Energy <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'energy')}/> kcal<br/>
+                Carbohydrate <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'carbohydrate')}/> g<br/>
+                Protein <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'protein')}/> g<br/>
+                Fat <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'fat')}/> g<br/>
+                Fiber <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'fiber')}/> g
+              </div>
+              <div onClick={this.props.toggle.bind(this, 'environment-'+this.props.i)}>Environment</div>
+              <div id={'environment-'+this.props.i} style={{display:'none'}}>
+                CO2 <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'co2')}/>
+                Methane <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'methane')}/>
+              </div>
+            </div>
           </div>);
   }
 }
@@ -63,13 +72,17 @@ export default class addReceiptPage extends React.Component {
 
     let that = this;
 
+    this.toggle = this.toggle.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onUpload = this.onUpload.bind(this);
     this.saveReceipt = this.saveReceipt.bind(this);
-    this.onMeasureChange = this.onMeasureChange.bind(this);
-    this.onUnitChange = this.onUnitChange.bind(this);
+    this.onItemQuantityChange = this.onItemQuantityChange.bind(this);
+    this.onItemMeasureChange = this.onItemMeasureChange.bind(this);
+    this.onItemManufacturerChange = this.onItemManufacturerChange.bind(this);
+    this.onItemUnitChange = this.onItemUnitChange.bind(this);
     this.onItemPriceChange = this.onItemPriceChange.bind(this);
     this.onItemAttributeChange = this.onItemAttributeChange.bind(this);
+    this.onItemNumberChange = this.onItemNumberChange.bind(this);
     this.onItemNameChange = this.onItemNameChange.bind(this);
     this.onItemCategoryChange = this.onItemCategoryChange.bind(this);
     this.onDeleteItem = this.onDeleteItem.bind(this);
@@ -81,9 +94,16 @@ export default class addReceiptPage extends React.Component {
       products: [],
       rotate: 0,
       rotate_adjust: 0,
+      data: {},
       categories: [],
       transactions: []
     };
+  }
+  toggle(event, id) {
+    console.log(id);
+    console.log(document.getElementById(id));
+    let display = document.getElementById(id).style.display;
+    display = display == 'none' ? 'block' : 'none';
   }
   onChange(event) {
     let that = this;
@@ -104,6 +124,8 @@ export default class addReceiptPage extends React.Component {
       formData.append('file', files[0]);
       axios.post('/api/receipt/picture', formData)
       .then(function(response) {
+        that.setState({transactions: []});
+
         var transactions = [{receipts:[{file: response.data.file}]}];
         that.setState({transactions: transactions});
       })
@@ -121,7 +143,7 @@ export default class addReceiptPage extends React.Component {
     event.preventDefault();
 
     let that = this,
-        data = this.cropper.getData();
+        data = Object.assign({}, this.cropper.getData(), this.state.data);
     data.language = document.getElementById('language').value;
 
     //that.setState({});
@@ -159,11 +181,47 @@ export default class addReceiptPage extends React.Component {
       transactions: transactions
     });
   }
+  onItemQuantityChange(key, event) {
+    let transactions = this.state.transactions;
+    transactions[0].items[key].quantity = event.target.value;
+
+    this.setState({
+      transactions: transactions
+    });
+  }
+  onItemMeasureChange(key, event) {
+    let transactions = this.state.transactions;
+    transactions[0].items[key].measure = event.target.value;
+
+    this.setState({
+      transactions: transactions
+    });
+  }
+  onItemUnitChange(key, event) {
+    let transactions = this.state.transactions;
+    transactions[0].items[key].unit = event.target.value;
+
+    this.setState({
+      transactions: transactions
+    });
+  }
   onItemAttributeChange(key, attribute, event) {
     let transactions = this.state.transactions,
         attributes = transactions[0].items[key].product_attributes || [];
-        
+
     attributes.push({name: attribute, value: event.target.value});
+
+    this.setState({
+      transactions: transactions
+    });
+  }
+  onItemManufacturerChange(key, event) {
+    let transactions = this.state.transactions;
+    transactions[0].items[key].manufacturer = {name: event.target.value};
+
+    /* todo add
+    let categories = this.state.categories;
+    categories.push({name:element.name}); */
 
     this.setState({
       transactions: transactions
@@ -182,28 +240,21 @@ export default class addReceiptPage extends React.Component {
     });
   }
   onFlipLeft(event) {
-    let rotate = this.state.rotate-90;
-    this.setState({rotate:rotate});
-
-    rotate = rotate+this.state.rotate_adjust;
+    let rotate = this.cropper.getData().rotate-90;
     if (rotate < 0) rotate = 360+rotate%360;
-
     this.cropper.rotateTo(rotate);
   }
   onFlipRight(event) {
-    let rotate = this.state.rotate+90;
-    this.setState({rotate:rotate});
-
-    rotate = rotate+this.state.rotate_adjust;
+    let rotate = this.cropper.getData().rotate+90;
     if (rotate < 0) rotate = 360+rotate%360;
-
     this.cropper.rotateTo(rotate); 
   }
   onRotate(event) {
+    let previous = this.state.rotate_adjust;
     let rotate_adjust = parseInt(event.target.value);
     this.setState({rotate_adjust:rotate_adjust});   
 
-    let rotate = this.state.rotate+rotate_adjust;
+    let rotate = this.cropper.getData().rotate+rotate_adjust-previous;
     if (rotate < 0) rotate = 360+rotate%360;
 
     console.log(rotate);
@@ -248,6 +299,11 @@ export default class addReceiptPage extends React.Component {
     if (receiptIsRead) {
       receiptContent = (
         <div className="receipt-content">
+          <datalist id="manufacturers">
+            {this.state.manufacturers.map(function(item, i) {
+              return <option value={item.name}/>
+            })}
+          </datalist>
           <datalist id="products">
             {this.state.products.map(function(item, i) {
               return <option value={item.name}/>
@@ -275,15 +331,21 @@ export default class addReceiptPage extends React.Component {
               <div>Date: <input type="datetime-local" defaultValue={this.state.transactions[0].date && moment(this.state.transactions[0].date).format('YYYY-MM-DDTHH:mm:ss')}/></div>
               <div className="receipt-items">
                 {this.state.transactions[0].items.map(function(item, i){
-                  return <ReceiptItem
+                  return <ReceiptItem item={item}
                                       i={i}
-                                      item={item}
                                       state={that.state}
                                       onDeleteItem={that.onDeleteItem}
                                       onAddItem={that.onAddItem}
                                       onItemPriceChange={that.onItemPriceChange}
                                       onItemNameChange={that.onItemNameChange}
-                                      onItemCategoryChange={that.onItemCategoryChange}/>
+                                      onItemNumberChange={that.onItemNumberChange}
+                                      onItemCategoryChange={that.onItemCategoryChange}
+                                      onItemAttributeChange={that.onItemAttributeChange}
+                                      onItemManufacturerChange={that.onItemManufacturerChange}
+                                      onItemMeasureChange={that.onItemMeasureChange}
+                                      onItemQuantityChange={that.onItemQuantityChange}
+                                      onItemUnitChange={that.onItemUnitChange}
+                                      toggle={that.toggle}/>
                 })}
               </div>
               <div>Total: <input type="number" defaultValue={this.state.transactions[0].total_price} step={.01}/> ({this.state.transactions[0].total_price_read})</div>
@@ -307,13 +369,16 @@ export default class addReceiptPage extends React.Component {
         <button onClick={this.onUpload}>Submit</button>
         </form>
         <button onClick={this.onFlipLeft}>Flip Left</button>
-        <input type="range" min="-45" max="45" onChange={this.onRotate}/>
-        <button onClick={this.onFlipRight}>Flip Right</button>
+        <input type="range" min="-45" max="45" step="any" onChange={this.onRotate} style={{width:700}}/>
+        <button onClick={this.onFlipRight}>Flip Right</button><br/>
+        Details Less <input type="range" min="1" max="20" step="1" onChange={this.setData.bind(this, 'threshold')} style={{width:100, transform: 'rotate(-180deg)'}}/> More
+        Soften None <input type="range" min="0" max="5" step="1" onChange={this.setData.bind(this, 'blur')} style={{width:50}}/> High
+        Sharpen None <input type="range" min="0" max="5" step="1" onChange={this.setData.bind(this, 'sharpen')} style={{width:50}}/> High
         <Cropper id="cropper"
                  src={this.state.src}
-                 style={{width:600,height:800}}
+                 style={{width:800,height:800}}
                  autoCropArea={1}
-                 viewMode={1}
+                 viewMode={0}
                  rotatable={true}
                  zoomable={false}
                  ref={cropper => {this.cropper = cropper; }}/>
