@@ -37,7 +37,7 @@ class ReceiptItem extends React.Component {
                                  step={.01} style={{width:'5em'}}/>
             <button onClick={this.props.onDeleteItem.bind(this, this.props.i)}>-</button>
             <button onClick={this.props.onAddItem.bind(this, this.props.i)}>+</button><br/>
-            <div onClick={this.props.toggle.bind(this, 'details-'+this.props.i)}>Details</div>
+            <div onClick={this.props.toggle.bind(this, 'details-'+this.props.i)}>Attributes</div>
             <div id={'details-'+this.props.i} style={{display:'none'}}>
               Manufacturer <input type="search" list="manufacturers"
                                   value={this.props.item.product.manufacturer && this.props.item.product.manufacturer.name || ''}
@@ -48,15 +48,17 @@ class ReceiptItem extends React.Component {
                 W<input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'width')}/>x
                 H<input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'height')}/>
               </div>
-              <div onClick={this.props.toggle.bind(this, 'nutrition-'+this.props.i)}>Nutrition</div>
+              <div onClick={this.props.toggle.bind(this, 'nutrition-'+this.props.i)}>Nutritional Attributes</div>
               <div id={'nutrition-'+this.props.i} style={{display:'none'}}>
                 Energy <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'energy')}/> kcal<br/>
                 Carbohydrate <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'carbohydrate')}/> g<br/>
                 Protein <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'protein')}/> g<br/>
                 Fat <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'fat')}/> g<br/>
-                Fiber <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'fiber')}/> g
+                Fiber <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'fiber')}/> g<br/>
+                Best before <input type="datetime-local" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'fiber')}/><br/>
+                Last date <input type="datetime-local" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'fiber')}/>
               </div>
-              <div onClick={this.props.toggle.bind(this, 'environment-'+this.props.i)}>Environment</div>
+              <div onClick={this.props.toggle.bind(this, 'environment-'+this.props.i)}>Environmental Attributes</div>
               <div id={'environment-'+this.props.i} style={{display:'none'}}>
                 CO2 <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'co2')}/>
                 Methane <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'methane')}/>
@@ -90,6 +92,7 @@ export default class addReceiptPage extends React.Component {
     this.onFlipLeft = this.onFlipLeft.bind(this);
     this.onFlipRight = this.onFlipRight.bind(this);
     this.onRotate = this.onRotate.bind(this);
+    this.setData = this.setData.bind(this);
     this.state = {
       products: [],
       rotate: 0,
@@ -99,11 +102,10 @@ export default class addReceiptPage extends React.Component {
       transactions: []
     };
   }
-  toggle(event, id) {
-    console.log(id);
-    console.log(document.getElementById(id));
+  toggle(id, event) {
     let display = document.getElementById(id).style.display;
-    display = display == 'none' ? 'block' : 'none';
+    console.log(display);
+    document.getElementById(id).style.display = display == 'none' ? 'block' : 'none';
   }
   onChange(event) {
     let that = this;
@@ -206,10 +208,11 @@ export default class addReceiptPage extends React.Component {
     });
   }
   onItemAttributeChange(key, attribute, event) {
-    let transactions = this.state.transactions,
-        attributes = transactions[0].items[key].product_attributes || [];
+    let transactions = this.state.transactions;
 
-    attributes.push({name: attribute, value: event.target.value});
+    if (!transactions[0].items[key].product.attributes) transactions[0].items[key].product.attributes = [];
+
+    transactions[0].items[key].product.attributes.push({name: attribute, value: event.target.value});
 
     this.setState({
       transactions: transactions
@@ -217,7 +220,7 @@ export default class addReceiptPage extends React.Component {
   }
   onItemManufacturerChange(key, event) {
     let transactions = this.state.transactions;
-    transactions[0].items[key].manufacturer = {name: event.target.value};
+    transactions[0].items[key].product.manufacturer = {name: event.target.value};
 
     /* todo add
     let categories = this.state.categories;
@@ -229,7 +232,7 @@ export default class addReceiptPage extends React.Component {
   }
   onItemCategoryChange(key, event) {
     let transactions = this.state.transactions;
-    transactions[0].items[key].category = {name: event.target.value};
+    transactions[0].items[key].product.category = {name: event.target.value};
 
     /* todo add
     let categories = this.state.categories;
@@ -291,6 +294,13 @@ export default class addReceiptPage extends React.Component {
     });
     //ReactDOM.findDOMNode(this).getElementsByClassName('receipt-items')[0].append(<ReceiptItem onDeleteItem={that.onDeleteItem} onAddItem={that.onAddItem} onItemPriceChange={that.onItemPriceChange}/>);
 
+  }
+  setData(attribute, event) {
+    let data = this.state.data;
+    data[attribute] = event.target.value;
+    this.setState({
+      data: data
+    });
   }
   render() {
     let that = this,
@@ -369,11 +379,11 @@ export default class addReceiptPage extends React.Component {
         <button onClick={this.onUpload}>Submit</button>
         </form>
         <button onClick={this.onFlipLeft}>Flip Left</button>
-        <input type="range" min="-45" max="45" step="any" onChange={this.onRotate} style={{width:700}}/>
+        <input type="range" min="-45" max="45" defaultValue="0" step="any" onChange={this.onRotate} style={{width:700}}/>
         <button onClick={this.onFlipRight}>Flip Right</button><br/>
-        Details Less <input type="range" min="1" max="20" step="1" onChange={this.setData.bind(this, 'threshold')} style={{width:100, transform: 'rotate(-180deg)'}}/> More
-        Soften None <input type="range" min="0" max="5" step="1" onChange={this.setData.bind(this, 'blur')} style={{width:50}}/> High
-        Sharpen None <input type="range" min="0" max="5" step="1" onChange={this.setData.bind(this, 'sharpen')} style={{width:50}}/> High
+        Details Less <input type="range" min="1" max="20" defaultValue="10" step="1" onChange={this.setData.bind(this, 'threshold')} style={{width:100, transform: 'rotate(-180deg)'}}/> More
+        Soften None <input type="range" min="0" max="5" defaultValue="1" step="1" onChange={this.setData.bind(this, 'blur')} style={{width:50}}/> High
+        Sharpen None <input type="range" min="0" max="5" defaultValue="3" step="1" onChange={this.setData.bind(this, 'sharpen')} style={{width:50}}/> High
         <Cropper id="cropper"
                  src={this.state.src}
                  style={{width:800,height:800}}

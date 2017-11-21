@@ -53,4 +53,4 @@ class CategoryAttribute extends Model {
   }
 }
 
-module.exports = ProductAttribute;
+module.exports = CategoryAttribute;

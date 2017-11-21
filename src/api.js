@@ -595,17 +595,19 @@ function extractTextFromFile(id, data, language, cb) {
 
   script = script.concat([
       '-adaptive-resize', '700x',
-      '-contrast-stretch', '0',
-      '-lat', language == 'spa' ? '50x50-3%' : '50x50-7%',
-      '-adaptive-blur', '1',
-      '-sharpen', '0x3',
+      '-normalize',
+      //'-contrast-stretch', '0',
+      '-lat', '50x50-'+parseInt(data.threshold || 10)+'%',
+      '-adaptive-blur', parseInt(data.blur || 1),
+      '-sharpen', '0x'+parseInt(data.sharpen || 1),
       '-set', 'option:deskew:autocrop', 'true',
       '-deskew', '40%',
       '-trim',
       '+repage',
-      '-bordercolor', 'white',
-      '-border', '20',
+      //'-bordercolor', 'white',
+      //'-border', '20',
       '-format', 'png',
+      '-strip',
       filepath+'_edited']);
 
   console.log(script);
@@ -624,6 +626,7 @@ function extractTextFromFile(id, data, language, cb) {
 }
 
 app.post('/api/transaction', function(req, res) {
+  console.dir(req.body, {depth:null});
   Transaction.query()
     .insertGraph(req.body)
     .then(transaction => {
@@ -633,7 +636,7 @@ app.post('/api/transaction', function(req, res) {
 
 app.get('/api/transaction', function(req, res) {
   Transaction.query()
-    .eager('[items.[product, category], party, receipts]')
+    .eager('[items.[product.[category.[attributes], manufacturer, attributes]], party, receipts]')
     .then(transaction => {
       res.send(transaction);
     });
