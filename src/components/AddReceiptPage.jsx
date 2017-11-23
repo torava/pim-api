@@ -9,7 +9,7 @@ import moment from 'moment';
 
 class ReceiptItem extends React.Component {
   render() {
-    return (<div key={this.props.i}>
+    return (<div key={'item-'+this.props.i+'-'+this.props.state.version}>
             <input type="search" value={this.props.item.item_number || ''}
                                  onChange={this.props.onItemNumberChange.bind(this, this.props.i)}
                                  style={{width:'10em'}}/>
@@ -25,11 +25,11 @@ class ReceiptItem extends React.Component {
               <option value="l">l</option>
             </select>
             <input type="search" list="products"
-                                 value={this.props.item.product.name || ''}
+                                 value={this.props.item.product && this.props.item.product.name || ''}
                                  onChange={this.props.onItemNameChange.bind(this, this.props.i)}
                    style={{width:'18em'}}/>
             <input type="search" list="categories"
-                                 value={this.props.item.category && this.props.item.category.name || ''}
+                                 defaultValue={this.props.item.category && this.props.item.category.name || ''}
                                  onChange={this.props.onItemCategoryChange.bind(this, this.props.i)}
                                  style={{width:'11em'}}/>
             <input type="number" defaultValue={this.props.item.price ? parseFloat(this.props.item.price).toFixed(2) : ''}
@@ -40,7 +40,7 @@ class ReceiptItem extends React.Component {
             <div onClick={this.props.toggle.bind(this, 'details-'+this.props.i)}>Attributes</div>
             <div id={'details-'+this.props.i} style={{display:'none'}}>
               Manufacturer <input type="search" list="manufacturers"
-                                  value={this.props.item.product.manufacturer && this.props.item.product.manufacturer.name || ''}
+                                  value={this.props.item.product && this.props.item.product.manufacturer && this.props.item.product.manufacturer.name || ''}
                                   onChange={this.props.onItemManufacturerChange.bind(this, this.props.i)}/><br/>
               <div onClick={this.props.toggle.bind(this, 'measurements-'+this.props.i)}>Measurements</div>
               <div id={'measurements-'+this.props.i} style={{display:'none'}}>
@@ -150,9 +150,11 @@ export default class addReceiptPage extends React.Component {
 
     //that.setState({});
 
-    axios.post('/api/receipt/data/'+this.state.transactions[0].receipts[0].file, data)
+    axios.post('/api/receipt/data/'+this. state.transactions[0].receipts[0].file, data)
     .then(function(response) {
-      that.setState(response.data);
+      let state = response.data;
+      state.version = Date.now();
+      that.setState(state);
     })
     .catch(function(error) {
       console.error(error);
@@ -254,13 +256,11 @@ export default class addReceiptPage extends React.Component {
   }
   onRotate(event) {
     let previous = this.state.rotate_adjust;
-    let rotate_adjust = parseInt(event.target.value);
+    let rotate_adjust = parseFloat(event.target.value);
     this.setState({rotate_adjust:rotate_adjust});   
 
     let rotate = this.cropper.getData().rotate+rotate_adjust-previous;
     if (rotate < 0) rotate = 360+rotate%360;
-
-    console.log(rotate);
 
     this.cropper.rotateTo(rotate);
   }
@@ -325,7 +325,7 @@ export default class addReceiptPage extends React.Component {
             })}
           </datalist>
           <div className="receipt-picture" style={{float:'left'}}>
-            <img src={"/api/receipt/picture/"+this.state.transactions[0].receipts[0].file+"?"+Date.now()} style={{width:300}}/>
+            <img src={"/api/receipt/picture/"+this.state.transactions[0].receipts[0].file+"?"+this.state.version} style={{width:300}}/>
           </div>
           <div style={{float:'left'}}>
             <div className="receipt-editor" style={{float:'left'}}>
@@ -358,7 +358,7 @@ export default class addReceiptPage extends React.Component {
                                       toggle={that.toggle}/>
                 })}
               </div>
-              <div>Total: <input type="number" defaultValue={this.state.transactions[0].total_price} step={.01}/> ({this.state.transactions[0].total_price_read})</div>
+              <div>Total: {this.state.transactions[0].total_price} ({this.state.transactions[0].total_price_read})</div>
               <button onClick={this.saveReceipt}>Submit</button>
             </div>
             <div className="receipt-text" style={{float:'left'}}>
