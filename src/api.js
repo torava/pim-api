@@ -503,7 +503,7 @@ function extractTextFromFile(id, data, language, cb) {
     process.stderr.write(stderr);
     child_process.execFile('tesseract', [
       '-l',
-      ['fin'].indexOf(language) !== -1 ? language : 'eng',
+      ['fin', 'spa'].indexOf(language) !== -1 ? language : 'eng',
       filepath+'_edited',
       'stdout'
     ], function(error, stdout, stderr) {
