@@ -73,7 +73,7 @@ function getDataFromReceipt(result, text, language) {
       found_attribute = null;
 
       line = ines[i].trim();
-      line_number_format = line.replace(/\s*(\.,|\,|.)\s*/g, '.');
+      line_number_format = line.replace(/\s*(\.,|\,|\.)\s*/g, '.');
 
       line_name = line.match(/^[\u00C0-\u017F-a-z0-9\s\-\.%\/]+$/i);
       //if (!line_name || line_name[0].length <= 1) continue;
