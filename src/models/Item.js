@@ -24,6 +24,14 @@ class Item extends Model {
 
 	static get relationMappings() {
 		return {
+			transaction: {
+				relation: Model.BelongsToOneRelation,
+				modelClass: __dirname+'/Transaction',
+				join: {
+					from: 'Item.transactionId',
+					to: 'Transaction.id'
+				}
+			},
 			product: {
 				relation: Model.BelongsToOneRelation,
 				modelClass: __dirname+'/Product',

@@ -153,7 +153,10 @@ export default class addReceiptPage extends React.Component {
     axios.post('/api/receipt/data/'+this. state.transactions[0].receipts[0].file, data)
     .then(function(response) {
       let state = response.data;
+
+      // Update version
       state.version = Date.now();
+
       that.setState(state);
     })
     .catch(function(error) {
@@ -289,7 +292,9 @@ export default class addReceiptPage extends React.Component {
   onAddItem(key, event) {
     let transactions = this.state.transactions;
     transactions[0].items.splice(key, 0, {});
+
     this.setState({
+      version: Date.now(), // Update version
       transactions: transactions
     });
     //ReactDOM.findDOMNode(this).getElementsByClassName('receipt-items')[0].append(<ReceiptItem onDeleteItem={that.onDeleteItem} onAddItem={that.onAddItem} onItemPriceChange={that.onItemPriceChange}/>);
@@ -329,16 +334,16 @@ export default class addReceiptPage extends React.Component {
           </div>
           <div style={{float:'left'}}>
             <div className="receipt-editor" style={{float:'left'}}>
-              <div>Store Name: <input type="search" defaultValue={this.state.transactions[0].party.name}/></div>
-              <div>VAT: <input type="search" defaultValue={this.state.transactions[0].party.vat}/></div>
+              <div>Store Name: <input key={"store-name-"+this.state.version} type="search" defaultValue={this.state.transactions[0].party.name}/></div>
+              <div>VAT: <input key={"vat-"+this.state.version} type="search" defaultValue={this.state.transactions[0].party.vat}/></div>
               <div>Street:
-                <input type="search" defaultValue={this.state.transactions[0].party.street_name}/>
-                <input type="search" defaultValue={this.state.transactions[0].party.street_number}/>
+                <input key={"street-name-"+this.state.version} type="search" defaultValue={this.state.transactions[0].party.street_name}/>
+                <input key={"street-number-"+this.state.version} type="search" defaultValue={this.state.transactions[0].party.street_number}/>
               </div>
-              <div>Postal Code: <input type="search" defaultValue={this.state.transactions[0].party.postal_code}/></div>
-              <div>City: <input type="search" defaultValue={this.state.transactions[0].party.city}/></div>
-              <div>Phone Number: <input type="phone" defaultValue={this.state.transactions[0].party.phone_number}/></div>
-              <div>Date: <input type="datetime-local" defaultValue={this.state.transactions[0].date && moment(this.state.transactions[0].date).format('YYYY-MM-DDTHH:mm:ss')}/></div>
+              <div>Postal Code: <input key={"postal-code-"+this.state.version} type="search" defaultValue={this.state.transactions[0].party.postal_code}/></div>
+              <div>City: <input key={"city-"+this.state.version} type="search" defaultValue={this.state.transactions[0].party.city}/></div>
+              <div>Phone Number: <input key={"phone-number-"+this.state.version} type="phone" defaultValue={this.state.transactions[0].party.phone_number}/></div>
+              <div>Date: <input key={"date-"+this.state.version} type="datetime-local" defaultValue={this.state.transactions[0].date && moment(this.state.transactions[0].date).format('YYYY-MM-DDTHH:mm:ss')}/></div>
               <div className="receipt-items">
                 {this.state.transactions[0].items.map(function(item, i){
                   return <ReceiptItem item={item}
@@ -381,9 +386,9 @@ export default class addReceiptPage extends React.Component {
         <button onClick={this.onFlipLeft}>Flip Left</button>
         <input type="range" min="-45" max="45" defaultValue="0" step="any" onChange={this.onRotate} style={{width:700}}/>
         <button onClick={this.onFlipRight}>Flip Right</button><br/>
-        Details Less <input type="range" min="1" max="20" defaultValue="10" step="1" onChange={this.setData.bind(this, 'threshold')} style={{width:100, transform: 'rotate(-180deg)'}}/> More
+        Details Less <input type="range" min="1" max="30" defaultValue="10" step="1" onChange={this.setData.bind(this, 'threshold')} style={{width:100, transform: 'rotate(-180deg)'}}/> More
         Soften None <input type="range" min="0" max="5" defaultValue="1" step="1" onChange={this.setData.bind(this, 'blur')} style={{width:50}}/> High
-        Sharpen None <input type="range" min="0" max="5" defaultValue="3" step="1" onChange={this.setData.bind(this, 'sharpen')} style={{width:50}}/> High
+        Sharpen None <input type="range" min="0" max="5" defaultValue="1" step="1" onChange={this.setData.bind(this, 'sharpen')} style={{width:50}}/> High
         <Cropper id="cropper"
                  src={this.state.src}
                  style={{width:800,height:800}}

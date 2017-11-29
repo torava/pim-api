@@ -30,8 +30,9 @@ const item_columns = [
   },
   {
     Header: 'Category',
-    accessor: d => d.category && d.category.name,
-    id: 'category_name'
+    accessor: d => d.product.category && d.product.category.name,
+    id: 'category_name',
+    Cell: props => props.value ? <span><a href={"/category/"+props.original.product.category.id}>{props.value}</a></span> : <span></span>
   },
   {
     Header: 'Price',
@@ -62,10 +63,14 @@ export default class ReceiptList extends React.Component {
       <ReactTable
         data={this.state.transactions}
         columns={transaction_columns}
+        pageSize={this.state.transactions ? this.state.transactions.length : 1}
+        showPagination={false}
         SubComponent={row => {
           return (
             <ReactTable
               data={this.state.transactions[row.index].items}
+              pageSize={this.state.transactions[row.index].items ? this.state.transactions[row.index].items.length : 1}
+              showPagination={false}
               columns={item_columns}
               />
           );
