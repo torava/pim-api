@@ -50,22 +50,6 @@ class CategoryAttribute extends Model {
 					from: 'CategoryAttribute.categoryId',
 					to: 'Category.id'
 				}
-			},
-			children: {
-				relation: Model.HasManyRelation,
-				modelClass: __dirname+'/CategoryAttribute',
-				join: {
-					from: 'CategoryAttribute.id',
-					to: 'CategoryAttribute.parentId'
-				}
-			},
-			parent: {
-				relation: Model.BelongsToOneRelation,
-				modelClass: __dirname+'/CategoryAttribute',
-				join: {
-					from: 'CategoryAttribute.parentId',
-					to: 'CategoryAttribute.id'
-				}
 			}
     }
   }

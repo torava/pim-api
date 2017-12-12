@@ -65,7 +65,6 @@ exports.up = function(knex, Promise) {
     table.string('unit');
     table.string('group');
     table.integer('categoryId').unsigned().references('id').inTable('Category');
-    table.integer('parentId').unsigned().references('id').inTable('CategoryAttribute');
   })
   .createTable('Conversion', function(table) {
     table.string('from').primary();
