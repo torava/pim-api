@@ -103,9 +103,7 @@ export default class addReceiptPage extends React.Component {
     };
   }
   toggle(id, event) {
-    let display = document.getElementById(id).style.display;
-    console.log(display);
-    document.getElementById(id).style.display = display == 'none' ? 'block' : 'none';
+    document.getElementById(id).style.display = document.getElementById(id).style.display == 'none' ? 'block' : 'none';
   }
   onChange(event) {
     let that = this;

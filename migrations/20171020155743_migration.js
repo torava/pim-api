@@ -62,7 +62,15 @@ exports.up = function(knex, Promise) {
   .createTable('CategoryAttribute', function(table) {
     table.string('name');
     table.float('value');
+    table.string('unit');
+    table.string('group');
     table.integer('categoryId').unsigned().references('id').inTable('Category');
+    table.integer('parentId').unsigned().references('id').inTable('CategoryAttribute');
+  })
+  .createTable('Conversion', function(table) {
+    table.string('from').primary();
+    table.string('to').primary();
+    table.float('value');
   });
 };
 
@@ -76,5 +84,6 @@ exports.down = function(knex) {
     .dropTableIfExists('Manufacturer')
     .dropTableIfExists('Category')
     .dropTableIfExists('ProductAttribute')
-    .dropTableIfExists('CategoryAttribute');
+    .dropTableIfExists('CategoryAttribute')
+    .dropTableIfExists('Conversion');
 };

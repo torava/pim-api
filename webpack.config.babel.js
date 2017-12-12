@@ -17,7 +17,10 @@ const client = {
         test: /\.jsx?$/,
         use: {
           loader: 'babel-loader',
-          options: 'cacheDirectory=.babel_cache',
+          options: {
+            cacheDirectory: '.babel_cache',
+            presets: ['env']
+          }
         },
         include: path.join(__dirname, 'src')
       },
@@ -51,7 +54,10 @@ const server = {
         test: /\.jsx?$/,
         use: {
           loader: 'babel-loader',
-          options: 'cacheDirectory=.babel_cache',
+          options: {
+            cacheDirectory: '.babel_cache',
+            presets: ['env']
+          }
         },
         include: path.join(__dirname, 'src')
       },

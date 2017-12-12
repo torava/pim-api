@@ -1,1 +1,10 @@
-{"presets":["react", "es2017", "node6"]}
+{
+  "presets": [
+    ["env", {
+      "targets": {
+        "node": "current"
+      }
+      }], "react"
+  ],
+  "plugins": ["transform-decorators-legacy"]
+}

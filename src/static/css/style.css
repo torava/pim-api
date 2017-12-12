@@ -1,3 +1,51 @@
 body {
-    font-family: sans-serif
+  font-family: sans-serif
+}
+
+/* treetabular */
+
+.show-more:after {
+  cursor: pointer;
+  padding-right: 0.5em;
+  content: "\25B8";
+  font-size: large;
+}
+.show-less:after {
+  cursor: pointer;
+  padding-right: 0.5em;
+  content: "\25BE";
+  font-size: large;
+}
+.has-parent:not(.has-children):before {
+  padding-right: 0.5em;
+  content: "\0007C";
+  font-size: large;
+}
+
+/* sortabular */
+
+.sort-order {
+  margin-left: 0.5em;
+}
+table .sort {
+  cursor: pointer;
+  cursor: hand;
+}
+table .sort:after {
+  padding-left: 1em;
+
+  font-size: 0.5em;
+}
+table .sort-none:after {
+  content: '\21D5';
+
+  padding-left: 0.5em;
+  font-size: 1em;
+}
+table .sort-asc:after {
+  content: '\25BC';
+
+}
+table .sort-desc:after {
+  content: '\25B2';
 }
