@@ -1,13 +1,6 @@
 
 exports.up = function(knex, Promise) {
   return knex.schema
-  .createTable('Transaction', function(table) {
-    table.increments('id').primary();
-    table.dateTime('date');
-    table.integer('partyId').unsigned().references('id').inTable('Party');
-    table.decimal('total_price', 2);
-    table.decimal('total_price_read', 2);
-  })
   .createTable('Party', function(table) {
     table.increments('id').primary();
     table.string('name');
@@ -17,6 +10,32 @@ exports.up = function(knex, Promise) {
     table.string('postal_code');
     table.string('city');
     table.string('phone_number');
+  })
+  .createTable('Transaction', function(table) {
+    table.increments('id').primary();
+    table.dateTime('date');
+    table.integer('partyId').unsigned().references('id').inTable('Party');
+    table.decimal('total_price', 2);
+    table.decimal('total_price_read', 2);
+  })
+  .createTable('Manufacturer', function(table) {
+    table.increments('id').primary();
+    table.string('name');
+    table.string('factory_location');
+    table.string('manufacturer_location');
+    table.integer('ownerId').unsigned().references('id').inTable('Manufacturer');
+  })
+  .createTable('Category', function(table) {
+    table.increments('id').primary();
+    table.string('name');
+    table.integer('parentId').unsigned().references('id').inTable('Category');
+  })
+  .createTable('Product', function(table) {
+    table.increments('id').primary();
+    table.string('product_number');
+    table.string('name');
+    table.integer('manufacturerId').unsigned().references('id').inTable('Manufacturer');
+    table.integer('categoryId').unsigned().references('id').inTable('Category');
   })
   .createTable('Item', function(table) {
     table.increments('id').primary();
@@ -34,25 +53,6 @@ exports.up = function(knex, Promise) {
     table.string('file');
     table.text('text');
     table.integer('transactionId').unsigned().references('id').inTable('Transaction');
-  })
-  .createTable('Product', function(table) {
-    table.increments('id').primary();
-    table.string('product_number');
-    table.string('name');
-    table.integer('manufacturerId').unsigned().references('id').inTable('Manufacturer');
-    table.integer('categoryId').unsigned().references('id').inTable('Category');
-  })
-  .createTable('Manufacturer', function(table) {
-    table.increments('id').primary();
-    table.string('name');
-    table.string('factory_location');
-    table.string('manufacturer_location');
-    table.integer('ownerId').unsigned().references('id').inTable('Manufacturer');
-  })
-  .createTable('Category', function(table) {
-    table.increments('id').primary();
-    table.string('name');
-    table.integer('parentId').unsigned().references('id').inTable('Category');
   })
   .createTable('ProductAttribute', function(table) {
     table.string('name');
