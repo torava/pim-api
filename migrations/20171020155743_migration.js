@@ -68,7 +68,7 @@ exports.up = function(knex, Promise) {
   })
   .createTable('Conversion', function(table) {
     table.string('from').primary();
-    table.string('to').primary();
+    table.string('to').unique();
     table.float('value');
   });
 };
