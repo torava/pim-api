@@ -15,6 +15,7 @@ class Item extends Model {
 				item_number: {type: 'string'}, 
 				text: {type: 'string'},
 				price: {type: 'number'},
+				currency: {type: 'string'},
 				quantity: {type: 'number'},
 				measure: {type: 'number'},
 				unit: {type: 'string'}

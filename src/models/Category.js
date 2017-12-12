@@ -20,12 +20,28 @@ class Category extends Model {
 
 	static get relationMappings() {
 		return {
+			products: {
+				relation: Model.HasManyRelation,
+				modelClass: __dirname+'/Product',
+				join: {
+					from: 'Category.id',
+					to: 'Product.categoryId'
+				}
+			},
 			attributes: {
 				relation:	Model.HasManyRelation,
 				modelClass: __dirname+'/CategoryAttribute',
 				join: {
 					from: 'Category.id',
 					to: 'CategoryAttribute.categoryId'
+				}
+			},
+			children: {
+				relation: Model.HasManyRelation,
+				modelClass: __dirname+'/Category',
+				join: {
+					from: 'Category.id',
+					to: 'Category.parentId'
 				}
 			},
 			parent: {

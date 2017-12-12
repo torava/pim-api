@@ -20,6 +20,14 @@ class Product extends Model {
 
 	static get relationMappings() {
 		return {
+			items: {
+				relation: Model.HasManyRelation,
+				modelClass: __dirname+'/Item',
+				join: {
+					from: 'Product.id',
+					to: 'Item.productId'
+				}
+			},
 			attributes: {
 				relation:	Model.HasManyRelation,
 				modelClass: __dirname+'/ProductAttribute',

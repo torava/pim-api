@@ -34,7 +34,9 @@ class CategoryAttribute extends Model {
 
 			properties: {
 				name: {type: 'string'},
-        value: {type: 'float'}
+				value: {type: 'float'},
+				unit: {type: 'string'},
+				group: {type: 'string'}
 			}
 		}
   }
@@ -48,7 +50,23 @@ class CategoryAttribute extends Model {
 					from: 'CategoryAttribute.categoryId',
 					to: 'Category.id'
 				}
-      }
+			},
+			children: {
+				relation: Model.HasManyRelation,
+				modelClass: __dirname+'/CategoryAttribute',
+				join: {
+					from: 'CategoryAttribute.id',
+					to: 'CategoryAttribute.parentId'
+				}
+			},
+			parent: {
+				relation: Model.BelongsToOneRelation,
+				modelClass: __dirname+'/CategoryAttribute',
+				join: {
+					from: 'CategoryAttribute.parentId',
+					to: 'CategoryAttribute.id'
+				}
+			}
     }
   }
 }
