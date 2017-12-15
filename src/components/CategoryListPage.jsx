@@ -1,138 +1,4 @@
-/*'use strict';
-
-import React from 'react';
-import axios from 'axios';
-/*
-const category_columns = [
-  {
-    label: 'Name',
-    id: 'name',
-    order: 'ASC'
-  }
-];
-
-
-import { DragDropContext } from 'react-dnd';
-import HTML5Backend from 'react-dnd-html5-backend';
-import { compose } from 'redux';
-import { cloneDeep, findIndex } from 'lodash';
-import * as Table from 'reactabular-table';
-import * as resolve from 'table-resolver';
-import * as tree from 'treetabular';
-import * as dnd from 'reactabular-dnd';
-
-class CategoryListPage extends React.Component {
-  constructor(props) {
-    super(props);
-    
-    let that = this;
-
-    axios.get('/api/category/')
-    .then(function(response) {
-      that.setState({
-        rows: response.data,
-        columns: that.getColumns()
-      });
-    })
-    .catch(function(error) {
-      console.error(error);
-    });
-
-    this.onRow = this.onRow.bind(this);
-    this.onMoveRow = this.onMoveRow.bind(this);
-  }
-  getColumns() {
-    return [
-      {
-        property: 'name',
-        props: {
-          style: { width: 200 }
-        },
-        header: {
-          label: 'Name'
-        },
-        cell: {
-          formatters: [
-            tree.toggleChildren({
-              getRows: () => this.state.rows,
-              getShowingChildren: ({ rowData }) => rowData.showingChildren,
-              toggleShowingChildren: rowIndex => {
-                const rows = cloneDeep(this.state.rows);
-
-                rows[rowIndex].showingChildren = !rows[rowIndex].showingChildren;
-
-                this.setState({ rows });
-              }
-            })
-          ]
-        }
-      }
-    ];
-  }
-  render() {
-    if (!this.state) return '';
-
-    const components = {
-      header: {
-        cell: dnd.Header
-      },
-      body: {
-        row: dnd.Row
-      }
-    };
-    const { columns } = this.state;
-    const rows = compose(
-      tree.filter({ fieldName: 'showingChildren' }),
-      tree.fixOrder({ parentField: 'parentId', idField: 'id' }),
-      resolve.resolve({ columns, method: resolve.index })
-    )(this.state.rows);
-    
-
-    return (
-      <Table.Provider
-        components={components}
-        columns={columns}
-      >
-        <Table.Header />
-
-        <Table.Body
-          rows={rows}
-          rowKey="id"
-          onRow={this.onRow}
-        />
-      </Table.Provider>
-    );
-  }
-  onRow(row) {
-    return {
-      rowId: row.id,
-      onMove: o => this.onMoveRow(o)
-    };
-  }
-  onMoveRow({ sourceRowId, targetRowId }) {
-    let that = this;
-    const rows = tree.moveRows({
-      operation: function() {
-        let rows = that.state.rows;
-        console.log(sourceRowId, targetRowId);
-        for (let i in rows) {
-          if (rows[i].id == sourceRowId) {
-            rows[i].parentId = targetRowId;
-            break;
-          }
-        }
-        return rows;
-      },
-      retain: ['showingChildren']
-    })(this.state.rows);
-    console.log(rows);
-    if (rows) {
-      this.setState({ rows });
-    }
-  }
-}
-
-module.exports = DragDropContext(HTML5Backend)(CategoryListPage);*/
+'use strict';
 
 import React from 'react';
 import axios from 'axios';
@@ -146,6 +12,8 @@ import * as resolve from 'table-resolver';
 import * as tree from 'treetabular';
 import * as dnd from 'reactabular-dnd';
 import * as edit from 'react-edit';
+import * as Sticky from 'reactabular-sticky';
+import * as Virtualized from 'reactabular-virtualized';
 import uuid from 'uuid';
 
 const _rows = [
@@ -195,29 +63,37 @@ class DragAndDropTreeTable extends React.Component {
 
     let that = this;
 
-    axios.get('/api/category/')
-    .then(function(response) {
-      let rows = response.data,
-          columns = that.getColumns();
-    
-      for (let i in rows) {
-        if (rows[i].parentId == null) {
-          rows[i].parentId = -1;
+    axios.get('/api/categoryattribute/')
+    .then(function(response1) {
+      that.setState({attributes: response1.data});
+
+      console.log(that.state.attributes);
+
+      axios.get('/api/category/')
+      .then(function(response) {
+        let rows = response.data,
+            columns = that.getColumns();
+      
+        for (let i in rows) {
+          if (rows[i].parentId == null) {
+            rows[i].parentId = -1;
+          }
         }
-      }
-      rows.unshift({name: 'Categories', showChildren: true, parentId: null, id: -1, attributes: [], editable: false});
+        rows.unshift({name: 'Categories', showChildren: true, parentId: null, id: -1, attributes: [], editable: false});
 
-      rows = resolve.resolve({columns})(rows);
-      rows = compose(
-        tree.fixOrder({ parentField: 'parentId', idField: 'id' })
-      )(rows);
-      that.setState({
-        rows: rows,
-        columns: columns,
-        sortingColumns: {}
+        rows = resolve.resolve({columns, method: resolve.index})(rows);
+        rows = compose(
+          tree.fixOrder({ parentField: 'parentId', idField: 'id' })
+        )(rows);
+        that.setState({
+          rows: rows,
+          columns: columns,
+          sortingColumns: {}
+        });
+      })
+      .catch(function(error) {
+        console.error(error);
       });
-
-      console.log(that.state.rows, response.data);
     })
     .catch(function(error) {
       console.error(error);
@@ -228,6 +104,9 @@ class DragAndDropTreeTable extends React.Component {
     this.onAdd = this.onAdd.bind(this);
     this.onRemove = this.onRemove.bind(this);
     this.onSave = this.onSave.bind(this);
+
+    this.tableHeader = null;
+    this.tableBody = null;
   }
   getColumns() {
     const getSortingColumns = () => this.state.sortingColumns || {};
@@ -318,13 +197,13 @@ class DragAndDropTreeTable extends React.Component {
           label: 'Nutritional Attributes'
         },
         children: 
-          ['Energy', 'Protein', 'Carbohydrate', 'Fiber'].map(function(item) { return {
-            property: 'attributes.'+item.toLowerCase(),
+          this.state.attributes.map(function(item, i) { console.log(item); return {
+            property: 'attribute['+i+'].value',
             props: { 
               style: { width: 200 }
             },
             header: {
-              label: item,
+              label: item.name,
               transforms: [resetable],
               formatters: [
                 sort.header({
@@ -387,19 +266,19 @@ class DragAndDropTreeTable extends React.Component {
     ];
   }
   render() {
-    if (!this.state) return '';
+    if (!this.state || !this.state.columns) return '';
     
     const components = {
       header: {
         cell: dnd.Header
       },
       body: {
-        row: dnd.Row
+        wrapper: Virtualized.BodyWrapper,
+        row: dnd.draggableRow(Virtualized.BodyRow)
       }
     };
     let { columns, sortingColumns } = this.state,
       rows = this.state.rows;
-    console.log(rows);
     let resolvedColumns = resolve.columnChildren({ columns });
     let resolvedRows = compose(
       /*sort.sorter({
@@ -428,8 +307,6 @@ class DragAndDropTreeTable extends React.Component {
       tree.fixOrder({ parentField: 'parentId', idField: 'id' })
     )(rows);
 
-    console.log(resolvedRows);
-
     return (
       <div>
         <button type="button" onClick={this.onAdd}>Add new</button>
@@ -438,12 +315,23 @@ class DragAndDropTreeTable extends React.Component {
           components={components}
           columns={resolvedColumns}
         >
-          <Table.Header headerRows={resolve.headerRows({ columns })} />
+          <Sticky.Header
+            headerRows={resolve.headerRows({ columns })}
+            ref={tableHeader => {
+              this.tableHeader = tableHeader && tableHeader.getRef();
+            }}
+            tableBody={this.tableBody}
+          />
 
-          <Table.Body
+          <Virtualized.Body
             rows={resolvedRows}
             rowKey="id"
             onRow={this.onRow}
+            height={400}
+            ref={tableBody => {
+              this.tableBody = tableBody && tableBody.getRef();
+            }}
+            tableHeader={this.tableHeader}
           />
         </Table.Provider>
       </div>

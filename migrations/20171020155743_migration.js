@@ -28,6 +28,7 @@ exports.up = function(knex, Promise) {
   .createTable('Category', function(table) {
     table.increments('id').primary();
     table.string('name');
+    //table.json('attribute');
     table.integer('parentId').unsigned().references('id').inTable('Category');
   })
   .createTable('Product', function(table) {

@@ -5,9 +5,9 @@ module.exports = {
     useNullAsDefault: true,
     connection: {
       host: 'localhost',
-      user: 'user',
-      password: 'password',
-      database: 'db',
+      user: 'root',
+      password: '',
+      database: 'bookkeepr',
       //filename: './example.db'
     }
   },

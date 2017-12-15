@@ -1,6 +1,7 @@
 const Transaction = require('./models/Transaction');
 const Product = require('./models/Product');
 const Category = require('./models/Category');
+const CategoryAttribute = require('./models/CategoryAttribute');
 const Manufacturer = require('./models/Manufacturer');
 const Item = require('./models/Item');
 const multer = require('multer');
@@ -478,7 +479,7 @@ function extractTextFromFile(id, data, language, cb) {
     script = script.concat(['-gravity', 'NorthWest', '-crop', parseInt(data.width)+'x'+parseInt(data.height)+'+'+parseInt(data.x)+'+'+parseInt(data.y), '+repage']);
 
   script = script.concat([
-      '-adaptive-resize', '700x',
+      '-adaptive-resize', '1000x',
       '-normalize',
       //'-contrast-stretch', '0',
       '-lat', '50x50-'+parameters.threshold+'%']);
@@ -582,8 +583,8 @@ app.get('/api/category', function(req, res) {
   }
   else */if (req.query.parent) {
     Category.query()
-    .where('parent', req.query.parent)
-    .limit(500)
+    //.limit(1000)
+    .where('parentId', req.query.parent)
     .eager('[attributes]')
     //.eager('[products.[items], attributes, children.^]')
     .then(categories => {
@@ -591,14 +592,24 @@ app.get('/api/category', function(req, res) {
     })
   }
   else {
+    console.log(req.query);
     Category.query()
-    .limit(500)
-    .eager('[attributes]')
+    //.limit(2000)
+    .where('parentId', null)
+    //.eager('[attributes]')
     //.eager('[products.[items], attributes, children.^]')
     .then(categories => {
       res.send(categories);
     })
   }
+});
+
+app.get('/api/categoryattribute', function(req, res) {
+  CategoryAttribute.query()
+  .distinct('name')
+  .then(attributes => {
+    res.send(attributes);
+  })
 });
 
 app.get('/api/product', function(req, res) {
@@ -689,7 +700,7 @@ app.get('/api/receipt/picture/:id', function (req, res) {
 
 app.get('/api/getexternalcategories', function(req, res) {
   request("https://fineli.fi/fineli/en/elintarvikkeet/resultset.csv", function(error, response, data) {
-    request("https://fineli.fi/fineli/fi/elintarvikkeet/resultset.csv", function(error_fi, response_fi, data_fi) {
+    request("https://fineli.fi/fineli/fi/elintarvikkeet/resultset.csv", async (error_fi, response_fi, data_fi) => {
       let rows = data.split('\n'),
           rows_fi = data_fi.split('\n'),
           column_titles = rows[0].split(';'),
@@ -703,6 +714,7 @@ app.get('/api/getexternalcategories', function(req, res) {
           name,
           unit,
           attributes,
+          attribute_names,
           parts,
           error = false;
   
@@ -723,7 +735,7 @@ app.get('/api/getexternalcategories', function(req, res) {
         columns = rows[r].split(';');
         id = columns[0];
         name = columns[1];
-        attributes = [];
+        attributes = {};
         error = false;
         if (!name || !rows_index_fi[id]) continue;
         for (let c = 2; c < columns.length; c++) {
@@ -731,16 +743,32 @@ app.get('/api/getexternalcategories', function(req, res) {
             error = true;
             break;
           }
-          attributes.push({name: column_names[c-2], value: parseFloat(columns[c].replace(/\r|</g, '')), group: 'nutrition', unit: column_units[c-2]});
+          //attributes[column_names[c-2]] = parseFloat(columns[c].replace(/\r|</g, '')) || 0;
+          attributes.push({name: column_names[c-2], value: parseFloat(columns[c].replace(/\r|</g, '')) || 0, group: 'nutrition', unit: column_units[c-2]});
         }
         if (error) continue;
         categories.push({name, attributes, children: [{name: rows_index_fi[id]}]});
-      }
 
-      Category.query()
+        if (r % 500 == 0) {
+          console.log('ok1', r);
+          await Category.query()
+          .upsertGraph(categories)
+          .then(category => {
+            console.log('ok2', r);
+          });
+          categories = [];
+        }
+      }
+      console.log('ok3');
+      //console.dir(categories, {depth:null});
+      await Category.query()
       .upsertGraph(categories)
       .then(category => {
+        console.log('ok4');
       });
+      console.log('ok5');
+      res.send('ok');
+      res.end();
     });
   });
 });
