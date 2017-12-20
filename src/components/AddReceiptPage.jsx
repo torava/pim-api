@@ -9,14 +9,14 @@ import moment from 'moment';
 
 class ReceiptItem extends React.Component {
   render() {
-    return (<div key={'item-'+this.props.i+'-'+this.props.state.version}>
+    return (<div>
             <input type="search" value={this.props.item.item_number || ''}
                                  onChange={this.props.onItemNumberChange.bind(this, this.props.i)}
                                  style={{width:'10em'}}/>
-            <input type="search" value={this.props.item.quantity || ''}
+            <input type="number" value={this.props.item.quantity || ''}
                                  onChange={this.props.onItemQuantityChange.bind(this, this.props.i)}
-                                 style={{width:'5em'}}/>
-            <input type="search" value={this.props.item.measure || ''}
+                                 style={{width:'5em'}}/>x
+            <input type="number" value={this.props.item.measure || ''}
                                  onChange={this.props.onItemMeasureChange.bind(this, this.props.i)}
                                  style={{width:'5em'}}/>
             <select onChange={this.props.onItemUnitChange.bind(this, this.props.i)}>
@@ -29,15 +29,15 @@ class ReceiptItem extends React.Component {
                                  onChange={this.props.onItemNameChange.bind(this, this.props.i)}
                    style={{width:'18em'}}/>
             <input type="search" list="categories"
-                                 defaultValue={this.props.item.category && this.props.item.category.name || ''}
+                                 defaultValue={this.props.item.product && this.props.item.product.category && this.props.item.product.category.name || ''}
                                  onChange={this.props.onItemCategoryChange.bind(this, this.props.i)}
                                  style={{width:'11em'}}/>
             <input type="number" defaultValue={this.props.item.price ? parseFloat(this.props.item.price).toFixed(2) : ''}
                                  onChange={this.props.onItemPriceChange.bind(this, this.props.i)}
                                  step={.01} style={{width:'5em'}}/>
             <button onClick={this.props.onDeleteItem.bind(this, this.props.i)}>-</button>
-            <button onClick={this.props.onAddItem.bind(this, this.props.i)}>+</button><br/>
-            <div onClick={this.props.toggle.bind(this, 'details-'+this.props.i)}>Attributes</div>
+            <button onClick={this.props.onAddItem.bind(this, this.props.i)}>+</button>
+            <span onClick={this.props.toggle.bind(this, 'details-'+this.props.i)}>&#9662;</span>
             <div id={'details-'+this.props.i} style={{display:'none'}}>
               Manufacturer <input type="search" list="manufacturers"
                                   value={this.props.item.product && this.props.item.product.manufacturer && this.props.item.product.manufacturer.name || ''}
@@ -78,6 +78,8 @@ export default class addReceiptPage extends React.Component {
     this.onChange = this.onChange.bind(this);
     this.onUpload = this.onUpload.bind(this);
     this.saveReceipt = this.saveReceipt.bind(this);
+    this.onDateChange = this.onDateChange.bind(this);
+    this.onFieldChange = this.onFieldChange.bind(this);
     this.onItemQuantityChange = this.onItemQuantityChange.bind(this);
     this.onItemMeasureChange = this.onItemMeasureChange.bind(this);
     this.onItemManufacturerChange = this.onItemManufacturerChange.bind(this);
@@ -170,6 +172,37 @@ export default class addReceiptPage extends React.Component {
       console.error(error);
     });
   }
+  onFieldChange(field1, field2, event) {
+    let transactions = this.state.transactions;
+    if (field2) {
+      if (event.target.value) {
+        transactions[0][field1][field2] = event.target.value;
+      }
+      else {
+        delete transactions[0][field1][field2];
+      }
+    }
+    else {
+      if (event.target.value) {
+        transactions[0][field1] = event.target.value;
+      }
+      else {
+        delete transactions[0][field1];
+      }
+    }
+    this.setState({
+      transactions
+    })  
+  }
+  onDateChange(key, event) {
+    if (isNaN(Date.parse(event.target.value))) return;
+
+    let transactions = this.state.transactions;
+    transactions[0].date = event.target.value;
+    this.setState({
+      transactions
+    });
+  }
   onItemNumberChange(key, event) {
     let transactions = this.state.transactions;
     transactions[0].items[key].item_number = event.target.value;
@@ -188,7 +221,11 @@ export default class addReceiptPage extends React.Component {
   }
   onItemQuantityChange(key, event) {
     let transactions = this.state.transactions;
-    transactions[0].items[key].quantity = event.target.value;
+
+    if (event.target.value)
+      transactions[0].items[key].quantity = parseFloat(event.target.value);
+    else
+      delete transactions[0].items[key].quantity;
 
     this.setState({
       transactions: transactions
@@ -196,7 +233,13 @@ export default class addReceiptPage extends React.Component {
   }
   onItemMeasureChange(key, event) {
     let transactions = this.state.transactions;
-    transactions[0].items[key].measure = event.target.value;
+    
+    console.log(event.target.value);
+
+    if (event.target.value)
+      transactions[0].items[key].measure = parseFloat(event.target.value);
+    else
+      delete transactions[0].items[key].measure;
 
     this.setState({
       transactions: transactions
@@ -234,8 +277,19 @@ export default class addReceiptPage extends React.Component {
     });
   }
   onItemCategoryChange(key, event) {
-    let transactions = this.state.transactions;
-    transactions[0].items[key].product.category = {name: event.target.value};
+    let transactions = this.state.transactions,
+        categories = this.state.categories,
+        name = event.target.value,
+        id;
+
+    for (let i in categories) {
+      if (categories[i].name == name || (categories[i].locales && categories[i].locales['fi-FI'] == name)) {
+        id = categories[i].id;
+        break;
+      }
+    }
+
+    transactions[0].items[key].product.category = {id, name};
 
     /* todo add
     let categories = this.state.categories;
@@ -324,7 +378,7 @@ export default class addReceiptPage extends React.Component {
           </datalist>
           <datalist id="categories">
             {this.state.categories.map(function(item, i) {
-              return <option value={item.name}/>
+              return <option data-value={item.id}>{item.locales ? item.locales['fi-FI'] : item.name}</option>
             })}
           </datalist>
           <div className="receipt-picture" style={{float:'left'}}>
@@ -332,19 +386,20 @@ export default class addReceiptPage extends React.Component {
           </div>
           <div style={{float:'left'}}>
             <div className="receipt-editor" style={{float:'left'}}>
-              <div>Store Name: <input key={"store-name-"+this.state.version} type="search" defaultValue={this.state.transactions[0].party.name}/></div>
-              <div>VAT: <input key={"vat-"+this.state.version} type="search" defaultValue={this.state.transactions[0].party.vat}/></div>
+              <div>Store Name: <input key={"store-name-"+this.state.version} type="search" value={this.state.transactions[0].party.name || ''} onChange={this.onFieldChange.bind(this, 'party', 'name')}/></div>
+              <div>VAT: <input key={"vat-"+this.state.version} type="search" value={this.state.transactions[0].party.vat || ''} onChange={this.onFieldChange.bind(this, 'party', 'vat')}/></div>
               <div>Street:
-                <input key={"street-name-"+this.state.version} type="search" defaultValue={this.state.transactions[0].party.street_name}/>
-                <input key={"street-number-"+this.state.version} type="search" defaultValue={this.state.transactions[0].party.street_number}/>
+                <input key={"street-name-"+this.state.version} type="search" value={this.state.transactions[0].party.street_name || ''} onChange={this.onFieldChange.bind(this, 'party', 'street_name')}/>
+                <input key={"street-number-"+this.state.version} type="search" value={this.state.transactions[0].party.street_number || ''} onChange={this.onFieldChange.bind(this, 'party', 'street_number')}/>
               </div>
-              <div>Postal Code: <input key={"postal-code-"+this.state.version} type="search" defaultValue={this.state.transactions[0].party.postal_code}/></div>
-              <div>City: <input key={"city-"+this.state.version} type="search" defaultValue={this.state.transactions[0].party.city}/></div>
-              <div>Phone Number: <input key={"phone-number-"+this.state.version} type="phone" defaultValue={this.state.transactions[0].party.phone_number}/></div>
-              <div>Date: <input key={"date-"+this.state.version} type="datetime-local" defaultValue={this.state.transactions[0].date && moment(this.state.transactions[0].date).format('YYYY-MM-DDTHH:mm:ss')}/></div>
+              <div>Postal Code: <input key={"postal-code-"+this.state.version} type="search" value={this.state.transactions[0].party.postal_code || ''} onChange={this.onFieldChange.bind(this, 'party', 'postal_code')}/></div>
+              <div>City: <input key={"city-"+this.state.version} type="search" value={this.state.transactions[0].party.city || ''} onChange={this.onFieldChange.bind(this, 'party', 'city')}/></div>
+              <div>Phone Number: <input key={"phone-number-"+this.state.version} type="phone" value={this.state.transactions[0].party.phone_number || ''} onChange={this.onFieldChange.bind(this, 'party', 'phone_number')}/></div>
+              <div>Date: <input key={"date-"+this.state.version} type="datetime-local" value={this.state.transactions[0].date && moment(this.state.transactions[0].date).format('YYYY-MM-DDTHH:mm:ss')} onChange={this.onDateChange.bind(this)}/></div>
               <div className="receipt-items">
                 {this.state.transactions[0].items.map(function(item, i){
                   return <ReceiptItem item={item}
+                                      key={'item-'+i+'-'+that.state.version}
                                       i={i}
                                       state={that.state}
                                       onDeleteItem={that.onDeleteItem}

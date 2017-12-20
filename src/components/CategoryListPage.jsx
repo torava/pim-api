@@ -63,13 +63,13 @@ class DragAndDropTreeTable extends React.Component {
 
     let that = this;
 
-    axios.get('/api/categoryattribute/')
+    axios.get('/api/attribute/')
     .then(function(response1) {
       that.setState({attributes: response1.data});
 
       console.log(that.state.attributes);
 
-      axios.get('/api/category/')
+      axios.get('/api/category/?attributes')
       .then(function(response) {
         let rows = response.data,
             columns = that.getColumns();
@@ -81,12 +81,13 @@ class DragAndDropTreeTable extends React.Component {
         }
         rows.unshift({name: 'Categories', showChildren: true, parentId: null, id: -1, attributes: [], editable: false});
 
-        rows = resolve.resolve({columns, method: resolve.index})(rows);
-        rows = compose(
+        //rows = resolve.resolve({columns, method: resolve.index})(rows);
+        /*rows = compose(
           tree.fixOrder({ parentField: 'parentId', idField: 'id' })
-        )(rows);
+        )(rows);*/
         that.setState({
           rows: rows,
+          page: 0,
           columns: columns,
           sortingColumns: {}
         });
@@ -104,6 +105,7 @@ class DragAndDropTreeTable extends React.Component {
     this.onAdd = this.onAdd.bind(this);
     this.onRemove = this.onRemove.bind(this);
     this.onSave = this.onSave.bind(this);
+    this.onBodyScroll = this.onBodyScroll.bind(this);
 
     this.tableHeader = null;
     this.tableBody = null;
@@ -280,7 +282,7 @@ class DragAndDropTreeTable extends React.Component {
     let { columns, sortingColumns } = this.state,
       rows = this.state.rows;
     let resolvedColumns = resolve.columnChildren({ columns });
-    let resolvedRows = compose(
+    let resolvedRows = /*compose(
       /*sort.sorter({
         columns: columns,
         sortingColumns,
@@ -288,7 +290,8 @@ class DragAndDropTreeTable extends React.Component {
         strategy: sort.strategies.byProperty
       }),
       tree.filter({ parentField: 'parentId', fieldName: 'showingChildren' }),
-      tree.fixOrder({ parentField: 'parentId', idField: 'id' }),*/
+      tree.fixOrder({ parentField: 'parentId', idField: 'id' }),
+      /*
       tree.filter({ parentField: 'parentId', fieldName: 'showingChildren' }),
       tree.wrap({
         operations: [
@@ -305,7 +308,7 @@ class DragAndDropTreeTable extends React.Component {
         method: resolve.nested
       }),
       tree.fixOrder({ parentField: 'parentId', idField: 'id' })
-    )(rows);
+    )(rows)*/ rows;
 
     return (
       <div>
@@ -332,6 +335,7 @@ class DragAndDropTreeTable extends React.Component {
               this.tableBody = tableBody && tableBody.getRef();
             }}
             tableHeader={this.tableHeader}
+            onScroll={this.onBodyScroll}
           />
         </Table.Provider>
       </div>
@@ -432,6 +436,14 @@ class DragAndDropTreeTable extends React.Component {
     .catch(function(error) {
       console.error(error);
     });
+  }
+  onBodyScroll({ target: { scrollHeight, scrollTop, offsetHeight } }) {
+    if (scrollTop + offsetHeight === scrollHeight) {
+      this.setState({
+        rows: this.state.all_rows.slice(this.state.page*100, this.state.page*100+100),
+        page: this.state.page+1
+      });
+    }
   }
 }
 

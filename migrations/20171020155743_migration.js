@@ -15,8 +15,8 @@ exports.up = function(knex, Promise) {
     table.increments('id').primary();
     table.dateTime('date');
     table.integer('partyId').unsigned().references('id').inTable('Party');
-    table.decimal('total_price', 2);
-    table.decimal('total_price_read', 2);
+    table.decimal('total_price', 8, 2);
+    table.decimal('total_price_read', 8, 2);
   })
   .createTable('Manufacturer', function(table) {
     table.increments('id').primary();
@@ -28,7 +28,8 @@ exports.up = function(knex, Promise) {
   .createTable('Category', function(table) {
     table.increments('id').primary();
     table.string('name');
-    //table.json('attribute');
+    table.json('locales');
+    table.json('attributes');
     table.integer('parentId').unsigned().references('id').inTable('Category');
   })
   .createTable('Product', function(table) {
@@ -42,7 +43,7 @@ exports.up = function(knex, Promise) {
     table.increments('id').primary();
     table.string('item_number');
     table.string('text');
-    table.decimal('price', 2);
+    table.decimal('price', 8, 2);
     table.integer('quantity');
     table.float('measure');
     table.string('unit');
@@ -60,12 +61,10 @@ exports.up = function(knex, Promise) {
     table.float('value');
     table.integer('productId').unsigned().references('id').inTable('Product');
   })
-  .createTable('CategoryAttribute', function(table) {
+  .createTable('Attribute', function(table) {
     table.string('name');
-    table.float('value');
     table.string('unit');
     table.string('group');
-    table.integer('categoryId').unsigned().references('id').inTable('Category');
   })
   .createTable('Conversion', function(table) {
     table.string('from').primary();

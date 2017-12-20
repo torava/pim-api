@@ -1,7 +1,7 @@
 const Transaction = require('./models/Transaction');
 const Product = require('./models/Product');
 const Category = require('./models/Category');
-const CategoryAttribute = require('./models/CategoryAttribute');
+const Attribute = require('./models/Attribute');
 const Manufacturer = require('./models/Manufacturer');
 const Item = require('./models/Item');
 const multer = require('multer');
@@ -38,13 +38,20 @@ function toTitleCase(str) {
   return  str.replace(/([^\s:\-])([^\s:\-]*)/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
 
-function getDataFromReceipt(result, text, language) {
-  text = text.replace(/ﬂ|»|'|´|`|‘/g, '').replace(/—/g, '-');
+async function getDataFromReceipt(result, text, language) {
+  text = text
+  .replace(/ﬂ|»|'|´|`|‘|“|"|”/g, '')
+  .replace(/(\d) *(\.,|\,|\.|_|\-|;) *(\d)/g, '$1.$3')
+  .replace(/\.,|\,|_|\-|;/g, '')
+  .replace(/—/g, '-')
+  .replace(/ +/g, ' ');
+
+  console.log(text);
 
   let line, line_name, line_product_name, line_price, line_prices, item_number, line_text,
-    line_total, line_date, line_address, line_vat, line_item_details, quantity,
+    line_total, line_date, line_address, line_vat, line_item_details, quantity, measure,
     line_number_format, total_price_computed = 0, name, line_item, line_phone_number,
-    total_price, price, has_discount, previous_line, found_attribute,
+    total_price, price, has_discount, previous_line, found_attribute, category,
     items = [], line_number = 0, data = {party:{}},
     lines = text.split("\n");
 
@@ -215,13 +222,17 @@ function getDataFromReceipt(result, text, language) {
             items.push({
               item_number: line_item[2] || '',
               text: line_item[0],
-              //category: {},
               product: {
                 name: name
               },
-              price: price,
-              quantity: quantity
+              price: price
             });
+
+            category = await getClosestCategory(name, 'fi-FI');
+
+            if (quantity) items[items.length-1].quantity = quantity;
+            if (measure) items[items.length-1].measure = measure;
+            if (category) items[items.length-1].product.category = {id: category.id, name: category.locales && category.locales['fi-FI'] || category.name};
 
             let found = false;
             for (i in result.products) {
@@ -258,6 +269,10 @@ function getDataFromReceipt(result, text, language) {
       line_product_name = null;
 
       found_attribute = null;
+
+      measure = null;
+      
+      quantity = null;
 
       line = ines[i];
       line_number_format = line.replace(/\s*(\.,|\,|\.)\s*/g, '.');
@@ -354,26 +369,34 @@ function getDataFromReceipt(result, text, language) {
 
         if (line_item_details) {
           items[items.length-1].item_number = line;
+          items[items.length-1].text = items[items.length-1].text+line_text;
 
           previous_line = 'details';
           continue;
         }
       }
-      
+      /*
       // details line
       line_item_details = null;
       console.log(previous_line, line);
       if (previous_line === 'item') {
+        line_price = line_number_format.match(/\s((\d+\.\d{2})(\-)?\s?){1,2}$/i);
+
+        line_item_details = line_number_format;
+        if (line_price)
+          line_item_details = line_item_details.substring(0, line_price.index);
         // 1234 1,000 x 1,00
-        line_item_details = line_number_format.match(/^((\d+)\s)?(((\d+(\.\d{2,3})?)(G?r)?\s?[x|\/]\s?)?((\d+\.\d{2})\s?)(K?g\.?)?)(\s?(\(|\[)\d+\.\d{2}(\-)?(\)|\]))?$/i);
+        line_item_details = line_item_details
+        .match(/^((\d+)\s)?(((\d+(\.\d{2,3})?)([g|b|8|0|6][r|7])?\s?[x|\/|k]\s?)?((\d+(\.\d{1,3})?)\s?)(k[g|9]\.?)?)(\s?(\(|\[)\d+\.\d{2}(\-)?(\)|\]))?$/i);
         console.log(line_item_details);
         if (line_item_details) {
           items[items.length-1].item_number = line_item_details[2];
           items[items.length-1].quantity = parseFloat(line_item_details[7]);
+          items[items.length-1].text = items[items.length-1].text+line_text;
           previous_line = 'details';
           continue;
         }
-      }
+      }*/
       
       // item line
       if (!has_discount && !data.total_price_read && !line.match(/subtotal|tarjeta|su\svuelta/i)) {
@@ -383,13 +406,20 @@ function getDataFromReceipt(result, text, language) {
           name = null;
 
           // 1.23Gr/1.23Kg. [12.34]
-          line_item_details = line_number_format.substring(0, line_price.index).match(/^((\d+)\s)?(((\d+(\.\d{2,3})?)(G?r)?\s?[x|\/]\s?)?((\d+\.\d{2})\s?)(K?g\.?)?)(\s?(\(|\[)\d+\.\d{2}(\-)?(\)|\]))?$/i);
+          line_item_details = line_number_format.substring(0, line_price.index)
+          .match(/^((\d+)\s)?(((\d+(\.\d{2,3})?)([g|b|8|0|6][r|7])?\s?[x|\/|k]\s?)?((\d+(\.\d{1,3})?)\s?)(k[g|9]\.?)?)(\s?(\(|\[)\d+\.\d{2}(\-)?(\)|\]))?$/i);
 
           item_number = '';
           console.log(line_item_details, line_item);
           if (line_item_details) {
             item_number = line_item_details[2];
-            quantity = parseFloat(line_item_details[5]);
+            
+            if (line_item_details[7]) {
+              measure = parseFloat(line_item_details[5]);
+            }
+            else {
+              quantity = parseFloat(line_item_details[5]);
+            }
 
             line_item = ines[i-1].match(/^((\d+)\s?)?([\u00C0-\u017F-a-z0-9\s\-\.&%\/\(\)\{\}]+)$/i);
           }
@@ -398,7 +428,7 @@ function getDataFromReceipt(result, text, language) {
           }
           
           if (line_item) {
-            name = line_item[3];
+            name = toTitleCase(line_item[3]);
             if (line_item[2]) item_number = line_item[2];
             line_text = line_item[0];
 
@@ -414,9 +444,11 @@ function getDataFromReceipt(result, text, language) {
               product: {
                 name: name
               },
-              quantity: quantity || null,
               price: price
             });
+
+            if (quantity) items[items.length-1].quantity = quantity;
+            if (measure) items[items.length-1].measure = measure;
 
             let found = false;
             for (i in result.products) {
@@ -453,13 +485,17 @@ function getDataFromReceipt(result, text, language) {
   };*/
 
   result.transactions = [data];
+  result.transactions[0].receipts = [{}];
+  result.transactions[0].receipts[0].text = text;
   
   return result;
 }
 
 function extractTextFromFile(id, data, language, cb) {
   let filepath = upload_path+"/"+id,
-      script = [filepath, '-type', 'grayscale'],
+      script = [filepath,
+                '-type', 'grayscale',
+                '-background', 'none'],
       parameters = {threshold: 10, blur: 1, sharpen: 1};
 
   if ('blur' in data) {
@@ -474,26 +510,29 @@ function extractTextFromFile(id, data, language, cb) {
 
   // ./textcleaner -g -e normalize -T -f 50 -o 5 -a 0.1 -t 10 -u -s 1 -p 20 test.jpg test.png
   if (data.rotate)
-    script = script.concat(['-gravity', 'Center', '-rotate', parseFloat(data.rotate)], '+repage');
+    script = script.concat(['-gravity', 'Center', '-rotate', parseFloat(data.rotate), '+repage']);
   if (data.width && data.height)
     script = script.concat(['-gravity', 'NorthWest', '-crop', parseInt(data.width)+'x'+parseInt(data.height)+'+'+parseInt(data.x)+'+'+parseInt(data.y), '+repage']);
 
-  script = script.concat([
-      '-adaptive-resize', '1000x',
+  script = script.concat(['-adaptive-resize', '800x',
       '-normalize',
-      //'-contrast-stretch', '0',
-      '-lat', '50x50-'+parameters.threshold+'%']);
+      //'-contrast-stretch', '0'
+  ]);
 
-  if (parameters.blur) script = script.concat(['-adaptive-blur', parameters.blur]);
-  if (parameters.sharpen) script = script.concat(['-sharpen', '0x'+parameters.sharpen]);
+  if (parameters.blur)
+    script = script.concat(['-adaptive-blur', parameters.blur]);
+  if (parameters.sharpen)
+    script = script.concat(['-sharpen', '0x'+parameters.sharpen]);
+
+  script = script.concat(['-lat', '50x50-'+parameters.threshold+'%']);
 
   script = script.concat([
-      '-set', 'option:deskew:autocrop', 'true',
+      //'-set', 'option:deskew:autocrop', 'true',
       //'-deskew', '40%',
+      //'-bordercolor', 'white',
+      //'-border', '50',
       '-trim',
       '+repage',
-      '-bordercolor', 'white',
-      '-border', '10',
       '-format', 'png',
       '-strip',
       filepath+'_edited']);
@@ -505,7 +544,7 @@ function extractTextFromFile(id, data, language, cb) {
     process.stderr.write(stderr);
     child_process.execFile('tesseract', [
       '-l',
-      ['fin', 'spa'].indexOf(language) !== -1 ? language : 'eng',
+      ['fin'].indexOf(language) !== -1 ? language : 'eng',
       filepath+'_edited',
       'stdout'
     ], function(error, stdout, stderr) {
@@ -530,7 +569,7 @@ app.post('/api/category', function(req, res) {
 app.post('/api/transaction', function(req, res) {
   console.dir(req.body, {depth:null});
   Transaction.query()
-    .insertGraph(req.body)
+    .upsertGraph(req.body, {relate: true})
     .then(transaction => {
       res.send(transaction);
     });
@@ -538,7 +577,7 @@ app.post('/api/transaction', function(req, res) {
 
 app.get('/api/item', function(req, res) {
   Item.query()
-    .eager('[product.[category.[attributes], manufacturer, attributes], transaction.[party]]')
+    .eager('[product.[category, manufacturer], transaction.[party]]')
     //.where('product.category.id', '5')
     .then(items => {
       items = items.filter(item => {
@@ -555,7 +594,7 @@ app.get('/api/item', function(req, res) {
 
 app.get('/api/transaction', function(req, res) {
   Transaction.query()
-    .eager('[items.[product.[category.[attributes], manufacturer, attributes]], party, receipts]')
+    .eager('[items.[product.[category, manufacturer, attributes]], party, receipts]')
     .then(transaction => {
       res.send(transaction);
     });
@@ -577,11 +616,55 @@ function getCategories(parent) {
   });
 }
 
+function getClosestCategory(toCompare, locale) {
+  return new Promise(resolve => {
+    Category.query()
+    .then(categories => {
+      let name, category, response = null, max_distance = 0, distance;
+      toCompare = toCompare.toLowerCase();
+      for (let i in categories) {
+        category = categories[i];
+        name = locale && category.locales ? category.locales[locale] : category.name;
+        name = name.toLowerCase();
+        distance = toCompare.match(name) && name.length/toCompare.length;
+        if (distance > max_distance) {
+          max_distance = distance;
+          response = category;
+        }
+      }
+      resolve(response);
+    });
+  });
+}
+
 app.get('/api/category', function(req, res) {
   /*if (req.query.nested) {
     res.send(getCategories(req.query.parent || -1));
   }
-  else */if (req.query.parent) {
+  else */
+  if (req.query.match) {
+    res.send(getClosestCategory(req.query.match).id.toString());
+    /*
+    Category.query()
+    //.eager('[products.[items], attributes, children.^]')
+    .then(categories => {
+      /*for (let i in categories) {
+        category = categories[i];
+        name = req.query.locale && category.locales ? category.locales[req.query.locale] : category.name;
+        distance = levenshtein(name.toLowerCase(), req.query.match.toLowerCase());
+        /*if (distance > max_distance) {
+          max_distance = distance;
+          response = name;
+        }
+        response.push({distance, name});
+      }
+      response = response.sort(function(a,b) {
+        return a.distance < b.distance
+      });
+      res.send(response);
+    });*/
+  }
+  else if (req.query.parent) {
     Category.query()
     //.limit(1000)
     .where('parentId', req.query.parent)
@@ -589,24 +672,29 @@ app.get('/api/category', function(req, res) {
     //.eager('[products.[items], attributes, children.^]')
     .then(categories => {
       res.send(categories);
-    })
+    });
   }
   else {
     console.log(req.query);
     Category.query()
     //.limit(2000)
-    .where('parentId', null)
-    //.eager('[attributes]')
-    //.eager('[products.[items], attributes, children.^]')
+    .select(req.query.hasOwnProperty('attributes') ? ['id', 'name', 'locales', 'attributes'] : ['id', 'name', 'locales'])
     .then(categories => {
+      if (req.query.locale) {
+        for (let i in categories) {
+          if (ategories[i].locales) {
+            categories[i].name = categories[i].locales[req.query.locale];
+            delete categories[i].locales;
+          }
+        }
+      }
       res.send(categories);
     })
   }
 });
 
-app.get('/api/categoryattribute', function(req, res) {
-  CategoryAttribute.query()
-  .distinct('name')
+app.get('/api/attribute', function(req, res) {
+  Attribute.query()
   .then(attributes => {
     res.send(attributes);
   })
@@ -652,11 +740,11 @@ app.post('/api/receipt/data/:id', function(req, res) {
       .then(manufacturer => {
         data.manufacturers = manufacturer;
 
-        extractTextFromFile(id, data, language, function(text) {
+        extractTextFromFile(id, data, language, async function(text) {
           if (text) {
-            data = getDataFromReceipt(data, text, language);
-            data.transactions[0].receipts = [{}];
-            data.transactions[0].receipts[0].text = text;
+            data = await getDataFromReceipt(data, text, language);
+            //data.transactions[0].receipts = [{}];
+            //data.transactions[0].receipts[0].text = text;
             data.transactions[0].receipts[0].file = id;
             res.json(data);
           }
@@ -714,7 +802,7 @@ app.get('/api/getexternalcategories', function(req, res) {
           name,
           unit,
           attributes,
-          attribute_names,
+          attribute_names = [],
           parts,
           error = false;
   
@@ -727,8 +815,7 @@ app.get('/api/getexternalcategories', function(req, res) {
         parts = column_titles[c].trim().split('(');
         unit = parts[parts.length-1].substring(0,parts[parts.length-1].length-1);
         name = column_titles[c].substring(0, column_titles[c].length-unit.length-3);
-        column_names.push(name);
-        column_units.push(unit);
+        attribute_names.push({name, unit, group: 'nutrition'});
       }
   
       for (let r = 1; r < rows.length; r++) {
@@ -739,20 +826,19 @@ app.get('/api/getexternalcategories', function(req, res) {
         error = false;
         if (!name || !rows_index_fi[id]) continue;
         for (let c = 2; c < columns.length; c++) {
-          if (!column_names[c-2]) {
+          if (!attribute_names[c-2]) {
             error = true;
             break;
           }
-          //attributes[column_names[c-2]] = parseFloat(columns[c].replace(/\r|</g, '')) || 0;
-          attributes.push({name: column_names[c-2], value: parseFloat(columns[c].replace(/\r|</g, '')) || 0, group: 'nutrition', unit: column_units[c-2]});
+          attributes[attribute_names[c-2].name] = parseFloat(columns[c].replace(/\r|</g, '')) || 0;
         }
         if (error) continue;
-        categories.push({name, attributes, children: [{name: rows_index_fi[id]}]});
+        categories.push({name, attributes, locales: {'fi-FI': rows_index_fi[id]}});
 
         if (r % 500 == 0) {
           console.log('ok1', r);
           await Category.query()
-          .upsertGraph(categories)
+          .insertGraph(categories)
           .then(category => {
             console.log('ok2', r);
           });
@@ -762,11 +848,16 @@ app.get('/api/getexternalcategories', function(req, res) {
       console.log('ok3');
       //console.dir(categories, {depth:null});
       await Category.query()
-      .upsertGraph(categories)
+      .insertGraph(categories)
       .then(category => {
         console.log('ok4');
       });
-      console.log('ok5');
+      await Attribute.query()
+      .insertGraph(attribute_names)
+      .then(attribute => {
+        console.log('ok5');
+      });
+      console.log('ok6');
       res.send('ok');
       res.end();
     });
