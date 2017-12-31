@@ -11,9 +11,11 @@ class Conversion extends Model {
 			type: 'object',
 
 			properties: {
-				from: {type: 'string'}, 
-				to: {type: 'string'},
-				value: {type: 'number'}
+				fromLocale: {type: 'string'}, 
+				fromCurrency: {type: 'string'},
+				toLocale: {type: 'string'},
+				toCurrency: {type: 'string'},
+				rate: {type: 'number'}
 			}
 		}
 	}

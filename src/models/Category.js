@@ -13,8 +13,7 @@ class Category extends Model {
 
 			properties: {
 				id: {type: 'integer'},
-				name: {type: 'string', minLength: 1, maxLength: 255},
-				locales: {type: 'object'},
+				name: {type: 'object'},
 				attributes: {type: 'object'}
 			}
 		}
@@ -28,6 +27,14 @@ class Category extends Model {
 				join: {
 					from: 'Category.id',
 					to: 'Product.categoryId'
+				}
+			},
+			attributes: {
+				relation: Model.HasManyRelation,
+				modelClass: __dirname+'/CategoryAttribute',
+				join: {
+					from: 'Category.id',
+					to: 'CategoryAttribute.categoryId'
 				}
 			},
 			children: {

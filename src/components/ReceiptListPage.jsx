@@ -9,7 +9,7 @@ const transaction_columns = [
   {
     Header: 'Date',
     accessor: 'date',
-    Cell: props => <span>{new Date(props.value).toLocaleString()}</span>
+    Cell: props => <span><a href={"/edit/"+props.original.id}>{new Date(props.value).toLocaleString()}</a></span>
   },
   {
     Header: 'Store',
@@ -36,7 +36,12 @@ const item_columns = [
   },
   {
     Header: 'Price',
-    accessor: 'price'
+    id: 'price',
+    accessor: d => {
+      let currency = localStorage.getItem('currency');
+      console.log(currency, d);
+      return d.price;
+    }
   }
 ]
 

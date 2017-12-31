@@ -11,6 +11,7 @@ const im = require('imagemagick');
 const fs = require('fs');
 const request = require('request');
 const child_process = require('child_process');
+const _ = require('lodash');
 
 module.exports = function (app) {
 
@@ -212,7 +213,7 @@ async function getDataFromReceipt(result, text, language) {
           line_item = line.substring(0, line_price.index).match(/^((\d+)\s)?([\u00C0-\u017F-a-z0-9\s\-\.\,\+\&\%\=\/\(\)\{\}]+)$/i);
           if (line_item) {
             price = parseFloat(line_price[1]);
-            name = line_item[3];
+            name = toTitleCase(line_item[3]);
 
             if (line_price[3] === '-') {
               has_discount = true;
@@ -566,15 +567,6 @@ app.post('/api/category', function(req, res) {
     });
 });
 
-app.post('/api/transaction', function(req, res) {
-  console.dir(req.body, {depth:null});
-  Transaction.query()
-    .upsertGraph(req.body, {relate: true})
-    .then(transaction => {
-      res.send(transaction);
-    });
-});
-
 app.get('/api/item', function(req, res) {
   Item.query()
     .eager('[product.[category, manufacturer], transaction.[party]]')
@@ -592,12 +584,108 @@ app.get('/api/item', function(req, res) {
     });
 });
 
-app.get('/api/transaction', function(req, res) {
+app.delete('/api/transaction/:id', function(req, res) {
   Transaction.query()
-    .eager('[items.[product.[category, manufacturer, attributes]], party, receipts]')
+    .delete()
+    .where('id', req.params.id)
     .then(transaction => {
       res.send(transaction);
     });
+});
+
+const TRANSACTION_CSV_COLUMNS = i => [
+  'id',
+  'date',
+  'receipts[0].id',
+  'receipts[0].file',
+  'receipts[0].locale',
+  'party.id',
+  'party.name',
+  'items['+i+'].product.name',
+  'items['+i+'].product.category.id',
+  'items['+i+'].product.category.name',
+  'items['+i+'].price',
+  'items['+i+'].quantity',
+  'items['+i+'].measure',
+  'items['+i+'].unit'
+];
+const TRANSACTION_CSV_COLUMN_NAMES = [
+  'Id',
+  'Date',
+  'Receipt id',
+  'Receipt file',
+  'Receipt locale',
+  'Party id',
+  'Party name',
+  'Product name',
+  'Product category id',
+  'Product category name',
+  'Item price',
+  'Item quantity',
+  'Item measure',
+  'Item unit'
+];
+const CSV_SEPARATOR = ";";
+
+app.post('/api/transaction', function(req, res) {
+  let transaction = {};
+  if ('fromcsv' in req.query) {
+    let columns,
+        item_index = 0,
+        rows = req.body.transaction.split('\n');
+    for (let i = 2; i < rows.length; i++) {
+      columns = rows[i].split(CSV_SEPARATOR);
+      if (!(columns[0] in transaction)) {
+        item_index = 0;
+        transaction[columns[0]] = {items:[], party:{}, receipts:[]};
+      }
+      for (let n in columns) {
+        console.log(i, TRANSACTION_CSV_COLUMNS(i-1)[n]);
+        _.set(transaction[columns[0]], TRANSACTION_CSV_COLUMNS(item_index)[n], columns[n]);
+      }
+      item_index++;
+    }
+    console.dir(transaction, {depth:null});
+    res.send(transaction);
+    return;
+  }
+  else {
+    transaction = req.body;
+  }
+  console.dir(req.body, {depth:null});
+  Transaction.query()
+    .upsertGraph(req.body, {relate: true})
+    .then(transaction => {
+      res.send(transaction);
+    });
+});
+
+app.get('/api/transaction', function(req, res) {
+  if ('tocsv' in req.query) {
+    let response = [['SEP='+CSV_SEPARATOR], TRANSACTION_CSV_COLUMN_NAMES.join(CSV_SEPARATOR)];
+    Transaction.query()
+      .eager('[items.[product.[category, manufacturer, attributes]], party, receipts]')
+      .then(transactions => {
+        for (let n in transactions) {
+          let items = transactions[n].items;
+          for (let i in items) {
+            // transaction id, transaction date, party id, party name, product name, item price
+            response.push(_.at(transactions[n], TRANSACTION_CSV_COLUMNS(i)).join(CSV_SEPARATOR));
+          }
+        }
+        res.send(response.join('\n'));
+      });   
+  }
+  else {
+    Transaction.query()
+      .eager('[items.[product.[category, manufacturer, attributes]], party, receipts]')
+      .modifyEager('items.product.category', builder => {
+        builder.select('id', 'name');
+      })
+      .then(transaction => {
+        res.send(transaction);
+      });
+  }
 });
 
 function getCategories(parent) {
@@ -724,6 +812,37 @@ app.post('/api/receipt/picture', function(req, res) {
   });
 });
 
+app.get('/api/receipt/data/:id', function(req, res) {
+  let data = req.body,
+      language = data.language || 'fin',
+      id = req.params.id;
+
+  Category.query()
+  .then(category => {
+    data.categories = category;
+    Product.query()
+    .then(product => {
+      data.products = product;
+
+      Manufacturer.query()
+      .then(manufacturer => {
+        data.manufacturers = manufacturer;
+
+        Transaction.query()
+          .where('id', req.params.id)
+          .eager('[items.[product.[category, manufacturer]], party, receipts]')
+          .modifyEager('items.product.category', builder => {
+            builder.select('id', 'name');
+          })
+          .then(transaction => {
+            data.transactions = transaction;
+            res.json(data);
+          });
+      });
+    });
+  });
+});
+
 app.post('/api/receipt/data/:id', function(req, res) {
   let data = req.body,
       language = data.language || 'fin',
@@ -786,7 +905,221 @@ app.get('/api/receipt/picture/:id', function (req, res) {
 	});
 });
 
-app.get('/api/getexternalcategories', function(req, res) {
+app.get('/api/util/getexternalcategoriesfineli', function(req, res) {
+  console.log('files');
+
+  let food_rows = fs.readFileSync(__dirname+'/../fineli/food.csv', 'latin1').split('\n'),
+      fuclass_rows = fs.readFileSync(__dirname+'/../fineli/fuclass_FI.csv', 'latin1').split('\n'),
+      igclass_rows = fs.readFileSync(__dirname+'/../fineli/igclass_FI.csv', 'latin1').split('\n'),
+      component_value_rows = fs.readFileSync(__dirname+'/../fineli/component_value.csv', 'latin1').split('\n'),
+      component_rows = fs.readFileSync(__dirname+'/../fineli/component.csv', 'latin1').split('\n'),
+      cmpclass_rows = fs.readFileSync(__dirname+'/../fineli/cmpclass_FI.csv', 'latin1').split('\n'),
+      eufdname_rows = fs.readFileSync(__dirname+'/../fineli/eufdname_FI.csv', 'latin1').split('\n'),
+      parent_ref, parent_name, second_parent_name, second_parent_ref, third_parent_ref,
+      attr_ref,
+      attr_refs = {},
+      fuclass = {},
+      igclass = {},
+      component = {},
+      cmpclass = {},
+      eufdname = {},
+      attribute,
+      food_row,
+      row,
+      parent,
+      refs = {
+        '#food': true,
+        '#ingredients': true,
+        '#recipes': true
+      },
+      categories = {
+        food: {
+          '#id': 'food',
+          name: 'Ruoka'
+        },
+        ingredients: {
+          '#id': 'ingredients',
+          name: 'Raaka-aineet',
+          parent: {
+            '#ref': 'food',
+          }
+        },
+        recipes: {
+          '#id': 'recipes',
+          name: 'Ruokalajit',
+          parent: {
+            '#ref': 'food'
+          }
+        }
+      };
+
+  console.log('meta');
+
+  for (let i in fuclass_rows) {
+    row = fuclass_rows[i].trim().split(';');
+    fuclass[row[0]] = row[1];
+  }
+
+  for (let i in igclass_rows) {
+    row = igclass_rows[i].trim().split(';');
+    igclass[row[0]] = row[1];
+  }
+
+  for (let i in component_rows) {
+    row = component_rows[i].trim().split(';');
+    component[row[0]] = row;
+  }
+
+  for (let i in cmpclass_rows) {
+    row = cmpclass_rows[i].trim().split(';');
+    cmpclass[row[0]] = row;
+  }
+
+  for (let i in eufdname_rows) {
+    row = eufdname_rows[i].trim().split(';');
+    eufdname[row[0]] = row[1];
+  }
+
+  console.log('food');
+
+  for (let i in food_rows) {
+    food_row = food_rows[i].trim().split(';');
+
+    if (!food_row[0] || food_row[0] == 'FOODID') {
+      continue;
+    }
+
+    if (food_row[6] == 'NONINGR') {
+      parent_ref = food_row[7];
+      parent_name = fuclass[parent_ref];
+      second_parent_ref = food_row[8];
+      second_parent_name = fuclass[second_parent_ref];
+      third_parent_ref = 'recipes';
+    }
+    else {
+      parent_ref = food_row[5];
+      parent_name = igclass[parent_ref];
+      second_parent_ref = food_row[6];
+      second_parent_name = igclass[second_parent_ref];
+      third_parent_ref = 'ingredients';
+    }
+
+    if (parent_ref in refs) {
+      parent = {
+        '#ref': parent_ref
+      };
+    }
+    else {
+      refs[parent_ref] = true;
+      parent = {
+        '#id': parent_ref,
+        name: parent_name
+      };
+      if (second_parent_ref in refs) {
+        parent.parent = {
+          '#ref': second_parent_ref
+        }
+      }
+      else {
+        refs[second_parent_ref] = true;
+        parent.parent = {
+          '#id': second_parent_ref,
+          name: second_parent_name,
+          parent: {
+            '#ref': third_parent_ref,
+          }
+        }
+      }
+    }
+  
+
+    categories[food_row[0]] = {
+      name: food_row[1],
+      type: food_row[2],
+      process: food_row[3],
+      portion: food_row[4],
+      parent
+    };
+  }
+
+  console.log('attributes');
+  
+  for (let i in component_value_rows) {
+    row = component_value_rows[i].split(';');
+
+    if (!row[0] || row[0] == 'FOODID') {
+      continue;
+    }
+
+    if (!('attributes' in categories[row[0]]))
+      categories[row[0]].attributes = [];
+
+    attr_ref = row[1];
+
+    if (attr_ref in attr_refs) {
+      attribute = {
+        '#ref': attr_ref
+      }
+    }
+    else {
+      attr_refs[attr_ref] = true;
+      attribute = {
+        '#id': attr_ref,
+        name: eufdname[row[1]],
+        unit: component[row[1]][1].toLowerCase()
+      }
+
+      parent_ref = component[row[1]][2];
+
+      if (parent_ref in attr_refs) {
+        attr_refs[attr_ref] = true;
+        attribute.parent = {
+          '#ref': parent_ref
+        }
+      }
+      else {
+        attribute.parent = {
+          '#id': attr_ref,
+          name: cmpclass[parent_ref][1]
+        }
+
+        second_parent_ref = component[row[1]][3];
+
+        if (second_parent_ref in attr_refs) {
+          attribute.parent.parent = {
+            '#ref': second_parent_ref
+          }
+        }
+        else {
+          attribute.parent.parent = {
+            '#id': second_parent_ref,
+            name: cmpclass[second_parent_ref][1]
+          }
+        }
+      }
+    }
+
+    categories[row[0]].attributes.push({
+      attribute,
+      value: parseFloat(row[2].replace(',', '.'))
+    });
+  }
+
+  console.log('done');
+
+  res.send(categories);
+
+  return;
+
+  Category.query()
+    .insertGraph(categories)
+    .then(category => {
+      console.log('written');
+      res.send('ok');
+    });
+});
+
+app.get('/api/util/getexternalcategoriesfineliresultset', function(req, res) {
   request("https://fineli.fi/fineli/en/elintarvikkeet/resultset.csv", function(error, response, data) {
     request("https://fineli.fi/fineli/fi/elintarvikkeet/resultset.csv", async (error_fi, response_fi, data_fi) => {
       let rows = data.split('\n'),

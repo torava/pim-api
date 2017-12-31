@@ -30,10 +30,8 @@ class ProductAttribute extends Model {
 	static get jsonSchema() {
 		return {
 			type: 'object',
-			required: ['name'],
 
 			properties: {
-				name: {type: 'string'},
 				value: {type: 'float'}
 			}
 		}
@@ -48,7 +46,15 @@ class ProductAttribute extends Model {
 					from: 'ProductAttribute.productId',
 					to: 'Product.id'
 				}
-      }
+			},
+			attribute: {
+				relation: Model.BelongsToOneRelation,
+				modelClass: __dirname+'/Attribute',
+				join: {
+					from: 'ProductAttribute.attributeId',
+					to: 'Attribute.id'
+				}
+			}
     }
   }
 }

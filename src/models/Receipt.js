@@ -12,7 +12,21 @@ class Receipt extends Model {
 			properties: {
 				id: {type: 'integer'},
 				file: {type: 'string', minLength: 1, maxLength: 255},
+				locale: {type: 'string'},
 				text: {type: 'string'}
+			}
+		}
+	}
+
+	static get relationMappings() {
+		return {
+			transaction: {
+				relation: Model.BelongsToOneRelation,
+				modelClass: __dirname+'/Transaction',
+				join: {
+					from: 'Receipt.transactionId',
+					to: 'Transaction.id'
+				}
 			}
 		}
 	}

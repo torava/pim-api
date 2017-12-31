@@ -13,12 +13,25 @@ class Party extends Model {
 			properties: {
 				id: {type: 'integer'},
 				name: {type: 'string', minLength: 1, maxLength: 255},
-				vat: {type: 'string', minLength: 1, maxLength: 255},
-				street_name: {type: 'string', minLength: 1, maxLength: 255},
-				street_number: {type: 'string', minLength: 1, maxLength: 255},
-				postal_code: {type: 'string', minLength: 1, maxLength: 255},
-				city: {type: 'string', minLength: 1, maxLength: 255},
-				phone_number: {type: 'string', minLength: 1, maxLength: 255}
+				vat: {type: ['string', 'null']},
+				street_name: {type: ['string', 'null']},
+				street_number: {type: ['string', 'null']},
+				postal_code: {type: ['string', 'null']},
+				city: {type: ['string', 'null']},
+				phone_number: {type: ['string', 'null']}
+			}
+		}
+	}
+
+	static get relationMappings() {
+		return {
+			transaction: {
+				relation: Model.HasManyRelation,
+				modelClass: __dirname+'/Transaction',
+				join: {
+					from: 'Party.transactionId',
+					to: 'Transaction.id'
+				}
 			}
 		}
 	}

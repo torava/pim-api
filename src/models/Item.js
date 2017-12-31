@@ -12,13 +12,13 @@ class Item extends Model {
 
 			properties: {
 				id: {type: 'integer'},
-				item_number: {type: 'string'}, 
-				text: {type: 'string'},
-				price: {type: 'number'},
-				currency: {type: 'string'},
-				quantity: {type: 'number'},
-				measure: {type: 'number'},
-				unit: {type: 'string'}
+				item_number: {type: ['string', 'null']}, 
+				text: {type: ['string', 'null']},
+				price: {type: ['number', 'null']},
+				currency: {type: ['string', 'null']},
+				quantity: {type: ['number', 'null']},
+				measure: {type: ['number', 'null']},
+				unit: {type: ['string', 'null']}
 			}
 		}
 	}

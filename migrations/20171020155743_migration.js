@@ -27,9 +27,7 @@ exports.up = function(knex, Promise) {
   })
   .createTable('Category', function(table) {
     table.increments('id').primary();
-    table.string('name');
-    table.json('locales');
-    table.json('attributes');
+    table.json('name');
     table.integer('parentId').unsigned().references('id').inTable('Category');
   })
   .createTable('Product', function(table) {
@@ -47,29 +45,63 @@ exports.up = function(knex, Promise) {
     table.integer('quantity');
     table.float('measure');
     table.string('unit');
-    table.integer('transactionId').unsigned().references('id').inTable('Transaction');
+    table.integer('transactionId').unsigned().references('id').inTable('Transaction').onDelete('CASCADE');
     table.integer('productId').unsigned().references('id').inTable('Product');
   })
   .createTable('Receipt', function(table) {
     table.increments('id').primary();
     table.string('file');
     table.text('text');
-    table.integer('transactionId').unsigned().references('id').inTable('Transaction');
-  })
-  .createTable('ProductAttribute', function(table) {
-    table.string('name');
-    table.float('value');
-    table.integer('productId').unsigned().references('id').inTable('Product');
+    table.string('locale');
+    table
+      .integer('transactionId')
+      .unsigned()
+      .references('id')
+      .inTable('Transaction')
+      .onDelete('CASCADE');
   })
   .createTable('Attribute', function(table) {
-    table.string('name');
+    table.increments('id').primary();
+    table.json('name');
     table.string('unit');
-    table.string('group');
+    table
+      .integer('parentId')
+      .unsigned()
+      .references('id')
+      .inTable('Attribute');
+  })
+  .createTable('ProductAttribute', function(table) {
+    table.float('value');
+    table
+      .integer('productId')
+      .unsigned()
+      .references('id')
+      .inTable('Product');
+    table
+      .integer('attributeId')
+      .unsigned()
+      .references('id')
+      .inTable('Attribute');
+  })
+  .createTable('CategoryAttribute', function(table) {
+    table.float('value');
+    table
+      .integer('categoryId')
+      .unsigned()
+      .references('id')
+      .inTable('Category');
+    table
+      .integer('attributeId')
+      .unsigned()
+      .references('id')
+      .inTable('Attribute');
   })
   .createTable('Conversion', function(table) {
-    table.string('from').primary();
-    table.string('to').unique();
-    table.float('value');
+    table.string('fromLocale').primary();
+    table.string('fromCurrency').unique();
+    table.string('toLocale').unique();
+    table.string('toCurrency').unique();
+    table.float('rate');
   });
 };
 
@@ -84,5 +116,6 @@ exports.down = function(knex) {
     .dropTableIfExists('Category')
     .dropTableIfExists('ProductAttribute')
     .dropTableIfExists('CategoryAttribute')
+    .dropTableIfExists('Attribute')
     .dropTableIfExists('Conversion');
 };
