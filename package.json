@@ -5,7 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "start": "./node_modules/babel-cli/bin/babel-node.js ./src/server.js",
-    "start:dev": "export NODE_ENV=development && npm run build:dev && nodemon --exec babel-node -- --max_old_space_size=4096 ./src/server.js",
+    "start:dev": "export NODE_ENV=development && npm run build:dev && nodemon --exec babel-node -- --max_old_space_size=32000 ./src/server.js",
     "build": "NODE_ENV=production webpack -p",
     "build:dev": "webpack -d",
     "build:dev:watch": "webpack -d -w",
