@@ -12,6 +12,7 @@ const fs = require('fs');
 const request = require('request');
 const child_process = require('child_process');
 const _ = require('lodash');
+const moment = require('moment');
 
 module.exports = function (app) {
 
@@ -762,11 +763,9 @@ app.get('/api/category', function(req, res) {
       res.send(categories);
     });
   }
-  else {
-    console.log(req.query);
+  else if (req.query.hasOwnProperty('attributes')) {
     Category.query()
-    //.limit(2000)
-    .select(req.query.hasOwnProperty('attributes') ? ['id', 'name', 'attributes'] : ['id', 'name'])
+    .eager('[attributes]')
     .then(categories => {
       if (req.query.locale) {
         for (let i in categories) {
@@ -777,7 +776,23 @@ app.get('/api/category', function(req, res) {
         }
       }
       res.send(categories);
-    })
+    });
+  }
+  else {
+    console.log(req.query);
+    Category.query()
+    //.limit(2000)
+    .then(categories => {
+      if (req.query.locale) {
+        for (let i in categories) {
+          if (ategories[i].locales) {
+            categories[i].name = categories[i].locales[req.query.locale];
+            delete categories[i].locales;
+          }
+        }
+      }
+      res.send(categories);
+    });
   }
 });
 
@@ -906,7 +921,7 @@ app.get('/api/receipt/picture/:id', function (req, res) {
 });
 
 app.get('/api/util/getexternalcategoriesfineli', function(req, res) {
-  console.log('files');
+  console.log('files '+moment().format());
 
   let food_rows = fs.readFileSync(__dirname+'/../fineli/food.csv', 'latin1').split('\n'),
       fuclass_rows = fs.readFileSync(__dirname+'/../fineli/fuclass_FI.csv', 'latin1').split('\n'),
@@ -937,18 +952,24 @@ app.get('/api/util/getexternalcategoriesfineli', function(req, res) {
       cmpclass = {},
       eufdname = {},
       foodname = {},
+      attribute_count = 0,
       value,
       attribute,
       food_row,
       row,
       parent,
+      attribute_index = 1,
       refs = {
         '#food': true,
         '#ingredients': true,
         '#recipes': true
       },
-      categories = {
-        food: {
+      categories = {},
+      category_values = [],
+      attributes = {},
+      attribute_values = [],
+      base_categories = [
+        {
           '#id': 'c4food',
           name: {
             'fi-FI': 'Ruoka',
@@ -956,7 +977,7 @@ app.get('/api/util/getexternalcategoriesfineli', function(req, res) {
             'sv-SV': 'Mat'
           }
         },
-        ingredients: {
+        {
           '#id': 'c3ingredient',
           name: {
             'fi-FI': 'Raaka-aine',
@@ -967,7 +988,7 @@ app.get('/api/util/getexternalcategoriesfineli', function(req, res) {
             '#ref': 'c4food',
           }
         },
-        recipes: {
+        {
           '#id': 'c3dish',
           name: {
             'fi-FI': 'Ruokalaji',
@@ -978,209 +999,258 @@ app.get('/api/util/getexternalcategoriesfineli', function(req, res) {
             '#ref': 'c4food'
           }
         }
-      };
+      ];
 
-  console.log('meta');
-
-  for (let i in foodname_fi_rows) {
-    value = {};
-    row = foodname_fi_rows[i].trim().split(';');
-    value['fi-FI'] = row[1];
-    row = foodname_en_rows[i].trim().split(';');
-    value['en-US'] = row[1];
-    row = foodname_sv_rows[i].trim().split(';');
-    value['sv-SV'] = row[1];
-    foodname[row[0]] = value;
-  }
-
-  for (let i in fuclass_rows) {
-    value = {};
-    row = fuclass_rows[i].trim().split(';');
-    value['fi-FI'] = row[1];
-    row = fuclass_en_rows[i].trim().split(';');
-    value['en-US'] = row[1];
-    row = fuclass_sv_rows[i].trim().split(';');
-    value['sv-SV'] = row[1];
-    fuclass[row[0]] = value;
-  }
-
-  for (let i in igclass_rows) {
-    value = {};
-    row = igclass_rows[i].trim().split(';');
-    value['fi-FI'] = row[1];
-    row = igclass_en_rows[i].trim().split(';');
-    value['en-US'] = row[1];
-    row = igclass_sv_rows[i].trim().split(';');
-    value['sv-SV'] = row[1];
-    igclass[row[0]] = value;
-  }
-
-  for (let i in component_rows) {
-    row = component_rows[i].trim().split(';');
-    component[row[0]] = row;
-  }
-
-  for (let i in cmpclass_rows) {
-    value = {};
-    row = cmpclass_rows[i].trim().split(';');
-    value['fi-FI'] = row[1];
-    row = cmpclass_en_rows[i].trim().split(';');
-    value['en-US'] = row[1];
-    row = cmpclass_sv_rows[i].trim().split(';');
-    value['sv-SV'] = row[1];
-    cmpclass[row[0]] = value;
-  }
-
-  for (let i in eufdname_rows) {
-    value = {};
-    row = eufdname_rows[i].trim().split(';');
-    value['fi-FI'] = row[1];
-    row = eufdname_en_rows[i].trim().split(';');
-    value['en-US'] = row[1];
-    row = eufdname_sv_rows[i].trim().split(';');
-    value['sv-SV'] = row[1];
-    eufdname[row[0]] = value;
-  }
-
-  console.log('food');
-
-  for (let i = 1; i < food_rows.length; i++) {
-    food_row = food_rows[i].trim().split(';');
-
-    if (!food_row[0] || food_row[0] == 'FOODID') {
-      continue;
-    }
-
-    if (food_row[6] == 'NONINGR') {
-      parent_ref = food_row[7];
-      parent_name = fuclass[parent_ref];
-      second_parent_ref = food_row[8];
-      second_parent_name = fuclass[second_parent_ref];
-      third_parent_ref = 'dish';
-    }
-    else {
-      parent_ref = food_row[5];
-      parent_name = igclass[parent_ref];
-      second_parent_ref = food_row[6];
-      second_parent_name = igclass[second_parent_ref];
-      third_parent_ref = 'ingredient';
-    }
-
-    if (parent_ref in refs) {
-      parent = {
-        '#ref': 'c1'+parent_ref
-      };
-    }
-    else {
-      refs[parent_ref] = true;
-      parent = {
-        '#id': 'c1'+parent_ref,
-        name: parent_name
-      };
-      if (second_parent_ref in refs) {
-        parent.parent = {
-          '#ref': 'c2'+second_parent_ref
-        }
-      }
-      else {
-        refs[second_parent_ref] = true;
-        parent.parent = {
-          '#id': 'c2'+second_parent_ref,
-          name: second_parent_name,
-          parent: {
-            '#ref': 'c3'+third_parent_ref,
-          }
-        }
-      }
-    }
-  
-
-    categories[food_row[0]] = {
-      name: foodname[food_row[0]],
-      //type: food_row[2],
-      //process: food_row[3],
-      //portion: food_row[4],
-      parent
-    };
-  }
-
-  console.log('attributes');
-  
-  for (let i = 1; i < component_value_rows.length; i++) {
-    row = component_value_rows[i].split(';');
-
-    if (!row[0] || row[0] == 'FOODID' || !(row[0] in categories)) {
-      continue;
-    }
-
-    if (!('attributes' in categories[row[0]]))
-      categories[row[0]].attributes = [];
-
-    attr_ref = row[1];
-
-    if (attr_ref in attr_refs) {
-      attribute = {
-        '#ref': 'p0'+attr_ref
-      }
-    }
-    else {
-      attr_refs[attr_ref] = true;
-      attribute = {
-        '#id': 'p0'+attr_ref,
-        name: eufdname[attr_ref],
-        unit: component[attr_ref][1].toLowerCase()
-      }
-
-      parent_ref = component[row[1]][2];
-
-      if (parent_ref in parent_attr_refs) {
-        attribute.parent = {
-          '#ref': 'p1'+parent_ref
-        }
-      }
-      else {
-        parent_attr_refs[parent_ref] = true;
-        attribute.parent = {
-          '#id': 'p1'+parent_ref,
-          name: cmpclass[parent_ref]
-        }
-
-        second_parent_ref = component[row[1]][3];
-
-        if (second_parent_ref in second_parent_attr_refs) {
-          attribute.parent.parent = {
-            '#ref': 'p2'+second_parent_ref
-          }
-        }
-        else {
-          second_parent_attr_refs[second_parent_ref] = true;
-          attribute.parent.parent = {
-            '#id': 'p2'+second_parent_ref,
-            name: cmpclass[second_parent_ref]
-          }
-        }
-      }
-    }
-
-    categories[row[0]].attributes.push({
-      attribute,
-      value: parseFloat(row[2].replace(',', '.'))
-    });
-  }
-
-  console.log('done');
-
-  let category_values = [];
-
-  for (let i in categories) {
-    category_values.push(categories[i]);
-  }
+  console.log('meta '+moment().format());
 
   Category.query()
-    .insertGraph(category_values)
-    .then(category => {
-      console.log('written');
-      res.send('ok');
+    .insertGraph(base_categories)
+    .then(async base_categories => {
+      for (let i in foodname_fi_rows) {
+        value = {};
+        row = foodname_fi_rows[i].trim().split(';');
+        value['fi-FI'] = row[1];
+        row = foodname_en_rows[i].trim().split(';');
+        value['en-US'] = row[1];
+        row = foodname_sv_rows[i].trim().split(';');
+        value['sv-SV'] = row[1];
+        foodname[row[0]] = value;
+      }
+
+      for (let i in fuclass_rows) {
+        value = {};
+        row = fuclass_rows[i].trim().split(';');
+        value['fi-FI'] = row[1];
+        row = fuclass_en_rows[i].trim().split(';');
+        value['en-US'] = row[1];
+        row = fuclass_sv_rows[i].trim().split(';');
+        value['sv-SV'] = row[1];
+        fuclass[row[0]] = value;
+      }
+
+      for (let i in igclass_rows) {
+        value = {};
+        row = igclass_rows[i].trim().split(';');
+        value['fi-FI'] = row[1];
+        row = igclass_en_rows[i].trim().split(';');
+        value['en-US'] = row[1];
+        row = igclass_sv_rows[i].trim().split(';');
+        value['sv-SV'] = row[1];
+        igclass[row[0]] = value;
+      }
+
+      for (let i in component_rows) {
+        row = component_rows[i].trim().split(';');
+        component[row[0]] = row;
+      }
+
+      for (let i in cmpclass_rows) {
+        value = {};
+        row = cmpclass_rows[i].trim().split(';');
+        value['fi-FI'] = row[1];
+        row = cmpclass_en_rows[i].trim().split(';');
+        value['en-US'] = row[1];
+        row = cmpclass_sv_rows[i].trim().split(';');
+        value['sv-SV'] = row[1];
+        cmpclass[row[0]] = value;
+      }
+
+      for (let i in eufdname_rows) {
+        value = {};
+        row = eufdname_rows[i].trim().split(';');
+        value['fi-FI'] = row[1];
+        row = eufdname_en_rows[i].trim().split(';');
+        value['en-US'] = row[1];
+        row = eufdname_sv_rows[i].trim().split(';');
+        value['sv-SV'] = row[1];
+        eufdname[row[0]] = value;
+      }
+
+      console.log('food');
+
+      for (let i = 1; i < food_rows.length; i++) {
+        food_row = food_rows[i].trim().split(';');
+
+        if (!food_row[0] || food_row[0] == 'FOODID') {
+          continue;
+        }
+
+        if (food_row[6] == 'NONINGR') {
+          parent_ref = food_row[7];
+          parent_name = fuclass[parent_ref];
+          second_parent_ref = food_row[8];
+          second_parent_name = fuclass[second_parent_ref];
+          third_parent_ref = base_categories[2].id; // dish
+        }
+        else {
+          parent_ref = food_row[5];
+          parent_name = igclass[parent_ref];
+          second_parent_ref = food_row[6];
+          second_parent_name = igclass[second_parent_ref];
+          third_parent_ref = base_categories[1].id; // ingredient
+        }
+
+        if (parent_ref in refs) {
+          parent = {
+            '#ref': 'c1'+parent_ref
+          };
+        }
+        else {
+          refs[parent_ref] = true;
+          parent = {
+            '#id': 'c1'+parent_ref,
+            name: parent_name
+          };
+          if (second_parent_ref in refs) {
+            parent.parent = {
+              '#ref': 'c2'+second_parent_ref
+            }
+          }
+          else {
+            refs[second_parent_ref] = true;
+            parent.parent = {
+              '#id': 'c2'+second_parent_ref,
+              name: second_parent_name,
+              parent: {
+                'id': third_parent_ref,
+              }
+            }
+          }
+        }
+      
+
+        categories[food_row[0]] = {
+          name: foodname[food_row[0]],
+          //type: food_row[2],
+          //process: food_row[3],
+          //portion: food_row[4],
+          parent
+        };
+      }
+
+      for (let i in categories) {
+        category_values.push(categories[i]);
+      }
+
+      await Category.query()
+        .upsertGraph(category_values, {relate: true})
+        .then(async category => {
+          console.log('written '+moment().format());
+          
+          let n = 0;
+          for (let i in categories) {
+            categories[i] = category[n];
+            n++;
+          }
+
+          for (let n = attribute_index; n < component_value_rows.length; n++) {
+            row = component_value_rows[n].split(';');
+
+            if (!row[0] || row[0] == 'FOODID')
+              continue;
+
+            /*  if (row[0] != food_row[0]) {
+              attribute_index = n;
+              break;
+            }*/
+
+            if (!(row[0] in attributes))
+              attributes[row[0]] = {
+                id: categories[row[0]].id,
+                attributes: []
+              };
+
+            attr_ref = row[1];
+
+            if (attr_ref in attr_refs) {
+              attribute = {
+                id: attr_refs[attr_ref]
+              }
+            }
+            else {
+              attribute = {
+                name: eufdname[attr_ref],
+                unit: component[attr_ref][1].toLowerCase()
+              }
+
+              parent_ref = component[row[1]][2];
+
+              if (parent_ref in parent_attr_refs) {
+                attribute.parent = {
+                  id: parent_attr_refs[parent_ref]
+                }
+              }
+              else {
+                attribute.parent = {
+                  name: cmpclass[parent_ref]
+                }
+
+                second_parent_ref = component[row[1]][3];
+
+                if (second_parent_ref in second_parent_attr_refs) {
+                  attribute.parent.parent = {
+                    id: second_parent_attr_refs[second_parent_ref]
+                  }
+                }
+                else {
+                  attribute.parent.parent = {
+                    name: cmpclass[second_parent_ref]
+                  }
+                }
+              }
+
+              await Attribute.query()
+                .upsertGraph(attribute, {relate: true})
+                .then(result => {
+                  if (!(attr_ref in attr_refs))
+                    attr_refs[attr_ref] = result.id;
+                  if (!(parent_ref in parent_attr_refs))
+                    parent_attr_refs[parent_ref] = result.parent.id;
+                  if (!(second_parent_ref in second_parent_attr_refs))
+                    second_parent_attr_refs[second_parent_ref] = result.parent.parent.id;
+
+                  attribute = {id: result.id};
+                })
+                .catch(error => {
+                  console.error(error);
+                  throw new Error('Attribute error');
+                });
+            }
+
+            if (row[2] != "")
+            attributes[row[0]].attributes.push({
+              attribute,
+              value: parseFloat(row[2].replace(',', '.'))
+            });
+
+            attribute_count++;
+          }
+      });
+
+      let n = 0;
+      for (let i in attributes) {
+        attribute_values.push(attributes[i]);
+
+        if (i % 20 == 0 || n == attribute_count-1) {
+          await Category.query()
+            .upsertGraph(attribute_values, {relate: true})
+            .then(category => {
+              console.log('done '+i+'/'+attribute_count+' '+moment().format());
+            })
+            .catch(error => {
+              console.dir(attribute_values, {depth: null});
+              console.log('error '+i+'/'+attribute_count+' '+moment().format());
+              console.error(error);
+              throw new Error('CategoryAttribute error');
+            });
+          attribute_values = [];
+        }
+        n++;
+      }
+
+      res.send(category);
+      //attribute_values = attribute_values.slice(0,1);
+      //console.dir(attribute_values, {depth:null});
     });
 });
 

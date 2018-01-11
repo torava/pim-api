@@ -84,6 +84,7 @@ exports.up = function(knex, Promise) {
       .inTable('Attribute');
   })
   .createTable('CategoryAttribute', function(table) {
+    table.increments('id').primary();
     table.float('value');
     table
       .integer('categoryId')
