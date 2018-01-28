@@ -67,19 +67,17 @@ class DragAndDropTreeTable extends React.Component {
     .then(function(response1) {
       that.setState({attributes: response1.data});
 
-      console.log(that.state.attributes);
-
       axios.get('/api/category/?attributes')
       .then(function(response) {
         let rows = response.data,
             columns = that.getColumns();
       
-        for (let i in rows) {
+        /*for (let i in rows) {
           if (rows[i].parentId == null) {
             rows[i].parentId = -1;
           }
-        }
-        rows.unshift({name: 'Categories', showChildren: true, parentId: null, id: -1, attributes: [], editable: false});
+        }*/
+        //rows.unshift({name: 'Categories', showChildren: true, parentId: null, id: -1, attributes: [], editable: false});
 
         //rows = resolve.resolve({columns, method: resolve.index})(rows);
         /*rows = compose(
@@ -178,6 +176,12 @@ class DragAndDropTreeTable extends React.Component {
         },
         cell: {
           formatters: [
+            (value, { rowData }) => {
+              return (
+              <span>
+                {rowData.name['fi-FI']}
+              </span>
+            )},
             tree.toggleChildren({
               parentField: 'parentId',
               getRows: () => this.state.rows,
@@ -199,13 +203,13 @@ class DragAndDropTreeTable extends React.Component {
           label: 'Nutritional Attributes'
         },
         children: 
-          this.state.attributes.map(function(item, i) { console.log(item); return {
+          this.state.attributes.map(function(item, i) { return {
             property: 'attribute['+i+'].value',
             props: { 
               style: { width: 200 }
             },
             header: {
-              label: item.name,
+              label: item.name['fi-FI'],
               transforms: [resetable],
               formatters: [
                 sort.header({
@@ -282,17 +286,16 @@ class DragAndDropTreeTable extends React.Component {
     let { columns, sortingColumns } = this.state,
       rows = this.state.rows;
     let resolvedColumns = resolve.columnChildren({ columns });
-    let resolvedRows = /*compose(
+    let resolvedRows = compose(
       /*sort.sorter({
         columns: columns,
         sortingColumns,
         sort: orderBy,
         strategy: sort.strategies.byProperty
       }),
-      tree.filter({ parentField: 'parentId', fieldName: 'showingChildren' }),
+      tree.filter({ parentField: 'parentId', fieldName: 'showingChildren' }),*/
       tree.fixOrder({ parentField: 'parentId', idField: 'id' }),
-      /*
-      tree.filter({ parentField: 'parentId', fieldName: 'showingChildren' }),
+      tree.filter({ fieldName: 'showingChildren' }),
       tree.wrap({
         operations: [
           sort.sorter({
@@ -307,9 +310,9 @@ class DragAndDropTreeTable extends React.Component {
         columns: resolvedColumns,
         method: resolve.nested
       }),
-      tree.fixOrder({ parentField: 'parentId', idField: 'id' })
-    )(rows)*/ rows;
-
+      //tree.fixOrder({ parentField: 'parentId', idField: 'id' })
+    )(rows);
+    console.log(resolvedRows);
     return (
       <div>
         <button type="button" onClick={this.onAdd}>Add new</button>

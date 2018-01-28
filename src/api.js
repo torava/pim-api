@@ -765,6 +765,7 @@ app.get('/api/category', function(req, res) {
   }
   else if (req.query.hasOwnProperty('attributes')) {
     Category.query()
+    .limit(200)
     .eager('[attributes]')
     .then(categories => {
       if (req.query.locale) {
