@@ -713,7 +713,7 @@ function getClosestCategory(toCompare, locale) {
       toCompare = toCompare.toLowerCase();
       for (let i in categories) {
         category = categories[i];
-        name = locale && category.locales ? category.locales[locale] : category.name;
+        name = category.name[locale];
         name = name.toLowerCase();
         distance = toCompare.match(name) && name.length/toCompare.length;
         if (distance > max_distance) {
@@ -753,12 +753,11 @@ app.get('/api/category', function(req, res) {
       res.send(response);
     });*/
   }
-  else if (req.query.parent) {
+  else if ('parent' in req.query) {
     Category.query()
     //.limit(1000)
-    .where('parentId', req.query.parent)
-    .eager('[attributes]')
-    //.eager('[products.[items], attributes, children.^]')
+    .where('parentId', req.query.parent || null)
+    .eager('[products.[items], attributes, children.^]')
     .then(categories => {
       res.send(categories);
     });
