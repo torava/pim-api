@@ -211,7 +211,7 @@ async function getDataFromReceipt(result, text, language) {
       if (!has_discount && !data.total_price_read && !line.match(/käteinen|kateinen|käte1nen|kate1nen|taka1s1n|takaisin/i)) {
         line_price = line_number_format.match(/\s((\d+\.\d{2})(\-)?\s?){1,2}[\s|T|1|A|B|8|\[|\]]{0,2}$/i);
         if (line_price) {
-          line_item = line.substring(0, line_price.index).match(/^((\d+)\s)?([\u00C0-\u017F-a-z0-9\s\-\.\,\+\&\%\=\/\(\)\{\}]+)$/i);
+          line_item = line.substring(0, line_price.index).match(/^((\d+)\s)?([\u00C0-\u017F-a-z0-9\s\-\.\,\+\&\%\=\/\(\)\{\}\[\]]+)$/i);
           if (line_item) {
             price = parseFloat(line_price[1]);
             name = toTitleCase(line_item[3]);
