@@ -658,6 +658,10 @@ app.post('/api/transaction', function(req, res) {
     .upsertGraph(req.body, {relate: true})
     .then(transaction => {
       res.send(transaction);
+    })
+    .catch(error => {
+      console.error(error);
+      throw new Error();
     });
 });
 
