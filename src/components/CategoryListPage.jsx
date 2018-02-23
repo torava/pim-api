@@ -9,28 +9,68 @@ class CategoryList extends Component {
     super(props);
 
     let that = this;
-    this.state = {
-      rows: [],
-      columns: [
-        {
-          id: 'name',
-          label: 'Name',
-          property: 'name.fi-FI'
-        }
-      ]
-    };
 
-    axios.get('/api/category/?attributes&parent')
-      .then(function(response) {
-        that.setState({rows: response.data});
+    axios.get('/api/attribute/')
+    .then(function(attributes) {
+      that.setState({attributes: attributes.data});
+      
+      axios.get('/api/category/?attributes&parent')
+      .then(function(attributes) {
+        that.setState({
+          attributes: attributes.data,
+          columns: that.getColumns()
+        });
       });
+    });
+  }
+  getAttributeColumn(attributes) {
+    let that = this;
+    return attributes.map((value, key) => {
+      let column = {
+        id: key,
+        label: value.name['fi-FI']+(value.unit ? " "+value.unit.toLowerCase() : ""),
+        property: 'attributes['+key+'].value'
+      }
+      if (value.children) {
+        column.columns = that.getAttributeColumn(value.children);
+      }
+      return column;
+    });
+  }
+  getColumns() {
+    return [
+      {
+        id: 'name',
+        label: 'Name',
+        property: 'name.fi-FI',
+        width: '700'
+      },
+      {
+        id: 'price',
+        label: 'Price'
+      },
+      {
+        id: 'footprint',
+        label: 'Footprint',
+        columns: [
+          {
+            id: 'co2',
+            label: 'CO2'
+          },
+          {
+            id: 'methane',
+            label: 'Methane'
+          }
+        ]
+      }
+    ].concat(this.getAttributeColumn(this.state.attributes));
   }
   render() {
-    if (!this.state || !this.state.columns || !this.state.rows) return null;
+    if (!this.state || !this.state.columns || !this.state.attributes) return null;
     return (
       <EditableTable
         columns={this.state.columns}
-        items={this.state.rows}
+        items={this.state.attributes}
       />
     );
   }

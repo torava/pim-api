@@ -726,6 +726,10 @@ function getClosestCategory(toCompare, locale) {
   });
 }
 
+function getAttributes(builder) {
+  builder.eager('[products.[items], attributes, children(getAttributes)]', {getAttributes});
+}
+
 app.get('/api/category', function(req, res) {
   /*if (req.query.nested) {
     res.send(getCategories(req.query.parent || -1));
@@ -755,9 +759,9 @@ app.get('/api/category', function(req, res) {
   }
   else if ('parent' in req.query) {
     Category.query()
-    //.limit(1000)
+    .limit(1)
     .where('parentId', req.query.parent || null)
-    .eager('[products.[items], attributes, children.^]')
+    .eager('[products.[items], children(getAttributes)]', {getAttributes})
     .then(categories => {
       res.send(categories);
     });
@@ -769,7 +773,7 @@ app.get('/api/category', function(req, res) {
     .then(categories => {
       if (req.query.locale) {
         for (let i in categories) {
-          if (ategories[i].locales) {
+          if (categories[i].locales) {
             categories[i].name = categories[i].locales[req.query.locale];
             delete categories[i].locales;
           }
@@ -785,7 +789,7 @@ app.get('/api/category', function(req, res) {
     .then(categories => {
       if (req.query.locale) {
         for (let i in categories) {
-          if (ategories[i].locales) {
+          if (categories[i].locales) {
             categories[i].name = categories[i].locales[req.query.locale];
             delete categories[i].locales;
           }
@@ -798,6 +802,8 @@ app.get('/api/category', function(req, res) {
 
 app.get('/api/attribute', function(req, res) {
   Attribute.query()
+  .where('parentId', null)
+  .eager('[children.^]')
   .then(attributes => {
     res.send(attributes);
   })

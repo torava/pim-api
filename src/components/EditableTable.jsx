@@ -4,40 +4,68 @@ import { DragDropContext } from 'react-dnd';
 import EditableTableItem from './EditableTableItem';
 
 class EditableTable extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      columns: this.props.columns,
+      items: this.props.items
+    }
+  }
+  toggleChildren(i) {
+    let items = this.state.items;
+    items[i].expanded = !items[i].expanded;
+    this.setState({items: items});
+  }
   render() {
-    let that = this;
+    let that = this,
+        cols = [],
+        col_index = 0,
+        thead = <thead>
+                  <tr>
+                    {that.state.columns.map((column, i) => {
+                      return <th rowSpan={column.columns && column.columns.length ? 1 : 2}
+                                colSpan={column.columns && column.columns.length ? column.columns.length : 1}
+                                key={"column-"+i}>
+                              {column.label} {{'ASC': '\u25B4', 'DESC': '\u25BE'}[column.order] || ''}
+                            </th>
+                    })}
+                  </tr>
+                  <tr>
+                    {that.state.columns.map((parent, i) => {
+                      if (parent.columns && parent.columns.length) {
+                        return parent.columns.map((column, n) => {
+                          cols[col_index] = <col style={column.width ? {"min-width": column.width+'px'} : {}}/>;
+                          col_index++;
+                          return <th key={"column-"+i+"-"+n}>
+                              {column.label} {{'ASC': '\u25B4', 'DESC': '\u25BE'}[column.order] || ''}
+                            </th>
+                        });
+                      }
+                      else {
+                        cols[col_index] = <col style={parent.width ? {"min-width": parent.width+'px'} : {}}/>;
+                      }
+                      col_index++;
+                    })}
+                  </tr>
+                </thead>;
+
+    
     return (
       <table border="1">
-        <thead>
-          <tr>
-            {that.props.columns.map((column, i) => {
-              return <th rowSpan={column.columns && column.columns.length ? 1 : 2}
-                         colSpan={column.columns && column.columns.length ? column.columns.length : 1}
-                         key={"column-"+i}>
-                       {column.label} {{'ASC': '\u25B4', 'DESC': '\u25BE'}[column.order] || ''}
-                     </th>
-            })}
-          </tr>
-          <tr>
-            {that.props.columns.map((parent, i) => {
-              if (parent.columns && parent.columns.length) {
-                return parent.columns.map((column, n) => {
-                  return <th key={"column-"+i+"-"+n}>
-                       {column.label} {{'ASC': '\u25B4', 'DESC': '\u25BE'}[column.order] || ''}
-                     </th>
-                });
-              }
-            })}
-          </tr>
-        </thead>
+        <colgroup>
+          {cols}
+        </colgroup>
+        {thead}
         <tbody>
-          {that.props.items && that.props.items.map((item, i) => {
+          {that.state.items && that.state.items.map((item, i) => {
             return <EditableTableItem
                     key={i}
                     rowIndex={i}
                     item={item}
-                    columns={that.props.columns}
+                    columns={that.state.columns}
                     depth={0}
+                    toggleChildren={that.toggleChildren}
                   />
           })}
         </tbody>
