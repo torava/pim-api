@@ -46,7 +46,7 @@ exports.up = function(knex, Promise) {
     table.float('measure');
     table.string('unit');
     table.integer('transactionId').unsigned().references('id').inTable('Transaction').onDelete('CASCADE');
-    table.integer('productId').unsigned().references('id').inTable('Product');
+    table.integer('productId').unsigned().references('id').inTable('Product').onDelete('CASCADE');
   })
   .createTable('Receipt', function(table) {
     table.increments('id').primary();
