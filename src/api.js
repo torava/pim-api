@@ -42,7 +42,7 @@ function toTitleCase(str) {
 
 async function getDataFromReceipt(result, text, language) {
   text = text
-  .replace(/ﬂ|»|'|´|`|‘|“|"|”/g, '')
+  .replace(/ﬂ|»|'|´|`|‘|“|"|”|\|/g, '')
   .replace(/(\d) *(\.,|\,|\.|_|\-|;) *(\d)/g, '$1.$3')
   .replace(/\.,|\,|_|\-|;/g, '')
   .replace(/—/g, '-')
