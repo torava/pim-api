@@ -135,7 +135,7 @@ export default class addReceiptPage extends React.Component {
         Sharpen None <input type="range" min="0" max="5" defaultValue="1" step="1" onChange={this.setData.bind(this, 'sharpen')} style={{width:50}}/> High
         <Cropper id="cropper"
                  src={this.state.src}
-                 style={{width:800,height:800}}
+                 style={{width:'95%',height:800}}
                  autoCropArea={1}
                  viewMode={0}
                  rotatable={true}
