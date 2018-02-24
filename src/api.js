@@ -683,7 +683,7 @@ app.get('/api/transaction', function(req, res) {
   }
   else {
     Transaction.query()
-      .eager('[items.[product.[category, manufacturer, attributes]], party, receipts]')
+      .eager('[items.[product.[category.[attributes], manufacturer, attributes]], party, receipts]')
       .modifyEager('items.product.category', builder => {
         builder.select('id', 'name');
       })

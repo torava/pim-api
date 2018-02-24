@@ -333,7 +333,7 @@ export default class addReceiptPage extends React.Component {
 
     return inputLength === 0 ? [] : this.state.categories.filter(category => {
       let name = category.name['fi-FI'];
-      return name.toLowerCase().slice(0, inputLength) === inputValue;
+      return name && name.toLowerCase().slice(0, inputLength) === inputValue;
     });
   };
 
