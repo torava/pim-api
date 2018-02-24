@@ -1,19 +1,19 @@
 THSCODE;DESCRIPT;LANG
 ENERC;energia, laskennallinen;FI
 XENERC;energia, laskennallinen ilman kuitua;FI
-CHOAVL;hiilihydraatti imeytyv‰;FI
+CHOAVL;hiilihydraatti imeytyv√§;FI
 CHOCDF;hiilihydraatti erotuksena;FI
 CHOAVLM;hiilihydraatti monosakkaridiekvivalentteina;FI
 FAT;rasva;FI
 PROT;proteiini;FI
 ALC;alkoholi;FI
-ASH;tuhka (kivenn‰isaineet);FI
+ASH;tuhka (kivenn√§isaineet);FI
 WATER;vesi (kosteus);FI
 FIBC;kuitu, kokonais-;FI
 OA;orgaaniset hapot;FI
 SUGOH;sokerialkoholi;FI
-STARCH;t‰rkkelys;FI
-STARES;t‰rkkelys resistentti;FI
+STARCH;t√§rkkelys;FI
+STARES;t√§rkkelys resistentti;FI
 SUGAR;sokerit;FI
 FRUS;fruktoosi;FI
 GALS;galaktoosi;FI
@@ -21,7 +21,7 @@ GLUS;glukoosi;FI
 LACS;laktoosi;FI
 MALS;maltoosi;FI
 SUCS;sakkaroosi;FI
-OLSAC;oligosakkaridit imeytyv‰t;FI
+OLSAC;oligosakkaridit imeytyv√§t;FI
 FIBT;kuitu yhteissumma;FI
 PSACNCS;polysakkaridi, vesiliukoinen ei-selluloosa;FI
 FIBINS;kuitu veteen liukenematon;FI
@@ -42,7 +42,7 @@ LACAC;maitohappo;FI
 MALAC;omenahappo;FI
 MISPHEAC;muut fenolihapot;FI
 PARCOUM;parakumariinihappo;FI
-PHEAC;fenolihapot, yhteens‰;FI
+PHEAC;fenolihapot, yhteens√§;FI
 PROCATAC;protokatekuhappo;FI
 SINAPAC;sinapiinihappo;FI
 SYRAC;syringiinihappo;FI
@@ -56,7 +56,7 @@ FOLFRE;folaatti vapaa;FI
 FOLH4;tetrahydrofolaatti eli H4-folaatti;FI
 FOLHCOH4;5-formyylitetrahydrofolaatti eli 5-HCO-H4-folaatti;FI
 FOL10HCO;10-formyylifoolihappo eli 10-HCO-foolihappo;FI
-FOLATE;folaatti (mikrobiologinen menetelm‰);FI
+FOLATE;folaatti (mikrobiologinen menetelm√§);FI
 NIAEQ;niasiiniekvivalentti NE;FI
 NIA;niasiini (nikotiinihappo + nikotiiniamidi);FI
 PANTAC;pantoteenihappo (B5);FI
@@ -128,7 +128,7 @@ MO;molybdeeni;FI
 NA;natrium;FI
 NACL;suola;FI
 NI;nikkeli;FI
-NT;typpi, yhteens‰;FI
+NT;typpi, yhteens√§;FI
 P;fosfori;FI
 PB;lyijy;FI
 RB;rubidium;FI
@@ -137,17 +137,17 @@ SE;seleeni;FI
 SI;pii;FI
 SR;strontium;FI
 ZN;sinkki;FI
-FAFRE;rasvahapot yhteens‰;FI
-FACIDCTG;rasvahapot yhteens‰, laskettu TAG ekvivalenteiksi;FI
-FAPU;rasvahapot monityydyttym‰ttˆm‰t;FI
-FAMCIS;rasvahapot yksitt‰istyydyttym‰ttˆm‰t cis;FI
+FAFRE;rasvahapot yhteens√§;FI
+FACIDCTG;rasvahapot yhteens√§, laskettu TAG ekvivalenteiksi;FI
+FAPU;rasvahapot monityydyttym√§tt√∂m√§t;FI
+FAMCIS;rasvahapot yksitt√§istyydyttym√§tt√∂m√§t cis;FI
 FASAT;rasvahapot tyydyttyneet;FI
 FATRN;rasvahapot trans;FI
 FAUN;rasvahapot tuntemattomat;FI
-FAPUN3;rasvahapot n-3 monityydyttym‰ttˆm‰t;FI
+FAPUN3;rasvahapot n-3 monityydyttym√§tt√∂m√§t;FI
 FAPUN3FI;rasvahapot n-3 kala;FI
 FAPUN3VE;rasvahapot n-3 kasvi;FI
-FAPUN6;rasvahapot n-6 monityydyttym‰ttˆm‰t;FI
+FAPUN6;rasvahapot n-6 monityydyttym√§tt√∂m√§t;FI
 FAS4T11;rasvahapot 4:0 - 11:0;FI
 FAS12T17;rasvahapot 12:0 - 17:0;FI
 FAS18;rasvahappoisomeerit 18:0;FI
@@ -281,24 +281,24 @@ LUTEOL;luteoliini;FI
 MYRIC;myrisetiini;FI
 NARINGE;naringeniini;FI
 QUERCE;kversetiini;FI
-CHOLNT;koliini, yhteens‰;FI
+CHOLNT;koliini, yhteens√§;FI
 BIOCHA;biokaniini A;FI
 FORMO;formononetiini;FI
 GENIST;genisteiini;FI
 LIGNANS;lignaanit;FI
 SECORES;sekoisolarisiresinoli;FI
 CHOLE;kolesteroli (GC);FI
-CHORL;kolesteroli (entsymaattinen menetelm‰);FI
+CHORL;kolesteroli (entsymaattinen menetelm√§);FI
 STERT;sterolit;FI
-AVEDT;avenasteroli, yhteens‰;FI
+AVEDT;avenasteroli, yhteens√§;FI
 BRASTR;brassikasteroli;FI
 CAMT;kampesteroli;FI
 SITSTR;sitosteroli;FI
 STEROTH;sterolit, muut;FI
 STGSTR;stigmasteroli;FI
-STANTOT;stanolit yhteens‰;FI
+STANTOT;stanolit yhteens√§;FI
 ALKRESOR;alkyyliresorsinolit;FI
-ANTHOCYT;antosyanidiinit, yhteens‰;FI
+ANTHOCYT;antosyanidiinit, yhteens√§;FI
 AVANTHRA;avenantramidit;FI
 CYANID;syanidiini;FI
 DELPHIN;delfinidiini;FI
@@ -314,7 +314,7 @@ PATRI;proantosyanidiniinitrimeerit;FI
 PELARGON;pelargonidiini;FI
 PEONID;peonidiini;FI
 PETUN;petunidiini;FI
-PROANTCT;proantosyanidit yhteens‰;FI
+PROANTCT;proantosyanidit yhteens√§;FI
 ASN;asparagiini;FI
 CADAVT;kadaveriini;FI
 CAFFN;kofeiini;FI
@@ -324,7 +324,7 @@ F13D0I;rasvahappo 13:0 iso;FI
 F16D1;rasvahappo 16:1 (palmitoleiinihappo);FI
 F16DUN;rasvahappo 16;FI
 F18D1;rasvahappo 18:1;FI
-F18D1CN9;rasvahappo 18:1 n-9 cis (ˆljyhappo);FI
+F18D1CN9;rasvahappo 18:1 n-9 cis (√∂ljyhappo);FI
 F18D1TN9;rasvahappo 18:1 trans n-9;FI
 F18D2;rasvahappo 18:2;FI
 F18D3;rasvahappo 18:3;FI
@@ -353,7 +353,7 @@ RAFS;raffinoosi;FI
 SEROTN;serotoniini;FI
 SPERDN;spermidiini;FI
 SPERN;spermiini;FI
-TOCPHT;tokoferolit yhteens‰;FI
+TOCPHT;tokoferolit yhteens√§;FI
 TRES;trehaloosi;FI
 TRYPN;tryptamiini;FI
 TYRA;tyramiini;FI
@@ -364,4 +364,4 @@ thscode;suomi;FI
 F19D1;rasvahappo 19:1;FI
 F21D0;rasvahappo 21:0;FI
 F22D3N3;rasvahappo 22:3 n-3;FI
-FAMSTXR;rasvahapot trans yksitt‰istyydyttym‰ttˆm‰t muut;FI
+FAMSTXR;rasvahapot trans yksitt√§istyydyttym√§tt√∂m√§t muut;FI

@@ -1,59 +1,59 @@
 THSCODE;DESCRIPT;LANG
-FRUITTOT;Hedelmät;FI
-APPLE;Omenahedelmät;FI
-CITRUS;Sitrushedelmät;FI
-FRUITOTH;Muut hedelmät;FI
+FRUITTOT;HedelmÃ¤t;FI
+APPLE;OmenahedelmÃ¤t;FI
+CITRUS;SitrushedelmÃ¤t;FI
+FRUITOTH;Muut hedelmÃ¤t;FI
 BERRY;Marjat;FI
-FRUITCAN;Hedelmäsäilykkeet;FI
-JUICE;Täysmehut;FI
+FRUITCAN;HedelmÃ¤sÃ¤ilykkeet;FI
+JUICE;TÃ¤ysmehut;FI
 FBDRINK;Mehujuomat;FI
 VEGTOT;Kasvikset;FI
 VEGLEAF;Lehtivihannekset;FI
-VEGFRU;Vihanneshedelmät;FI
+VEGFRU;VihanneshedelmÃ¤t;FI
 CABBAGE;Kaalit;FI
 VEGONI;Sipulikasvikset;FI
 ROOT;Juuri- ja mukulakasvit;FI
 MUSHRO;Sienet;FI
-VEGCANN;Kasvissäilykkeet;FI
-LEGUTOT;Palkokasvit ja pähkinät;FI
+VEGCANN;KasvissÃ¤ilykkeet;FI
+LEGUTOT;Palkokasvit ja pÃ¤hkinÃ¤t;FI
 PEABEAN;Palkokasvit;FI
-NUTSEED;Pähkinät, siemenet;FI
+NUTSEED;PÃ¤hkinÃ¤t, siemenet;FI
 SOYAPROD;Soijavalmisteet;FI
 POTATOT;Perunat;FI
 POTATO;Peruna;FI
 POTAPROD;Perunavalmisteet;FI
 CERTOT;Viljat;FI
-WHEAT;Vehnä;FI
+WHEAT;VehnÃ¤;FI
 RYE;Ruis;FI
 OATBAR;Kaura, ohra;FI
 PASTA;Pasta, makaroni;FI
 RICE;Riisi;FI
 CEROTH;Muu vilja;FI
-BRHARD;Kuiva leipä;FI
+BRHARD;Kuiva leipÃ¤;FI
 BISCUIT;Keksit;FI
-STARCH;Tärkkelykset;FI
+STARCH;TÃ¤rkkelykset;FI
 MILKTOT;Maito;FI
 MILK;Maidot;FI
 SMILK;Hapanmaitotuotteet;FI
 CHEESE;Juusto;FI
 CREAM;Kerma/ creme;FI
-ICECREAM;Jäätelö;FI
+ICECREAM;JÃ¤Ã¤telÃ¶;FI
 MILKOTH;Muu maito;FI
 FATTOT;Ravintorasvat;FI
 BUTTMIX;Voi, maitorasvaseokset;FI
-OIL;Öljy;FI
+OIL;Ã–ljy;FI
 FATVEG;Margariini ja rasvalevitteet >55%;FI
 FATLVEG;Margariini ja  rasvalevite <55%;FI
 FATHARD;Ruoanvalmistus- ja teollisuusrasva;FI
 FATOTH;Muu rasva, rasvavalmisteet;FI
-FATANIM;Eläinrasva;FI
+FATANIM;ElÃ¤inrasva;FI
 EGGTOT;Muna;FI
 EGG;Kananmunat;FI
 EGGOTH;Muiden lintujen munat;FI
 FISHTOT;Kala;FI
 FISH;Kalat;FI
 FISHPROD;Kalavalmisteet;FI
-SHELLFIS;Äyriäiset ja nilviäiset;FI
+SHELLFIS;Ã„yriÃ¤iset ja nilviÃ¤iset;FI
 MEATTOT;Lihat;FI
 BEEF;Naudanliha;FI
 PORK;Sianliha;FI
@@ -71,7 +71,7 @@ SDRINK;Virvoitusjuomat;FI
 ALCTOT;Alkoholijuomat;FI
 BEER;Oluet;FI
 WINE;Viinit;FI
-SPIRIT;Väkevät viinat;FI
+SPIRIT;VÃ¤kevÃ¤t viinat;FI
 ALCOTH;Muut alkoholijuomat;FI
 SUGARTOT;Sokerit ja makeiset;FI
 SUGARSYR;Sokerit, siirapit;FI
@@ -91,14 +91,14 @@ SNACK;Naposteltavat;FI
 INDMEAL;Teollinen ruoka;FI
 DIETTOT;Ravintovalmisteet;FI
 BABYFOOD;Lastenruoat;FI
-MMILK;Äidinmaitokorvikkeet ja äidinmaito;FI
+MMILK;Ã„idinmaitokorvikkeet ja Ã¤idinmaito;FI
 VITSUPPL;Vitamiinivalmiste;FI
-VITMISUP;Vitamiini-kivennäisainevalmiste;FI
-MINSUPPL;Kivennäisainevalmiste;FI
+VITMISUP;Vitamiini-kivennÃ¤isainevalmiste;FI
+MINSUPPL;KivennÃ¤isainevalmiste;FI
 FATSUPPL;Rasvavalmiste (sis. lesitiinivalmisteet);FI
 FIBSUPPL;Kuituvalmiste;FI
 ENZYMES;Entsyymivalmiste;FI
-HERBSUP;Yrttivalmiste (sis. mehiläisvalmiste);FI
+HERBSUP;Yrttivalmiste (sis. mehilÃ¤isvalmiste);FI
 HOMEOS;Homeopaattinen valmiste;FI
 PROBPREB;Probiootti- ja bakteerivalmiste;FI
 YEAST;Hiivavalmiste;FI

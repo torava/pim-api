@@ -4,7 +4,7 @@ ALCFREE;non-alcoholic;EN
 ARTSWEET;artificially sweetened;EN
 CHOLFREE;The dietary treatment of cardiovascular diseases and diabetes involves reducing the consumption of foods high in cholesterol. In the Fineli online service, foods chosen for the cholesterol-free diet contain a maximum of 5 mg of cholesterol per 100 g of the food.;EN
 EGGFREE;The egg-free diet does not contain chicken egg.;EN
-FATFREE;In the Fineli online service, foods chosen for the fat-free diet contain a maximum of 0.5 g of fat per 100 g of the food. ;EN
+FATFREE;In the Fineli online service, foods chosen for the fat-free diet contain a maximum of 0.5 g of fat per 100 g of the food.Â ;EN
 FRUSWEET;fructose sweetened;EN
 FUNCTION;functional;EN
 GLUTFREE;Food products suitable for the dietary treatment of coeliac disease contain no wheat, rye or barley. Oat may be used by a person suffering from the disease provided that the progress of the disease is being monitored by the physician in charge of treating the patient. Oat has not been included in the gluten-free diet in the Fineli online service.;EN
@@ -13,7 +13,7 @@ HIGHSALT;Foods containing over two per cent of salt have been classified as stro
 LACOVEGE;The lacto-ovo vegetarian diet contains eggs and milk products in addition to plant products.;EN
 LACSFREE;In lactose intolerance, the absorption of lactose, the predominant sugar in milk, is reduced. This inability results from a shortage of the enzyme lactase. Lactose intolerance is treated by reducing the use of foods which contain lactose.;EN
 LACVEGE;The lacto-vegetarian diet contains milk products in addition to plant products.;EN
-LOWCHOL;The dietary treatment of cardiovascular diseases and diabetes involves reducing the consumption of foods high in cholesterol. Foods containing less cholesterol than equivalent products in the same food group have been selected for the low-cholesterol diet.;EN
+LOWCHOL;The dietary treatment of cardiovascular diseases and diabetes involves reducing the consumption of foods high in cholesterol.Â Foods containing less cholesterol than equivalent products in the same food group have been selected for the low-cholesterol diet.;EN
 LOWENER;low-energy, light;EN
 LOWFAT;Foods containing less fat than equivalent products in the same food group have been selected as foods suitable for the low-fat diet.;EN
 LOWLACS;Foods containing less than one gram of lactose per one hundred grams of the product.;EN

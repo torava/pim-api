@@ -247,7 +247,7 @@ FOODID;FOODNAME;LANG
 565;Blended spread 40%, kevyt levi, low-sodium, low-lactose;EN
 568;Margarine 60%, rainbow/pirkka/eldorado/k-menu;EN
 570;Blended spread 40%, kevyt levi, low-lactose;EN
-572;Margarine 40%, l‰tta;EN
+572;Margarine 40%, l√§tta;EN
 576;Butter, unsalted;EN
 578;Mayonnaise, 27-33% fat;EN
 579;Salad dressing, <17% fat, low-fat;EN
@@ -293,7 +293,7 @@ FOODID;FOODNAME;LANG
 650;Cheese, home-made fresh cheese, 9-14% fat;EN
 653;Cheese, blue cheese, aura/danazole, average, 27-30% fat;EN
 654;Cheese, gouda/salaneuvos, average, 28-30% fat;EN
-655;Cheese, semi-hard cheese, lappi/smÂland/billinge/rustholli, 25-35% fat;EN
+655;Cheese, semi-hard cheese, lappi/sm√•land/billinge/rustholli, 25-35% fat;EN
 657;Cheese, finnish oven cheese, 17-23% fat;EN
 658;Cream cheese, 36-44% fat, kasakka/musta-pekka;EN
 659;Processed cheese, 9-12% fat, low-fat;EN
@@ -487,7 +487,7 @@ FOODID;FOODNAME;LANG
 1015;Berry pie, crushed berries, rye crust;EN
 1017;Boiled karelian pasty, rice filling in rye crust;EN
 1022;Bread porridge, lingonberries, rye bread, semolina;EN
-1023;M‰mmi, sweetened malt porridge, finnish easter pudding;EN
+1023;M√§mmi, sweetened malt porridge, finnish easter pudding;EN
 1025;Rye gruel, rye flakes, milk, salt;EN
 1026;Rye porridge, rye flakes, water, salt;EN
 1027;Rye porridge, rye flakes, milk, salt;EN
@@ -544,7 +544,7 @@ FOODID;FOODNAME;LANG
 1247;Egg sauce, low-fat milk, thickened with flour and fat;EN
 1253;Pudding, prune pudding;EN
 1258;French toast with low-fat milk;EN
-1262;Cookie crumbs, whipped cream and jam dessert, pappilan h‰t‰vara;EN
+1262;Cookie crumbs, whipped cream and jam dessert, pappilan h√§t√§vara;EN
 1265;Graham gruel, milk, salt;EN
 1266;Graham porridge, water, salt;EN
 1268;Graham berry porridge, water, lingonberry, sugar, salt;EN
@@ -663,7 +663,7 @@ FOODID;FOODNAME;LANG
 1860;Ravioli with spinach filling, boiled;EN
 2002;Potato, fried;EN
 2005;Potatoes in low-fat milk;EN
-2009;PurÈed potato leek soup;EN
+2009;Pur√©ed potato leek soup;EN
 2010;Salad, potato salad, onion, without mayonnaise;EN
 2011;Mashed potato casserole, milk, eggs, without meat;EN
 2012;Potato and onion casserole, low-fat milk;EN
@@ -680,8 +680,8 @@ FOODID;FOODNAME;LANG
 3000;Carrot, fried;EN
 3001;Mashed carrot;EN
 3002;Carrot stew;EN
-3003;PurÈed carrot soup;EN
-3004;PurÈed carrot soup, milk;EN
+3003;Pur√©ed carrot soup;EN
+3004;Pur√©ed carrot soup, milk;EN
 3005;Carrot casserole, low-fat milk;EN
 3006;Thin carrot pancake, carrot crepes, low-fat milk;EN
 3009;Swede, simmered;EN
@@ -701,11 +701,11 @@ FOODID;FOODNAME;LANG
 3034;Aubergine, fried;EN
 3040;Sweet corn, boiled;EN
 3200;Cabbage, fried;EN
-3201;Cabbage soup, sautÈed cabbage;EN
+3201;Cabbage soup, saut√©ed cabbage;EN
 3202;Cabbage soup with potatoes;EN
 3204;Sour cabbage/sauerkraut;EN
 3206;Red cabbage stew;EN
-3207;Creamy cauliflower soup, purÈed;EN
+3207;Creamy cauliflower soup, pur√©ed;EN
 3208;Cauliflower stew;EN
 3209;Cauliflower gratin, low-fat milk;EN
 3212;Broccoli stew;EN
@@ -741,7 +741,7 @@ FOODID;FOODNAME;LANG
 3265;Tomato soup;EN
 3266;Tomato filled with mushrooms, breadcrumbs;EN
 3267;Vegetable soup, milk-based, summersoup;EN
-3268;PurÈed vegetable soup, milk-based;EN
+3268;Pur√©ed vegetable soup, milk-based;EN
 3269;Vegetable stew, low-fat milk;EN
 3272;Root vegetables, mashed, low-fat milk;EN
 3275;Vegetable egg casserole;EN
@@ -936,7 +936,7 @@ FOODID;FOODNAME;LANG
 7015;Pork beef mince, fried;EN
 7016;Pork beef mince gravy;EN
 7017;Beef steak mince gravy;EN
-7021;Bolognese, pork beef mince, tomato purÈe, thickened;EN
+7021;Bolognese, pork beef mince, tomato pur√©e, thickened;EN
 7022;Meatball, pork-beef mince, fried;EN
 7023;Meatball, pork-beef mince, boiled;EN
 7024;Meatball, pork-beef mince, oven-baked;EN
@@ -984,7 +984,7 @@ FOODID;FOODNAME;LANG
 7078;Beef steak mince soup;EN
 7080;Meatball, beef steak mince, cream, oven-baked;EN
 7081;Meatball, beef steak mince, mushrooms, fried;EN
-7082;Bolognese, beef steak mince, tomato purÈe, thickened;EN
+7082;Bolognese, beef steak mince, tomato pur√©e, thickened;EN
 7083;Pork roast, low-fat;EN
 7084;Pork schnitzel, breaded, fried;EN
 7085;Beef steak, fried;EN
@@ -1029,7 +1029,7 @@ FOODID;FOODNAME;LANG
 7176;Chili con carne;EN
 7177;Meatloaf with mushrooms, pork-beef, cream;EN
 7178;Beef-vegetable wok;EN
-7179;Lindstrˆm's steak, beetroot and pork beef mince;EN
+7179;Lindstr√∂m's steak, beetroot and pork beef mince;EN
 7180;Roulade with smoked ham, low-fat;EN
 7181;Minestrone soup with beef, beans, sweet pepper, leek and carrot;EN
 7182;Minestrone soup with beef mince and vegetables;EN
@@ -1176,7 +1176,7 @@ FOODID;FOODNAME;LANG
 8038;Fish vegetable casserole, milk, egg;EN
 8039;Fish potato stew;EN
 8041;Baltic herring in tomato sauce;EN
-8042;Pike ‡ la homburg;EN
+8042;Pike √† la homburg;EN
 8043;Saithe with white sauce, cheese, low-fat milk, breadcrumbs, oven-baked;EN
 8046;Fish vegetable casserole, saithe, vegetables, processed cheese, milk;EN
 8047;Tuna salad with potato, without dressing;EN
@@ -1313,7 +1313,7 @@ FOODID;FOODNAME;LANG
 11210;Pastille sweetened with xylitol, added vitamin c;EN
 11211;Cheese, feta cheese in brine, made with goat milk, 25% fat;EN
 11212;Sunflower seed;EN
-11287;Vegetable fat spread 28%, mini l‰tta;EN
+11287;Vegetable fat spread 28%, mini l√§tta;EN
 11469;Fruit puree average, industrial babyfood;EN
 11470;Berry puree, average, industrial babyfood;EN
 11471;Carrot-potato puree, average, industrial babyfood;EN
@@ -1446,7 +1446,7 @@ FOODID;FOODNAME;LANG
 28982;Macaroni and pork beef mince casserole, meat bouillon;EN
 28983;Beef, raw, marinated in salt;EN
 28984;Steak tartare;EN
-28985;Roe sauce, crËme fraÓche;EN
+28985;Roe sauce, cr√®me fra√Æche;EN
 28986;Crayfish, boiled;EN
 28987;Lobster, boiled;EN
 28988;Mussel gravy. low-fat milk;EN
@@ -1490,7 +1490,7 @@ FOODID;FOODNAME;LANG
 29031;Noodle soup, vegetables;EN
 29032;Vegetables, gratinated, vegetable gratin;EN
 29033;Cheesy vegetable soup;EN
-29034;PurÈed vegetable soup, pea, carrot, sweetcorn, cooking cream (veg. fat);EN
+29034;Pur√©ed vegetable soup, pea, carrot, sweetcorn, cooking cream (veg. fat);EN
 29035;Pea soup, pureed, with white wine;EN
 29036;Root vegetable soup, pureed, cooking cream (veg. fat);EN
 29037;Root vegetable soup, pureed;EN
@@ -1586,7 +1586,7 @@ FOODID;FOODNAME;LANG
 29249;Baltic herring casserole, potato, fish bouillon;EN
 29250;Tuna bolognese;EN
 29253;Meatball, beef steak mince, oven-baked;EN
-29254;Lindstrˆm¥s steak, beetroot and beef steak mince;EN
+29254;Lindstr√∂m¬¥s steak, beetroot and beef steak mince;EN
 29255;Fish, cooking cream (19% fat), oven-baked;EN
 29256;Chicken fillet, filled with cheese, oven-baked;EN
 29257;Lasagne, chicken mince;EN
@@ -2060,7 +2060,7 @@ FOODID;FOODNAME;LANG
 31572;Swiss roll dough, gluten-free;EN
 31573;Chocolate swiss roll cake, gluten-free;EN
 31574;Basic plain sponge cake/swiss roll, sweetened with fructose;EN
-31575;Cake, mud cake, chocolate cake, frˆdinge, frozen;EN
+31575;Cake, mud cake, chocolate cake, fr√∂dinge, frozen;EN
 31576;Butter cream, chocolate swiss roll filling;EN
 31578;Chocolate swiss roll, naturally gluten-free;EN
 31579;Chocolate swiss roll, gluten-free;EN
@@ -2073,13 +2073,13 @@ FOODID;FOODNAME;LANG
 31587;Sponge cake, strawberry and cream filling;EN
 31588;Basic plain sponge cake, bakery;EN
 31589;Sponge cake, strawberry and cream filling, bakery;EN
-31590;VanillacrËme;EN
+31590;Vanillacr√®me;EN
 31591;Cake, tiramisu;EN
 31592;Cake coating, mocha;EN
 31594;Cake, tosca cake;EN
 31595;Sponge cake, chocolate cake with cream and jam filling;EN
 31597;Sponge cake, caramel cake, apple puree and vanilla pudding filling;EN
-31598;CrËme;EN
+31598;Cr√®me;EN
 31599;Sponge cake, butter icing;EN
 31601;Sponge cake, cream filling, vegetable fat cream product;EN
 31602;Shortcake;EN
@@ -2092,13 +2092,13 @@ FOODID;FOODNAME;LANG
 31609;Cake, carrot cake, bakery;EN
 31611;Biscuit for children, tivoli, pirkka;EN
 31613;Biscuit for children, carneval;EN
-31615;Oat biscuit, jyv‰shyv‰ luonnonhyv‰t, rapeseed oil-based;EN
+31615;Oat biscuit, jyv√§shyv√§ luonnonhyv√§t, rapeseed oil-based;EN
 31619;Digestive biscuit;EN
 31620;Chocolate chip cookie;EN
 31621;Oat biscuit, industrial, average;EN
 31622;Biscuit for children, moomin, lu;EN
 31623;Biscuit, elovena, snack biscuit;EN
-31624;Biscuit for children, naturally gluten-free, sch‰r;EN
+31624;Biscuit for children, naturally gluten-free, sch√§r;EN
 31625;Doughnut, gluten-free, contains wheat starch;EN
 31626;Bun, cinnamon bun, gluten-free, industrial, wheat starch;EN
 31627;Digestive biscuit, gluten-free;EN
@@ -2188,7 +2188,7 @@ FOODID;FOODNAME;LANG
 31752;Berry pie with quark filling, basic sweet dough, low fat milk;EN
 31753;Berry pie with quark filling, basic sweet dough, whole milk;EN
 31768;Rhubarb pie with quark filling, shortbread crust;EN
-31769;Lingonberry pie with rye crust, rˆnttˆnen;EN
+31769;Lingonberry pie with rye crust, r√∂ntt√∂nen;EN
 31772;Feta and spinach pie, shortcrust pastry;EN
 31773;Butter dough with quark;EN
 31774;Butter dough with potato puree;EN
@@ -2209,10 +2209,10 @@ FOODID;FOODNAME;LANG
 31789;Cake, almond cake, almondy, frozen;EN
 31790;Cake, daim cake, almondy, frozen;EN
 31791;Cake, cheese cake almondy, frozen;EN
-31792;Sponge cake, meringue cake, frˆdinge, frozen;EN
-31793;Sponge cake, strawberry cake, frozen, frˆdinge;EN
-31794;Sponge cake, caramel cake, frozen, frˆdinge;EN
-31795;Sponge cake, chocolate cake, frozen, frˆdinge;EN
+31792;Sponge cake, meringue cake, fr√∂dinge, frozen;EN
+31793;Sponge cake, strawberry cake, frozen, fr√∂dinge;EN
+31794;Sponge cake, caramel cake, frozen, fr√∂dinge;EN
+31795;Sponge cake, chocolate cake, frozen, fr√∂dinge;EN
 31796;Egg and rice pasty, butter dough;EN
 31798;Deep-fried meat pasty, pirkka;EN
 31799;Deep-fried meat pasty, atria;EN
@@ -2228,14 +2228,14 @@ FOODID;FOODNAME;LANG
 31814;Rye bread, wholegrain rye, real tumma, fazer;EN
 31815;Rye bread, puikula, fazer;EN
 31816;Rye bread, tosi rukiinen, vaasan;EN
-31817;Rye bread, wholegrain rye, jyv‰rouhea, vaasan;EN
-31818;Rye bread, wholegrain rye, wheat flour, ruissyd‰n, vaasan;EN
+31817;Rye bread, wholegrain rye, jyv√§rouhea, vaasan;EN
+31818;Rye bread, wholegrain rye, wheat flour, ruissyd√§n, vaasan;EN
 31819;Rye bread, wholegrain rye, 100% rye, vaasan;EN
 31820;Rye bread, ruispalat, vaasan;EN
-31821;Rye bread, oululainen j‰lkiuunileip‰, fazer;EN
-31822;Rye bread, oululainen j‰lkiuunileip‰, less salt, fazer;EN
-31823;Rye bread, oululainen j‰lkiuuniviipaleet, fazer;EN
-31824;Rye bread, wholegrain rye, oululainen j‰lkiuunivuoka, fazer;EN
+31821;Rye bread, oululainen j√§lkiuunileip√§, fazer;EN
+31822;Rye bread, oululainen j√§lkiuunileip√§, less salt, fazer;EN
+31823;Rye bread, oululainen j√§lkiuuniviipaleet, fazer;EN
+31824;Rye bread, wholegrain rye, oululainen j√§lkiuunivuoka, fazer;EN
 31826;Rye bread, wholegrain rye, uotilan maalaisruislimppu, fazer;EN
 31827;Rye bread, wholegrain rye, dark wheat flour, potato, uotilan perunalimppu, fazer;EN
 31828;Rye bread, wholegrain rye, dark wheat flour, rovastinlimppu, fazer;EN
@@ -2246,15 +2246,15 @@ FOODID;FOODNAME;LANG
 31833;Toast, multigrain toast, fazer roast rolls;EN
 31834;Toast, rye toast, fazer roast rolls;EN
 31835;White bread, wheat roll with cheese, fazer;EN
-31837;Multigrain bread, wholegrain, rapeseed oil, reilu t‰ysjyv‰viipaleet, fazer;EN
-31838;Multigrain bread, wheat flour, wheat bran, reilu vehn‰leseviipaleet, fazer;EN
-31839;White bread, wheat toast, oululainen reilu vehn‰viipaleet, fazer;EN
+31837;Multigrain bread, wholegrain, rapeseed oil, reilu t√§ysjyv√§viipaleet, fazer;EN
+31838;Multigrain bread, wheat flour, wheat bran, reilu vehn√§leseviipaleet, fazer;EN
+31839;White bread, wheat toast, oululainen reilu vehn√§viipaleet, fazer;EN
 31840;Toast, multigrain toast, fazer alku;EN
 31841;Multigrain bread, oat bread, wheat flour, oat flakes, fazer;EN
-31842;White bread, wheat bread, maalaisleip‰, fazer;EN
+31842;White bread, wheat bread, maalaisleip√§, fazer;EN
 31845;Toast, rye toast, fazer;EN
 31846;Toast, oats toast, fazer kaurapaahto;EN
-31847;Toast, graham toast, fazer t‰ysjyv‰paahto;EN
+31847;Toast, graham toast, fazer t√§ysjyv√§paahto;EN
 31848;Toast, wheat toast, contains wheat fiber, fazer;EN
 31854;Multigrain bread, oat bread, puikula kaura, fazer;EN
 31856;Toast, wheat toast, vaasan arkipaahto;EN
@@ -2270,14 +2270,14 @@ FOODID;FOODNAME;LANG
 31867;Multigrain bread, barley flatbread, lapin pakarin ohrarieskaset, vaasan;EN
 31868;Multigrain bread, sliced, moniviljaviipaleet, vaasan;EN
 31869;Multigrain bread, oat bread, kaurapalat, vaasan;EN
-31870;Multigrain bread, wholegrain wheat, t‰yshyv‰t 100% moniviljaleip‰, vaasan;EN
-31871;Multigrain bread, sliced, t‰yshyv‰t 100% jyv‰iset viipaleet, vaasan;EN
+31870;Multigrain bread, wholegrain wheat, t√§yshyv√§t 100% moniviljaleip√§, vaasan;EN
+31871;Multigrain bread, sliced, t√§yshyv√§t 100% jyv√§iset viipaleet, vaasan;EN
 31872;White bread, wheat roll with cheese, vaasan;EN
 31876;Rye bread, rye bread roll, taikaruis 100%, vaasan;EN
-31877;White bread, carrot roll, muhku porkkanas‰mpyl‰, vaasan;EN
-31879;White bread, wheat roll, perhe vehn‰s‰mpyl‰, vaasan;EN
-31880;Rye bread, taikaruis 100% vaalea ruisleip‰viipale, vaasan;EN
-31881;Multigrain bread, aittaleip‰, perheleipurit;EN
+31877;White bread, carrot roll, muhku porkkanas√§mpyl√§, vaasan;EN
+31879;White bread, wheat roll, perhe vehn√§s√§mpyl√§, vaasan;EN
+31880;Rye bread, taikaruis 100% vaalea ruisleip√§viipale, vaasan;EN
+31881;Multigrain bread, aittaleip√§, perheleipurit;EN
 31888;Milk, 0% fat, valio plus, 2 ug added vitamin d;EN
 31891;Milk, 3.5% fat, low-lactose, 1 ug added vitamin d;EN
 31894;Milk, coffee milk 2% fat, lactose-free, 1 ug added vitamin d;EN
@@ -2296,7 +2296,7 @@ FOODID;FOODNAME;LANG
 31919;Pudding with vanilla sauce and berries, industrial;EN
 31920;Pudding, chocolate pudding with whipped cream, susette;EN
 31922;Pudding, chocolate pudding, milk, home-made, average;EN
-31924;Multigrain bread, oivallus kuitupalat, pÂgen;EN
+31924;Multigrain bread, oivallus kuitupalat, p√•gen;EN
 31926;Soy product, soured, soya, fruit and grain, elovena, calcium, probiotics;EN
 31927;Liver casserole, pirkka/saarioinen, ready meal;EN
 31928;Liver casserole, without raisins, lactose-free, industrial, ready meal;EN
@@ -2372,7 +2372,7 @@ FOODID;FOODNAME;LANG
 32019;Lasagne, lean steak mince (7%), meal mixture;EN
 32020;Lasagne, chicken mince, meal mixture;EN
 32022;Lasagne, beef mince (17%), whole wheat pasta, meal mixture;EN
-32023;Pasta carbonara, mÂltid blandning, kokt;EN
+32023;Pasta carbonara, m√•ltid blandning, kokt;EN
 32024;Pasta with mushroom gravy, pasta dinner mix, cooked;EN
 32025;Pasta with cheese sauce, pasta dinner mix, cooked;EN
 32028;Lasagne, pork mince, meal mixture;EN
@@ -2483,7 +2483,7 @@ FOODID;FOODNAME;LANG
 32160;Fruity chicken gravy;EN
 32161;Frozen vegetable mix, carrot-parsnip-bean, maalaiskasvikset;EN
 32162;Frozen vegetable mix, broccoli-carrot-water chestnut;EN
-32163;Bearnaise sauce mix, campbell's/blÂ band;EN
+32163;Bearnaise sauce mix, campbell's/bl√• band;EN
 32164;Chicken fillet and rice, oven-baked;EN
 32165;Frozen vegetable mix, root vegetables, carrot-swede-onion;EN
 32166;Frozen vegetable mix, potato and vegetables;EN
@@ -2632,20 +2632,20 @@ FOODID;FOODNAME;LANG
 32454;Karelian stew, pork and beef, root vegetables;EN
 32455;Grapefruit pink/red, without skin;EN
 32456;Artichoke;EN
-32459;Multigrain bread, puhtileip‰, katri antell;EN
+32459;Multigrain bread, puhtileip√§, katri antell;EN
 32460;Multigrain bread, vaaleavaalea, katri antell;EN
-32461;White bread, wheat roll, lounass‰mpyl‰, katri antell;EN
-32462;Multigrain bread, bread roll, puhtis‰mpyl‰, katri antell;EN
-32463;Multigrain bread, bread roll, tuhti-moniviljas‰mpyl‰, katri antell;EN
+32461;White bread, wheat roll, lounass√§mpyl√§, katri antell;EN
+32462;Multigrain bread, bread roll, puhtis√§mpyl√§, katri antell;EN
+32463;Multigrain bread, bread roll, tuhti-moniviljas√§mpyl√§, katri antell;EN
 32464;Nut, brazil nut;EN
-32465;Multigrain bread, carrot roll, tuhti-porkkanas‰mpyl‰, katri antell;EN
+32465;Multigrain bread, carrot roll, tuhti-porkkanas√§mpyl√§, katri antell;EN
 32466;Multigrain bread, potato rye bread, oiva perunalimppu, linkosuo;EN
-32467;Multigrain bread, tampereen riev‰, linkosuo;EN
-32468;Multigrain bread, tummempi tuhatjyv‰, linkosuo;EN
-32469;Multigrain bread, bread roll, aamiaiss‰mpyl‰, perheleipurit;EN
-32470;White bread, wheat roll, ev‰ss‰mpyl‰, perheleipurit;EN
-32471;Multigrain bread, lingonberry, limpukka, pÂgen;EN
-32472;Multigrain bread, bread roll, rye and wheat flour, ruis-vehn‰tyynyt, vaasan;EN
+32467;Multigrain bread, tampereen riev√§, linkosuo;EN
+32468;Multigrain bread, tummempi tuhatjyv√§, linkosuo;EN
+32469;Multigrain bread, bread roll, aamiaiss√§mpyl√§, perheleipurit;EN
+32470;White bread, wheat roll, ev√§ss√§mpyl√§, perheleipurit;EN
+32471;Multigrain bread, lingonberry, limpukka, p√•gen;EN
+32472;Multigrain bread, bread roll, rye and wheat flour, ruis-vehn√§tyynyt, vaasan;EN
 32473;Fruit drink, hevi shot, valio, pineapple-carrot-mango;EN
 32474;Fruit drink, hevi shot, valio, apple-carrot-strawberry;EN
 32477;Fruit drink, mehukatti fruit snack, strawberry;EN
@@ -2660,9 +2660,9 @@ FOODID;FOODNAME;LANG
 32487;Curry chicken gravy, ready made sauce;EN
 32488;Beef mince and mashed potato casserole, mashed potato powder, water;EN
 32489;Beef mince and mashed potato casserole, mashed potato powder, milk;EN
-32490;Bun, cinnamon bun, gifflar cinnamon bun, pÂgen;EN
-32492;Cake, muffin, lemon, with crËme filling, pÂgen;EN
-32493;Cake, muffin, cocoa, with crËme filling, pÂgen;EN
+32490;Bun, cinnamon bun, gifflar cinnamon bun, p√•gen;EN
+32492;Cake, muffin, lemon, with cr√®me filling, p√•gen;EN
+32493;Cake, muffin, cocoa, with cr√®me filling, p√•gen;EN
 32494;Beef mince gravy;EN
 32495;Chicken mince gravy;EN
 32497;Lean steak mince gravy;EN
@@ -2688,7 +2688,7 @@ FOODID;FOODNAME;LANG
 32526;Strawberry kissel, strawberry soup;EN
 32528;Pudding, cream pudding, industrial;EN
 32529;Pudding, chocolate pudding, industrial;EN
-32532;Oat and vanillla biscuit, jyv‰shyv‰, lu;EN
+32532;Oat and vanillla biscuit, jyv√§shyv√§, lu;EN
 32534;Finn crisp, oat crispbread, oululainen, fazer;EN
 32535;Karelian pasty, rice filling, imatran, fazer;EN
 32536;Karelian pasty, rice filling, fazer;EN
@@ -2697,10 +2697,10 @@ FOODID;FOODNAME;LANG
 32539;Rhubarb pie, basic sweet dough, low-fat milk;EN
 32540;Mulled wine, non-alcololic;EN
 32541;Quark, flavoured, 7% fat, valio;EN
-32542;Chocolate chip cookie, jyv‰shyv‰ suklaapisara, lu;EN
+32542;Chocolate chip cookie, jyv√§shyv√§ suklaapisara, lu;EN
 32544;Biscuit for children, carneval prinsessa, rapeseed oil-based;EN
-32547;Biscuit, jyv‰shyv‰ cracotte, whole wheat;EN
-32548;Biscuit, jyv‰shyv‰ cracotte, sesame seeds;EN
+32547;Biscuit, jyv√§shyv√§ cracotte, whole wheat;EN
+32548;Biscuit, jyv√§shyv√§ cracotte, sesame seeds;EN
 32553;Margarine 80%, fluid, average;EN
 32555;Biscuit, bastogne, lu;EN
 32556;Spinach soup, apetit, frozen soup;EN
@@ -2711,7 +2711,7 @@ FOODID;FOODNAME;LANG
 32562;Oat product, fermented oat, yosa naturell;EN
 32567;Cheese, oltermanni rypsi, rapseed oil, 24% fat;EN
 32568;Blended spread 75%, 10 ug vitamin d;EN
-32570;4-grain flakes, riihikosken vehn‰mylly;EN
+32570;4-grain flakes, riihikosken vehn√§mylly;EN
 32592;Sour milk, butter milk, 0.3% fat, 0.5 ug vitamin d;EN
 32593;Sour milk, 0.5 ug vitamin d;EN
 32594;Sour milk, fat-free, low-lactose, 0.5 ug vitamin d;EN
@@ -2734,7 +2734,7 @@ FOODID;FOODNAME;LANG
 32614;Soy-vegetable casserole, cooking cream;EN
 32615;Onion soup, french, gratinated with bread and cheese;EN
 32616;Pudding, panna cotta, contains gelatin;EN
-32617;CrËme br˚lÈe;EN
+32617;Cr√®me br√ªl√©e;EN
 32618;Bbq-sauce for meat, home-made;EN
 32619;Meal replacement, shake, naturdiet;EN
 32622;Meal replacement, smoothie, naturdiet;EN
@@ -2801,7 +2801,7 @@ FOODID;FOODNAME;LANG
 32693;Croissant, home-made;EN
 32694;Pork and beef steak mince, 7% fat;EN
 32695;Milk chocolate candy with peppermint flavour, marianne, fazer;EN
-32696;Sesame nuggets with soy, deep-fried, h‰lsans kˆk;EN
+32696;Sesame nuggets with soy, deep-fried, h√§lsans k√∂k;EN
 32697;Muesli, crunchy;EN
 32699;Suffeli puffi snacks,puffed corn and chocolate flavored coating,very low glutein;EN
 32700;Cereal bar with chocolate;EN
@@ -2830,7 +2830,7 @@ FOODID;FOODNAME;LANG
 32726;Multigrain bread, carrot roll, fat-free milk, dark wheat flour, flour mix;EN
 32728;Multigrain bread, carrot roll, whole milk, dark wheat flour, flour mix;EN
 32729;Asparagus, boiled without salt;EN
-32730;Toast, wholegrain toast, vaasan 100% t‰ysjyv‰paahto;EN
+32730;Toast, wholegrain toast, vaasan 100% t√§ysjyv√§paahto;EN
 32731;Noodle, whole wheat;EN
 32732;Noodle, whole wheat, boiled, salt;EN
 32733;Kinder chocolate egg;EN
@@ -2893,7 +2893,7 @@ FOODID;FOODNAME;LANG
 32807;Minced meat potato casserole, kokkikartano snellman, ready meal;EN
 32808;Fish and potato casserole, jansson's temptation, snellman, ready meal;EN
 32811;Spagetti bolognese, hk, ready meal;EN
-32812;Rice pasty, riisipyˆrˆnen;EN
+32812;Rice pasty, riisipy√∂r√∂nen;EN
 32813;Ham pie, shortcrust pastry;EN
 32814;Sultsina pasty;EN
 32815;Meat pasty, meat in rye crust;EN
@@ -2938,8 +2938,8 @@ FOODID;FOODNAME;LANG
 32858;Stuffed cabbage rolls, beef steak mince;EN
 32859;Vendace loaf, fish in rye crust;EN
 32862;Blood bread, rye and barley bread with blood;EN
-32863;Rˆssymaito, potato, pork, blood and milk;EN
-32864;Rˆssypottu, potato, pork and blood stew;EN
+32863;R√∂ssymaito, potato, pork, blood and milk;EN
+32864;R√∂ssypottu, potato, pork and blood stew;EN
 32865;Risotto, fish risotto;EN
 32866;Risotto, sea food risotto, shrimp, mussel;EN
 32867;Swede loaf, rye crust;EN
@@ -2966,9 +2966,9 @@ FOODID;FOODNAME;LANG
 32889;Fish stew, low-fat milk;EN
 32890;Fish stew, fat-free milk;EN
 32891;Berry pie, double-crust, without egg;EN
-32892;Fruit drink, hyv‰‰ p‰iv‰‰, cranberry, partially artificially sweetened;EN
-32893;Fruit drink, hyv‰‰ p‰iv‰‰, citrus, partially artificially sweetened, vitamins;EN
-32894;Fruit drink, hyv‰‰ p‰iv‰‰, sweetened with fructose, with added vitamins;EN
+32892;Fruit drink, hyv√§√§ p√§iv√§√§, cranberry, partially artificially sweetened;EN
+32893;Fruit drink, hyv√§√§ p√§iv√§√§, citrus, partially artificially sweetened, vitamins;EN
+32894;Fruit drink, hyv√§√§ p√§iv√§√§, sweetened with fructose, with added vitamins;EN
 32895;Nut, macadamia nut;EN
 32897;Energy drink, energy water, teho, olvi, with added vitamins;EN
 32898;Swede casserole, fat-free milk;EN
@@ -2992,12 +2992,12 @@ FOODID;FOODNAME;LANG
 32921;Potato patty, whole milk;EN
 32922;Salmon salad, boiled eggs, orange and broccoli, oil-based dressing;EN
 32923;Salmon salad, asparagus, avocado, oil-based dressing;EN
-32925;Cheese, goat cheese, chËvre, 30% fat;EN
+32925;Cheese, goat cheese, ch√®vre, 30% fat;EN
 32926;Doughnut, fat-free milk, home-made;EN
 32927;Goat cheese salad with boiled beetroot, oil-based dressing;EN
 32928;Minced meat gravy and mashed potatoes, hk, ready meal;EN
 32930;Goat cheese salad with pear and tomato, oil-based dressing;EN
-32931;Cheese, goat cheese, chËvre, 30% fat, fried;EN
+32931;Cheese, goat cheese, ch√®vre, 30% fat, fried;EN
 32932;Salmon and potato casserole, hk, ready meal;EN
 32936;Sausage hash, rign bologna, potato, egg;EN
 32937;Egg, fried, without fat and salt;EN
@@ -3005,31 +3005,31 @@ FOODID;FOODNAME;LANG
 32939;Egg white, fried, without fat and salt;EN
 32943;Saithe with white sauce, cheese, fat-free milk, breadcrumbs, oven-baked;EN
 32944;Quark pie, basic sweet dough, fat-free milk;EN
-32947;Crispbread, whole rye bread, vaasan pieni pyˆre‰/maukas, 18% fibre;EN
+32947;Crispbread, whole rye bread, vaasan pieni py√∂re√§/maukas, 18% fibre;EN
 32949;Crispbread, whole rye bread, rye bran, vaasan kunto, 21% fibre;EN
-32950;Crispbread, multigrain, sesame seeds, vaasan pieni pyˆre‰;EN
-32951;Crispbread, whole grain, 5-grain, vaasan t‰yshyv‰t, 21% fibre;EN
-32955;Multigrain bread, bread roll, crushed grains, wheat flour, leip‰aitta, lidl;EN
+32950;Crispbread, multigrain, sesame seeds, vaasan pieni py√∂re√§;EN
+32951;Crispbread, whole grain, 5-grain, vaasan t√§yshyv√§t, 21% fibre;EN
+32955;Multigrain bread, bread roll, crushed grains, wheat flour, leip√§aitta, lidl;EN
 32956;Multigrain bread, graham roll, wheat and graham flour, crushed grains, lidl;EN
-32957;Multigrain bread, wheat flour, crushed grains, pehme‰ moniviljaleip‰, lidl;EN
-32958;Multigrain bread, oat bread, perinteinen kauraleip‰, leip‰aitta, lidl;EN
-32959;White bread, wheat flour, olive oil, high sodium, arinaleip‰, leip‰aitta, lidl;EN
+32957;Multigrain bread, wheat flour, crushed grains, pehme√§ moniviljaleip√§, lidl;EN
+32958;Multigrain bread, oat bread, perinteinen kauraleip√§, leip√§aitta, lidl;EN
+32959;White bread, wheat flour, olive oil, high sodium, arinaleip√§, leip√§aitta, lidl;EN
 32960;Multigrain bread, wheat and rye flour, crushed grains, ruisrouheviipaleet, lidl;EN
 32961;Multigrain bread, buttermilk bread, wheat, graham and dark wheat flour, lidl;EN
-32962;Rye bread, wholegrain rye, wheat flour, ruispalat, leip‰aitta, lidl;EN
+32962;Rye bread, wholegrain rye, wheat flour, ruispalat, leip√§aitta, lidl;EN
 32963;Chocolate digestive biscuit;EN
-32964;Rye bread, wholegrain rye, wheat flour, perinteinen varrasleip‰, leip‰aitta,lidl;EN
-32965;Rye bread, wholegrain rye, potato flakes, pyˆre‰t ruispalaset, leip‰aitta, lidl;EN
-32966;Multigrain bread, wheat flour, mixed seeds, fitnesspalat, leip‰aitta, lidl;EN
+32964;Rye bread, wholegrain rye, wheat flour, perinteinen varrasleip√§, leip√§aitta,lidl;EN
+32965;Rye bread, wholegrain rye, potato flakes, py√∂re√§t ruispalaset, leip√§aitta, lidl;EN
+32966;Multigrain bread, wheat flour, mixed seeds, fitnesspalat, leip√§aitta, lidl;EN
 32968;Bagel;EN
 32970;Bagel, butter bagel;EN
 32971;Mushrooms filled with bacon and cream cheese spread;EN
 32972;Mushrooms filled with bacon and processed cheese;EN
 32973;Oven-baked apple pancake, low-fat milk;EN
 32974;Biscuit, industrial, sondey biscuit assortment, lidl;EN
-32975;Multigrain bread, wheat flour, crushed grains, vaaleat sekaleip‰palat, lidl;EN
-32976;Multigrain bread, wheat and dark wheat flour, maalaisviipaleet, leip‰aitta, lidl;EN
-32977;Multigrain bread, graham flour, crushed wheat grains, t‰ysjyv‰viipaleet, lidl;EN
+32975;Multigrain bread, wheat flour, crushed grains, vaaleat sekaleip√§palat, lidl;EN
+32976;Multigrain bread, wheat and dark wheat flour, maalaisviipaleet, leip√§aitta, lidl;EN
+32977;Multigrain bread, graham flour, crushed wheat grains, t√§ysjyv√§viipaleet, lidl;EN
 32978;White bread, pre-baked wheat roll, high-sodium, rivercote, lidl;EN
 32979;Toast, wheat toast, mcennedy sliced brown bread, lidl, high-sodium;EN
 32980;White bread, hot dog bun, kohberg, lidl;EN
@@ -3094,7 +3094,7 @@ FOODID;FOODNAME;LANG
 33048;Cooking cream, vegetable fat, 7 % fat;EN
 33049;Cooking cream, vegetable fat, 4% fat;EN
 33050;Pudding, rice pudding with berries, home-made;EN
-33055;Potato, baked, filled with smoked baltic herring and crËme fraiche;EN
+33055;Potato, baked, filled with smoked baltic herring and cr√®me fraiche;EN
 33056;Potato, baked, filled with ham and cream cheese;EN
 33057;Potato, baked, filled with smoked ham, cream cheese and mushrooms;EN
 33059;Multigrain bread, sliced, viljaisat perheviipaleet, oululainen;EN
@@ -3111,7 +3111,7 @@ FOODID;FOODNAME;LANG
 33070;Fig, dried;EN
 33072;Beef mince soup, saarioinen, ready meal;EN
 33073;Shrimp soup, industrial, saarioinen, ready meal;EN
-33074;PurÈed carrot soup, saarioinen, ready meal;EN
+33074;Pur√©ed carrot soup, saarioinen, ready meal;EN
 33075;Reindeer soup with cheese, saarioinen, ready meal;EN
 33077;Pineapple, dried;EN
 33079;Chicken pasta, saarioinen, ready meal;EN
@@ -3130,8 +3130,8 @@ FOODID;FOODNAME;LANG
 33095;Nut, pecan;EN
 33096;Ham gravy;EN
 33097;Sausage bratwurst;EN
-33098;Multigrain bread, bread roll, tumma lounass‰mpyl‰, vaasan;EN
-33100;White bread, wheat roll, vaalea lounass‰mpyl‰, vaasan;EN
+33098;Multigrain bread, bread roll, tumma lounass√§mpyl√§, vaasan;EN
+33100;White bread, wheat roll, vaalea lounass√§mpyl√§, vaasan;EN
 33101;Macaroni, boiled, oil, salt;EN
 33102;Nut, peanut, honey-roasted;EN
 33103;Yoghurt, flavoured, valio olo, 2.7% fat, lactose-free, 1ug vitamin d, probiotics;EN
@@ -3178,11 +3178,11 @@ FOODID;FOODNAME;LANG
 33149;Meat, deep-fried, average;EN
 33150;Yoghurt, flavoured, 4,6% fat, lactose-free;EN
 33151;Seasalt, without iodine;EN
-33152;Breakfast cereal, kellogg¥s frost rice krispies, sugar-coated, vitamins;EN
+33152;Breakfast cereal, kellogg¬¥s frost rice krispies, sugar-coated, vitamins;EN
 33154;Fish, fillet, salt-cured;EN
-33155;Breakfast cereal, rice-wheat flakes, kellogg¥s special k strawberry & chocolate;EN
-33158;Cereal bar with chocolate, kellogg¥s special k bar chocolate, fortified;EN
-33159;Cereal bar with rice, kellogg¥s rice krispies cereal & milk bar, fortified;EN
+33155;Breakfast cereal, rice-wheat flakes, kellogg¬¥s special k strawberry & chocolate;EN
+33158;Cereal bar with chocolate, kellogg¬¥s special k bar chocolate, fortified;EN
+33159;Cereal bar with rice, kellogg¬¥s rice krispies cereal & milk bar, fortified;EN
 33160;Oat drink without milk, snack drink, elovena, 2.9% fat;EN
 33161;Oat drink without milk, snack drink with berries, elovena, 0.5% fat;EN
 33162;Yoghurt, plain, 2.5% fat;EN
@@ -3216,16 +3216,16 @@ FOODID;FOODNAME;LANG
 33207;Tomato salsa, industrial;EN
 33208;Avocado sauce, guacamole, industrial;EN
 33211;Tilapia, imported fish;EN
-33212;Multigrain bread, junttakakko, junttas‰mpyl‰t, ullan pakari;EN
+33212;Multigrain bread, junttakakko, junttas√§mpyl√§t, ullan pakari;EN
 33214;Multigrain bread, barley bread, ohraska, ullan pakari;EN
 33215;Multigrain bread, oat bread, kaurajuntta, ullan pakari;EN
-33216;Multigrain bread, aurinkos‰mpyl‰t, ullan pakari;EN
+33216;Multigrain bread, aurinkos√§mpyl√§t, ullan pakari;EN
 33217;Rye bread, ruiskakko, ullan pakari;EN
 33219;Multigrain bread, 3-grain bread, pirjon pakari;EN
 33220;Rye bread, wholegrain rye, potato, ruisiisakki, pirjon pakari;EN
 33221;Yoghurt, flavoured, 1% fat, lactose-free;EN
 33222;Minced meat beefburger, horeca, findus;EN
-33225;Lindstrˆm's steak, minced meat patty with beetroot, horeca, findus;EN
+33225;Lindstr√∂m's steak, minced meat patty with beetroot, horeca, findus;EN
 33226;Yoghurt, flavoured, fat-free, fibre and vitamins, low-lactose;EN
 33245;Yoghurt, plain, fat-free, low-lactose, with fibre and 1 ug vitamin d;EN
 33251;Tilapia, oven-baked;EN
@@ -3276,7 +3276,7 @@ FOODID;FOODNAME;LANG
 33339;Chicken fillet in honey marinade;EN
 33342;Quark, flavoured, 4.5% fat, valio rahkavaahto, lactose-free;EN
 33343;Sport beverage, protein drink, leader protein 40;EN
-33344;Quark, flavoured, 2.9% fat, valio v‰lipalarahka, low-lactose;EN
+33344;Quark, flavoured, 2.9% fat, valio v√§lipalarahka, low-lactose;EN
 33345;Bun, shrove bun, whipped cream, jam and almond paste;EN
 33346;Bun, low-fat milk;EN
 33353;Sausage and french fries with all seasonings;EN
@@ -3372,7 +3372,7 @@ FOODID;FOODNAME;LANG
 33489;Margarine 60%, keiju normally salted, catering, 20 ug vitamin d;EN
 33491;Smoked reindeer soup;EN
 33492;Reindeer stew with pork and root vegetables;EN
-33493;Bolognese, reindeer mince, crËme fraiche;EN
+33493;Bolognese, reindeer mince, cr√®me fraiche;EN
 33494;Sweet pepper, red, canned;EN
 33495;Reindeer and cheese pie, shortcrust pastry;EN
 33496;Vegetable fat spread 70%, becel gold, 20 ug vitamin d;EN
@@ -3395,13 +3395,13 @@ FOODID;FOODNAME;LANG
 33550;Egg white powder, for food industry;EN
 33551;Egg yolk powder, for food industry;EN
 33553;Sweet and sour sauce;EN
-33554;Cheese, polar t‰ytel‰inen, 28% fat;EN
+33554;Cheese, polar t√§ytel√§inen, 28% fat;EN
 33555;Cheese, semi-hard cheese, 5% fat, valio polar;EN
 33556;Cheese, semi-hard cheese, 15% fat, valio polar;EN
 33558;Salted cracker, saltine cracker, industrial, pirkka/rainbow;EN
 33559;Strawberry jam, 46% sugar, industrial;EN
 33561;Pork nuggets, deep-fried, rapeseed pork, hk;EN
-33562;Vegetable ball, h‰lsans kˆk, contains gluten;EN
+33562;Vegetable ball, h√§lsans k√∂k, contains gluten;EN
 33564;Salmon fillet, oven-baked;EN
 33565;Frozen vegetable mix, carrot-bean-broccoli-cauliflower;EN
 33566;Salad, beetroot salad, fresh, felix;EN
@@ -3448,20 +3448,20 @@ FOODID;FOODNAME;LANG
 33638;Sauce mix, average of industrial products;EN
 33640;Sauce, water and sauce powder, average of industrial products;EN
 33659;Breakfast cereal, corn flakes, average of industrial products;EN
-33660;Multigrain bread, aamiaisleip‰, sliced, perheleipurit;EN
-33661;Rye bread, sliced, aamiaisleip‰, perheleipurit;EN
-33663;Multigrain bread, oat bread, j‰lkiuunikauraleip‰, vaasan;EN
+33660;Multigrain bread, aamiaisleip√§, sliced, perheleipurit;EN
+33661;Rye bread, sliced, aamiaisleip√§, perheleipurit;EN
+33663;Multigrain bread, oat bread, j√§lkiuunikauraleip√§, vaasan;EN
 33664;Multigrain bread, sliced, arkiviipaleet, vaasan;EN
-33665;Rye bread, sliced, wholegrain rye, jyv‰limppu, vaasan;EN
+33665;Rye bread, sliced, wholegrain rye, jyv√§limppu, vaasan;EN
 33666;Multigrain bread, low-carb, sunflower seed, linseed, halved, minihiilari, vaasan;EN
-33668;Karelian pasty, rice filling, small, iso‰idin rukiinen, vaasan;EN
-33669;Karelian pasty, rice filling, iso‰idin rukiinen, vaasan;EN
+33668;Karelian pasty, rice filling, small, iso√§idin rukiinen, vaasan;EN
+33669;Karelian pasty, rice filling, iso√§idin rukiinen, vaasan;EN
 33670;Multigrain bread, low-carb, sunflower seed, linseed, sliced, minihiilari, vaasan;EN
 33671;Profeel protein drink, valio, 1 ug vitamin d;EN
 33673;Multigrain bread, 100% wholegrain, oululainen vaalea reissumies, fazer;EN
 33674;Multigrain bread, potato flatbread, oululainen pikkurieska, fazer;EN
 33675;Sour milk, 1% fat, low-lactose, 1 ug vitamin d;EN
-33677;Multigrain bread, mixed seeds, alku jyv‰pala, fazer;EN
+33677;Multigrain bread, mixed seeds, alku jyv√§pala, fazer;EN
 33678;Sour milk, acidophilus bifidus, 2% fat, 1 ug vitamin d, probiotics;EN
 33679;Sour milk, acidophilus bifidus, 1.5% fat, 1 ug vitamin d, probiotics;EN
 33680;Toast, cheese toast, fazer;EN
@@ -3477,7 +3477,7 @@ FOODID;FOODNAME;LANG
 33696;Yoghurt, flavoured, ab, 3.3% fat, contains probiotics;EN
 33697;Yoghurt, plain, ab, 2.5% fat, probiotics;EN
 33698;Yoghurt, plain, ab, 0.2% fat, probiotics;EN
-33699;Multigrain bread, bread roll, rye and wheat flour, ruisvehn‰s‰mpyl‰, fazer;EN
+33699;Multigrain bread, bread roll, rye and wheat flour, ruisvehn√§s√§mpyl√§, fazer;EN
 33700;Yoghurt, flavoured, ab, 0.2% fat, probiotics;EN
 33703;Yoghurt, drinkable, 0.9% fat, probiotics;EN
 33704;Toast, cheese toast, linkosuo;EN
@@ -3528,7 +3528,7 @@ FOODID;FOODNAME;LANG
 33856;Cream sauce with meat bouillon;EN
 33862;Salad, coleslaw, industrial;EN
 33863;Chocolate swiss roll, rainbow;EN
-33866;Bun, chocolate and vanilla filling, tiikerikranssi, vaasan iso‰idin;EN
+33866;Bun, chocolate and vanilla filling, tiikerikranssi, vaasan iso√§idin;EN
 33867;Bun, raspberry and apple filling, pormestarinpitko, vaasan;EN
 33872;Breast milk;EN
 33882;Margarine 80%, flora kulta;EN
@@ -3723,7 +3723,7 @@ FOODID;FOODNAME;LANG
 34493;Noodle salad with beef steak mince;EN
 34494;Oat porridge, oat flakes, water, coconut milk, egg, banana, salt;EN
 34495;Noodle soup with tofu and coconut milk;EN
-34496;PurÈed potato broccoli soup, water, processed cheese;EN
+34496;Pur√©ed potato broccoli soup, water, processed cheese;EN
 34497;Parsnip apple soup, pureed, cooking cream (veg. fat);EN
 34498;Noodle salad with shrimps, kale, peanut sauce;EN
 34499;Halloumi cheese salad, pomegranate, oil-based dressing;EN
@@ -3747,14 +3747,14 @@ FOODID;FOODNAME;LANG
 34517;Reindeer and chanterelle pie, shortcrust pastry;EN
 34518;Leek, fried;EN
 34519;Tartar sauce, cold smoked reindeer;EN
-34520;Tartar sauce, shrimp tartar, crËme fraÓche;EN
+34520;Tartar sauce, shrimp tartar, cr√®me fra√Æche;EN
 34521;Cold tuna sauce, sour cream;EN
 34522;Lasagne, reindeer;EN
 34523;Pineapple salsa;EN
 34524;Avocado quesadilla;EN
 34525;Chocolate swiss roll;EN
 34526;Florence fennel, fried;EN
-34527;Florence fennel soup, purÈed;EN
+34527;Florence fennel soup, pur√©ed;EN
 34528;Cake, raw chocolate cake;EN
 34529;Cake, raw raspberry cake;EN
 34530;Cake, raw blackcurrant cake;EN
@@ -3790,7 +3790,7 @@ FOODID;FOODNAME;LANG
 34561;Bean quinoa patty, fried;EN
 34562;Kale chips;EN
 34563;Bun, cinnamon bun, high-fat, whole milk, butter;EN
-34564;Oven-baked pancake, Âland's pancake, low-fat milk;EN
+34564;Oven-baked pancake, √•land's pancake, low-fat milk;EN
 34565;Sweet potato and feta salad, oil-based dressing;EN
 34566;Salad, coleslaw, home-made;EN
 34567;Stuffed cabbage rolls, soya mince;EN
@@ -3828,7 +3828,7 @@ FOODID;FOODNAME;LANG
 34600;Quark, flavoured, 4.5% fat;EN
 34601;Quark, flavoured, arla protein quark, lactose-free;EN
 34602;Quark, 0.3% fat, 12% protein, lactose-free;EN
-34603;Yoghurt, flavoured, 4,6% fat, valio sile‰, 1 ug vitamin d, low-lactose;EN
+34603;Yoghurt, flavoured, 4,6% fat, valio sile√§, 1 ug vitamin d, low-lactose;EN
 34605;Yoghurt, flavoured, valio a+ kreikkalainen kerrosjogurtti, 2% fat, lactose-free;EN
 34606;Yoghurt, drinkable, 1.7% fat, valio play, lactose-free, 1.5 ug vitamin d;EN
 34607;Yoghurt with quark, flavoured, valio, 1.7% fat, low-lactose;EN
@@ -3981,7 +3981,7 @@ FOODID;FOODNAME;LANG
 34887;Oat porridge, oat flakes, low-fat milk and water, without salt;EN
 34888;Oat porridge, oat flakes, low-fat milk and water, salt;EN
 34889;Oat porridge, oat flakes, fat-free milk and water, salt;EN
-34893;H‰rkis, broad bean product;EN
+34893;H√§rkis, broad bean product;EN
 34898;Muesli, crunchy, broad bean granola;EN
 34902;Mifu, lactose-free milk protein product;EN
 34903;Pelmeni, dumpling filled with minced meat;EN
@@ -3993,9 +3993,9 @@ FOODID;FOODNAME;LANG
 34909;Pulled oats;EN
 34914;Blended spread 60%, benecol voi & rypsi;EN
 34924;Blended spread 70%, flora & voi, normally salted;EN
-34927;Vegetable fat spread 39 %, l‰tta original;EN
+34927;Vegetable fat spread 39 %, l√§tta original;EN
 34929;Juice drink with milk, fat-free, gefilus, vitamins, probiotics, lactose-free;EN
-34932;Blended spread 70%, creme bonjour voi & rypsiˆljy, normally salted;EN
+34932;Blended spread 70%, creme bonjour voi & rypsi√∂ljy, normally salted;EN
 34942;Vegetable fat spread 75 %, keiju rypsi;EN
 34944;Vegetable fat spread 55 %, keiju rypsi;EN
 34948;Margarine 60%, keiju alentaja;EN

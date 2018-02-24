@@ -1,108 +1,108 @@
 THSCODE;DESCRIPT;LANG
 FRUITTOT;Frukt;SV
-APPLE;Äppelfrukt;SV
+APPLE;Ã„ppelfrukt;SV
 CITRUS;Citrusfrukter;SV
-FRUITOTH;Övrig frukt;SV
-BERRY;Bär;SV
+FRUITOTH;Ã–vrig frukt;SV
+BERRY;BÃ¤r;SV
 FRUITCAN;Fruktkonserver;SV
 JUICE;Juicer;SV
 FBDRINK;Saftdrycker;SV
-VEGTOT;Grönsaker;SV
-VEGLEAF;Bladgrönsaker;SV
-VEGFRU;Grönsaksfrukt;SV
-CABBAGE;Kål;SV
-VEGONI;Lökgrönsaker;SV
-ROOT;Rot- och knölväxter;SV
+VEGTOT;GrÃ¶nsaker;SV
+VEGLEAF;BladgrÃ¶nsaker;SV
+VEGFRU;GrÃ¶nsaksfrukt;SV
+CABBAGE;KÃ¥l;SV
+VEGONI;LÃ¶kgrÃ¶nsaker;SV
+ROOT;Rot- och knÃ¶lvÃ¤xter;SV
 MUSHRO;Svamp;SV
-VEGCANN;Grönsakskonserver;SV
-LEGUTOT;Baljväxter och nötter;SV
-PEABEAN;Baljväxter;SV
-NUTSEED;Nötter, frön;SV
+VEGCANN;GrÃ¶nsakskonserver;SV
+LEGUTOT;BaljvÃ¤xter och nÃ¶tter;SV
+PEABEAN;BaljvÃ¤xter;SV
+NUTSEED;NÃ¶tter, frÃ¶n;SV
 SOYAPROD;Sojaprodukter;SV
 POTATOT;Potatis;SV
 POTATO;Potatis;SV
 POTAPROD;Potatisprodukter;SV
-CERTOT;Spannmål;SV
+CERTOT;SpannmÃ¥l;SV
 WHEAT;Vete;SV
-RYE;Råg;SV
+RYE;RÃ¥g;SV
 OATBAR;Havre, korn;SV
 PASTA;Pasta, makaroner;SV
 RICE;Ris;SV
-CEROTH;Övrigt spannmål;SV
-BRHARD;Torrt bröd;SV
+CEROTH;Ã–vrigt spannmÃ¥l;SV
+BRHARD;Torrt brÃ¶d;SV
 BISCUIT;Kex;SV
-STARCH;Stärkelse;SV
-MILKTOT;Mjölk;SV
-MILK;Mjölk;SV
-SMILK;Syrade mjölkprodukter;SV
+STARCH;StÃ¤rkelse;SV
+MILKTOT;MjÃ¶lk;SV
+MILK;MjÃ¶lk;SV
+SMILK;Syrade mjÃ¶lkprodukter;SV
 CHEESE;Ost;SV
-CREAM;Grädde/creme;SV
+CREAM;GrÃ¤dde/creme;SV
 ICECREAM;Glass;SV
-MILKOTH;Övrig mjölk;SV
-FATTOT;Näringsfetter;SV
-BUTTMIX;Smör, mjölkfettblandningar;SV
+MILKOTH;Ã–vrig mjÃ¶lk;SV
+FATTOT;NÃ¤ringsfetter;SV
+BUTTMIX;SmÃ¶r, mjÃ¶lkfettblandningar;SV
 OIL;Olja;SV
 FATVEG;Margarin och matfett >55 %;SV
 FATLVEG;Margarin och matfett <55 %;SV
 FATHARD;Matlagnings- och industrifett;SV
-FATOTH;Övriga fetter, fettprodukter;SV
+FATOTH;Ã–vriga fetter, fettprodukter;SV
 FATANIM;Animaliskt fett;SV
-EGGTOT;Ägg;SV
-EGG;Ägg, hönsägg;SV
-EGGOTH;Ägg av andra fåglar;SV
+EGGTOT;Ã„gg;SV
+EGG;Ã„gg, hÃ¶nsÃ¤gg;SV
+EGGOTH;Ã„gg av andra fÃ¥glar;SV
 FISHTOT;Fisk;SV
 FISH;Fisk;SV
 FISHPROD;Fiskprodukter;SV
 SHELLFIS;Skaldjur;SV
-MEATTOT;Kött;SV
-BEEF;Nöt;SV
+MEATTOT;KÃ¶tt;SV
+BEEF;NÃ¶t;SV
 PORK;Gris;SV
 LAMM;Lamm;SV
-POULTRY;Fåglar;SV
+POULTRY;FÃ¥glar;SV
 SAUSAGE;Korv;SV
-MEATPROD;Köttprodukter;SV
+MEATPROD;KÃ¶ttprodukter;SV
 GAME;Vilt;SV
 OFFAL;Organ;SV
 BEVTOT;Drycker;SV
 COFFEE;Kaffe;SV
 TEA;Te;SV
 WATER;Vatten;SV
-SDRINK;Läskedrycker;SV
+SDRINK;LÃ¤skedrycker;SV
 ALCTOT;Alkoholdrycker;SV
-BEER;Öl;SV
+BEER;Ã–l;SV
 WINE;Vin;SV
 SPIRIT;Starksprit;SV
-ALCOTH;Övriga alkoholdrycker;SV
-SUGARTOT;Socker och sötsaker;SV
+ALCOTH;Ã–vriga alkoholdrycker;SV
+SUGARTOT;Socker och sÃ¶tsaker;SV
 SUGARSYR;Socker, sirap;SV
-SWEET;Sötsaker;SV
+SWEET;SÃ¶tsaker;SV
 CHOCOLAT;Choklad;SV
 SUGAROTH;Diverse godis;SV
 FLAVTOT;Kryddor;SV
-HERB;Torkade örter;SV
+HERB;Torkade Ã¶rter;SV
 FLAVSEED;Torkade kryddor;SV
-FLAVSAUC;Kryddsåser;SV
-INGRTOT;Tillverkningsämnen;SV
+FLAVSAUC;KryddsÃ¥ser;SV
+INGRTOT;TillverkningsÃ¤mnen;SV
 SALT;Salt;SV
-SWEAGE;Sötningsmedel;SV
-INGRMIS;Hjälpämnen vid tillverkning;SV
-INDTOT;Industriella maträtter;SV
+SWEAGE;SÃ¶tningsmedel;SV
+INGRMIS;HjÃ¤lpÃ¤mnen vid tillverkning;SV
+INDTOT;Industriella matrÃ¤tter;SV
 SNACK;Snacks;SV
 INDMEAL;Industriell mat;SV
-DIETTOT;Näringspreparat;SV
+DIETTOT;NÃ¤ringspreparat;SV
 BABYFOOD;Barnmat;SV
-MMILK;Modersmjölksersättningar och modersmjölk;SV
+MMILK;ModersmjÃ¶lksersÃ¤ttningar och modersmjÃ¶lk;SV
 VITSUPPL;Vitaminpreparat;SV
 VITMISUP;Vitamin- och mineralpreparat;SV
 MINSUPPL;Mineralpreparat;SV
 FATSUPPL;Fettpreparat (inkl. lecitin);SV
 FIBSUPPL;Fiberpreparat;SV
 ENZYMES;Enzym preparat;SV
-HERBSUP;Ört preparat;SV
+HERBSUP;Ã–rt preparat;SV
 HOMEOS;Homeopatisk preparat;SV
 PROBPREB;Probiot och bakterie preparat;SV
-YEAST;Jäst preparat;SV
+YEAST;JÃ¤st preparat;SV
 ANTROPOS;Antroposofisk preparat;SV
-SPECFOOD;Kliniska näringspreparat;SV
-NONINGR;Icke råvara;SV
-DISH;Maträtt;SV
+SPECFOOD;Kliniska nÃ¤ringspreparat;SV
+NONINGR;Icke rÃ¥vara;SV
+DISH;MatrÃ¤tt;SV

@@ -1,122 +1,122 @@
 THSCODE;DESCRIPT;LANG
-FRUDITOT;Frukt- och bärrätter;SV
-FRUFRESH;Färsk frukt;SV
-FRUBSAL;Frukt- och bärsallad;SV
-BERFRESH;Färska bär;SV
-FRUBSOUP;Kräm, soppor;SV
-FRUBPAST;Bärpajer;SV
+FRUDITOT;Frukt- och bÃ¤rrÃ¤tter;SV
+FRUFRESH;FÃ¤rsk frukt;SV
+FRUBSAL;Frukt- och bÃ¤rsallad;SV
+BERFRESH;FÃ¤rska bÃ¤r;SV
+FRUBSOUP;KrÃ¤m, soppor;SV
+FRUBPAST;BÃ¤rpajer;SV
 FRUBJUIC;Juicer;SV
 JAM;Sylt, marmelad;SV
-VEGDITOT;Vegetariska rätter;SV
-VEGFRESH;Färska grönsaker;SV
-VEGPOT;Kokta grönsaker;SV
-VEGDISH;Vegetariska huvudrätter;SV
-VEGCASS;Grönsakslådor;SV
-VEGSOUP;Grönsakssoppor;SV
-MUSHRDI;Svamprätter;SV
-VEGCANN;Grönsakskonserver;SV
-VEGJUICE;Grönsaksjuice;SV
+VEGDITOT;Vegetariska rÃ¤tter;SV
+VEGFRESH;FÃ¤rska grÃ¶nsaker;SV
+VEGPOT;Kokta grÃ¶nsaker;SV
+VEGDISH;Vegetariska huvudrÃ¤tter;SV
+VEGCASS;GrÃ¶nsakslÃ¥dor;SV
+VEGSOUP;GrÃ¶nsakssoppor;SV
+MUSHRDI;SvamprÃ¤tter;SV
+VEGCANN;GrÃ¶nsakskonserver;SV
+VEGJUICE;GrÃ¶nsaksjuice;SV
 SALADTOT;Sallader;SV
-SALADVEG;Grönsakssallader;SV
+SALADVEG;GrÃ¶nsakssallader;SV
 SALADMIX;Kombinerade sallader;SV
 POTATOT;Potatis;SV
 POTACOOK;Kokt potatis;SV
-POTADISH;Potatisrätter;SV
-POTAFAT;Stekt potatis, gräddpotatis;SV
-CEBAKTOT;Spannmål och bakverk;SV
-BRMIX;Blandbröd, fullkornsbröd;SV
-BRWHITE;Vetebröd ljust;SV
-BRRYE;Rågbröd;SV
-BUN;Kaffebröd;SV
-BAKSWEET;Bakverk söta;SV
-BISCUIT;Kex, småbröd;SV
+POTADISH;PotatisrÃ¤tter;SV
+POTAFAT;Stekt potatis, grÃ¤ddpotatis;SV
+CEBAKTOT;SpannmÃ¥l och bakverk;SV
+BRMIX;BlandbrÃ¶d, fullkornsbrÃ¶d;SV
+BRWHITE;VetebrÃ¶d ljust;SV
+BRRYE;RÃ¥gbrÃ¶d;SV
+BUN;KaffebrÃ¶d;SV
+BAKSWEET;Bakverk sÃ¶ta;SV
+BISCUIT;Kex, smÃ¥brÃ¶d;SV
 BAKSALT;Bakverk salta;SV
-SANDWICH;Smörgåsar och hamburger;SV
+SANDWICH;SmÃ¶rgÃ¥sar och hamburger;SV
 RICEADD;Ris;SV
-PASTAADD;Pastarätter;SV
-PORR;Gröt;SV
-CERBRKF;Frukostspannmålsprodukter;SV
+PASTAADD;PastarÃ¤tter;SV
+PORR;GrÃ¶t;SV
+CERBRKF;FrukostspannmÃ¥lsprodukter;SV
 CERPR;Pajer m.m.;SV
 PIZZA;Pizza;SV
-MILKDTOT;Mjölkrätter;SV
-MILKFF;Mjölkdrycker fettfria;SV
-MILKLF;Mjölkdrycker <2%;SV
-MILKHF;Mjölkdrycker >2 %;SV
-SMILK;Surmjölk;SV
+MILKDTOT;MjÃ¶lkrÃ¤tter;SV
+MILKFF;MjÃ¶lkdrycker fettfria;SV
+MILKLF;MjÃ¶lkdrycker <2%;SV
+MILKHF;MjÃ¶lkdrycker >2 %;SV
+SMILK;SurmjÃ¶lk;SV
 YOGHURT;Yoghurt;SV
 MILKCURL;Fil;SV
-CHEESHAR;Ost, hård;SV
-CHEESOFT;Ost, smält- och färskost;SV
+CHEESHAR;Ost, hÃ¥rd;SV
+CHEESOFT;Ost, smÃ¤lt- och fÃ¤rskost;SV
 VEGCHEES;Ost med vegetabiliskt fett;SV
 ICECREAM;Glass;SV
-MILKPUDD;Mjölkdesserter;SV
-MILKSAUC;Mjölksåser;SV
+MILKPUDD;MjÃ¶lkdesserter;SV
+MILKSAUC;MjÃ¶lksÃ¥ser;SV
 FATTOT;Fett och fettprodukter;SV
-BRFBUTT;Brödfett smör eller mjölkfettblandning >60 %;SV
-BRFMARG;Brödfett margarin och matfett >55 %;SV
-BRFLOWF;Brödfett margarin, matfett och fettblandning <55 %;SV
+BRFBUTT;BrÃ¶dfett smÃ¶r eller mjÃ¶lkfettblandning >60 %;SV
+BRFMARG;BrÃ¶dfett margarin och matfett >55 %;SV
+BRFLOWF;BrÃ¶dfett margarin, matfett och fettblandning <55 %;SV
 DRESSING;Salladsdressing;SV
-FATPROD;Övriga fetter;SV
-FATSAUCE;Fettsåser;SV
-EGGDISH;Äggrätter;SV
-EGGS;Ägg;SV
-EGGMIX;Äggrätter;SV
-FISHDTOT;Fiskrätter;SV
+FATPROD;Ã–vriga fetter;SV
+FATSAUCE;FettsÃ¥ser;SV
+EGGDISH;Ã„ggrÃ¤tter;SV
+EGGS;Ã„gg;SV
+EGGMIX;Ã„ggrÃ¤tter;SV
+FISHDTOT;FiskrÃ¤tter;SV
 FISH;Fisk;SV
-FISHCASS;Fisklådor;SV
+FISHCASS;FisklÃ¥dor;SV
 FISHSOUP;Fisksoppa;SV
-FISHDOTH;Övriga fiskrätter;SV
+FISHDOTH;Ã–vriga fiskrÃ¤tter;SV
 FISHPROD;Fiskprodukt;SV
-MEATDTOT;Kötträtter;SV
+MEATDTOT;KÃ¶ttrÃ¤tter;SV
 MSTEAK;Biffar, kotletter;SV
-MINCMED;Köttfärsrätter;SV
-MEATPOT;Köttgrytor;SV
-MEATCASS;Köttlådor;SV
-MEATSOUP;Köttsoppor;SV
-POULTDI;Hönsrätter;SV
-SAUSAGE;Kött- och korvpålägg;SV
-SAUSDISH;Korvrätter;SV
-OFFALDI;Inälvsrätter;SV
+MINCMED;KÃ¶ttfÃ¤rsrÃ¤tter;SV
+MEATPOT;KÃ¶ttgrytor;SV
+MEATCASS;KÃ¶ttlÃ¥dor;SV
+MEATSOUP;KÃ¶ttsoppor;SV
+POULTDI;HÃ¶nsrÃ¤tter;SV
+SAUSAGE;KÃ¶tt- och korvpÃ¥lÃ¤gg;SV
+SAUSDISH;KorvrÃ¤tter;SV
+OFFALDI;InÃ¤lvsrÃ¤tter;SV
 BEVTOT;Drycker;SV
 COFFEE;Kaffe;SV
 TEA;Te;SV
 DRWATER;Vatten;SV
 DRJUICE;Safter;SV
-DRINKSO;Söta läskedrycker;SV
-DRINKCO;Koffeinhaltiga läskedrycker;SV
-DRINKART;Syntetiskt sötade drycker;SV
+DRINKSO;SÃ¶ta lÃ¤skedrycker;SV
+DRINKCO;Koffeinhaltiga lÃ¤skedrycker;SV
+DRINKART;Syntetiskt sÃ¶tade drycker;SV
 DRSPORT;Sportdrycker;SV
 ALCTOT;Alkoholdrycker;SV
-BEER;Öl;SV
+BEER;Ã–l;SV
 WINE;Vin;SV
 SPIRIT;Starksprit;SV
-ALCOTH;Övriga alkoholdrycker;SV
-SUGARTOT;Socker, sötsaker;SV
+ALCOTH;Ã–vriga alkoholdrycker;SV
+SUGARTOT;Socker, sÃ¶tsaker;SV
 SUGADD;Socker, sirap;SV
-SWEET;Sötsaker;SV
+SWEET;SÃ¶tsaker;SV
 CHOCOL;Choklad;SV
 MISCTOT;Diverse;SV
 SPICES;Kryddor;SV
 SNACK;Snacks;SV
-SPISAUCE;Kryddsåser;SV
-INGRMISC;Diverse födoämnen;SV
+SPISAUCE;KryddsÃ¥ser;SV
+INGRMISC;Diverse fÃ¶doÃ¤mnen;SV
 BABYFTOT;Barnmat;SV
-BABMEATD;Baby kötträtt preparat;SV
-BABFISHD;Baby fisk rätt;SV
-BABMILPO;Baby barn gröt med mjölk;SV
-BABWATPO;Baby barn gröt med vatten;SV
-BABFRUB;Baby frukt- och bärprodukt;SV
-BABVEGE;Baby barn grönsakspreparat;SV
-BABMIFRU;Baby frukt med mjölk produkt;SV
+BABMEATD;Baby kÃ¶ttrÃ¤tt preparat;SV
+BABFISHD;Baby fisk rÃ¤tt;SV
+BABMILPO;Baby barn grÃ¶t med mjÃ¶lk;SV
+BABWATPO;Baby barn grÃ¶t med vatten;SV
+BABFRUB;Baby frukt- och bÃ¤rprodukt;SV
+BABVEGE;Baby barn grÃ¶nsakspreparat;SV
+BABMIFRU;Baby frukt med mjÃ¶lk produkt;SV
 BABOTHER;Barnmat ospecificerad;SV
-MMILK;Modersmjölksersättning;SV
-INFMILK;Vanliga modersmjölkersättningar och modersmjölk;SV
-CASMILK;Kasein hydrolysater, modersmjölkersättningar;SV
-PREMILK;Modersmjölkersättningar för prematurbarn;SV
-SOYMILK;Sojabaserade modersmjölkersättningar;SV
-WHEYMILK;Vassleprotein hydrolysater, modersmjölkersättningar;SV
-AMINMILK;Aminosyrapreparat, modersmjölkersättningar;SV
-SPECTOT;Näringspreparat;SV
-SPECSUPP;Näringspreparat;SV
-MEALREP;Måltidsersättningar;SV
-SPECFOOD;Kliniska näringspreparat;SV
+MMILK;ModersmjÃ¶lksersÃ¤ttning;SV
+INFMILK;Vanliga modersmjÃ¶lkersÃ¤ttningar och modersmjÃ¶lk;SV
+CASMILK;Kasein hydrolysater, modersmjÃ¶lkersÃ¤ttningar;SV
+PREMILK;ModersmjÃ¶lkersÃ¤ttningar fÃ¶r prematurbarn;SV
+SOYMILK;Sojabaserade modersmjÃ¶lkersÃ¤ttningar;SV
+WHEYMILK;Vassleprotein hydrolysater, modersmjÃ¶lkersÃ¤ttningar;SV
+AMINMILK;Aminosyrapreparat, modersmjÃ¶lkersÃ¤ttningar;SV
+SPECTOT;NÃ¤ringspreparat;SV
+SPECSUPP;NÃ¤ringspreparat;SV
+MEALREP;MÃ¥ltidsersÃ¤ttningar;SV
+SPECFOOD;Kliniska nÃ¤ringspreparat;SV
