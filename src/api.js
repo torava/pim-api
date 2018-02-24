@@ -1235,6 +1235,10 @@ app.get('/api/util/getexternalcategoriesfineli', function(req, res) {
 
             attribute_count++;
           }
+      })
+      .catch(error => {
+        console.error(error);
+        throw new Error('Category values error');
       });
 
       let n = 0;
@@ -1261,6 +1265,10 @@ app.get('/api/util/getexternalcategoriesfineli', function(req, res) {
       res.send(category);
       //attribute_values = attribute_values.slice(0,1);
       //console.dir(attribute_values, {depth:null});
+    })
+    .catch(error => {
+      console.error(error);
+      throw new Error('Base category error');
     });
 });
 
