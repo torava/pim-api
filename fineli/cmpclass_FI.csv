@@ -11,7 +11,7 @@ ASH;Tuhka;FI
 DRYMATR;Kuiva-aine;FI
 CARBOCMP;Hiilihydraattifraktiot;FI
 SUGAR;Sokerit;FI
-STARCH;Trkkelys;FI
+STARCH;Tärkkelys;FI
 FIBRE;Kuitu;FI
 POLYOL;Polyolit;FI
 POLYSACC;Polysakkaridit;FI
@@ -21,8 +21,8 @@ FATACID;Rasvahapot;FI
 STEROL;Sterolit;FI
 PHOLIPID;Fosfolipidit;FI
 TRIGLYSE;Triglyseridit;FI
-MINERAL;Kivennis- ja hivenaineet;FI
-MACROELM;Kivennisaineet;FI
+MINERAL;Kivennäis- ja hivenaineet;FI
+MACROELM;Kivennäisaineet;FI
 TRACEELM;Hivenaineet;FI
 NITROCMP;Typpiyhdisteet;FI
 NITROGEN;Typpi;FI
@@ -31,7 +31,7 @@ VITAM;Vitamiinit;FI
 FSVITAM;Rasvaliukoiset vitamiinit;FI
 WSVITAM;Vesiliukoiset vitamiinit;FI
 ORGACID;Orgaaniset hapot;FI
-MISC;Sekalaiset ravintotekijt;FI
+MISC;Sekalaiset ravintotekijät;FI
 NATINHCN;Luontainen ainesosa;FI
 FLAVON;Flavonoidit;FI
 NITRATE;Nitraatti;FI
@@ -43,12 +43,12 @@ INOSITOL;Inositoli;FI
 PURINE;Puriinit;FI
 BIOAMIN;Biogeeniset amiinit;FI
 BIOTOXIN;Biologiset toksiinit;FI
-ADDITIVE;Lisaineet;FI
+ADDITIVE;Lisäaineet;FI
 CONT;Vierasaineet;FI
 ORGCONT;Orgaaniset kontaminantit;FI
 PCB;PCB;FI
 DIOXIN;Dioksiinit;FI
-INOCONT;Eporgaaniset kontaminantit;FI
+INOCONT;Epäorgaaniset kontaminantit;FI
 HVYMETAL;Raskasmetallit;FI
 PESTICID;Torjunta-aineet;FI
 OTHER;Muut ainesosat;FI
