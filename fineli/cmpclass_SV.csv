@@ -41,6 +41,7 @@ PHYESTRO;Fytoöstrogener;SV
 TANNIN;Tannin;SV
 INOSITOL;Inositol;SV
 PURINE;Puriner;SV
+BIOAMIN;Biogen amin;SV
 BIOTOXIN;Biotoxin;SV
 ADDITIVE;Tillsatser;SV
 CONT;Främmande ämnen;SV
@@ -50,3 +51,4 @@ DIOXIN;Dioxiner;SV
 INOCONT;Oorganiska kontaminanter;SV
 HVYMETAL;Tungmetaller;SV
 PESTICID;Pesticider;SV
+OTHER;Andra ingredienser;SV

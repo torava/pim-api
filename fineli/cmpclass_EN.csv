@@ -41,6 +41,7 @@ PHYESTRO;Phytoestrogens;EN
 TANNIN;Tannins;EN
 INOSITOL;Inositol;EN
 PURINE;Purines;EN
+BIOAMIN;Biogenic amines;EN
 BIOTOXIN;Biotoxins;EN
 ADDITIVE;Additives;EN
 CONT;Contaminants;EN
@@ -50,3 +51,4 @@ DIOXIN;Dioxins;EN
 INOCONT;Inorganic contaminants;EN
 HVYMETAL;Heavy metals;EN
 PESTICID;Pesticides;EN
+OTHER;Other constituents;EN
