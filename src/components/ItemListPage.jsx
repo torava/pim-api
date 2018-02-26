@@ -15,6 +15,14 @@ const item_columns = [
       matchSorter(rows, filter.value, { keys: ["product.name"] })
   },
   {
+    Header: 'Quantity',
+    id: 'quantity'
+  },
+  {
+    Header: 'Measure',
+    id: 'measure'
+  },
+  {
     Header: 'Category',
     accessor: d => d.product.category && d.product.category.name['fi-FI'],
     id: 'category_name',
@@ -25,6 +33,13 @@ const item_columns = [
   {
     Header: 'Price',
     accessor: 'price'
+  },
+  {
+    Header: 'Price/Measure',
+    id: 'pricepermeasure',
+    accessor: d => {
+      return d.measure ? d.price/d.measure : null;
+    }
   }
 ]
 
