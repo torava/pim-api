@@ -16,11 +16,11 @@ const item_columns = [
   },
   {
     Header: 'Category',
-    accessor: d => d.product.category && d.product.category.name,
+    accessor: d => d.product.category && d.product.category.name['fi-FI'],
     id: 'category_name',
     Cell: props => props.value ? <span><a href={"/category/"+props.original.product.category.id}>{props.value}</a></span> : <span></span>,
     filterMethod: (filter, rows) =>
-      matchSorter(rows, filter.value, { keys: ["category.name"] })
+      matchSorter(rows, filter.value, { keys: ["category.name.fi-FI"] })
   },
   {
     Header: 'Price',
