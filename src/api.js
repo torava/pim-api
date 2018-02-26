@@ -718,6 +718,7 @@ function getClosestCategory(toCompare, locale) {
       for (let i in categories) {
         category = categories[i];
         name = category.name[locale];
+        if (!name) continue;
         name = name.toLowerCase();
         distance = toCompare.match(name) && name.length/toCompare.length;
         if (distance > max_distance) {

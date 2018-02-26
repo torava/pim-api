@@ -34,8 +34,8 @@ exports.up = function(knex, Promise) {
     table.increments('id').primary();
     table.string('product_number');
     table.string('name');
-    table.integer('manufacturerId').unsigned().references('id').inTable('Manufacturer');
-    table.integer('categoryId').unsigned().references('id').inTable('Category');
+    table.integer('manufacturerId').unsigned().references('id').inTable('Manufacturer').onDelete('CASCADE');
+    table.integer('categoryId').unsigned().references('id').inTable('Category').onDelete('CASCADE');
   })
   .createTable('Item', function(table) {
     table.increments('id').primary();
