@@ -29,6 +29,14 @@ const item_columns = [
     id: 'product_name'
   },
   {
+    Header: 'Quantity',
+    id: 'quantity'
+  },
+  {
+    Header: 'Measure',
+    id: 'measure'
+  },
+  {
     Header: 'Category',
     accessor: d => d.product.category && d.product.category.name['fi-FI'],
     id: 'category_name',
@@ -42,6 +50,13 @@ const item_columns = [
       console.log(currency, d);
       return d.price;
     }
+  },
+  {
+    Header: 'Price/Measure',
+    id: 'pricepermeasure',
+    accessor: d => {
+      return d.measure ? d.price/d.measure : null;
+    }
   }
 ]
 
@@ -53,10 +68,17 @@ export default class ReceiptList extends React.Component {
 
     this.state = {};
 
-    axios.get('/api/transaction/')
-    .then(function(response) {
-      that.setState({
-        transactions: response.data
+    axios.get('/api/attribute/')
+    .then(function(attributes) {
+      that.setState({attributes: attributes.data});
+      axios.get('/api/transaction/')
+      .then(function(response) {
+        that.setState({
+          transactions: response.data
+        });
+      })
+      .catch(function(error) {
+        console.error(error);
       });
     })
     .catch(function(error) {

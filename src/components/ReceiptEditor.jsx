@@ -253,9 +253,9 @@ export default class addReceiptPage extends React.Component {
   onItemCategoryChange(key, event, val) {
     let transactions = this.state.transactions,
         categories = this.state.categories,
-        name = event.target.value,
+        name = val && val.newValue || event.target.value,
         id;
-
+    
     for (let i in categories) {
       if (categories[i].name['fi-FI'] == name) {
         id = categories[i].id;
