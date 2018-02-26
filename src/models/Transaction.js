@@ -15,7 +15,7 @@ class Transaction extends Model {
 			properties: {
 				id: {type: 'integer'},
 				total_price: {type: 'number'},
-				total_price_read: {type: 'number'},
+				total_price_read: {type: ['number', 'null']},
 				date: { type: 'datetime', default: new Date().toISOString() },
 			}
 		}
