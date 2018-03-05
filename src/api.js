@@ -559,10 +559,41 @@ function extractTextFromFile(id, data, language, cb) {
   });
 }
 
+function csvToObject(csv) {
+  let columns,
+      item_index = 0,
+      rows = csv.split('\n'),
+      sep = rows[0].match(/^SEP=(.{1})$/);
+
+  if (sep) {
+    separator = sep[1];
+    rows.shift();
+  }
+  else {
+    separator = CSV_SEPARATOR;
+  }
+
+  let column_names = rows[1].split(separator);
+
+  for (let i = 2; i < rows.length; i++) {
+    columns = rows[i].split(separator);
+    for (let n in columns) {
+      _.set(transaction[columns[0]], column_names.replace('[i]', '['+(i-2)+']')[n], columns[n]);
+    }
+  }
+  return items;
+}
+
 app.post('/api/category', function(req, res) {
-  console.dir(req.body, {depth:null});
+  if (req.body.csv) {
+    category = csvToObject(req.body.csv);
+  }
+  else {
+    category = req.body;
+  }
+  console.dir(category, {depth:null});
   Category.query()
-    .upsertGraph(req.body)
+    .upsertGraph(category)
     .then(category => {
       res.send(category);
     });
