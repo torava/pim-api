@@ -368,68 +368,66 @@ export default class addReceiptPage extends React.Component {
               return <option value={item.name}/>
             })}
           </datalist>
+          <div className="receipt-editor" style={{float:'left'}}>
+            <div>Store Name: <input key={"store-name-"+this.state.version} type="search" value={this.state.transactions[0].party.name || ''} onChange={this.onFieldChange.bind(this, 'party', 'name')}/></div>
+            <div>VAT: <input key={"vat-"+this.state.version} type="search" value={this.state.transactions[0].party.vat || ''} onChange={this.onFieldChange.bind(this, 'party', 'vat')}/></div>
+            <div>Street:
+              <input key={"street-name-"+this.state.version} type="search" value={this.state.transactions[0].party.street_name || ''} onChange={this.onFieldChange.bind(this, 'party', 'street_name')}/>
+              <input key={"street-number-"+this.state.version} type="search" value={this.state.transactions[0].party.street_number || ''} onChange={this.onFieldChange.bind(this, 'party', 'street_number')}/>
+            </div>
+            <div>Postal Code: <input key={"postal-code-"+this.state.version} type="search" value={this.state.transactions[0].party.postal_code || ''} onChange={this.onFieldChange.bind(this, 'party', 'postal_code')}/></div>
+            <div>City: <input key={"city-"+this.state.version} type="search" value={this.state.transactions[0].party.city || ''} onChange={this.onFieldChange.bind(this, 'party', 'city')}/></div>
+            <div>Phone Number: <input key={"phone-number-"+this.state.version} type="phone" value={this.state.transactions[0].party.phone_number || ''} onChange={this.onFieldChange.bind(this, 'party', 'phone_number')}/></div>
+            <div>Date: <input key={"date-"+this.state.version} type="datetime-local" defaultValue={this.state.transactions[0].date && moment(this.state.transactions[0].date).format('YYYY-MM-DDTHH:mm:ss') || ''} onChange={this.onDateChange.bind(this)}/></div>
+            <div>
+              Locale:
+              <select id="locale" onChange={this.onLocaleChange.bind(this)}>
+              {['fi-FI', 'en-US', 'es-AR'].map(function(item, i) {
+                return <option {...that.state.transactions[0].receipts[0].locale === item && ' selected'}>{item}</option>
+              })}
+              </select>
+            </div>
+            <div className="receipt-items">
+              {this.state.transactions[0].items.map(function(item, i){
+                let inputProps = {
+                  placeholder: 'Category',
+                  value: item.product && item.product.category && item.product.category.name['fi-FI'] || '',
+                  onChange: that.onItemCategoryChange.bind(this, i)
+                };
+
+                return <ReceiptItem item={item}
+                                    key={'item-'+i+'-'+that.state.version}
+                                    i={i}
+                                    state={that.state}
+                                    onDeleteItem={that.onDeleteItem}
+                                    onAddItem={that.onAddItem}
+                                    onItemPriceChange={that.onItemPriceChange}
+                                    onItemNameChange={that.onItemNameChange}
+                                    onItemNumberChange={that.onItemNumberChange}
+                                    onItemCategoryChange={that.onItemCategoryChange}
+                                    onItemAttributeChange={that.onItemAttributeChange}
+                                    onItemManufacturerChange={that.onItemManufacturerChange}
+                                    onItemMeasureChange={that.onItemMeasureChange}
+                                    onItemQuantityChange={that.onItemQuantityChange}
+                                    onItemUnitChange={that.onItemUnitChange}
+                                    toggle={that.toggle}
+                                    categorySuggestions={that.state.categorySuggestions}
+                                    onSuggestionsFetchRequested={that.onCategorySuggestionsFetchRequested}
+                                    onSuggestionsClearRequested={that.onCategorySuggestionsClearRequested}
+                                    getSuggestionValue={getSuggestionValue}
+                                    renderSuggestion={renderSuggestion}
+                                    inputProps={inputProps}/>
+              })}
+            </div>
+            <div>Total: {this.state.transactions[0].total_price} ({this.state.transactions[0].total_price_read})</div>
+            <button onClick={this.saveReceipt}>Submit</button>
+            <button onClick={this.deleteTransaction}>Delete</button>
+          </div>
           <div className="receipt-picture" style={{float:'left'}}>
             <img src={"/api/receipt/picture/"+this.state.transactions[0].receipts[0].file+"?"+this.state.version} style={{width:300}}/>
           </div>
-          <div style={{float:'left'}}>
-            <div className="receipt-editor" style={{float:'left'}}>
-              <div>Store Name: <input key={"store-name-"+this.state.version} type="search" value={this.state.transactions[0].party.name || ''} onChange={this.onFieldChange.bind(this, 'party', 'name')}/></div>
-              <div>VAT: <input key={"vat-"+this.state.version} type="search" value={this.state.transactions[0].party.vat || ''} onChange={this.onFieldChange.bind(this, 'party', 'vat')}/></div>
-              <div>Street:
-                <input key={"street-name-"+this.state.version} type="search" value={this.state.transactions[0].party.street_name || ''} onChange={this.onFieldChange.bind(this, 'party', 'street_name')}/>
-                <input key={"street-number-"+this.state.version} type="search" value={this.state.transactions[0].party.street_number || ''} onChange={this.onFieldChange.bind(this, 'party', 'street_number')}/>
-              </div>
-              <div>Postal Code: <input key={"postal-code-"+this.state.version} type="search" value={this.state.transactions[0].party.postal_code || ''} onChange={this.onFieldChange.bind(this, 'party', 'postal_code')}/></div>
-              <div>City: <input key={"city-"+this.state.version} type="search" value={this.state.transactions[0].party.city || ''} onChange={this.onFieldChange.bind(this, 'party', 'city')}/></div>
-              <div>Phone Number: <input key={"phone-number-"+this.state.version} type="phone" value={this.state.transactions[0].party.phone_number || ''} onChange={this.onFieldChange.bind(this, 'party', 'phone_number')}/></div>
-              <div>Date: <input key={"date-"+this.state.version} type="datetime-local" defaultValue={this.state.transactions[0].date && moment(this.state.transactions[0].date).format('YYYY-MM-DDTHH:mm:ss') || ''} onChange={this.onDateChange.bind(this)}/></div>
-              <div>
-                Locale:
-                <select id="locale" onChange={this.onLocaleChange.bind(this)}>
-                {['fi-FI', 'en-US', 'es-AR'].map(function(item, i) {
-                  return <option {...that.state.transactions[0].receipts[0].locale === item && ' selected'}>{item}</option>
-                })}
-                </select>
-              </div>
-              <div className="receipt-items">
-                {this.state.transactions[0].items.map(function(item, i){
-                  let inputProps = {
-                    placeholder: 'Category',
-                    value: item.product && item.product.category && item.product.category.name['fi-FI'] || '',
-                    onChange: that.onItemCategoryChange.bind(this, i)
-                  };
-
-                  return <ReceiptItem item={item}
-                                      key={'item-'+i+'-'+that.state.version}
-                                      i={i}
-                                      state={that.state}
-                                      onDeleteItem={that.onDeleteItem}
-                                      onAddItem={that.onAddItem}
-                                      onItemPriceChange={that.onItemPriceChange}
-                                      onItemNameChange={that.onItemNameChange}
-                                      onItemNumberChange={that.onItemNumberChange}
-                                      onItemCategoryChange={that.onItemCategoryChange}
-                                      onItemAttributeChange={that.onItemAttributeChange}
-                                      onItemManufacturerChange={that.onItemManufacturerChange}
-                                      onItemMeasureChange={that.onItemMeasureChange}
-                                      onItemQuantityChange={that.onItemQuantityChange}
-                                      onItemUnitChange={that.onItemUnitChange}
-                                      toggle={that.toggle}
-                                      categorySuggestions={that.state.categorySuggestions}
-                                      onSuggestionsFetchRequested={that.onCategorySuggestionsFetchRequested}
-                                      onSuggestionsClearRequested={that.onCategorySuggestionsClearRequested}
-                                      getSuggestionValue={getSuggestionValue}
-                                      renderSuggestion={renderSuggestion}
-                                      inputProps={inputProps}/>
-                })}
-              </div>
-              <div>Total: {this.state.transactions[0].total_price} ({this.state.transactions[0].total_price_read})</div>
-              <button onClick={this.saveReceipt}>Submit</button>
-              <button onClick={this.deleteTransaction}>Delete</button>
-            </div>
-            <div className="receipt-text" style={{float:'left'}}>
-              <pre>{this.state.transactions[0].receipts[0].text}</pre>
-            </div>
+          <div className="receipt-text" style={{float:'left'}}>
+            <pre>{this.state.transactions[0].receipts[0].text}</pre>
           </div>
         </div>
       );

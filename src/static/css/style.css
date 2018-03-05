@@ -2,14 +2,32 @@ body {
   font-family: sans-serif;
   hyphens: auto;
   font-size: 14px;
+  margin: 0;
 }
-
+header {
+  box-shadow: 0 1px 1px silver;
+  padding: 0.5em;
+}
+.header-container {
+  margin: auto;
+  max-width: 1000px;
+}
 table {
   border-collapse: collapse;
   border-spacing: 0;
   border-color: silver;
   border-style: solid;
   border-width: 1px;
+}
+.app-content {
+  max-width: 1000px;
+  padding: 0.5em;
+  margin: auto;
+}
+
+.cropper-dashed {
+  border-color: #39f;
+  opacity: 0.7;
 }
 
 /* react-autosuggest */

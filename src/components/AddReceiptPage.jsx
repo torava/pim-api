@@ -123,23 +123,24 @@ export default class addReceiptPage extends React.Component {
         <input type="file" name="file" id="file" multiple draggable onChange={this.onChange}/>
         <select placeholder="Language" name="language" id="language">
           <option value="fin">suomi</option>
+          <option value="eng">English</option>
           <option value="spa">español</option>
         </select>
         <button onClick={this.onUpload}>Submit</button>
         </form>
-        <button onClick={this.onFlipLeft}>Flip Left</button>
-        <input type="range" min="-45" max="45" defaultValue="0" step="any" onChange={this.onRotate} style={{width:700}}/>
-        <button onClick={this.onFlipRight}>Flip Right</button><br/>
-        Details Less <input type="range" min="1" max="30" defaultValue="10" step="1" onChange={this.setData.bind(this, 'threshold')} style={{width:100, transform: 'rotate(-180deg)'}}/> More
-        Soften None <input type="range" min="0" max="5" defaultValue="1" step="1" onChange={this.setData.bind(this, 'blur')} style={{width:50}}/> High
-        Sharpen None <input type="range" min="0" max="5" defaultValue="1" step="1" onChange={this.setData.bind(this, 'sharpen')} style={{width:50}}/> High
+        <button onClick={this.onFlipLeft} className="fa fa-undo"></button>
+        <input type="range" min="-45" max="45" defaultValue="0" step="any" onChange={this.onRotate} style={{width:'90%'}}/>
+        <button onClick={this.onFlipRight} className="fa fa-redo"></button><br/>
+        Details <i className="fa fa-minus"/> <input type="range" min="1" max="30" defaultValue="10" step="1" onChange={this.setData.bind(this, 'threshold')} style={{width:100, transform: 'rotate(-180deg)'}}/> <i className="fa fa-plus"/>&nbsp;
+        Soften <i className="fa fa-minus"/> <input type="range" min="0" max="5" defaultValue="1" step="1" onChange={this.setData.bind(this, 'blur')} style={{width:50}}/> <i className="fa fa-plus"/>&nbsp;
+        Sharpen <i className="fa fa-minus"/> <input type="range" min="0" max="5" defaultValue="1" step="1" onChange={this.setData.bind(this, 'sharpen')} style={{width:50}}/> <i className="fa fa-plus"/>&nbsp;
         <Cropper id="cropper"
                  src={this.state.src}
-                 style={{width:'95%',height:800}}
+                 style={{width:'95%', maxHeight:'600px'}}
                  autoCropArea={1}
                  viewMode={0}
                  rotatable={true}
-                 zoomable={false}
+                 zoomable={true}
                  ref={cropper => {this.cropper = cropper; }}/>
         <ReceiptEditor id="receipt-editor"
                        version={this.state.version}

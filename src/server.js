@@ -57,7 +57,7 @@ app.get('*', (req, res) => {
       <App/>
     </StaticRouter>
   );
-  res.write('<!doctype html><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"><meta charset="utf8"><link rel="stylesheet" href="/css/treetabular.css"><link rel="stylesheet" href="/css/react-table.css"><link rel="stylesheet" href="/css/cropper.css"><link rel="stylesheet" href="/css/style.css"><div id="app">'+html+'</div>'+"\n"+'<script src="/js/bundle.js"></script>');
+  res.write('<!doctype html><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"><meta charset="utf8"><script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script><link rel="stylesheet" href="/css/treetabular.css"><link rel="stylesheet" href="/css/react-table.css"><link rel="stylesheet" href="/css/cropper.css"><link rel="stylesheet" href="/css/style.css"><div id="app">'+html+'</div>'+"\n"+'<script src="/js/bundle.js"></script>');
   res.end();
 });
 

@@ -21,24 +21,27 @@ export default class Layout extends React.Component {
     return (
       <div className="app-container">
        <header>
-          <nav style={{float:'left'}}>
-            <Link to="/">Receipts</Link>&nbsp;
-            <Link to="/items">Items</Link>&nbsp;
-            <Link to="/categories">Categories</Link>&nbsp;
-            <Link to="/add">Add</Link>
-          </nav>
-          <div style={{float:'right'}}>
-            <select id="currency" onChange={this.onCurrencyChange.bind(this)}>
-              <option>EUR</option>
-              <option>ARS</option>
-            </select>
-            <select id="locale" onChange={this.onLocaleChange.bind(this)}>
-              <option>fi-FI</option>
-              <option>en-US</option>
-              <option>es-AR</option>
-            </select>
+          <div className="header-container">
+            <nav style={{float:'left'}}>
+              <Link to="/">Receipts</Link>&nbsp;
+              <Link to="/items">Items</Link>&nbsp;
+              <Link to="/categories">Categories</Link>&nbsp;
+              <Link to="/add">Add</Link>
+            </nav>
+            <div style={{float:'right'}}>
+              <select id="currency" onChange={this.onCurrencyChange.bind(this)}>
+                <option>EUR</option>
+                <option>CAD</option>
+                <option>ARS</option>
+              </select>
+              <select id="locale" onChange={this.onLocaleChange.bind(this)}>
+                <option>fi-FI</option>
+                <option>en-US</option>
+                <option>es-AR</option>
+              </select>
+            </div>
+            <div style={{clear:'both'}}/>
           </div>
-          <div style={{clear:'both'}}/>
         </header>
         <div className="app-content">{this.props.children}</div>
       </div>
