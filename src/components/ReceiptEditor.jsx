@@ -357,7 +357,7 @@ export default class addReceiptPage extends React.Component {
 
     if (receiptIsRead) {
       return (
-        <div className="receipt-content">
+        <div id="receipt-content" className="receipt-content">
           <datalist id="manufacturers">
             {this.state.manufacturers.map(function(item, i) {
               return <option value={item.name}/>
@@ -369,19 +369,22 @@ export default class addReceiptPage extends React.Component {
             })}
           </datalist>
           <div className="receipt-editor" style={{float:'left'}}>
-            <div>Store Name: <input key={"store-name-"+this.state.version} type="search" value={this.state.transactions[0].party.name || ''} onChange={this.onFieldChange.bind(this, 'party', 'name')}/></div>
-            <div>VAT: <input key={"vat-"+this.state.version} type="search" value={this.state.transactions[0].party.vat || ''} onChange={this.onFieldChange.bind(this, 'party', 'vat')}/></div>
-            <div>Street:
-              <input key={"street-name-"+this.state.version} type="search" value={this.state.transactions[0].party.street_name || ''} onChange={this.onFieldChange.bind(this, 'party', 'street_name')}/>
-              <input key={"street-number-"+this.state.version} type="search" value={this.state.transactions[0].party.street_number || ''} onChange={this.onFieldChange.bind(this, 'party', 'street_number')}/>
-            </div>
-            <div>Postal Code: <input key={"postal-code-"+this.state.version} type="search" value={this.state.transactions[0].party.postal_code || ''} onChange={this.onFieldChange.bind(this, 'party', 'postal_code')}/></div>
-            <div>City: <input key={"city-"+this.state.version} type="search" value={this.state.transactions[0].party.city || ''} onChange={this.onFieldChange.bind(this, 'party', 'city')}/></div>
-            <div>Phone Number: <input key={"phone-number-"+this.state.version} type="phone" value={this.state.transactions[0].party.phone_number || ''} onChange={this.onFieldChange.bind(this, 'party', 'phone_number')}/></div>
-            <div>Date: <input key={"date-"+this.state.version} type="datetime-local" defaultValue={this.state.transactions[0].date && moment(this.state.transactions[0].date).format('YYYY-MM-DDTHH:mm:ss') || ''} onChange={this.onDateChange.bind(this)}/></div>
             <div>
-              Locale:
-              <select id="locale" onChange={this.onLocaleChange.bind(this)}>
+              <input placeholder="Store name" key={"store-name-"+this.state.version} type="search" value={this.state.transactions[0].party.name || ''} onChange={this.onFieldChange.bind(this, 'party', 'name')}/>
+            </div>
+            <div>
+              <input placeholder="VAT" key={"vat-"+this.state.version} type="search" value={this.state.transactions[0].party.vat || ''} onChange={this.onFieldChange.bind(this, 'party', 'vat')}/>
+            </div>
+            <div>
+              <input placeholder="Street name" key={"street-name-"+this.state.version} type="search" value={this.state.transactions[0].party.street_name || ''} onChange={this.onFieldChange.bind(this, 'party', 'street_name')}/>
+              <input placeholder="Street number" key={"street-number-"+this.state.version} type="search" value={this.state.transactions[0].party.street_number || ''} onChange={this.onFieldChange.bind(this, 'party', 'street_number')}/>
+            </div>
+            <div><input placeholder="Postal code" key={"postal-code-"+this.state.version} type="search" value={this.state.transactions[0].party.postal_code || ''} onChange={this.onFieldChange.bind(this, 'party', 'postal_code')}/></div>
+            <div><input placeholder="City" key={"city-"+this.state.version} type="search" value={this.state.transactions[0].party.city || ''} onChange={this.onFieldChange.bind(this, 'party', 'city')}/></div>
+            <div><input placeholder="Phone number" key={"phone-number-"+this.state.version} type="phone" value={this.state.transactions[0].party.phone_number || ''} onChange={this.onFieldChange.bind(this, 'party', 'phone_number')}/></div>
+            <div><input placeholder="Date" key={"date-"+this.state.version} type="datetime-local" defaultValue={this.state.transactions[0].date && moment(this.state.transactions[0].date).format('YYYY-MM-DDTHH:mm:ss') || ''} onChange={this.onDateChange.bind(this)}/></div>
+            <div>
+              <select placeholder="Locale" id="locale" onChange={this.onLocaleChange.bind(this)}>
               {['fi-FI', 'en-US', 'es-AR'].map(function(item, i) {
                 return <option {...that.state.transactions[0].receipts[0].locale === item && ' selected'}>{item}</option>
               })}
