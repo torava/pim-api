@@ -42,6 +42,8 @@ export default class addReceiptPage extends React.Component {
 
     that.setState({});
 
+    window.onbeforeunload = confirmExit;
+
     let files;
     if (event.dataTransfer) {
       files = event.dataTransfer.files;
@@ -89,8 +91,6 @@ export default class addReceiptPage extends React.Component {
 
     axios.post('/api/receipt/data/'+this.state.transactions[0].receipts[0].file, data)
     .then(function(response) {
-      window.onbeforeunload = confirmExit;
-      
       document.getElementsByClassName('next')[0].innerHTML = 'Next';
   
       document.getElementById('receipt-editor').style.display = 'block';
