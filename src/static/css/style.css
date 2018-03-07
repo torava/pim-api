@@ -32,6 +32,10 @@ table {
 .react-autosuggest__input {
   width: 5em;
 }
+fieldset {
+  border: 1px solid silver;
+  border-radius: 0.5em;
+}
 
 /* cropper */
 .cropper-dashed {
