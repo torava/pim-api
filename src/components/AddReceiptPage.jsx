@@ -151,7 +151,7 @@ export default class addReceiptPage extends React.Component {
           <fieldset>
             <legend>Adjust</legend>
             <button onClick={this.onFlipLeft}><i className="fa fa-undo"/></button>
-            <input type="range" min="-45" max="45" defaultValue="0" step="any" onChange={this.onRotate} style={{width:'90%'}}/>
+            <input type="range" min="-45" max="45" defaultValue="0" step="any" onChange={this.onRotate} style={{width:'80%'}}/>
             <button onClick={this.onFlipRight}><i className="fa fa-redo"/></button><br/>
             Details
             <i className="fa fa-minus"/>
