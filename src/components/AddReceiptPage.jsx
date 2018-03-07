@@ -8,6 +8,10 @@ import Cropper from 'react-cropper';
 import moment from 'moment';
 import ReceiptEditor from './ReceiptEditor';
 
+function confirmExit() {
+    return "You have attempted to leave this page. Are you sure?";
+}
+
 export default class addReceiptPage extends React.Component {
   constructor(props) {
     super(props);
@@ -75,7 +79,7 @@ export default class addReceiptPage extends React.Component {
   onUpload(event) {
     event.preventDefault();
 
-    document.getElementsByClassName('next')[0].className = 'next fa fa-spinner';
+    document.getElementsByClassName('next')[0].innerHTML = '<i class="fa fa-spinner fa-spin"/>';
 
     let that = this,
         data = Object.assign({}, this.cropper.getData(), this.state.data);
@@ -85,7 +89,9 @@ export default class addReceiptPage extends React.Component {
 
     axios.post('/api/receipt/data/'+this.state.transactions[0].receipts[0].file, data)
     .then(function(response) {
-      document.getElementsByClassName('next').className = 'next';
+      window.onbeforeunload = confirmExit;
+      
+      document.getElementsByClassName('next')[0].innerHTML = 'Next';
   
       document.getElementById('receipt-editor').style.display = 'block';
       document.getElementById('uploader').style.display = 'none';
@@ -151,7 +157,7 @@ export default class addReceiptPage extends React.Component {
           <fieldset>
             <legend>Adjust</legend>
             <button onClick={this.onFlipLeft}><i className="fa fa-undo"/></button>
-            <input type="range" min="-45" max="45" defaultValue="0" step="any" onChange={this.onRotate} style={{width:'80%'}}/>
+            <input type="range" min="-45" max="45" defaultValue="0" step="any" onChange={this.onRotate} style={{width:'75%'}}/>
             <button onClick={this.onFlipRight}><i className="fa fa-redo"/></button><br/>
             Details
             <i className="fa fa-minus"/>

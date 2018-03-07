@@ -31,11 +31,11 @@ class ReceiptItem extends React.Component {
               />
               <input type="number" defaultValue={this.props.item.price ? parseFloat(this.props.item.price).toFixed(2) : ''}
                                   onChange={this.props.onItemPriceChange.bind(this, this.props.i)}
-                                  step={.01} style={{width:'5em'}}
+                                  step={.01} style={{width:'3em'}}
                                   placeholder="Price"/>
               <button onClick={this.props.onDeleteItem.bind(this, this.props.i)}>-</button>
               <button onClick={this.props.onAddItem.bind(this, this.props.i)}>+</button>
-              <span onClick={this.props.toggle.bind(this, 'details-'+this.props.i)}>&#9662;</span>
+              <button onClick={this.props.toggle.bind(this, 'details-'+this.props.i)}>&#9662;</button>
               <div id={'details-'+this.props.i} style={{display:'none'}}>
                 <input type="search" value={this.props.item.item_number || ''}
                                     onChange={this.props.onItemNumberChange.bind(this, this.props.i)}
@@ -320,6 +320,7 @@ export default class addReceiptPage extends React.Component {
     axios.post('/api/transaction/', this.state.transactions)
     .then(function(response) {
       console.log(response);
+      window.onbeforeunload = null;
       window.location = '/';
     })
     .catch(function(error) {
