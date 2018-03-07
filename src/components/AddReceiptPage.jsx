@@ -150,9 +150,9 @@ export default class addReceiptPage extends React.Component {
           </form>
           <fieldset>
             <legend>Adjust</legend>
-            <button onClick={this.onFlipLeft} className="fa fa-undo"></button>
+            <button onClick={this.onFlipLeft}><i className="fa fa-undo"/></button>
             <input type="range" min="-45" max="45" defaultValue="0" step="any" onChange={this.onRotate} style={{width:'90%'}}/>
-            <button onClick={this.onFlipRight} className="fa fa-redo"></button><br/>
+            <button onClick={this.onFlipRight}><i className="fa fa-redo"/></button><br/>
             Details
             <i className="fa fa-minus"/>
             <input type="range"
