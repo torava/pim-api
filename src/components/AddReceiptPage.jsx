@@ -175,7 +175,7 @@ export default class addReceiptPage extends React.Component {
           </fieldset>
           <Cropper id="cropper"
                   src={this.state.src}
-                  style={{width:'95%', maxHeight:'600px'}}
+                  style={{width:'95%', maxHeight:'500px'}}
                   autoCropArea={1}
                   viewMode={0}
                   rotatable={true}

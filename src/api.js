@@ -819,7 +819,6 @@ app.get('/api/category', function(req, res) {
     });
   }
   else {
-    console.log(req.query);
     Category.query()
     //.limit(2000)
     .then(categories => {
