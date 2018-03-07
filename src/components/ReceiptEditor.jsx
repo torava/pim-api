@@ -8,73 +8,78 @@ import Cropper from 'react-cropper';
 import moment from 'moment';
 import Autosuggest from 'react-autosuggest';
 
+function toNumber(n) {
+  let f = parseFloat(n);
+  return !isNaN(f) && isFinite(n) && f;
+}
+
 class ReceiptItem extends React.Component {
   render() {
     return (<div>
-            <input type="search" value={this.props.item.item_number || ''}
-                                 onChange={this.props.onItemNumberChange.bind(this, this.props.i)}
-                                 style={{width:'10em'}}
-                                 placeholder="#"/>
-            <input type="number" value={this.props.item.quantity || ''}
-                                 onChange={this.props.onItemQuantityChange.bind(this, this.props.i)}
-                                 style={{width:'5em'}}
-                                 placeholder="Quantity"/>x
-            <input type="number" value={this.props.item.measure || ''}
-                                 onChange={this.props.onItemMeasureChange.bind(this, this.props.i)}
-                                 style={{width:'5em'}}
-                                 placeholder="Measure"/>
-            <select onChange={this.props.onItemUnitChange.bind(this, this.props.i)}>
-              <option value="g">g</option>
-              <option value="kg">kg</option>
-              <option value="l">l</option>
-            </select>
-            <input type="search" list="products"
-                                 value={this.props.item.product && this.props.item.product.name || ''}
-                                 onChange={this.props.onItemNameChange.bind(this, this.props.i)}
-                                 style={{width:'18em'}}
-                                 placeholder="Name"/>
-            <Autosuggest
-              suggestions={this.props.categorySuggestions}
-              onSuggestionsFetchRequested={this.props.onSuggestionsFetchRequested}
-              onSuggestionsClearRequested={this.props.onSuggestionsClearRequested}
-              getSuggestionValue={this.props.getSuggestionValue}
-              renderSuggestion={this.props.renderSuggestion}
-              inputProps={this.props.inputProps}
-            />
-            <input type="number" defaultValue={this.props.item.price ? parseFloat(this.props.item.price).toFixed(2) : ''}
-                                 onChange={this.props.onItemPriceChange.bind(this, this.props.i)}
-                                 step={.01} style={{width:'5em'}}
-                                 placeholder="Price"/>
-            <button onClick={this.props.onDeleteItem.bind(this, this.props.i)}>-</button>
-            <button onClick={this.props.onAddItem.bind(this, this.props.i)}>+</button>
-            <span onClick={this.props.toggle.bind(this, 'details-'+this.props.i)}>&#9662;</span>
-            <div id={'details-'+this.props.i} style={{display:'none'}}>
-              Manufacturer <input type="search" list="manufacturers"
-                                  value={this.props.item.product && this.props.item.product.manufacturer && this.props.item.product.manufacturer.name || ''}
-                                  onChange={this.props.onItemManufacturerChange.bind(this, this.props.i)}/><br/>
-              <div onClick={this.props.toggle.bind(this, 'measurements-'+this.props.i)}>Measurements</div>
-              <div id={'measurements-'+this.props.i} style={{display:'none'}}>
-                L<input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'length')}/>x
-                W<input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'width')}/>x
-                H<input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'height')}/>
+              <input type="search" list="products"
+                                  value={this.props.item.product && this.props.item.product.name || ''}
+                                  onChange={this.props.onItemNameChange.bind(this, this.props.i)}
+                                  style={{width:'10em'}}
+                                  placeholder="Name"/>
+              <Autosuggest
+                suggestions={this.props.categorySuggestions}
+                onSuggestionsFetchRequested={this.props.onSuggestionsFetchRequested}
+                onSuggestionsClearRequested={this.props.onSuggestionsClearRequested}
+                getSuggestionValue={this.props.getSuggestionValue}
+                renderSuggestion={this.props.renderSuggestion}
+                inputProps={this.props.inputProps}
+              />
+              <input type="number" defaultValue={this.props.item.price ? parseFloat(this.props.item.price).toFixed(2) : ''}
+                                  onChange={this.props.onItemPriceChange.bind(this, this.props.i)}
+                                  step={.01} style={{width:'5em'}}
+                                  placeholder="Price"/>
+              <button onClick={this.props.onDeleteItem.bind(this, this.props.i)}>-</button>
+              <button onClick={this.props.onAddItem.bind(this, this.props.i)}>+</button>
+              <span onClick={this.props.toggle.bind(this, 'details-'+this.props.i)}>&#9662;</span>
+              <div id={'details-'+this.props.i} style={{display:'none'}}>
+                <input type="search" value={this.props.item.item_number || ''}
+                                    onChange={this.props.onItemNumberChange.bind(this, this.props.i)}
+                                    style={{width:'10em'}}
+                                    placeholder="#"/><br/>
+                <input type="number" value={this.props.item.quantity || ''}
+                                  onChange={this.props.onItemQuantityChange.bind(this, this.props.i)}
+                                  style={{width:'2em'}}
+                                  placeholder="Quantity"/>x
+                <input type="number" value={this.props.item.measure || ''}
+                                    onChange={this.props.onItemMeasureChange.bind(this, this.props.i)}
+                                    style={{width:'2em'}}
+                                    placeholder="Measure"/>
+                <select onChange={this.props.onItemUnitChange.bind(this, this.props.i)}>
+                  <option value="g">g</option>
+                  <option value="kg">kg</option>
+                  <option value="l">l</option>
+                </select><br/>
+                Manufacturer <input type="search" list="manufacturers"
+                                    value={this.props.item.product && this.props.item.product.manufacturer && this.props.item.product.manufacturer.name || ''}
+                                    onChange={this.props.onItemManufacturerChange.bind(this, this.props.i)}/><br/>
+                <div onClick={this.props.toggle.bind(this, 'measurements-'+this.props.i)}>Measurements</div>
+                <div id={'measurements-'+this.props.i} style={{display:'none'}}>
+                  L<input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'length')}/>x
+                  W<input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'width')}/>x
+                  H<input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'height')}/>
+                </div>
+                <div onClick={this.props.toggle.bind(this, 'nutrition-'+this.props.i)}>Nutritional Attributes</div>
+                <div id={'nutrition-'+this.props.i} style={{display:'none'}}>
+                  Energy <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'energy')}/> kcal<br/>
+                  Carbohydrate <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'carbohydrate')}/> g<br/>
+                  Protein <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'protein')}/> g<br/>
+                  Fat <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'fat')}/> g<br/>
+                  Fiber <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'fiber')}/> g<br/>
+                  Best before <input type="datetime-local" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'fiber')}/><br/>
+                  Last date <input type="datetime-local" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'fiber')}/>
+                </div>
+                <div onClick={this.props.toggle.bind(this, 'environment-'+this.props.i)}>Environmental Attributes</div>
+                <div id={'environment-'+this.props.i} style={{display:'none'}}>
+                  CO2 <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'co2')}/>
+                  Methane <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'methane')}/>
+                </div>
               </div>
-              <div onClick={this.props.toggle.bind(this, 'nutrition-'+this.props.i)}>Nutritional Attributes</div>
-              <div id={'nutrition-'+this.props.i} style={{display:'none'}}>
-                Energy <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'energy')}/> kcal<br/>
-                Carbohydrate <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'carbohydrate')}/> g<br/>
-                Protein <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'protein')}/> g<br/>
-                Fat <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'fat')}/> g<br/>
-                Fiber <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'fiber')}/> g<br/>
-                Best before <input type="datetime-local" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'fiber')}/><br/>
-                Last date <input type="datetime-local" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'fiber')}/>
-              </div>
-              <div onClick={this.props.toggle.bind(this, 'environment-'+this.props.i)}>Environmental Attributes</div>
-              <div id={'environment-'+this.props.i} style={{display:'none'}}>
-                CO2 <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'co2')}/>
-                Methane <input type="number" onChange={this.props.onItemAttributeChange.bind(this, this.props.i, 'methane')}/>
-              </div>
-            </div>
-          </div>);
+            </div>);
   }
 }
 
@@ -127,15 +132,6 @@ export default class addReceiptPage extends React.Component {
   }
   toggle(id, event) {
     document.getElementById(id).style.display = document.getElementById(id).style.display == 'none' ? 'block' : 'none';
-  }
-  saveReceipt(event) {
-    axios.post('/api/transaction/', this.state.transactions)
-    .then(function(response) {
-      console.log(response);
-    })
-    .catch(function(error) {
-      console.error(error);
-    });
   }
   deleteTransaction(event) {
     axios.delete('/api/transaction/'+this.state.transactions[0].id)
@@ -194,10 +190,13 @@ export default class addReceiptPage extends React.Component {
     });
   }
   onItemQuantityChange(key, event) {
-    let transactions = this.state.transactions;
+    let transactions = this.state.transactions,
+        value = toNumber(event.target.value);
 
-    if (event.target.value)
-      transactions[0].items[key].quantity = parseFloat(event.target.value);
+    if (value === false)
+      return;
+    if (value > 0)
+      transactions[0].items[key].quantity = value;
     else
       delete transactions[0].items[key].quantity;
 
@@ -206,12 +205,13 @@ export default class addReceiptPage extends React.Component {
     });
   }
   onItemMeasureChange(key, event) {
-    let transactions = this.state.transactions;
-    
-    console.log(event.target.value);
+    let transactions = this.state.transactions,
+        value = toNumber(event.target.value);
 
-    if (event.target.value)
-      transactions[0].items[key].measure = parseFloat(event.target.value);
+    if (value === false)
+      return;
+    if (value)
+      transactions[0].items[key].measure = value;
     else
       delete transactions[0].items[key].measure;
 
@@ -279,8 +279,13 @@ export default class addReceiptPage extends React.Component {
     });
   }
   onItemPriceChange(key, event) {
-    let transactions = this.state.transactions;
-    transactions[0].items[key].price = parseFloat(event.target.value);
+    let transactions = this.state.transactions,
+        value = toNumber(event.target.value);
+
+    if (value === false)
+      return;
+
+    transactions[0].items[key].price = value;
 
     let total_price = 0;
 
@@ -297,6 +302,7 @@ export default class addReceiptPage extends React.Component {
     let transactions = this.state.transactions;
     transactions[0].items.splice(key, 1);
     this.setState({
+      version: Date.now(), // Update version
       transactions: transactions
     });
   }
@@ -308,9 +314,19 @@ export default class addReceiptPage extends React.Component {
       version: Date.now(), // Update version
       transactions: transactions
     });
-    //ReactDOM.findDOMNode(this).getElementsByClassName('receipt-items')[0].append(<ReceiptItem onDeleteItem={that.onDeleteItem} onAddItem={that.onAddItem} onItemPriceChange={that.onItemPriceChange}/>);
-
   }
+  saveReceipt(event) {
+    event.preventDefault();
+    axios.post('/api/transaction/', this.state.transactions)
+    .then(function(response) {
+      console.log(response);
+      window.location = '/';
+    })
+    .catch(function(error) {
+      console.error(error);
+    });
+  }
+
   // Autosuggest will call this function every time you need to update suggestions.
   // You already implemented this logic above, so just use it.
   onCategorySuggestionsFetchRequested({ value }) {
@@ -358,6 +374,8 @@ export default class addReceiptPage extends React.Component {
     if (receiptIsRead) {
       return (
         <div id="receipt-content" className="receipt-content">
+          <a href="#" className="next" onClick={this.saveReceipt} style={{float:"right"}}>Submit</a>
+          <div style={{clear:"both"}}/>
           <datalist id="manufacturers">
             {this.state.manufacturers.map(function(item, i) {
               return <option value={item.name}/>
@@ -370,19 +388,67 @@ export default class addReceiptPage extends React.Component {
           </datalist>
           <div className="receipt-editor" style={{float:'left'}}>
             <div>
-              <input placeholder="Store name" key={"store-name-"+this.state.version} type="search" value={this.state.transactions[0].party.name || ''} onChange={this.onFieldChange.bind(this, 'party', 'name')}/>
+              <label for="store-name">Store name:&nbsp;</label>
+              <input id="store-name" placeholder="Store name" key={"store-name-"+this.state.version} type="search" value={this.state.transactions[0].party.name || ''} onChange={this.onFieldChange.bind(this, 'party', 'name')}/>
             </div>
             <div>
-              <input placeholder="VAT" key={"vat-"+this.state.version} type="search" value={this.state.transactions[0].party.vat || ''} onChange={this.onFieldChange.bind(this, 'party', 'vat')}/>
+              <label for="vat">VAT: </label>
+              <input id="vat" placeholder="VAT" key={"vat-"+this.state.version} type="search" value={this.state.transactions[0].party.vat || ''} onChange={this.onFieldChange.bind(this, 'party', 'vat')}/>
             </div>
             <div>
-              <input placeholder="Street name" key={"street-name-"+this.state.version} type="search" value={this.state.transactions[0].party.street_name || ''} onChange={this.onFieldChange.bind(this, 'party', 'street_name')}/>
-              <input placeholder="Street number" key={"street-number-"+this.state.version} type="search" value={this.state.transactions[0].party.street_number || ''} onChange={this.onFieldChange.bind(this, 'party', 'street_number')}/>
+              <label for="street-name">Street:&nbsp;</label>
+              <input id="street-name"
+                     placeholder="Street name"
+                     key={"street-name-"+this.state.version}
+                     type="search"
+                     value={this.state.transactions[0].party.street_name || ''}
+                     onChange={this.onFieldChange.bind(this, 'party', 'street_name')}/>
+              <input id="street-number"
+                     placeholder="#"
+                     key={"street-number-"+this.state.version} 
+                     value={this.state.transactions[0].party.street_number || ''}
+                     onChange={this.onFieldChange.bind(this, 'party', 'street_number')}
+                     style={{width:"3em"}}/>
             </div>
-            <div><input placeholder="Postal code" key={"postal-code-"+this.state.version} type="search" value={this.state.transactions[0].party.postal_code || ''} onChange={this.onFieldChange.bind(this, 'party', 'postal_code')}/></div>
-            <div><input placeholder="City" key={"city-"+this.state.version} type="search" value={this.state.transactions[0].party.city || ''} onChange={this.onFieldChange.bind(this, 'party', 'city')}/></div>
-            <div><input placeholder="Phone number" key={"phone-number-"+this.state.version} type="phone" value={this.state.transactions[0].party.phone_number || ''} onChange={this.onFieldChange.bind(this, 'party', 'phone_number')}/></div>
-            <div><input placeholder="Date" key={"date-"+this.state.version} type="datetime-local" defaultValue={this.state.transactions[0].date && moment(this.state.transactions[0].date).format('YYYY-MM-DDTHH:mm:ss') || ''} onChange={this.onDateChange.bind(this)}/></div>
+            <div>
+              <label for="postal-code">Postal code:&nbsp;</label>
+              <input id="postal-code" placeholder="Postal code"
+                     key={"postal-code-"+this.state.version}
+                     type="search"
+                     value={this.state.transactions[0].party.postal_code || ''}
+                     onChange={this.onFieldChange.bind(this, 'party', 'postal_code')}
+              />
+            </div>
+            <div>
+              <label for="city">City:&nbsp;</label>
+              <input id="city"
+                     placeholder="City"
+                     key={"city-"+this.state.version}
+                     type="search" 
+                     value={this.state.transactions[0].party.city || ''}
+                     onChange={this.onFieldChange.bind(this, 'party', 'city')}
+              />
+            </div>
+            <div>
+              <label for="phone-number">Phone number:&nbsp;</label>
+              <input id="phone-number"
+                     placeholder="Phone number"
+                     key={"phone-number-"+this.state.version}
+                     type="tel"
+                     value={this.state.transactions[0].party.phone_number || ''}
+                     onChange={this.onFieldChange.bind(this, 'party', 'phone_number')}
+              />
+            </div>
+            <div>
+              <label for="date">Date:&nbsp;</label>
+              <input id="date"
+                     placeholder="Date"
+                     key={"date-"+this.state.version} 
+                     type="datetime-local"
+                     defaultValue={this.state.transactions[0].date && moment(this.state.transactions[0].date).format('YYYY-MM-DDTHH:mm:ss') || ''}
+                     onChange={this.onDateChange.bind(this)}
+              />
+            </div>
             <div>
               <select placeholder="Locale" id="locale" onChange={this.onLocaleChange.bind(this)}>
               {['fi-FI', 'en-US', 'es-AR'].map(function(item, i) {

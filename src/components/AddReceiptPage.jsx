@@ -67,6 +67,8 @@ export default class addReceiptPage extends React.Component {
     reader.readAsDataURL(files[0]);
   }
   showUploader(event) {
+    event.preventDefault();
+
     document.getElementById('uploader').style.display = 'block';
     document.getElementById('receipt-editor').style.display = 'none';
   }
@@ -128,25 +130,43 @@ export default class addReceiptPage extends React.Component {
 
     this.cropper.rotateTo(rotate);
   }
+  
   render() {
     return (
       <div className="add-receipt">
         <div id="uploader">
-          <a class="next" onClick={this.onUpload} style={{float:"right"}}>Next</a>
+          <a href="#" className="next" onClick={this.onUpload} style={{float:"right"}}>Next</a>
+          <div style={{clear:"both"}}/>
           <form>
-            <input type="file" name="file" id="file" multiple draggable onChange={this.onChange}/>
-            <select placeholder="Language" name="language" id="language">
-              <option value="fin">suomi</option>
-              <option value="eng">English</option>
-              <option value="spa">español</option>
-            </select>
+            <fieldset>
+              <legend>Upload</legend>
+              <input type="file" name="file" id="file" multiple draggable onChange={this.onChange}/>
+              <select placeholder="Language" name="language" id="language">
+                <option value="fin">suomi</option>
+                <option value="eng">English</option>
+                <option value="spa">español</option>
+              </select>
+            </fieldset>
           </form>
-          <button onClick={this.onFlipLeft} className="fa fa-undo"></button>
-          <input type="range" min="-45" max="45" defaultValue="0" step="any" onChange={this.onRotate} style={{width:'90%'}}/>
-          <button onClick={this.onFlipRight} className="fa fa-redo"></button><br/>
-          Details <i className="fa fa-minus"/> <input type="range" min="1" max="30" defaultValue="10" step="1" onChange={this.setData.bind(this, 'threshold')} style={{width:100, transform: 'rotate(-180deg)'}}/> <i className="fa fa-plus"/>&nbsp;
-          Soften <i className="fa fa-minus"/> <input type="range" min="0" max="5" defaultValue="1" step="1" onChange={this.setData.bind(this, 'blur')} style={{width:50}}/> <i className="fa fa-plus"/>&nbsp;
-          Sharpen <i className="fa fa-minus"/> <input type="range" min="0" max="5" defaultValue="1" step="1" onChange={this.setData.bind(this, 'sharpen')} style={{width:50}}/> <i className="fa fa-plus"/>&nbsp;
+          <fieldset>
+            <legend>Adjust</legend>
+            <button onClick={this.onFlipLeft} className="fa fa-undo"></button>
+            <input type="range" min="-45" max="45" defaultValue="0" step="any" onChange={this.onRotate} style={{width:'90%'}}/>
+            <button onClick={this.onFlipRight} className="fa fa-redo"></button><br/>
+            Details
+            <i className="fa fa-minus"/>
+            <input type="range"
+                  min="1"
+                  max="30"
+                  defaultValue="10"
+                  step="1"
+                  onChange={this.setData.bind(this, 'threshold')}
+                  style={{width:100, transform: 'rotate(-180deg)'}}
+            />
+            <i className="fa fa-plus"/>&nbsp;
+            Soften <i className="fa fa-minus"/> <input type="range" min="0" max="5" defaultValue="1" step="1" onChange={this.setData.bind(this, 'blur')} style={{width:50}}/> <i className="fa fa-plus"/>&nbsp;
+            Sharpen <i className="fa fa-minus"/> <input type="range" min="0" max="5" defaultValue="1" step="1" onChange={this.setData.bind(this, 'sharpen')} style={{width:50}}/> <i className="fa fa-plus"/>&nbsp;
+          </fieldset>
           <Cropper id="cropper"
                   src={this.state.src}
                   style={{width:'95%', maxHeight:'600px'}}
@@ -156,14 +176,15 @@ export default class addReceiptPage extends React.Component {
                   zoomable={true}
                   ref={cropper => {this.cropper = cropper}}/>
         </div>
-        <div id="receipt-editor">
-          <a class="previous" onClick={this.showUploader} style={{display:"none", float:"left"}}>Previous</a>
+        <div id="receipt-editor" style={{display:"none"}}>
+          <a href="#" className="previous" onClick={this.showUploader} style={{float:"left"}}>Previous</a>
           <ReceiptEditor id="receipt-editor"
-                        version={this.state.version}
-                        products={this.state.products}
-                        manufacturers={this.state.manufacturers}
-                        categories={this.state.categories}
-                        transactions={this.state.transactions}/>
+                         version={this.state.version}
+                         products={this.state.products}
+                         manufacturers={this.state.manufacturers}
+                         categories={this.state.categories}
+                         transactions={this.state.transactions}
+                         saveReceipt={this.saveReceipt}/>
         </div>
       </div>
     );

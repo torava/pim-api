@@ -24,7 +24,16 @@ table {
   padding: 0.5em;
   margin: auto;
 }
+.receipt-editor label {
+  width: 8em;
+  display: inline-block;
+  text-align: right;
+}
+.react-autosuggest__input {
+  width: 5em;
+}
 
+/* cropper */
 .cropper-dashed {
   border-color: #39f;
   opacity: 0.7;
