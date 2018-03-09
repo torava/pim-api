@@ -173,6 +173,7 @@ export default class addReceiptPage extends React.Component {
             Soften <i className="fa fa-minus"/> <input type="range" min="0" max="5" defaultValue="1" step="1" onChange={this.setData.bind(this, 'blur')} style={{width:50}}/> <i className="fa fa-plus"/>&nbsp;
             Sharpen <i className="fa fa-minus"/> <input type="range" min="0" max="5" defaultValue="1" step="1" onChange={this.setData.bind(this, 'sharpen')} style={{width:50}}/> <i className="fa fa-plus"/>&nbsp;
           </fieldset>
+          {this.state.src && <div>Crop</div>}
           <Cropper id="cropper"
                   src={this.state.src}
                   style={{width:'95%', maxHeight:'500px'}}
@@ -182,7 +183,6 @@ export default class addReceiptPage extends React.Component {
                   zoomable={true}
                   ref={cropper => {this.cropper = cropper}}/>
         </div>
-        <div>Crop</div>
         <div id="receipt-editor" style={{display:"none"}}>
           <a href="#" className="previous" onClick={this.showUploader} style={{float:"left"}}>Previous</a>
           <ReceiptEditor id="receipt-editor"

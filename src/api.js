@@ -547,6 +547,7 @@ function extractTextFromFile(id, data, language, cb) {
     child_process.execFile('tesseract', [
       '-l',
       ['fin'].indexOf(language) !== -1 ? language : 'eng',
+      '-psm', 6,
       filepath+'_edited',
       'stdout'
     ], function(error, stdout, stderr) {
