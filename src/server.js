@@ -45,7 +45,7 @@ app.use(bodyParser.urlencoded({
 */
 app.use(bodyParser.json({limit: '50mb'}));
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 42808;
 const env = process.env.NODE_ENV || 'production';
 
 registerApi(app);

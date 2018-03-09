@@ -559,39 +559,128 @@ function extractTextFromFile(id, data, language, cb) {
   });
 }
 
-function csvToObject(csv) {
-  let columns,
-      item_index = 0,
-      rows = csv.split('\n'),
-      sep = rows[0].match(/^SEP=(.{1})$/);
+async function csvToObject(csv) {
+    let columns,
+        item_index = 0,
+        rows = csv.trim().split('\n'),
+        sep = rows[0].match(/^SEP=(.{1})$/),
+        separator,
+        items = [],
+        item,
+        column_name,
+        elements,
+        found,
+        year,
+        source,
+        sources,
+        attribute,
+        attributes = await Attribute.query(),
+        attribute_object,
+        ref,
+        refs = {};
 
-  if (sep) {
-    separator = sep[1];
-    rows.shift();
-  }
-  else {
-    separator = CSV_SEPARATOR;
-  }
-
-  let column_names = rows[1].split(separator);
-
-  for (let i = 2; i < rows.length; i++) {
-    columns = rows[i].split(separator);
-    for (let n in columns) {
-      _.set(transaction[columns[0]], column_names.replace('[i]', '['+(i-2)+']')[n], columns[n]);
+    if (sep) {
+      separator = sep[1];
+      rows.shift();
     }
-  }
-  return items;
+    else {
+      separator = CSV_SEPARATOR;
+    }
+
+    let column_names = rows[0].split(separator);
+
+    for (let i = 1; i < rows.length; i++) {
+      columns = rows[i].split(separator);
+      item = {};
+      for (let n in columns) {
+        column_name = column_names[n];
+        attribute = column_name.match(/^attribute\:(.*)/i);
+        if (attribute) {
+          found = false;
+          for (let m in attributes) {
+            if (attribute[1] in attributes[m].name) {
+              attribute_object = {
+                id: attributes[m].id
+              }
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            ref = 'attribute:'+attribute[1];
+            if (ref in refs) {
+              attribute_object = {
+                '#ref': ref
+              }
+            }
+            else {
+              refs[ref] = true;
+              attribute_object = {
+                '#id': ref,
+                name: {
+                  'fi-FI': attribute[1]
+                }
+              }
+            }
+          }
+          Object.assign(item, {
+            attributes: [
+              {
+                attribute: attribute_object,
+                value: columns[n]
+              }
+            ]
+          });
+        }
+        else if (['source', 'lähde'].indexOf(column_name.toLowerCase()) !== -1) {
+          sources = columns[n].split(',');
+          for (let m in item.attributes) {
+            for (let j in sources) {
+              elements = sources[j].match(/^(.*)\s([0-9]{4})/);
+              if (elements) {
+                source = elements[1].trim();
+                year = elements[2].trim();
+              }
+              else {
+                source = sources[j].trim();
+                year = null;
+              }
+              ref = 'source:'+source+','+year;
+              if (ref in refs) {
+                item.attributes[m].source = {
+                  '#ref': ref
+                }
+              }
+              else {
+                refs[ref] = true,
+                item.attributes[m].source = {
+                  '#id': ref,
+                  name: source,
+                  year
+                }
+              }
+            }
+          }
+        }
+        else {
+          _.set(item, column_name.replace('[i]', '['+(i-1)+']'), columns[n]);
+        }
+      }
+      items.push(item);
+    }
+    return items;
 }
 
-app.post('/api/category', function(req, res) {
+app.post('/api/category', async function(req, res) {
+  let category;
   if (req.body.csv) {
-    category = csvToObject(req.body.csv);
+    category = await csvToObject(req.body.csv).catch(error => { console.log(error) });
   }
   else {
     category = req.body;
   }
   console.dir(category, {depth:null});
+  return;
   Category.query()
     .upsertGraph(category)
     .then(category => {
@@ -635,7 +724,7 @@ const TRANSACTION_CSV_COLUMNS = i => [
   'party.name',
   'items['+i+'].product.name',
   'items['+i+'].product.category.id',
-  'items['+i+'].product.category.name',
+  'items['+i+'].product.category.name[fi-FI]',
   'items['+i+'].price',
   'items['+i+'].quantity',
   'items['+i+'].measure',

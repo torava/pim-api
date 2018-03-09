@@ -103,6 +103,25 @@ exports.up = function(knex, Promise) {
     table.string('toLocale').unique();
     table.string('toCurrency').unique();
     table.float('rate');
+  })
+  .createTable('Source', function(table) {
+    table.increments('id').primary();
+    table.string('name');
+    table.string('authors');
+    table.integer('year');
+    table.string('url');
+  })
+  .createTable('AttributeSource', function(table) {
+    table
+      .integer('attributeId')
+      .unsigned()
+      .references('id')
+      .inTable('Attribute');
+    table
+      .integer('sourceId')
+      .unsigned()
+      .references('id')
+      .inTable('Source');
   });
 };
 
@@ -118,5 +137,6 @@ exports.down = function(knex) {
     .dropTableIfExists('ProductAttribute')
     .dropTableIfExists('CategoryAttribute')
     .dropTableIfExists('Attribute')
-    .dropTableIfExists('Conversion');
+    .dropTableIfExists('Conversion')
+    .dropTableIfExists('Source')
 };

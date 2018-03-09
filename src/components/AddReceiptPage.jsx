@@ -182,6 +182,7 @@ export default class addReceiptPage extends React.Component {
                   zoomable={true}
                   ref={cropper => {this.cropper = cropper}}/>
         </div>
+        <div>Crop</div>
         <div id="receipt-editor" style={{display:"none"}}>
           <a href="#" className="previous" onClick={this.showUploader} style={{float:"left"}}>Previous</a>
           <ReceiptEditor id="receipt-editor"
