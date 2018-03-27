@@ -376,6 +376,7 @@ export default class addReceiptPage extends React.Component {
       return (
         <div id="receipt-content" className="receipt-content">
           <a href="#" className="next" onClick={this.saveReceipt} style={{float:"right"}}>Submit</a>
+          <a href="#" onClick={this.props.showAdjustments} style={{clear:"both", display:"block"}}>Adjust picture</a>
           <div style={{clear:"both"}}/>
           <datalist id="manufacturers">
             {this.state.manufacturers.map(function(item, i) {

@@ -1,4 +1,3 @@
-
 exports.up = function(knex, Promise) {
   return knex.schema
   .createTable('Party', function(table) {
@@ -108,15 +107,17 @@ exports.up = function(knex, Promise) {
     table.increments('id').primary();
     table.string('name');
     table.string('authors');
-    table.integer('year');
-    table.string('url');
+    table.string('publication_date');
+    table.string('publication_url');
   })
-  .createTable('AttributeSource', function(table) {
+  .createTable('CategoryAttributeSource', function(table) {
+    table.string('reference_date');
+    table.string('reference_url');
     table
       .integer('attributeId')
       .unsigned()
       .references('id')
-      .inTable('Attribute');
+      .inTable('CategoryAttribute');
     table
       .integer('sourceId')
       .unsigned()
@@ -139,4 +140,5 @@ exports.down = function(knex) {
     .dropTableIfExists('Attribute')
     .dropTableIfExists('Conversion')
     .dropTableIfExists('Source')
+    .dropTableIfExists('CategoryAttributeSource')
 };

@@ -55,7 +55,15 @@ class CategoryAttribute extends Model {
 					from: 'CategoryAttribute.attributeId',
 					to: 'Attribute.id'
 				}
-			}
+			},
+			sources: {
+				relation: Model.HasManyRelation,
+				modelClass: __dirname+'/CategoryAttributeSource',
+				join: {
+					from: 'CategoryAttribute.id',
+					to: 'CategoryAttributeSource.attributeId'
+				}
+			},
     }
   }
 }

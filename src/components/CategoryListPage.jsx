@@ -43,6 +43,7 @@ class CategoryList extends Component {
         id: 'name',
         label: 'Name',
         property: 'name.fi-FI',
+        formatter: (value, item) => <a href={"/category/"+item.id}>{value}</a>,
         width: '700'
       },
       {

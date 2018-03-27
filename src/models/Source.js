@@ -11,9 +11,9 @@ class Source extends Model {
 			
 			properties: {
 				name: {type: 'string'},
-        authors: {type: 'string'},
-        year: {type: 'number'},
-        url: {type: 'string'}
+        authors: {type: ['string', 'null']},
+        publication_url: {type: ['string', 'null']},
+				publication_date: { type: 'string' }
 			}
 		}
 	}

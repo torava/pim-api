@@ -6,8 +6,10 @@ import Layout from './Layout';
 import ReceiptListPage from './ReceiptListPage';
 import ItemListPage from './ItemListPage';
 import CategoryListPage from './CategoryListPage';
+import CategoryPage from './CategoryPage';
 import AddReceiptPage from './AddReceiptPage';
 import EditReceiptPage from './EditReceiptPage';
+import TextBoxTool from './TextBoxTool';
 import NotFoundPage from './NotFoundPage';
 
 export default class App extends React.Component {
@@ -19,7 +21,9 @@ export default class App extends React.Component {
           <Route path="/add" component={AddReceiptPage}/>
           <Route path="/items" component={ItemListPage}/>
           <Route path="/categories" component={CategoryListPage}/>
+          <Route path="/category/:id" component={CategoryPage}/>
           <Route path="/edit/:id" component={EditReceiptPage}/>
+          <Route path="/tool/hocr" component={TextBoxTool}/>
           <Route path="*" component={NotFoundPage}/>
         </Switch>
       </Layout>

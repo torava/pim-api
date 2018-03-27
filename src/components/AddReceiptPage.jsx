@@ -12,7 +12,7 @@ function confirmExit() {
     return "You have attempted to leave this page. Are you sure?";
 }
 
-export default class addReceiptPage extends React.Component {
+export default class AddReceiptPage extends React.Component {
   constructor(props) {
     super(props);
 
@@ -20,6 +20,7 @@ export default class addReceiptPage extends React.Component {
 
     this.onChange = this.onChange.bind(this);
     this.showUploader = this.showUploader.bind(this);
+    this.showAdjustments = this.showAdjustments.bind(this);
     this.onUpload = this.onUpload.bind(this);
     this.onFlipLeft = this.onFlipLeft.bind(this);
     this.onFlipRight = this.onFlipRight.bind(this);
@@ -57,10 +58,12 @@ export default class addReceiptPage extends React.Component {
       formData.append('file', files[0]);
       axios.post('/api/receipt/picture', formData)
       .then(function(response) {
-        that.setState({transactions: []});
+        /*that.setState({transactions: []});
 
         var transactions = [{receipts:[{file: response.data.file}]}];
-        that.setState({transactions: transactions});
+        that.setState({transactions: transactions});*/
+
+        that.showEditor(response.data);
       })
       .catch(function(error) {
         console.error(error);
@@ -77,6 +80,28 @@ export default class addReceiptPage extends React.Component {
 
     document.getElementById('uploader').style.display = 'block';
     document.getElementById('receipt-editor').style.display = 'none';
+    document.getElementById('receipt-adjustments').style.display = 'none';
+  }
+  showAdjustments(event) {
+    event.preventDefault();
+
+    document.getElementById('receipt-adjustments').style.display = 'block';
+    document.getElementById('uploader').style.display = 'none';
+    document.getElementById('receipt-editor').style.display = 'none';
+  }
+  showEditor(state) {
+    document.getElementsByClassName('next')[0].innerHTML = 'Next';
+  
+    document.getElementById('receipt-editor').style.display = 'block';
+    document.getElementById('uploader').style.display = 'none';
+    document.getElementById('receipt-adjustments').style.display = 'none';
+
+    // Update version
+    state.version = Date.now();
+
+    this.setState(state);
+
+    console.log(this.state);
   }
   onUpload(event) {
     event.preventDefault();
@@ -91,19 +116,7 @@ export default class addReceiptPage extends React.Component {
 
     axios.post('/api/receipt/data/'+this.state.transactions[0].receipts[0].file, data)
     .then(function(response) {
-      document.getElementsByClassName('next')[0].innerHTML = 'Next';
-  
-      document.getElementById('receipt-editor').style.display = 'block';
-      document.getElementById('uploader').style.display = 'none';
-
-      let state = response.data;
-
-      // Update version
-      state.version = Date.now();
-
-      that.setState(state);
-
-      console.log(that.state);
+      showEditor(response.data);
     })
     .catch(function(error) {
       console.error(error);
@@ -154,6 +167,8 @@ export default class addReceiptPage extends React.Component {
               </select>
             </fieldset>
           </form>
+        </div>
+        <div id="receipt-adjustments" style={{display:"none"}}>
           <fieldset>
             <legend>Adjust</legend>
             <button onClick={this.onFlipLeft}><i className="fa fa-undo"/></button>
@@ -181,7 +196,8 @@ export default class addReceiptPage extends React.Component {
                   viewMode={0}
                   rotatable={true}
                   zoomable={true}
-                  ref={cropper => {this.cropper = cropper}}/>
+                  ref={cropper => {this.cropper = cropper}}
+          />
         </div>
         <div id="receipt-editor" style={{display:"none"}}>
           <a href="#" className="previous" onClick={this.showUploader} style={{float:"left"}}>Previous</a>
@@ -191,7 +207,7 @@ export default class addReceiptPage extends React.Component {
                          manufacturers={this.state.manufacturers}
                          categories={this.state.categories}
                          transactions={this.state.transactions}
-                         saveReceipt={this.saveReceipt}/>
+                         showAdjustments={this.showAdjustments}/>
         </div>
       </div>
     );

@@ -8,9 +8,17 @@ class EditableTable extends Component {
     super(props);
 
     this.state = {
-      columns: this.props.columns,
-      items: this.props.items
+      columns: props.columns,
+      childView: props.childView,
+      items: props.items
     }
+  }
+  componentWillReceiveProps(props) {
+    this.setState({
+      columns: props.columns,
+      childView: props.childView,
+      items: props.items
+    });
   }
   toggleChildren(i) {
     let items = this.state.items;
@@ -35,7 +43,7 @@ class EditableTable extends Component {
                     {that.state.columns.map((parent, i) => {
                       if (parent.columns && parent.columns.length) {
                         return parent.columns.map((column, n) => {
-                          cols[col_index] = <col style={column.width ? {"min-width": column.width+'px'} : {}}/>;
+                          cols[col_index] = <col style={column.width ? {minWidth: column.width+'px'} : {}}/>;
                           col_index++;
                           return <th key={"column-"+i+"-"+n}>
                               {column.label} {{'ASC': '\u25B4', 'DESC': '\u25BE'}[column.order] || ''}
@@ -43,7 +51,7 @@ class EditableTable extends Component {
                         });
                       }
                       else {
-                        cols[col_index] = <col style={parent.width ? {"min-width": parent.width+'px'} : {}}/>;
+                        cols[col_index] = <col style={parent.width ? {minWidth: parent.width+'px'} : {}}/>;
                       }
                       col_index++;
                     })}
@@ -66,6 +74,7 @@ class EditableTable extends Component {
                     columns={that.state.columns}
                     depth={0}
                     toggleChildren={that.toggleChildren}
+                    childView={that.state.childView}
                   />
           })}
         </tbody>

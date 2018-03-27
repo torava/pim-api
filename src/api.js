@@ -3,6 +3,7 @@ const Product = require('./models/Product');
 const Category = require('./models/Category');
 const Attribute = require('./models/Attribute');
 const Manufacturer = require('./models/Manufacturer');
+const Source = require('./models/Source');
 const Item = require('./models/Item');
 const multer = require('multer');
 const express = require('express');
@@ -13,6 +14,9 @@ const request = require('request');
 const child_process = require('child_process');
 const _ = require('lodash');
 const moment = require('moment');
+const jsdom = require("jsdom");
+const { JSDOM } = jsdom;
+const sizeOf = require('image-size');
 
 module.exports = function (app) {
 
@@ -40,7 +44,16 @@ function toTitleCase(str) {
   return  str.replace(/([^\s:\-])([^\s:\-]*)/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
 
-async function getDataFromReceipt(result, text, language) {
+function localeToLanguage(locale) {
+  let ocr_languages = {
+    'fi-FI': 'fin',
+    'es-AR': 'spa'
+  }
+
+  return ocr_languages[locale];
+}
+
+async function getDataFromReceipt(result, text, locale) {
   text = text
   .replace(/ﬂ|»|'|´|`|‘|“|"|”|\|/g, '')
   .replace(/(\d) *(\.,|\,|\.|_|\-|;) *(\d)/g, '$1.$3')
@@ -77,7 +90,7 @@ async function getDataFromReceipt(result, text, language) {
   takaisin 1,23
   aika 1.2.2003 01:02
   */
-  if (language == "fin") {
+  if (locale == "fi-FI") {
     for (let i in ines) {
       line_product_name = null;
 
@@ -112,15 +125,16 @@ async function getDataFromReceipt(result, text, language) {
 
       if (!data.date) {
         // 1.1.12 1:12
-        line_date = line.match(/((\d{1,2})[\.|\,](\d{1,2})[\.|\,](\d{2,4}))(\s)?((\d{1,2}:)(\d{1,2}:)?(\d{1,2})?)?/);
+        line_date = line.match(/((\d{1,2})[\.|\,](\d{1,2})[\.|\,](\d{2,4}))(\s)?((\d{1,2}):((\d{1,2})\:)?(\d{1,2})?)?/);
         if (line_date) {
           data.date = Date.parse(parseYear(line_date[4])+'/'+line_date[3]+'/'+line_date[2]+' '+line_date[6]);
 
           found_attribute = 'date';
         }
-
+      }
+      else {
         // 1:12 1-1-12
-        line_date = line.match(/((\d{1,2}:)(\d{1,2}:)?(\d{1,2})?)?(\s)?((\d{1,2})\-(\d{1,2})\-(\d{2,4}))/);
+        line_date = line.match(/((\d{1,2}:)(\d{1,2}:)?(\d{1,2})?)?(\s)?((\d{1,2})[\-|\.](\d{1,2})[\-|\.](\d{2,4}))/);
         if (line_date) {
           data.date = Date.parse(parseYear(line_date[9])+'/'+line_date[8]+'/'+line_date[7]+' '+line_date[1]);
 
@@ -194,14 +208,14 @@ async function getDataFromReceipt(result, text, language) {
       
       // details line
       line_item_details = null;
-      console.log(previous_line, line);
       if (previous_line === 'item') {
         // 1234 1,000 x 1,00
-        line_item_details = line_number_format.match(/^((\d+)\s)?(((\d+\.\d{2,3})(\s?kg)?\s?x\s?)?((\d+\.\d{2})\s?)(\s?EUR\/kg)?)$/i);
+        line_item_details = line_number_format.match(/^((\d+)\s)?((((\d+)|((\d+\.\d{2,3})(\s?kg)?))\s?x\s?)?((\d+\.\d{2})\s?)(\s?EUR\/kg)?)$/i);
 
         if (line_item_details) {
           items[items.length-1].item_number = line_item_details[2];
-          items[items.length-1].quantity = parseFloat(line_item_details[7]);
+          items[items.length-1].quantity = parseFloat(line_item_details[6]);
+          items[items.length-1].measure = parseFloat(line_item_details[8]);
           previous_line = 'details';
           continue;
         }
@@ -266,7 +280,7 @@ async function getDataFromReceipt(result, text, language) {
   tarjeta 1.23
   su vuelta 1.23
   */
-  else if (language == 'spa') {
+  else if (locale == 'es-AR') {
     for (let i in ines) {
       line_product_name = null;
 
@@ -472,6 +486,7 @@ async function getDataFromReceipt(result, text, language) {
       }
     }
   }
+  else return;
 
   data.total_price = Math.round(total_price_computed*100)/100;
   data.items = items;
@@ -489,61 +504,74 @@ async function getDataFromReceipt(result, text, language) {
   result.transactions = [data];
   result.transactions[0].receipts = [{}];
   result.transactions[0].receipts[0].text = text;
-  
+
   return result;
 }
 
-function extractTextFromFile(id, data, language, cb) {
-  let filepath = upload_path+"/"+id,
-      script = [filepath,
-                '-type', 'grayscale',
-                '-background', 'none'],
-      parameters = {threshold: 10, blur: 1, sharpen: 1};
+function processReceiptImage(filepath, data, resize) {
+  return new Promise((resolve, reject) => {
+    let script = [filepath,
+                  '-auto-orient',
+                  '-type', 'grayscale',
+                  '-background', 'white'],
+        parameters = {threshold: 10, blur: 1, sharpen: 1};
 
-  if ('blur' in data) {
-    parameters.blur = parseInt(data.blur || 0);
-  }
-  if ('threshold' in data) {
-    parameters.threshold = parseInt(data.threshold || 1);
-  }
-  if ('sharpen' in data) {
-    parameters.sharpen = parseInt(data.sharpen || 0);
-  }
+    if (!data) data = {};
 
-  // ./textcleaner -g -e normalize -T -f 50 -o 5 -a 0.1 -t 10 -u -s 1 -p 20 test.jpg test.png
-  if (data.rotate)
-    script = script.concat(['-gravity', 'Center', '-rotate', parseFloat(data.rotate), '+repage']);
-  if (data.width && data.height)
-    script = script.concat(['-gravity', 'NorthWest', '-crop', parseInt(data.width)+'x'+parseInt(data.height)+'+'+parseInt(data.x)+'+'+parseInt(data.y), '+repage']);
+    if ('blur' in data) {
+      parameters.blur = parseInt(data.blur || 0);
+    }
+    if ('threshold' in data) {
+      parameters.threshold = parseInt(data.threshold || 10);
+    }
+    if ('sharpen' in data) {
+      parameters.sharpen = parseInt(data.sharpen || 0);
+    }
 
-  script = script.concat(['-adaptive-resize', '800x',
-      '-normalize',
-      //'-contrast-stretch', '0'
-  ]);
+    // ./textcleaner -g -e normalize -T -f 50 -o 5 -a 0.1 -t 10 -u -s 1 -p 20 test.jpg test.png
+    if (data.rotate)
+      script = script.concat(['-gravity', 'Center', '-rotate', parseFloat(data.rotate), '+repage']);
+    if (data.width && data.height)
+      script = script.concat(['-gravity', 'NorthWest', '-crop', parseInt(data.width)+'x'+parseInt(data.height)+'+'+parseInt(data.x)+'+'+parseInt(data.y), '+repage']);
 
-  if (parameters.blur)
-    script = script.concat(['-adaptive-blur', parameters.blur]);
-  if (parameters.sharpen)
-    script = script.concat(['-sharpen', '0x'+parameters.sharpen]);
+    if (resize) {
+      script = script.concat(['-adaptive-resize', resize === true ? '800x' : resize,
+          '-normalize',
+          //'-contrast-stretch', '0'
+      ]);
+    }
 
-  script = script.concat(['-lat', '50x50-'+parameters.threshold+'%']);
+    if (parameters.blur)
+      script = script.concat(['-adaptive-blur', parameters.blur]);
+    if (parameters.sharpen)
+      script = script.concat(['-sharpen', '0x'+parameters.sharpen]);
 
-  script = script.concat([
-      //'-set', 'option:deskew:autocrop', 'true',
-      //'-deskew', '40%',
-      //'-bordercolor', 'white',
-      //'-border', '50',
-      '-trim',
-      '+repage',
-      '-format', 'png',
-      '-strip',
-      filepath+'_edited']);
+    script = script.concat(['-lat', '50x50-'+parameters.threshold+'%']);
 
-  console.log(script);
-  child_process.execFile('convert', script, function(error, stdout, stderr) {
-    if (error) console.error(error);
-    process.stdout.write(stdout);
-    process.stderr.write(stderr);
+    script = script.concat([
+        '-set', 'option:deskew:autocrop', '1',
+        '-deskew', '40%',
+        '-fuzz', '5%',
+        //'-bordercolor', 'white',
+        //'-border', '50',
+        '-trim',
+        '+repage',
+        '-strip',
+        'PNG:'+filepath+'_edited']);
+
+    child_process.execFile('convert', script, function(error, stdout, stderr) {
+      if (error) console.error(error);
+      process.stdout.write(stdout);
+      process.stderr.write(stderr);
+      resolve();
+    });
+  });
+}
+
+function extractTextFromFile(filepath, locale) {
+  let language = localeToLanguage(locale);
+
+  return new Promise((resolve, reject) => {
     child_process.execFile('tesseract', [
       '-l',
       ['fin'].indexOf(language) !== -1 ? language : 'eng',
@@ -555,7 +583,7 @@ function extractTextFromFile(id, data, language, cb) {
       process.stdout.write(stdout);
       process.stderr.write(stderr);
 
-      cb(stdout);
+      resolve(stdout);
     });
   });
 }
@@ -577,6 +605,7 @@ async function csvToObject(csv) {
         attribute,
         attributes = await Attribute.query(),
         attribute_object,
+        value,
         ref,
         refs = {};
 
@@ -624,44 +653,53 @@ async function csvToObject(csv) {
               }
             }
           }
+          value = parseFloat(columns[n].replace(',', '.'));
           Object.assign(item, {
             attributes: [
               {
                 attribute: attribute_object,
-                value: columns[n]
+                value
               }
             ]
           });
         }
         else if (['source', 'lähde'].indexOf(column_name.toLowerCase()) !== -1) {
+          if (!columns[n]) continue;
           sources = columns[n].split(',');
           for (let m in item.attributes) {
             for (let j in sources) {
               elements = sources[j].match(/^(.*)\s([0-9]{4})/);
               if (elements) {
                 source = elements[1].trim();
-                year = elements[2].trim();
+                year = parseInt(elements[2].trim());
               }
               else {
                 source = sources[j].trim();
                 year = null;
               }
               ref = 'source:'+source+','+year;
+              if (!item.attributes[m].sources) item.attributes[m].sources = [];
               if (ref in refs) {
-                item.attributes[m].source = {
+                item.attributes[m].sources.push({
                   '#ref': ref
-                }
+                });
               }
               else {
                 refs[ref] = true,
-                item.attributes[m].source = {
+                item.attributes[m].sources.push({
                   '#id': ref,
-                  name: source,
-                  year
-                }
+                  source : {
+                    name: source,
+                    year
+                  }
+                });
               }
             }
           }
+        }
+        else if (['nimi', 'name'].indexOf(column_name.toLowerCase()) !== -1) {
+          if (!item.name) item.name = {};
+          item.name['fi-FI'] = columns[n];
         }
         else {
           _.set(item, column_name.replace('[i]', '['+(i-1)+']'), columns[n]);
@@ -681,11 +719,14 @@ app.post('/api/category', async function(req, res) {
     category = req.body;
   }
   console.dir(category, {depth:null});
-  return;
   Category.query()
     .upsertGraph(category)
     .then(category => {
       res.send(category);
+    })
+    .catch(error => {
+      console.error(error);
+      throw new Error();
     });
 });
 
@@ -834,14 +875,14 @@ function getClosestCategory(toCompare, locale) {
   return new Promise(resolve => {
     Category.query()
     .then(categories => {
-      let name, category, response = null, max_distance = 0, distance;
+      let name, category, response = null, max_distance = 0, distance, match;
       toCompare = toCompare.toLowerCase();
       for (let i in categories) {
         category = categories[i];
         name = category.name[locale];
         if (!name) continue;
-        name = name.toLowerCase();
-        distance = toCompare.match(name) && name.length/toCompare.length;
+        match = new RegExp('\\b'+_.escapeRegExp(name)+'\\b', 'i');
+        distance = toCompare.match(match) && name.length/toCompare.length;
         if (distance > max_distance) {
           max_distance = distance;
           response = category;
@@ -885,11 +926,14 @@ app.get('/api/category', function(req, res) {
   }
   else if ('parent' in req.query) {
     Category.query()
-    .limit(1)
     .where('parentId', req.query.parent || null)
-    .eager('[products.[items], children(getAttributes)]', {getAttributes})
+    .eager('[products.[items], attributes, children(getAttributes)]', {getAttributes})
     .then(categories => {
       res.send(categories);
+    })
+    .catch(error => {
+      console.error(error);
+      throw new Error();
     });
   }
   else if (req.query.hasOwnProperty('attributes')) {
@@ -899,28 +943,46 @@ app.get('/api/category', function(req, res) {
     .then(categories => {
       if (req.query.locale) {
         for (let i in categories) {
-          if (categories[i].locales) {
-            categories[i].name = categories[i].locales[req.query.locale];
-            delete categories[i].locales;
-          }
+          categories[i].name = categories[i].name[req.query.locale];
         }
       }
       res.send(categories);
+    })
+    .catch(error => {
+      console.error(error);
+      throw new Error();
+    });
+  }
+  else if (req.query.id) {
+    Category.query()
+    .where('id', req.query.id)
+    .eager('[attributes.[attribute, sources.[source]], parent, products.[items]]')
+    .then(categories => {
+      if (req.query.locale) {
+        for (let i in categories) {
+          categories[i].name = categories[i].name[req.query.locale];
+        }
+      }
+      res.send(categories);
+    })
+    .catch(error => {
+      console.error(error);
+      throw new Error();
     });
   }
   else {
     Category.query()
-    //.limit(2000)
     .then(categories => {
       if (req.query.locale) {
         for (let i in categories) {
-          if (categories[i].locales) {
-            categories[i].name = categories[i].locales[req.query.locale];
-            delete categories[i].locales;
-          }
+          categories[i].name = categories[i].name[req.query.locale];
         }
       }
       res.send(categories);
+    })
+    .catch(error => {
+      console.error(error);
+      throw new Error();
     });
   }
 });
@@ -932,35 +994,96 @@ app.get('/api/attribute', function(req, res) {
   .then(attributes => {
     res.send(attributes);
   })
+  .catch(error => {
+    console.error(error);
+    throw new Error();
+  });
 });
 
 app.get('/api/product', function(req, res) {
   Product.query()
     .then(product => {
       res.send(product);
+    })
+    .catch(error => {
+      console.error(error);
+      throw new Error();
     });
 });
 
 app.post('/api/receipt/picture', function(req, res) {
   upload(req, res, function(err) {
     if (err) {
-      console.error(err);
-      res.send(err);
-      return;
+      console.error(error);
+      throw new Error();
     }
 
     let file = req.file;
 
-    res.json({
-      file: file.filename
+    processReceiptImage(file.path, {}, '800x').then((response) => {
+      child_process.execFile('tesseract', [
+        '-l', 'fin',
+        file.path+'_edited',
+        'stdout',
+        'hocr',
+      ], function(error, stdout, stderr) {
+        if (error) console.error(error);
+        process.stdout.write(stdout);
+        process.stderr.write(stderr);
+
+        let dimensions = sizeOf(file.path);
+
+        const { document } = (new JSDOM(stdout)).window;
+
+        let words = document.querySelectorAll('.ocrx_word'),
+            boundaries = {},
+            coords,
+            left, top, right, bottom,
+            factor = dimensions.width/800;
+
+        for (let i in words) {
+          if (!words[i] || !words[i].textContent || !words[i].textContent.trim()) continue;
+          coords = words[i].title.split(';')[0].substring(5).split(' ');
+          left = coords[0];
+          top = coords[1];
+          right = coords[2];
+          bottom = coords[3];
+
+          if (boundaries.hasOwnProperty('left')) {
+            boundaries.left = Math.min(left, boundaries.left);
+            boundaries.top = Math.min(top, boundaries.top);
+            boundaries.right = Math.max(right, boundaries.right);
+            boundaries.bottom = Math.max(bottom, boundaries.bottom);
+          }
+          else {
+            boundaries.left = left;
+            boundaries.top = top;
+            boundaries.right = right;
+            boundaries.bottom = bottom;
+          }
+        }
+        let data = {
+            x: (boundaries.left-15)*factor,
+            y: (boundaries.top-15)*factor,
+            width: (boundaries.right-boundaries.left+30)*factor,
+            height: (boundaries.bottom-boundaries.top+30)*factor
+        };
+
+        processReceipt(data, 'fi-FI', file.filename).then((response) => {
+          res.send(response);
+        });
+      });
+    })
+    .catch(error => {
+      console.error(error);
+      throw new Error();
     });
-    res.end();
   });
 });
 
 app.get('/api/receipt/data/:id', function(req, res) {
   let data = req.body,
-      language = data.language || 'fin',
+      language = data.language,
       id = req.params.id;
 
   Category.query()
@@ -983,45 +1106,99 @@ app.get('/api/receipt/data/:id', function(req, res) {
           .then(transaction => {
             data.transactions = transaction;
             res.json(data);
-          });
+          })
+      })
+    })
+  })
+  .catch(error => {
+    console.error(error);
+    throw new Error();
+  });
+});
+
+app.post('/api/receipt/hocr/', function(req, res) {
+  upload(req, res, function(err) {
+    if (err) {
+      console.error(error);
+      throw new Error();
+    }
+
+    let file = req.file;
+
+    console.log(file);
+
+    processReceiptImage(file.path, {}, true).then((response) => {
+      child_process.execFile('tesseract', [
+        '-l', 'fin',
+        file.path+'_edited',
+        'stdout',
+        'output',
+        'hocr',
+      ], function(error, stdout, stderr) {
+        if (error) console.error(error);
+        process.stdout.write(stdout);
+        process.stderr.write(stderr);
+
+        res.send({
+          hocr: stdout,
+          id: file.filename
+        });
       });
+    })
+    .catch(error => {
+      console.error(error);
+      throw new Error();
     });
   });
 });
 
-app.post('/api/receipt/data/:id', function(req, res) {
-  let data = req.body,
-      language = data.language || 'fin',
-      id = req.params.id;
+function processReceipt(data, language, id) {
+  return new Promise((resolve, reject) => {
+    let filepath = upload_path+"/"+id;
 
-  Category.query()
-  .then(category => {
-    data.categories = category;
-    Product.query()
-    .then(product => {
-      data.products = product;
+    Category.query()
+    .then(category => {
+      data.categories = category;
+      Product.query()
+      .then(product => {
+        data.products = product;
 
-      Manufacturer.query()
-      .then(manufacturer => {
-        data.manufacturers = manufacturer;
-
-        extractTextFromFile(id, data, language, async function(text) {
-          if (text) {
-            data = await getDataFromReceipt(data, text, language);
-            //data.transactions[0].receipts = [{}];
-            //data.transactions[0].receipts[0].text = text;
-            data.transactions[0].receipts[0].file = id;
-            res.json(data);
-          }
-          else {
-            res.json({
-              file: id
-            })
-          }
-          res.end();
+        Manufacturer.query()
+        .then(manufacturer => {
+          data.manufacturers = manufacturer;
+          processReceiptImage(filepath, data, true).then(response => {
+            extractTextFromFile(filepath, language).then(async (text) => {
+              if (text) {
+                data = await getDataFromReceipt(data, text, language);
+                //data.transactions[0].receipts = [{}];
+                //data.transactions[0].receipts[0].text = text;
+                data.transactions[0].receipts[0].file = id;
+              }
+              else {
+                data = {
+                  file: id
+                }
+              }
+              resolve(data);
+            });
+          });
         });
       });
     });
+  });
+}
+
+app.post('/api/receipt/data/:id', function(req, res) {
+  let data = req.body,
+      language = data.language || 'fi-FI',
+      id = req.params.id;
+
+  processReceipt(data, language, id).then((response) => {
+    res.send(response);
+  })
+  .catch(error => {
+    console.error(error);
+    throw new Error();
   });
 });
 
@@ -1051,7 +1228,7 @@ app.get('/api/receipt/picture/:id', function (req, res) {
 	});
 });
 
-app.get('/api/util/getexternalcategoriesfineli', function(req, res) {
+app.get('/api/util/getexternalcategoriesfineli', async function(req, res) {
   console.log('files '+moment().format());
 
   let food_rows = fs.readFileSync(__dirname+'/../fineli/food.csv', 'utf8').split('\n'),
@@ -1088,6 +1265,7 @@ app.get('/api/util/getexternalcategoriesfineli', function(req, res) {
       attribute,
       food_row,
       row,
+      id,
       parent,
       attribute_index = 1,
       refs = {
@@ -1099,6 +1277,18 @@ app.get('/api/util/getexternalcategoriesfineli', function(req, res) {
       category_values = [],
       attributes = {},
       attribute_values = [],
+      sources,
+      source_ref,
+      source_refs = {},
+      source,
+      base_sources = [
+        {
+          '#id': 'sfineli',
+          name: 'Fineli',
+          publication_url: 'https://fineli.fi/fineli/en/index',
+          publication_date: '2018'
+        }
+      ],
       base_categories = [
         {
           '#id': 'c4food',
@@ -1133,6 +1323,12 @@ app.get('/api/util/getexternalcategoriesfineli', function(req, res) {
       ];
 
   console.log('meta '+moment().format());
+
+  await Source.query()
+    .insertGraph(base_sources)
+    .then(result => {
+      base_sources = result;
+    });
 
   Category.query()
     .insertGraph(base_categories)
@@ -1267,7 +1463,7 @@ app.get('/api/util/getexternalcategoriesfineli', function(req, res) {
         .upsertGraph(category_values, {relate: true})
         .then(async category => {
           console.log('written '+moment().format());
-          
+
           let n = 0;
           for (let i in categories) {
             categories[i] = category[n];
@@ -1280,6 +1476,8 @@ app.get('/api/util/getexternalcategoriesfineli', function(req, res) {
             if (!row[0] || row[0] == 'FOODID')
               continue;
 
+            id = categories[row[0]].id;
+
             /*  if (row[0] != food_row[0]) {
               attribute_index = n;
               break;
@@ -1287,7 +1485,7 @@ app.get('/api/util/getexternalcategoriesfineli', function(req, res) {
 
             if (!(row[0] in attributes))
               attributes[row[0]] = {
-                id: categories[row[0]].id,
+                id,
                 attributes: []
               };
 
@@ -1351,7 +1549,15 @@ app.get('/api/util/getexternalcategoriesfineli', function(req, res) {
             if (row[2] != "")
             attributes[row[0]].attributes.push({
               attribute,
-              value: parseFloat(row[2].replace(',', '.'))
+              value: parseFloat(row[2].replace(',', '.')),
+              sources: [
+                {
+                  reference_url: 'https://fineli.fi/fineli/en/elintarvikkeet/'+id,
+                  source: {
+                    id: base_sources[0].id
+                  }
+                }
+              ]
             });
 
             attribute_count++;

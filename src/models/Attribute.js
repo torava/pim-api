@@ -55,15 +55,7 @@ class Attribute extends Model {
 					from: 'Attribute.parentId',
 					to: 'Attribute.id'
 				}
-			},
-			sources: {
-				relation: Model.HasManyRelation,
-				modelClass: __dirname+'/AttributeSource',
-				join: {
-					from: 'Attribute.id',
-					to: 'AttributeSource.attributeId'
-				}
-			},
+			}
 		}
 	}
 }
