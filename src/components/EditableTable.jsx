@@ -12,6 +12,8 @@ class EditableTable extends Component {
       childView: props.childView,
       items: props.items
     }
+
+    this.toggleChildren = this.toggleChildren.bind(this);
   }
   componentWillReceiveProps(props) {
     this.setState({
@@ -20,42 +22,75 @@ class EditableTable extends Component {
       items: props.items
     });
   }
-  toggleChildren(i) {
-    let items = this.state.items;
+  toggleChildren(event) {
+    event.preventDefault();
+
+    const indexes = event.target.parentNode.parentNode.id.split('-'),
+        items = this.state.items;
+
+    let item = items[indexes.shift()];
+
+    for (let i in indexes) {
+      item = item.children[indexes[i]];
+    }
+
+    item.expanded = !item.expanded;
+
+    this.setState({
+      items
+    });
+
+    /*let items = this.state.items;
     items[i].expanded = !items[i].expanded;
-    this.setState({items: items});
+    this.setState({items: items});*/
+  }
+  getColumnChildren(column) {
+    if (column.columns) {
+      let children = this.getColumnChildren(column.columns);
+      if (children && children.length) {
+        return [column].concat(children);
+      }
+    }
+    else return column;
+  }
+  renderColumns(column, indexes, content, total, depth) {
+    let count, that = this, count2 = 0, rowspan;
+    depth++;
+    column && column.map((column, i) => {
+      count = 0;
+      rowspan = 1;
+      if (column.columns) {
+        count = Math.max(that.renderColumns(column.columns, indexes.concat(i), content, total, depth), column.columns.length);
+      }
+      else {
+        rowspan = 2+depth;
+      }
+      if (!content[depth-1]) content[depth-1] = [];
+      content[depth-1].push(
+        <th colSpan={count || 1}
+            rowSpan={rowspan}
+            data-depth={depth}
+            key={"column-"+indexes.join('-')+"-"+i}>
+          {column.label} {{'ASC': '\u25B4', 'DESC': '\u25BE'}[column.order] || ''}
+        </th>
+      );
+      count2+= count;
+    });
+    return count2;
   }
   render() {
     let that = this,
         cols = [],
         col_index = 0,
-        thead = <thead>
-                  <tr>
-                    {that.state.columns.map((column, i) => {
-                      return <th rowSpan={column.columns && column.columns.length ? 1 : 2}
-                                colSpan={column.columns && column.columns.length ? column.columns.length : 1}
-                                key={"column-"+i}>
-                              {column.label} {{'ASC': '\u25B4', 'DESC': '\u25BE'}[column.order] || ''}
-                            </th>
-                    })}
-                  </tr>
-                  <tr>
-                    {that.state.columns.map((parent, i) => {
-                      if (parent.columns && parent.columns.length) {
-                        return parent.columns.map((column, n) => {
-                          cols[col_index] = <col style={column.width ? {minWidth: column.width+'px'} : {}}/>;
-                          col_index++;
-                          return <th key={"column-"+i+"-"+n}>
-                              {column.label} {{'ASC': '\u25B4', 'DESC': '\u25BE'}[column.order] || ''}
-                            </th>
-                        });
-                      }
-                      else {
-                        cols[col_index] = <col style={parent.width ? {minWidth: parent.width+'px'} : {}}/>;
-                      }
-                      col_index++;
-                    })}
-                  </tr>
+        content = [],
+        total = 0;
+
+    that.renderColumns(that.state.columns, [], content, total, 0);
+    console.log(content, total);
+    let thead = <thead>
+                  {content.map((row) => {
+                    return <tr>{row}</tr>
+                  })}
                 </thead>;
 
     

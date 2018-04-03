@@ -28,6 +28,10 @@ input {
 table table {
   width: 100%;
 }
+.arrow {
+  text-decoration: none;
+  color: black;
+}
 .app-content {
   max-width: 1000px;
   padding: 0.5em;

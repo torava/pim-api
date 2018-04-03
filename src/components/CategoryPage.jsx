@@ -79,6 +79,8 @@ class Category extends Component {
       }
     };
 
+    const that = this;
+
     return [
       {
         id: 'name',
@@ -87,14 +89,31 @@ class Category extends Component {
         formatter: (value, item) => (
           this.state.editable ?
           <Autosuggest
-            suggestions={this.state.attributeSuggestions}
-            onSuggestionsFetchRequested={this.onAttributeSuggestionsFetchRequested}
-            onSuggestionsClearRequested={this.onAttributeSuggestionsClearRequested}
+            suggestions={that.state.attributeSuggestions}
+            onSuggestionsFetchRequested={that.onAttributeSuggestionsFetchRequested}
+            onSuggestionsClearRequested={that.onAttributeSuggestionsClearRequested}
             getSuggestionValue={getAttributeSuggestionValue}
             renderSuggestion={renderAttributeSuggestion}
             inputProps={attributeInputProps(value, item)}
           /> :
           <span>{value}</span>
+        )
+      },
+      {
+        id: 'parent',
+        label: 'Parent',
+        property: 'attribute.parent.name.fi-FI',
+        formatter: (value, item) => (
+          this.state.editable ?
+          <Autosuggest
+            suggestions={that.state.attributeSuggestions}
+            onSuggestionsFetchRequested={that.onAttributeSuggestionsFetchRequested}
+            onSuggestionsClearRequested={that.onAttributeSuggestionsClearRequested}
+            getSuggestionValue={getAttributeSuggestionValue}
+            renderSuggestion={renderAttributeSuggestion}
+            inputProps={attributeInputProps(value, item)}
+          /> :
+          <span>{that.getParentPath(item.attribute)}</span>
         )
       },
       {
@@ -305,6 +324,16 @@ class Category extends Component {
       sourceSuggestions: []
     });
   }
+  getParentPath(item) {
+    let result = [], parent = item;
+    while (parent = parent.parent) {
+      result.push(<a href={parent.id}>{parent.name['fi-FI']}</a>);
+      result.push(' > ');
+    }
+    result.pop();
+    result.reverse();
+    return result;
+  }
 
   render() {
     if (!this.state || !this.state.category || !this.state.attributes) return null;
@@ -335,7 +364,7 @@ class Category extends Component {
           <a href="#" onClick={this.save} style={{float:"right"}}>Save</a>
         </div>
         <div style={{clear:"both"}}/>
-        <a href={this.state.category.parent.id}>{this.state.category.parent.name['fi-FI']}</a>
+        {that.getParentPath(that.state.category)}
         <h1>
           {this.state.editable ?
             <Autosuggest

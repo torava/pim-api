@@ -82,7 +82,7 @@ class EditableTableItem extends Component {
     this.toggleChildren = this.toggleChildren.bind(this);
   }
   toggleChildren(event) {
-    let children = document.getElementsByClassName(this.props.rowIndex),
+    /*let children = document.getElementsByClassName(this.props.rowIndex),
         arrow = event.target.getElementsByClassName('arrow')[0],
         expanded = arrow.innerHTML === '\u25BE',
         children_class = (this.props.className ? this.props.className+" " : "")+this.props.rowIndex,
@@ -102,7 +102,7 @@ class EditableTableItem extends Component {
       else { // closing
         children[i].style.display = 'none';
       }
-    }
+    }*/
   }
   toggleChildView(event) {
     let childView = document.getElementById(this.props.rowIndex+"-childView");
@@ -110,38 +110,44 @@ class EditableTableItem extends Component {
       childView.style.display = childView.style.display == 'none' ? 'block' : 'none';
     }
   }
-  renderColumn(column, i, n) {
-    let that = this,
+  renderColumns(columns, indexes, tds) {
+    const that = this;
+
+    let value, content, key, hasChildren;
+    
+    if (columns && columns.length) {
+      return columns.map((column, i) => {
+        hasChildren = column.columns && column.columns.length;
         value = _.get(that.props.item, column.property || column.id),
         content = column.formatter && column.formatter(value, that.props.item) || value,
-        key = "row-"+that.props.rowIndex+"-column-"+i;
-    if (typeof n != 'undefined') {
-      key+= "-"+n;
-    }
-    if (i == 0 && that.props.item.children) {
-      return <td key={key}
-                 style={{paddingLeft: that.props.depth+"em"}}>
-                   <span onClick={that.toggleChildren.bind(this)}
-                         className="arrow">
-                         &#x25B8;
-                   </span>&nbsp;
-                   {content}
-              </td>
-    }
-    else if (i == 0 && that.props.childView) {
-      return <td key={key}
-                 style={{paddingLeft: that.props.depth+"em"}}>
-                   <span onClick={that.toggleChildView.bind(this)}
-                         className="arrow">
-                         &#x25B8;
-                   </span>&nbsp;
-                   {content}
-              </td>
-    }
-    else {
-      return <td key={key}>
-                {content}
-              </td>
+        key = "row-"+that.props.rowIndex+"-column-"+i+"-"+indexes.join('-');
+
+        if (i == 0 && !indexes.length && (that.props.item.children || that.props.childView)) {
+          tds.push(<td key={key}
+                    data-label={column.label}
+                    style={{paddingLeft: that.props.depth+"em"}}>
+                      {that.props.childView || that.props.item.children.length ?
+                        [<a href="#" onClick={that.props.toggleChildren}
+                            className="arrow">
+                            {that.props.item.expanded ? '\u25BE' : '\u25B8'}
+                        </a>, '\u00A0'] : ''
+                      }
+                      {content}
+                  </td>);
+        }
+        else {
+          tds.push(<td className={hasChildren ? 'parent-column' : ''}
+                       data-label={column.label}
+                       key={key}
+                       style={hasChildren ? {display:'none'} : {}}>
+                       {content}
+                  </td>);
+        }
+
+        if (hasChildren) {
+          that.renderColumns(column.columns, indexes.concat([i]), tds);
+        }
+      });
     }
   }
 
@@ -149,26 +155,19 @@ class EditableTableItem extends Component {
     const that = this;
     const { isDragging, connectDragSource, connectDropTarget, columns, item } = this.props;
 
-    let value;
+    let value, tds = [];
+
+    that.renderColumns(that.props.columns, [], tds);
 
     let row = (
       <tr key={that.props.rowIndex} id={that.props.rowIndex} data-parent={that.props.parent} className={that.props.className}>
-        {that.props.columns.map((column, i) => {
-          if (column.columns && column.columns.length) {
-            return column.columns.map((child, n) => {
-              return that.renderColumn(child, i, n);
-            });
-          }
-          else {
-            return that.renderColumn(column, i);
-          }
-        })}
+        {tds}
       </tr> 
     );
 
     //row = connectDragSource(connectDropTarget(row));
 
-    if (that.props.item.children) {
+    if (that.props.item.expanded && that.props.item.children && that.props.item.children.length) {
       let children = that.props.item.children.map((item, i) => {
           return <EditableTableItem
                     rowIndex={this.props.rowIndex+"-"+i}
@@ -181,14 +180,15 @@ class EditableTableItem extends Component {
                     connectDragSource={connectDragSource}
                     connectDropTarget={connectDropTarget}
                     isDragging={isDragging}
+                    toggleChildren={that.props.toggleChildren}
                   />
           });
       return [row].concat(children);
     }
-    else if (that.props.childView) {
+    else if (that.props.item.expanded && that.props.childView) {
       return [
         row, 
-        (<tr id={this.props.rowIndex+"-childView"} style={{display:'none'}}>
+        (<tr id={this.props.rowIndex+"-childView"}>
           <td colSpan={that.props.columns.length}>
             {that.props.childView(that.props.item)}
           </td>
