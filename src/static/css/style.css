@@ -7,6 +7,9 @@ header {
   box-shadow: 0 1px 1px silver;
   padding: 0.5em;
 }
+header nav {
+  display: inline;
+}
 .header-container {
   margin: auto;
   max-width: 1000px;
@@ -61,24 +64,19 @@ fieldset {
   position: relative;
   display: inline-block;
 }
-
 .react-autosuggest__input {
 
 }
-
 .react-autosuggest__input--focused {
   outline: none;
 }
-
 .react-autosuggest__input--open {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
 }
-
 .react-autosuggest__suggestions-container {
   display: none;
 }
-
 .react-autosuggest__suggestions-container--open {
   display: inline-block;
   position: absolute;
@@ -92,18 +90,42 @@ fieldset {
   top: 1.5em;
   font-size: 0.8em;
 }
-
 .react-autosuggest__suggestions-list {
   margin: 0;
   padding: 0;
   list-style-type: none;
 }
-
 .react-autosuggest__suggestion {
   cursor: pointer;
   padding: 10px 20px;
 }
-
 .react-autosuggest__suggestion--highlighted {
   background-color: #ddd;
+}
+
+/* no-more-tables */
+@media (max-width: 400px) {
+  table.no-more-tables,
+  table.no-more-tables > tbody,
+  table.no-more-tables > tbody > tr,
+  table.no-more-tables > tbody > tr > td {
+    display: block;
+  }
+  table.no-more-tables > thead {
+    display: none;
+  }
+  table.no-more-tables > tbody > tr > td:before {
+    content: attr(data-label);
+    display: inline-block;
+    width: 80px;
+    color: gray;
+  }
+  input {
+    width: 100px;
+  }
+  table.no-more-tables > tbody > tr > td > span > input,
+  table.no-more-tables > tbody > tr > td > div > input,
+  table.no-more-tables > tbody > tr > td > input {
+    width: auto;
+  }
 }

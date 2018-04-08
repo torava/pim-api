@@ -119,7 +119,7 @@ class EditableTableItem extends Component {
       return columns.map((column, i) => {
         hasChildren = column.columns && column.columns.length;
         value = _.get(that.props.item, column.property || column.id),
-        content = column.formatter && column.formatter(value, that.props.item) || value,
+        content = column.formatter && column.formatter(value, that.props.item, that.props.rowIndex) || value,
         key = "row-"+that.props.rowIndex+"-column-"+i+"-"+indexes.join('-');
 
         if (i == 0 && !indexes.length && (that.props.item.children || that.props.childView)) {

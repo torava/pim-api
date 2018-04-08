@@ -22,12 +22,15 @@ export default class Layout extends React.Component {
       <div className="app-container">
        <header>
           <div className="header-container">
-            <nav style={{float:'left'}}>
-              <Link to="/">Receipts</Link>&nbsp;
-              <Link to="/items">Items</Link>&nbsp;
-              <Link to="/categories">Categories</Link>&nbsp;
-              <Link to="/add">Add</Link>
-            </nav>
+            <div style={{float:'left'}}>
+              Bookkeepr v0.14&nbsp;
+              <nav>
+                <Link to="/">Receipts</Link>&nbsp;
+                <Link to="/items">Items</Link>&nbsp;
+                <Link to="/categories">Categories</Link>&nbsp;
+                <Link to="/add">Add</Link>
+              </nav>
+            </div>
             <div style={{float:'right'}}>
               <select id="currency" onChange={this.onCurrencyChange.bind(this)}>
                 <option>EUR</option>

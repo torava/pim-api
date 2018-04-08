@@ -11,22 +11,19 @@ import AddReceiptPage from './AddReceiptPage';
 import EditReceiptPage from './EditReceiptPage';
 import TextBoxTool from './TextBoxTool';
 import NotFoundPage from './NotFoundPage';
+import { hot } from 'react-hot-loader';
 
-export default class App extends React.Component {
-  render() {
-    return (
-      <Layout>
-        <Switch>
-          <Route exact path="/" component={ReceiptListPage}/>
-          <Route path="/add" component={AddReceiptPage}/>
-          <Route path="/items" component={ItemListPage}/>
-          <Route path="/categories" component={CategoryListPage}/>
-          <Route path="/category/:id" component={CategoryPage}/>
-          <Route path="/edit/:id" component={EditReceiptPage}/>
-          <Route path="/tool/hocr" component={TextBoxTool}/>
-          <Route path="*" component={NotFoundPage}/>
-        </Switch>
-      </Layout>
-    );
-  }
-};
+const App = () => <Layout>
+  <Switch>
+    <Route exact path="/" component={ReceiptListPage}/>
+    <Route path="/add" component={AddReceiptPage}/>
+    <Route path="/items" component={ItemListPage}/>
+    <Route path="/categories" component={CategoryListPage}/>
+    <Route path="/category/:id" component={CategoryPage}/>
+    <Route path="/edit/:id" component={EditReceiptPage}/>
+    <Route path="/tool/hocr" component={TextBoxTool}/>
+    <Route path="*" component={NotFoundPage}/>
+  </Switch>
+</Layout>;
+
+export default hot(module)(App);

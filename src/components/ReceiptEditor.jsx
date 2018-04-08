@@ -391,11 +391,22 @@ export default class addReceiptPage extends React.Component {
           <div className="receipt-editor" style={{float:'left'}}>
             <div>
               <label for="store-name">Store name:&nbsp;</label>
-              <input id="store-name" placeholder="Store name" key={"store-name-"+this.state.version} type="search" value={this.state.transactions[0].party.name || ''} onChange={this.onFieldChange.bind(this, 'party', 'name')}/>
+              <input id="store-name"
+                     placeholder="Store name"
+                     key={"store-name-"+this.state.version}
+                     type="search" value={this.state.transactions[0].party.name || ''} 
+                     onChange={this.onFieldChange.bind(this, 'party', 'name')}
+              />
             </div>
             <div>
               <label for="vat">VAT: </label>
-              <input id="vat" placeholder="VAT" key={"vat-"+this.state.version} type="search" value={this.state.transactions[0].party.vat || ''} onChange={this.onFieldChange.bind(this, 'party', 'vat')}/>
+              <input id="vat"
+                     placeholder="VAT"
+                     key={"vat-"+this.state.version}
+                     type="search"
+                     value={this.state.transactions[0].party.vat || ''}
+                     onChange={this.onFieldChange.bind(this, 'party', 'vat')}
+              />
             </div>
             <div>
               <label for="street-name">Street:&nbsp;</label>
@@ -404,13 +415,15 @@ export default class addReceiptPage extends React.Component {
                      key={"street-name-"+this.state.version}
                      type="search"
                      value={this.state.transactions[0].party.street_name || ''}
-                     onChange={this.onFieldChange.bind(this, 'party', 'street_name')}/>
+                     onChange={this.onFieldChange.bind(this, 'party', 'street_name')}
+              />
               <input id="street-number"
                      placeholder="#"
                      key={"street-number-"+this.state.version} 
                      value={this.state.transactions[0].party.street_number || ''}
                      onChange={this.onFieldChange.bind(this, 'party', 'street_number')}
-                     style={{width:"3em"}}/>
+                     style={{width:"3em"}}
+              />
             </div>
             <div>
               <label for="postal-code">Postal code:&nbsp;</label>

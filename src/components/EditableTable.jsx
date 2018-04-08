@@ -53,17 +53,18 @@ class EditableTable extends Component {
     }
     else return column;
   }
-  renderColumns(column, indexes, content, total, depth) {
+  renderColumns(column, indexes, content, total, depth, cols) {
     let count, that = this, count2 = 0, rowspan;
     depth++;
     column && column.map((column, i) => {
       count = 0;
       rowspan = 1;
       if (column.columns) {
-        count = Math.max(that.renderColumns(column.columns, indexes.concat(i), content, total, depth), column.columns.length);
+        count = Math.max(that.renderColumns(column.columns, indexes.concat(i), content, total, depth, cols), column.columns.length);
       }
       else {
         rowspan = 2+depth;
+        cols.push(<col style={column.style}/>);
       }
       if (!content[depth-1]) content[depth-1] = [];
       content[depth-1].push(
@@ -85,7 +86,7 @@ class EditableTable extends Component {
         content = [],
         total = 0;
 
-    that.renderColumns(that.state.columns, [], content, total, 0);
+    that.renderColumns(that.state.columns, [], content, total, 0, cols);
     console.log(content, total);
     let thead = <thead>
                   {content.map((row) => {
@@ -95,7 +96,7 @@ class EditableTable extends Component {
 
     
     return (
-      <table border="1">
+      <table border="1" {...that.props.tableProps}>
         <colgroup>
           {cols}
         </colgroup>

@@ -1,7 +1,4 @@
 import path from 'path';
-import nodeExternals from 'webpack-node-externals';
-
-import ExtractTextPlugin from 'extract-text-webpack-plugin';
 
 const client = {
   entry: {
@@ -37,9 +34,10 @@ const server = {
   node: {
     __dirname: false,
   },
-  externals: [nodeExternals({
-    modulesFromFile: true,
-  })],
+  devServer: {
+    contentBase: "./src/server.js",
+    hot: true
+  },
   entry: {
     js: './src/server.js',
   },
@@ -66,6 +64,9 @@ const server = {
   },
   resolve: {
     extensions: [".js", ".jsx", ".css"]
+  },
+  externals: {
+    knex: 'commonjs knex'
   }
 };
 

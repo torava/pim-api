@@ -9,25 +9,33 @@ class Category extends Component {
   constructor(props) {
     super(props);
 
-    let that = this;
+    let that = this,
+        categories, attributes, sources;
 
     axios.get('/api/attribute/')
-    .then((attributes) => {
+    .then((result) => {
+      attributes = result.data;
       axios.get('/api/category/')
-      .then((categories) => {
-        axios.get('/api/category/?id='+that.props.match.params.id)
-        .then((category) => {
-          that.setState({
-            editable: false,
-            attributes,
-            categories,
-            category: category.data[0],
-            product_columns: that.getProductColumns(),
-            attribute_columns: that.getAttributeColumns(),
-            source_columns: that.getSourceColumns(),
-            attributeSuggestions: [],
-            categorySuggestions: [],
-            sourceSuggestions: []
+      .then((result) => {
+        categories = result.data;
+        axios.get('/api/source/')
+        .then((result) => {
+          sources = result.data;
+          axios.get('/api/category/?id='+that.props.match.params.id)
+          .then((category) => {
+            that.setState({
+              editable: false,
+              attributes,
+              categories,
+              sources,
+              category: category.data[0],
+              product_columns: that.getProductColumns(),
+              attribute_columns: that.getAttributeColumns(),
+              source_columns: that.getSourceColumns(),
+              attributeSuggestions: [],
+              categorySuggestions: [],
+              sourceSuggestions: []
+            });
           });
         });
       });
@@ -36,6 +44,12 @@ class Category extends Component {
     this.edit = this.edit.bind(this);
     this.cancel = this.cancel.bind(this);
     this.save = this.save.bind(this);
+
+    this.onItemCategoryChange = this.onItemCategoryChange.bind(this);
+    this.onItemCategoryParentChange = this.onItemCategoryParentChange.bind(this);
+    this.onAttributeNameChange = this.onAttributeNameChange.bind(this);
+    this.onAttributeParentChange = this.onAttributeParentChange.bind(this);
+
     this.onAttributeSuggestionsClearRequested = this.onAttributeSuggestionsClearRequested.bind(this);
     this.onAttributeSuggestionsFetchRequested = this.onAttributeSuggestionsFetchRequested.bind(this);
     this.onCategoryParentSuggestionsClearRequested = this.onCategoryParentSuggestionsClearRequested.bind(this);
@@ -71,11 +85,19 @@ class Category extends Component {
       </div>
     );
 
-    const attributeInputProps = (value, item) => {
+    const attributeNameInputProps = (value, item, index) => {
       return {
-        placeholder: 'Attribute',
+        placeholder: 'Name',
         value,
-        onChange: function() {}
+        onChange: that.onAttributeNameChange.bind(that, index)
+      }
+    };
+
+    const attributeParentInputProps = (value, item, index) => {
+      return {
+        placeholder: 'Parent',
+        value,
+        onChange: that.onAttributeParentChange.bind(that, index)
       }
     };
 
@@ -86,7 +108,7 @@ class Category extends Component {
         id: 'name',
         label: 'Name',
         property: 'attribute.name.fi-FI',
-        formatter: (value, item) => (
+        formatter: (value, item, index) => (
           this.state.editable ?
           <Autosuggest
             suggestions={that.state.attributeSuggestions}
@@ -94,16 +116,16 @@ class Category extends Component {
             onSuggestionsClearRequested={that.onAttributeSuggestionsClearRequested}
             getSuggestionValue={getAttributeSuggestionValue}
             renderSuggestion={renderAttributeSuggestion}
-            inputProps={attributeInputProps(value, item)}
+            inputProps={attributeNameInputProps(value, item, index)}
           /> :
           <span>{value}</span>
-        )
+          )
       },
       {
         id: 'parent',
         label: 'Parent',
         property: 'attribute.parent.name.fi-FI',
-        formatter: (value, item) => (
+        formatter: (value, item, index) => (
           this.state.editable ?
           <Autosuggest
             suggestions={that.state.attributeSuggestions}
@@ -111,7 +133,7 @@ class Category extends Component {
             onSuggestionsClearRequested={that.onAttributeSuggestionsClearRequested}
             getSuggestionValue={getAttributeSuggestionValue}
             renderSuggestion={renderAttributeSuggestion}
-            inputProps={attributeInputProps(value, item)}
+            inputProps={attributeParentInputProps(value, item, index)}
           /> :
           <span>{that.getParentPath(item.attribute)}</span>
         )
@@ -122,7 +144,7 @@ class Category extends Component {
         formatter: (value, item) => (
           this.state.editable ?
           <span><input type="number" value={value}/> {item.attribute.unit}</span> :
-          <span>{value}</span>
+          <span>{value} {item.attribute.unit}</span>
         )
       }
     ]
@@ -205,22 +227,103 @@ class Category extends Component {
       }
     ]
   }
-  // Autosuggest will call this function every time you need to update suggestions.
-  // You already implemented this logic above, so just use it.
+
+  onItemCategoryChange(event, val) {
+    console.log(event, val);
+    let category = this.state.category,
+        categories = this.state.categories,
+        name = val && val.newValue || event.target.value,
+        id;
+    
+    for (let i in categories) {
+      if (categories[i].name['fi-FI'] == name) {
+        category = {
+          id: categories[i].id
+        }
+        break;
+      }
+    }
+
+    category.name['fi-FI'] = name;
+
+    this.setState({
+      category
+    });
+  }
+  onItemCategoryParentChange(event, val) {
+    let category = this.state.category,
+        categories = this.state.categories,
+        name = val && val.newValue || event.target.value,
+        id;
+    
+    for (let i in categories) {
+      if (categories[i].name['fi-FI'] == name) {
+        category.parent = {
+          id: categories[i].id
+        }
+        break;
+      }
+    }
+
+    category.name['fi-FI'] = name;
+
+    this.setState({
+      category
+    });
+  }
+  onAttributeNameChange(index, event, val) {
+    let category = this.state.category,
+        attributes = this.state.attributes,
+        name = val && val.newValue || event.target.value,
+        id;
+
+    for (let i in attributes) {
+      if (attributes[i].name['fi-FI'] == name) {
+        category.attributes[index] = {
+          id: attributes[i].id,
+          name: {}
+        }
+      }
+    }
+
+    category.attributes[index].attribute.name['fi-FI'] = name;
+
+    this.setState({
+      category
+    });
+  }
+  onAttributeParentChange(index, event, val) {
+    let category = this.state.category,
+        attributes = this.state.attributes,
+        name = val && val.newValue || event.target.value,
+        id;
+
+    for (let i in attributes) {
+      if (attributes[i].name['fi-FI'] == name) {
+        category.attributes[index].attribute.parent = {
+          id: attributes[i].id,
+          name: {}
+        }
+      }
+    }
+
+    category.attributes[index].attribute.parent.name['fi-FI'] = name;
+
+    this.setState({
+      category
+    });
+  }
+
   onAttributeSuggestionsFetchRequested({ value }) {
     this.setState({
       attributeSuggestions: this.getAttributeSuggestions(value)
     });
   };
-
-  // Autosuggest will call this function every time you need to clear suggestions.
   onAttributeSuggestionsClearRequested() {
     this.setState({
       attributeSuggestions: []
     });
   };
-
-  // Teach Autosuggest how to calculate suggestions for any given input value.
   getAttributeSuggestions(value) {
     const inputValue = value.trim().toLowerCase();
     const inputLength = inputValue.length;
@@ -376,7 +479,7 @@ class Category extends Component {
               inputProps={{
                 placeholder: 'Category',
                 value: that.state.category.name['fi-FI'],
-                onChange: function() {}
+                onChange: that.onItemCategoryChange.bind(that)
               }}
             /> :
             that.state.category.name['fi-FI']
@@ -387,14 +490,14 @@ class Category extends Component {
           {this.state.editable ?
             <Autosuggest
               suggestions={that.state.categorySuggestions}
-              onSuggestionsFetchRequested={that.onCategoryParentSuggestionsFetchRequested}
-              onSuggestionsClearRequested={that.onCategoryParentSuggestionsClearRequested}
-              getSuggestionValue={getCategoryParentSuggestionValue}
-              renderSuggestion={renderCategoryParentSuggestion}
+              onSuggestionsFetchRequested={that.onCategorySuggestionsFetchRequested}
+              onSuggestionsClearRequested={that.onCategorySuggestionsClearRequested}
+              getSuggestionValue={getCategorySuggestionValue}
+              renderSuggestion={renderCategorySuggestion}
               inputProps={{
                 placeholder: 'Category',
                 value: that.state.category.parent.name['fi-FI'],
-                onChange: function() {}
+                onChange: that.onItemCategoryParentChange.bind(that)
               }}
             /> :
             <a href={this.state.category.parent.id}>{that.state.category.parent.name['fi-FI']}</a>
@@ -408,6 +511,9 @@ class Category extends Component {
             <EditableTable
               columns={this.state.source_columns}
               items={attribute.sources}
+              tableProps={{
+                className: 'no-more-tables'
+              }}
             />
           )}
         />

@@ -8,4 +8,5 @@ module.exports = function(api) {
   require('./item.js')(api);
   require('./category.js')(api);
   require('./attribute.js')(api);
+  require('./source.js')(api);
 }
