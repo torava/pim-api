@@ -54,7 +54,8 @@ function getClosestCategory(toCompare, locale) {
         }
       }
       resolve(response);
-    });
+    })
+    .catch(reject);
   });
 }
 
@@ -71,13 +72,29 @@ function resolveCategories(items, locale) {
     resolved_attributes = {};
     item_attributes = items[i].attributes;
     for (let n in item_attributes) {
+      if (!item_attributes[n].attribute) continue;
+      item_attributes[n].attribute.name = item_attributes[n].attribute.name[locale];
       resolved_attributes[item_attributes[n].attributeId] = item_attributes[n];
+
+      let parent = item_attributes[n].attribute.parent;
+      while (parent) {
+        if (parent.name && parent.name.hasOwnProperty(locale)) {
+          parent.name = parent.name[locale];
+        }
+        parent = parent.parent;
+      }
     }
     items[i].attributes = resolved_attributes;
     if (items[i].children) {
       resolveCategories(items[i].children, locale);
     }
     items[i].name = items[i].name[locale];
+
+    let parent = items[i].parent;
+    while (parent) {
+      parent.name = parent.name[locale];
+      parent = parent.parent;
+    }
   }
 }
 
@@ -126,11 +143,7 @@ app.get('/api/category', function(req, res) {
     .limit(200)
     .eager('[attributes]')
     .then(categories => {
-      if (req.query.locale) {
-        for (let i in categories) {
-          categories[i].name = categories[i].name[req.query.locale];
-        }
-      }
+      resolveCategories(categories, req.query.locale);
       res.send(categories);
     })
     .catch(error => {
@@ -143,11 +156,7 @@ app.get('/api/category', function(req, res) {
     .where('id', req.query.id)
     .eager('[products.[items], attributes.[attribute.[parent.^], sources.[source]], parent.^, children(getAttributes)]', {getAttributes})
     .then(categories => {
-      if (req.query.locale) {
-        for (let i in categories) {
-          categories[i].name = categories[i].name[req.query.locale];
-        }
-      }
+      resolveCategories(categories, req.query.locale);
       res.send(categories);
     })
     .catch(error => {
@@ -158,11 +167,7 @@ app.get('/api/category', function(req, res) {
   else {
     Category.query()
     .then(categories => {
-      if (req.query.locale) {
-        for (let i in categories) {
-          categories[i].name = categories[i].name[req.query.locale];
-        }
-      }
+      resolveCategories(categories, req.query.locale);
       res.send(categories);
     })
     .catch(error => {

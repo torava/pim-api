@@ -87,7 +87,6 @@ class EditableTable extends Component {
         total = 0;
 
     that.renderColumns(that.state.columns, [], content, total, 0, cols);
-    console.log(content, total);
     let thead = <thead>
                   {content.map((row) => {
                     return <tr>{row}</tr>

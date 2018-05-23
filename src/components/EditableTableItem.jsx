@@ -162,7 +162,7 @@ class EditableTableItem extends Component {
     let row = (
       <tr key={that.props.rowIndex} id={that.props.rowIndex} data-parent={that.props.parent} className={that.props.className}>
         {tds}
-      </tr> 
+      </tr>
     );
 
     //row = connectDragSource(connectDropTarget(row));
@@ -190,7 +190,7 @@ class EditableTableItem extends Component {
         row, 
         (<tr id={this.props.rowIndex+"-childView"}>
           <td colSpan={that.props.columns.length}>
-            {that.props.childView(that.props.item)}
+            {that.props.childView(that.props.item, this.props.rowIndex)}
           </td>
         </tr>)
       ];

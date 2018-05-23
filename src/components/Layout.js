@@ -23,7 +23,6 @@ export default class Layout extends React.Component {
        <header>
           <div className="header-container">
             <div style={{float:'left'}}>
-              Bookkeepr v0.14&nbsp;
               <nav>
                 <Link to="/">Receipts</Link>&nbsp;
                 <Link to="/items">Items</Link>&nbsp;

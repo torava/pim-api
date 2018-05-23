@@ -4,42 +4,14 @@ import axios from 'axios';
 import React, {Component} from 'react';
 import Autosuggest from 'react-autosuggest';
 import EditableTable from './EditableTable';
+import Select from 'react-select';
+import { ENGINE_METHOD_CIPHERS } from 'constants';
 
 class Category extends Component {
   constructor(props) {
     super(props);
 
-    let that = this,
-        categories, attributes, sources;
-
-    axios.get('/api/attribute/')
-    .then((result) => {
-      attributes = result.data;
-      axios.get('/api/category/')
-      .then((result) => {
-        categories = result.data;
-        axios.get('/api/source/')
-        .then((result) => {
-          sources = result.data;
-          axios.get('/api/category/?id='+that.props.match.params.id)
-          .then((category) => {
-            that.setState({
-              editable: false,
-              attributes,
-              categories,
-              sources,
-              category: category.data[0],
-              product_columns: that.getProductColumns(),
-              attribute_columns: that.getAttributeColumns(),
-              source_columns: that.getSourceColumns(),
-              attributeSuggestions: [],
-              categorySuggestions: [],
-              sourceSuggestions: []
-            });
-          });
-        });
-      });
-    });
+    let that = this;
 
     this.edit = this.edit.bind(this);
     this.cancel = this.cancel.bind(this);
@@ -49,6 +21,9 @@ class Category extends Component {
     this.onItemCategoryParentChange = this.onItemCategoryParentChange.bind(this);
     this.onAttributeNameChange = this.onAttributeNameChange.bind(this);
     this.onAttributeParentChange = this.onAttributeParentChange.bind(this);
+    this.onAttributeValueChange = this.onAttributeValueChange.bind(this);
+    this.onAttributeUnitChange = this.onAttributeUnitChange.bind(this);
+    this.onSourceNameChange = this.onSourceNameChange.bind(this);
 
     this.onAttributeSuggestionsClearRequested = this.onAttributeSuggestionsClearRequested.bind(this);
     this.onAttributeSuggestionsFetchRequested = this.onAttributeSuggestionsFetchRequested.bind(this);
@@ -58,6 +33,42 @@ class Category extends Component {
     this.onCategorySuggestionsFetchRequested = this.onCategorySuggestionsFetchRequested.bind(this);
     this.onSourceSuggestionsClearRequested = this.onSourceSuggestionsClearRequested.bind(this);
     this.onSourceSuggestionsFetchRequested = this.onSourceSuggestionsFetchRequested.bind(this);
+
+    this.state = {
+      locale: 'fi-FI'
+    };
+
+    Promise.all([
+      axios.get('/api/attribute/'),
+      axios.get('/api/category/'),
+      axios.get('/api/source/'),
+      axios.get('/api/category/?id='+that.props.match.params.id)
+    ])
+    .then(([attributes, categories, sources, category]) => {
+      that.setState({
+        editable: false,
+        attributes: attributes.data,
+        categories: categories.data,
+        sources: sources.data,
+        category: category.data[0],
+        product_columns: that.getProductColumns(),
+        attribute_columns: that.getAttributeColumns(),
+        source_columns: that.getSourceColumns,
+        attributeSuggestions: [],
+        categorySuggestions: [],
+        sourceSuggestions: []
+      });
+
+      that.addNewCategoryAttribute();
+
+      for (let i in that.state.category.attributes) {
+        that.addNewCategoryAttributeSource(i);
+      }
+    })
+    .catch(error => {
+      console.error(error);
+      throw new Error();
+    });
   }
   getProductColumns() {
     return [
@@ -73,10 +84,15 @@ class Category extends Component {
     ]
   }
   getAttributeColumns() {
+    const that = this;
+
     // When suggestion is clicked, Autosuggest needs to populate the input
     // based on the clicked suggestion. Teach Autosuggest how to calculate the
     // input value for every given suggestion.
-    const getAttributeSuggestionValue = suggestion => suggestion.name['fi-FI'];
+    const getAttributeSuggestionValue = suggestion => {
+      console.log(suggestion);
+      return suggestion.name[that.state.locale] || '';
+    }
 
     // Use your imagination to render suggestions.
     const renderAttributeSuggestion = suggestion => (
@@ -86,28 +102,28 @@ class Category extends Component {
     );
 
     const attributeNameInputProps = (value, item, index) => {
+      console.log(value || '', item, index);
       return {
         placeholder: 'Name',
-        value,
+        value: value || '',
         onChange: that.onAttributeNameChange.bind(that, index)
       }
     };
 
     const attributeParentInputProps = (value, item, index) => {
+      console.log(value || '', item, index);
       return {
         placeholder: 'Parent',
-        value,
+        value: value || '',
         onChange: that.onAttributeParentChange.bind(that, index)
       }
     };
-
-    const that = this;
 
     return [
       {
         id: 'name',
         label: 'Name',
-        property: 'attribute.name.fi-FI',
+        property: 'attribute.name.'+that.state.locale,
         formatter: (value, item, index) => (
           this.state.editable ?
           <Autosuggest
@@ -124,7 +140,7 @@ class Category extends Component {
       {
         id: 'parent',
         label: 'Parent',
-        property: 'attribute.parent.name.fi-FI',
+        property: 'attribute.parent.name.'+that.state.locale,
         formatter: (value, item, index) => (
           this.state.editable ?
           <Autosuggest
@@ -135,24 +151,56 @@ class Category extends Component {
             renderSuggestion={renderAttributeSuggestion}
             inputProps={attributeParentInputProps(value, item, index)}
           /> :
-          <span>{that.getParentPath(item.attribute)}</span>
+          <span>{that.renderParentPath(item.attribute)}</span>
         )
       },
       {
         id: 'value',
         label: 'Value',
-        formatter: (value, item) => (
+        formatter: (value, item, index) => (
           this.state.editable ?
-          <span><input type="number" value={value}/> {item.attribute.unit}</span> :
-          <span>{value} {item.attribute.unit}</span>
+          <span>
+            <input type="number"
+                   value={value}
+                   onChange={this.onAttributeValueChange.bind(that, index)}/>
+            <input type="text"
+                   value={item.attribute.unit}
+                   onChange={this.onAttributeUnitChange.bind(that, index)}/>
+          </span> :
+          <span>{value}{item.attribute.unit ? ' '+item.attribute.unit : ''}</span>
         )
       }
     ]
   }
-  getSourceColumns() {
-    let that = this;
+  addNewCategoryAttribute() {
+    let category = this.state.category;
 
-    const getSourceSuggestionValue = suggestion => suggestion.name;
+    category.attributes.push({
+      attribute: {
+        parent: {}
+      },
+      sources: []
+    });
+
+    this.setState({
+      category
+    });
+  }
+  addNewCategoryAttributeSource(index) {
+    let category = this.state.category;
+
+    category.attributes[index].sources.push({
+      source: {}
+    });
+
+    this.setState({
+      category
+    });
+  }
+  getSourceColumns(attribute_index) {
+    const that = this;
+
+    const getSourceSuggestionValue = suggestion => suggestion.name || '';
 
     // Use your imagination to render suggestions.
     const renderSourceSuggestion = suggestion => (
@@ -161,11 +209,11 @@ class Category extends Component {
       </div>
     );
 
-    const sourceInputProps = (value, item) => {
+    const sourceInputProps = (value, item, source_index) => {
       return {
         placeholder: 'Source',
-        value,
-        onChange: function() {}
+        value: value || '',
+        onChange: that.onSourceNameChange.bind(this, attribute_index, source_index)
       }
     };
 
@@ -174,7 +222,7 @@ class Category extends Component {
         id: 'name',
         label: 'Name',
         property: 'source.name',
-        formatter: (value, item) => (
+        formatter: (value, item, index) => (
           that.state.editable ?
           <Autosuggest
             suggestions={that.state.sourceSuggestions}
@@ -182,7 +230,7 @@ class Category extends Component {
             onSuggestionsClearRequested={that.onSourceSuggestionsClearRequested}
             getSuggestionValue={getSourceSuggestionValue}
             renderSuggestion={renderSourceSuggestion}
-            inputProps={sourceInputProps(value, item)}
+            inputProps={sourceInputProps(value, item, index)}
           /> :
           <span>{value}</span>
         )
@@ -230,13 +278,14 @@ class Category extends Component {
 
   onItemCategoryChange(event, val) {
     console.log(event, val);
+    return;
     let category = this.state.category,
         categories = this.state.categories,
         name = val && val.newValue || event.target.value,
         id;
     
     for (let i in categories) {
-      if (categories[i].name['fi-FI'] == name) {
+      if (categories[i].name[this.state.locale] == name) {
         category = {
           id: categories[i].id
         }
@@ -244,7 +293,10 @@ class Category extends Component {
       }
     }
 
-    category.name['fi-FI'] = name;
+    if (!category.name)
+      category.name = {};
+
+    category.name[this.state.locale] = name;
 
     this.setState({
       category
@@ -257,7 +309,7 @@ class Category extends Component {
         id;
     
     for (let i in categories) {
-      if (categories[i].name['fi-FI'] == name) {
+      if (categories[i].name[this.state.locale] == name) {
         category.parent = {
           id: categories[i].id
         }
@@ -265,7 +317,10 @@ class Category extends Component {
       }
     }
 
-    category.name['fi-FI'] = name;
+    if (!category.parent.name)
+      category.parent.name = {};
+
+    category.parent.name[this.state.locale] = name;
 
     this.setState({
       category
@@ -277,16 +332,25 @@ class Category extends Component {
         name = val && val.newValue || event.target.value,
         id;
 
+    // is new
+
+    if (category.attributes.length-1 == index && !category.attributes[index].attribute) {
+      this.addNewCategoryAttribute();
+    }
+
     for (let i in attributes) {
-      if (attributes[i].name['fi-FI'] == name) {
-        category.attributes[index] = {
+      if (attributes[i].name[this.state.locale] == name) {
+        category.attributes[index].attribute = {
           id: attributes[i].id,
-          name: {}
+          name: attributes[i].name
         }
       }
     }
 
-    category.attributes[index].attribute.name['fi-FI'] = name;
+    if (!category.attributes[index].attribute.name)
+      category.attributes[index].attribute.name = {};
+
+    category.attributes[index].attribute.name[this.state.locale] = name;
 
     this.setState({
       category
@@ -299,15 +363,58 @@ class Category extends Component {
         id;
 
     for (let i in attributes) {
-      if (attributes[i].name['fi-FI'] == name) {
+      if (attributes[i].name[this.state.locale] == name) {
         category.attributes[index].attribute.parent = {
           id: attributes[i].id,
-          name: {}
+          name: attributes[i].name
         }
       }
     }
 
-    category.attributes[index].attribute.parent.name['fi-FI'] = name;
+    if (!category.attributes[index].attribute.parent.name)
+      category.attributes[index].attribute.parent.name = {};
+
+    category.attributes[index].attribute.parent.name[this.state.locale] = name;
+
+    this.setState({
+      category
+    });
+  }
+  onAttributeValueChange(index, event) {
+    let category = this.state.category;
+
+    category.attributes[index].value = event.target.value;
+
+    this.setState({
+      category
+    });
+  }
+  onAttributeUnitChange(index, event) {
+    let category = this.state.category;
+
+    category.attributes[index].unit = event.target.value;
+
+    this.setState({
+      category
+    });
+  }
+  onSourceNameChange(attribute_index, source_index, event, val) {
+    console.log(attribute_index, source_index);
+    let category = this.state.category,
+        sources = this.state.sources,
+        name = val && val.newValue || event.target.value,
+        id;
+
+    for (let i in sources) {
+      if (sources[i].name == name) {
+        category.attributes[attribute_index].sources[source_index].source = {
+          id: sources[i].id,
+          name: sources[i].name
+        }
+      }
+    }
+
+    category.attributes[attribute_index].sources[source_index].source.name = name;
 
     this.setState({
       category
@@ -325,11 +432,12 @@ class Category extends Component {
     });
   };
   getAttributeSuggestions(value) {
-    const inputValue = value.trim().toLowerCase();
-    const inputLength = inputValue.length;
+    const inputValue = value.trim().toLowerCase(),
+          inputLength = inputValue.length,
+          that = this;
 
-    return inputLength === 0 ? [] : this.state.attributes.filter(attribute => {
-      let name = attribute.name['fi-FI'];
+    return inputLength === 0 ? [] : that.state.attributes.filter(attribute => {
+      let name = attribute.name[that.state.locale];
       return name && name.toLowerCase().slice(0, inputLength) === inputValue;
     });
   };
@@ -365,11 +473,12 @@ class Category extends Component {
     });
   }
   getCategorySuggestions(value) {
-    const inputValue = value.trim().toLowerCase();
-    const inputLength = inputValue.length;
+    const inputValue = value.trim().toLowerCase(),
+          inputLength = inputValue.length,
+          that = this;
 
-    return inputLength === 0 ? [] : this.state.categories.filter(item => {
-      let value = item.name['fi-FI'];
+    return inputLength === 0 ? [] : that.state.categories.filter(item => {
+      let value = item.name[that.state.locale];
       return value && value.toLowerCase().slice(0, inputLength) === inputValue;
     });
   }
@@ -385,16 +494,20 @@ class Category extends Component {
     });
   }
   getCategoryParentSuggestions(value) {
-    const inputValue = value.trim().toLowerCase();
-    const inputLength = inputValue.length;
+    const inputValue = value.trim().toLowerCase(),
+          inputLength = inputValue.length,
+          that = this;
 
-    return inputLength === 0 ? [] : this.state.categories.filter(item => {
-      let value = item.parent.name['fi-FI'];
+    return inputLength === 0 ? [] : that.state.categories.filter(item => {
+      let value = item.parent.name[that.state.locale];
       return value && value.toLowerCase().slice(0, inputLength) === inputValue;
     });
   }
 
-  edit() {
+
+  edit(event) {
+    event.preventDefault();
+
     this.setState({
       editable: true,
       product_columns: this.getProductColumns(),
@@ -405,7 +518,9 @@ class Category extends Component {
       sourceSuggestions: []
     });
   }
-  cancel() {
+  cancel(event) {
+    event.preventDefault();
+    
     this.setState({
       editable: false,
       product_columns: this.getProductColumns(),
@@ -416,7 +531,9 @@ class Category extends Component {
       sourceSuggestions: []
     });
   }
-  save() {
+  save(event) {
+    event.preventDefault();
+    
     this.setState({
       editable: false,
       product_columns: this.getProductColumns(),
@@ -427,30 +544,55 @@ class Category extends Component {
       sourceSuggestions: []
     });
   }
-  getParentPath(item) {
+  getParents(item) {
     let result = [], parent = item;
-    while (parent = parent.parent) {
-      result.push(<a href={parent.id}>{parent.name['fi-FI']}</a>);
-      result.push(' > ');
+    if (parent) {
+      while (parent = parent.parent) {
+        if (!parent || !parent.name) continue;
+        parent.name = parent.name[this.state.locale];
+        result.push(parent);
+      }
+      result.pop();
+      result.reverse();
     }
-    result.pop();
-    result.reverse();
     return result;
+  }
+  renderParentPath(item) {
+    let result = [],
+        parent = item;
+    if (parent) {
+      while (parent = parent.parent) {
+        if (!parent || !parent.name) continue;
+        result.push(<a href={parent.id}>{parent.name[this.state.locale]}</a>);
+        result.push(' > ');
+      }
+      result.pop();
+      result.reverse();
+    }
+    return result;
+  }
+
+  getResolvedCategories() {
+    const that = this;
+    return this.state.categories.map((categories, i) => ({
+      id: categories.id,
+      name: categories.name[that.state.locale]
+    }));
   }
 
   render() {
     if (!this.state || !this.state.category || !this.state.attributes) return null;
 
-    const that = this;
+    let that = this;
 
-    const getCategorySuggestionValue = suggestion => suggestion.name['fi-FI'];
+    const getCategorySuggestionValue = suggestion => suggestion.name[that.state.locale];
     const renderCategorySuggestion = suggestion => (
       <div>
         {getCategorySuggestionValue(suggestion)}
       </div>
     );
 
-    const getCategoryParentSuggestionValue = suggestion => suggestion.parent.name['fi-FI'];
+    const getCategoryParentSuggestionValue = suggestion => suggestion.parent.name[that.state.locale];
     const renderCategoryParentSuggestion = suggestion => (
       <div>
         {getCategoryParentSuggestionValue(suggestion)}
@@ -467,7 +609,17 @@ class Category extends Component {
           <a href="#" onClick={this.save} style={{float:"right"}}>Save</a>
         </div>
         <div style={{clear:"both"}}/>
-        {that.getParentPath(that.state.category)}
+          {that.state.editable ? 
+            <Select.Creatable
+              multi={true}
+              options={that.getResolvedCategories()}
+              onChange={that.onCategoryParentChange}
+              value={that.getParents(that.state.category)}
+              labelKey={"name"}
+              valueKey="id"
+            /> :
+            that.renderParentPath(that.state.category)
+          }
         <h1>
           {this.state.editable ?
             <Autosuggest
@@ -478,11 +630,11 @@ class Category extends Component {
               renderSuggestion={renderCategorySuggestion}
               inputProps={{
                 placeholder: 'Category',
-                value: that.state.category.name['fi-FI'],
-                onChange: that.onItemCategoryChange.bind(that)
+                value: this.state.category.name.hasOwnProperty(this.state.locale) ? this.state.category.name[that.state.locale] : '',
+                onChange: this.onItemCategoryChange.bind(this)
               }}
             /> :
-            that.state.category.name['fi-FI']
+            this.state.category.name[this.state.locale]
           }
         </h1>
         <div>
@@ -496,20 +648,20 @@ class Category extends Component {
               renderSuggestion={renderCategorySuggestion}
               inputProps={{
                 placeholder: 'Category',
-                value: that.state.category.parent.name['fi-FI'],
-                onChange: that.onItemCategoryParentChange.bind(that)
+                value: this.state.category.parent.name && this.state.category.parent.name.hasOwnProperty(that.state.locale) ? that.state.category.parent.name[that.state.locale] : '',
+                onChange: this.onItemCategoryParentChange.bind(this)
               }}
             /> :
-            <a href={this.state.category.parent.id}>{that.state.category.parent.name['fi-FI']}</a>
+            <a href={this.state.category.parent.id}>{this.state.category.parent.name[this.state.locale]}</a>
           }
         </div>
         <h2>Attributes</h2>
         <EditableTable
           columns={this.state.attribute_columns}
           items={this.state.category.attributes}
-          childView={(attribute) => (
+          childView={(attribute, index) => (
             <EditableTable
-              columns={this.state.source_columns}
+              columns={this.getSourceColumns(index)}
               items={attribute.sources}
               tableProps={{
                 className: 'no-more-tables'
