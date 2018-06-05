@@ -188,7 +188,7 @@ class EditableTableItem extends Component {
     else if (that.props.item.expanded && that.props.childView) {
       return [
         row, 
-        (<tr id={this.props.rowIndex+"-childView"}>
+        (<tr key={this.props.rowIndex+"-childView"} id={this.props.rowIndex+"-childView"}>
           <td colSpan={that.props.columns.length}>
             {that.props.childView(that.props.item, this.props.rowIndex)}
           </td>

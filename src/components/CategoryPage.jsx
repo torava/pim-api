@@ -4,8 +4,7 @@ import axios from 'axios';
 import React, {Component} from 'react';
 import Autosuggest from 'react-autosuggest';
 import EditableTable from './EditableTable';
-import Select from 'react-select';
-import { ENGINE_METHOD_CIPHERS } from 'constants';
+import CreatableSelect from 'react-select/lib/Creatable';
 
 class Category extends Component {
   constructor(props) {
@@ -17,8 +16,8 @@ class Category extends Component {
     this.cancel = this.cancel.bind(this);
     this.save = this.save.bind(this);
 
-    this.onItemCategoryChange = this.onItemCategoryChange.bind(this);
-    this.onItemCategoryParentChange = this.onItemCategoryParentChange.bind(this);
+    this.onCategoryChange = this.onCategoryChange.bind(this);
+    this.onCategoryParentChange = this.onCategoryParentChange.bind(this);
     this.onAttributeNameChange = this.onAttributeNameChange.bind(this);
     this.onAttributeParentChange = this.onAttributeParentChange.bind(this);
     this.onAttributeValueChange = this.onAttributeValueChange.bind(this);
@@ -58,6 +57,8 @@ class Category extends Component {
         categorySuggestions: [],
         sourceSuggestions: []
       });
+
+      document.title = "Category - "+this.state.category.name[this.state.locale];
 
       that.addNewCategoryAttribute();
 
@@ -101,23 +102,17 @@ class Category extends Component {
       </div>
     );
 
-    const attributeNameInputProps = (value, item, index) => {
-      console.log(value || '', item, index);
-      return {
-        placeholder: 'Name',
-        value: value || '',
-        onChange: that.onAttributeNameChange.bind(that, index)
-      }
-    };
+    const attributeNameInputProps = (value, item, index) => ({
+      placeholder: 'Name',
+      value: value || '',
+      onChange: that.onAttributeNameChange.bind(that, index)
+    });
 
-    const attributeParentInputProps = (value, item, index) => {
-      console.log(value || '', item, index);
-      return {
-        placeholder: 'Parent',
-        value: value || '',
-        onChange: that.onAttributeParentChange.bind(that, index)
-      }
-    };
+    const attributeParentInputProps = (value, item, index) => ({
+      placeholder: 'Parent',
+      value: value || '',
+      onChange: that.onAttributeParentChange.bind(that, index)
+    });
 
     return [
       {
@@ -140,16 +135,17 @@ class Category extends Component {
       {
         id: 'parent',
         label: 'Parent',
-        property: 'attribute.parent.name.'+that.state.locale,
+        //property: 'attribute.parent.name.'+that.state.locale,
         formatter: (value, item, index) => (
           this.state.editable ?
-          <Autosuggest
-            suggestions={that.state.attributeSuggestions}
-            onSuggestionsFetchRequested={that.onAttributeSuggestionsFetchRequested}
-            onSuggestionsClearRequested={that.onAttributeSuggestionsClearRequested}
-            getSuggestionValue={getAttributeSuggestionValue}
-            renderSuggestion={renderAttributeSuggestion}
-            inputProps={attributeParentInputProps(value, item, index)}
+          <CreatableSelect
+            isMulti
+            filterOption={this.filterOption}
+            options={that.state.attributes}
+            onChange={that.onAttributeParentChange.bind(that, index)}
+            value={that.getParents(item.attribute)}
+            getOptionLabel={(option) => option.name[this.state.locale]}
+            getOptionValue={(option) => option.id}
           /> :
           <span>{that.renderParentPath(item.attribute)}</span>
         )
@@ -173,7 +169,7 @@ class Category extends Component {
     ]
   }
   addNewCategoryAttribute() {
-    let category = this.state.category;
+    let category = Object.assign({}, this.state.category);
 
     category.attributes.push({
       attribute: {
@@ -187,7 +183,7 @@ class Category extends Component {
     });
   }
   addNewCategoryAttributeSource(index) {
-    let category = this.state.category;
+    let category = Object.assign({}, this.state.category);
 
     category.attributes[index].sources.push({
       source: {}
@@ -276,11 +272,9 @@ class Category extends Component {
     ]
   }
 
-  onItemCategoryChange(event, val) {
-    console.log(event, val);
-    return;
-    let category = this.state.category,
-        categories = this.state.categories,
+  onCategoryChange(event, val) {
+    let category = Object.assign({}, this.state.category),
+        categories = this.state.categories.slice(0),
         name = val && val.newValue || event.target.value,
         id;
     
@@ -299,11 +293,12 @@ class Category extends Component {
     category.name[this.state.locale] = name;
 
     this.setState({
-      category
+      category,
+      categories
     });
   }
-  onItemCategoryParentChange(event, val) {
-    let category = this.state.category,
+  onCategoryParentChange(event, val) {
+    let category = Object.assign({}, this.state.category),
         categories = this.state.categories,
         name = val && val.newValue || event.target.value,
         id;
@@ -327,7 +322,7 @@ class Category extends Component {
     });
   }
   onAttributeNameChange(index, event, val) {
-    let category = this.state.category,
+    let category = Object.assign({}, this.state.category),
         attributes = this.state.attributes,
         name = val && val.newValue || event.target.value,
         id;
@@ -356,32 +351,27 @@ class Category extends Component {
       category
     });
   }
-  onAttributeParentChange(index, event, val) {
-    let category = this.state.category,
-        attributes = this.state.attributes,
-        name = val && val.newValue || event.target.value,
-        id;
+  onAttributeParentChange(index, items) {
+    let category = Object.assign({}, this.state.category),
+        attribute = {},
+        parent = attribute,
+        item;
 
-    for (let i in attributes) {
-      if (attributes[i].name[this.state.locale] == name) {
-        category.attributes[index].attribute.parent = {
-          id: attributes[i].id,
-          name: attributes[i].name
-        }
-      }
+    console.dir(items);
+
+    while (item = items.pop()) {
+      parent.parent = item;
+      parent = parent.parent;
     }
 
-    if (!category.attributes[index].attribute.parent.name)
-      category.attributes[index].attribute.parent.name = {};
-
-    category.attributes[index].attribute.parent.name[this.state.locale] = name;
+    category.attributes[index].attribute.parent = attribute.parent;
 
     this.setState({
       category
     });
   }
   onAttributeValueChange(index, event) {
-    let category = this.state.category;
+    let category = Object.assign({}, this.state.category);
 
     category.attributes[index].value = event.target.value;
 
@@ -390,17 +380,18 @@ class Category extends Component {
     });
   }
   onAttributeUnitChange(index, event) {
-    let category = this.state.category;
+    let category = Object.assign({}, this.state.category);
 
     category.attributes[index].unit = event.target.value;
+
+    console.log(category);
 
     this.setState({
       category
     });
   }
   onSourceNameChange(attribute_index, source_index, event, val) {
-    console.log(attribute_index, source_index);
-    let category = this.state.category,
+    let category = Object.assign({}, this.state.category),
         sources = this.state.sources,
         name = val && val.newValue || event.target.value,
         id;
@@ -504,6 +495,13 @@ class Category extends Component {
     });
   }
 
+  filterOption(option, inputValue) {
+    inputValue = inputValue.trim().toLowerCase();
+
+    let inputLength = inputValue.length;
+
+    return inputLength > 0 && option.label.toLowerCase().slice(0, inputLength) === inputValue;
+  }
 
   edit(event) {
     event.preventDefault();
@@ -545,14 +543,13 @@ class Category extends Component {
     });
   }
   getParents(item) {
-    let result = [], parent = item;
+    let result = [], parent = Object.assign({}, item);
     if (parent) {
       while (parent = parent.parent) {
         if (!parent || !parent.name) continue;
-        parent.name = parent.name[this.state.locale];
         result.push(parent);
       }
-      result.pop();
+      //result.pop();
       result.reverse();
     }
     return result;
@@ -573,11 +570,22 @@ class Category extends Component {
   }
 
   getResolvedCategories() {
-    const that = this;
-    return this.state.categories.map((categories, i) => ({
-      id: categories.id,
-      name: categories.name[that.state.locale]
+    let result = this.state.categories.slice(0);
+    result = result.map((item, i) => ({
+      id: item.id,
+      name: item.name[this.state.locale]
     }));
+    return result;
+  }
+
+
+  getResolvedAttributes() {
+    let result = this.state.attributes.slice(0);
+    result = result.map((item, i) => ({
+      id: item.id,
+      name: item.name[this.state.locale]
+    }));
+    return result;
   }
 
   render() {
@@ -610,13 +618,15 @@ class Category extends Component {
         </div>
         <div style={{clear:"both"}}/>
           {that.state.editable ? 
-            <Select.Creatable
-              multi={true}
-              options={that.getResolvedCategories()}
-              onChange={that.onCategoryParentChange}
-              value={that.getParents(that.state.category)}
-              labelKey={"name"}
-              valueKey="id"
+            <CreatableSelect
+              isMulti
+              filterOption={this.filterOption}
+              options={this.state.categories}
+              onChange={this.onCategoryParentChange}
+              value={this.getParents(that.state.category)}
+              matchPos="start"
+              getOptionLabel={(option) => option.name[this.state.locale]}
+              getOptionValue={(option) => option.id}
             /> :
             that.renderParentPath(that.state.category)
           }
@@ -631,30 +641,12 @@ class Category extends Component {
               inputProps={{
                 placeholder: 'Category',
                 value: this.state.category.name.hasOwnProperty(this.state.locale) ? this.state.category.name[that.state.locale] : '',
-                onChange: this.onItemCategoryChange.bind(this)
+                onChange: this.onCategoryChange.bind(this)
               }}
             /> :
             this.state.category.name[this.state.locale]
           }
         </h1>
-        <div>
-          Parent:
-          {this.state.editable ?
-            <Autosuggest
-              suggestions={that.state.categorySuggestions}
-              onSuggestionsFetchRequested={that.onCategorySuggestionsFetchRequested}
-              onSuggestionsClearRequested={that.onCategorySuggestionsClearRequested}
-              getSuggestionValue={getCategorySuggestionValue}
-              renderSuggestion={renderCategorySuggestion}
-              inputProps={{
-                placeholder: 'Category',
-                value: this.state.category.parent.name && this.state.category.parent.name.hasOwnProperty(that.state.locale) ? that.state.category.parent.name[that.state.locale] : '',
-                onChange: this.onItemCategoryParentChange.bind(this)
-              }}
-            /> :
-            <a href={this.state.category.parent.id}>{this.state.category.parent.name[this.state.locale]}</a>
-          }
-        </div>
         <h2>Attributes</h2>
         <EditableTable
           columns={this.state.attribute_columns}
