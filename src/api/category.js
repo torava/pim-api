@@ -227,7 +227,7 @@ function getClosestCategory(toCompare, locale) {
 }
 
 function getAttributes(builder) {
-  builder.eager('[products.[items], attributes, children(getAttributes)]', {getAttributes});
+  builder.eager('[products.[items], contributions.[contribution], attributes, children(getAttributes)]', {getAttributes});
 }
 
 function resolveCategories(items, locale) {
@@ -295,7 +295,7 @@ app.get('/api/category', function(req, res) {
   else if ('parent' in req.query) {
     Category.query()
     .where('parentId', req.query.parent || null)
-    .eager('[products.[items], attributes, children(getAttributes)]', {getAttributes})
+    .eager('[products.[items], contributions.[contribution], attributes, children(getAttributes)]', {getAttributes})
     .then(categories => {
       resolveCategories(categories, req.query.locale);
       res.send(categories);
@@ -321,7 +321,7 @@ app.get('/api/category', function(req, res) {
   else if ('id' in req.query) {
     Category.query()
     .where('id', req.query.id)
-    .eager('[products.[items], attributes.[attribute.[parent.^], sources.[source]], parent.^, children(getAttributes)]', {getAttributes})
+    .eager('[products.[items], contributions.[contribution], attributes.[attribute.[parent.^], sources.[source]], parent.^, children(getAttributes)]', {getAttributes})
     .then(categories => {
       resolveCategories(categories, req.query.locale);
       res.send(categories);

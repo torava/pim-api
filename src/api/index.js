@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = function(api) {
-  require('./export.js')(api);
+  require('./import.js')(api);
   require('./receipt.js')(api);
   require('./product.js')(api);
   require('./transaction.js')(api);

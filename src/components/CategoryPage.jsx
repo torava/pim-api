@@ -52,6 +52,7 @@ class Category extends Component {
         category: category.data[0],
         product_columns: that.getProductColumns(),
         attribute_columns: that.getAttributeColumns(),
+        contribution_columns: that.getContributionColumns(),
         source_columns: that.getSourceColumns,
         attributeSuggestions: [],
         categorySuggestions: [],
@@ -164,6 +165,46 @@ class Category extends Component {
                    onChange={this.onAttributeUnitChange.bind(that, index)}/>
           </span> :
           <span>{value}{item.attribute.unit ? ' '+item.attribute.unit : ''}</span>
+        )
+      }
+    ]
+  }
+  getContributionColumns() {
+    const that = this;
+
+    return [
+      {
+        id: 'name',
+        label: 'Name',
+        property: 'contribution.name.'+that.state.locale,
+        formatter: (value, item, index) => (
+          this.state.editable ?
+          <CreatableSelect
+            isMulti
+            filterOption={this.filterOption}
+            options={that.state.attributes}
+            onChange={that.onContributionNameChange.bind(that, index)}
+            value={value}
+            getOptionLabel={(option) => option.name[this.state.locale]}
+            getOptionValue={(option) => option.id}
+          /> :
+          <span>{value}</span>
+          )
+      },
+      {
+        id: 'amount',
+        label: 'Amount',
+        formatter: (value, item, index) => (
+          this.state.editable ?
+          <span>
+            <input type="number"
+                   value={value}
+                   onChange={this.onAttributeValueChange.bind(that, index)}/>
+            <input type="text"
+                   value={item.unit}
+                   onChange={this.onAttributeUnitChange.bind(that, index)}/>
+          </span> :
+          <span>{value}{item.unit ? ' '+item.unit : ''}</span>
         )
       }
     ]
@@ -647,6 +688,11 @@ class Category extends Component {
             this.state.category.name[this.state.locale]
           }
         </h1>
+        <h2>Contributions</h2>
+        <EditableTable
+          columns={this.state.contribution_columns}
+          items={this.state.category.contributions}
+        />
         <h2>Attributes</h2>
         <EditableTable
           columns={this.state.attribute_columns}

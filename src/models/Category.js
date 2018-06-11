@@ -36,6 +36,14 @@ class Category extends Model {
 					to: 'CategoryAttribute.categoryId'
 				}
 			},
+			contributions: {
+				relation: Model.HasManyRelation,
+				modelClass: __dirname+'/CategoryContribution',
+				join: {
+					from: 'Category.id',
+					to: 'CategoryContribution.categoryId'
+				}
+			},
 			children: {
 				relation: Model.HasManyRelation,
 				modelClass: __dirname+'/Category',

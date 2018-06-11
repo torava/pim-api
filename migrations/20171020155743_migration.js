@@ -69,8 +69,25 @@ exports.up = function(knex, Promise) {
       .references('id')
       .inTable('Attribute');
   })
+  .createTable('CategoryContribution', function(table) {
+    table.increments('id').primary();
+    table.float('amount');
+    table.string('unit');
+    table
+      .integer('categoryId')
+      .unsigned()
+      .references('id')
+      .inTable('Category');
+    table
+      .integer('contributionId')
+      .unsigned()
+      .references('id')
+      .inTable('Category');
+  })
   .createTable('ProductAttribute', function(table) {
+    table.increments('id').primary();
     table.float('value');
+    table.string('unit');
     table
       .integer('productId')
       .unsigned()
@@ -85,6 +102,7 @@ exports.up = function(knex, Promise) {
   .createTable('CategoryAttribute', function(table) {
     table.increments('id').primary();
     table.float('value');
+    table.string('unit');
     table
       .integer('categoryId')
       .unsigned()
