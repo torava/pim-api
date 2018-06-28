@@ -10,8 +10,10 @@ class CategoryAttributeSource extends Model {
 			type: 'object',
 
 			properties: {
+				id: {type: 'integer'},
         reference_url: {type: ['string', 'null']},
-				reference_date: { type: 'datetime', default: new Date().toISOString() }
+				reference_date: { type: 'datetime', default: new Date().toISOString() },
+				note: {type: ['string', 'null']}
 			}
 		}
   }

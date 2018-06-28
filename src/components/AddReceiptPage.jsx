@@ -20,7 +20,6 @@ export default class AddReceiptPage extends React.Component {
 
     this.onChange = this.onChange.bind(this);
     this.showUploader = this.showUploader.bind(this);
-    this.showAdjustments = this.showAdjustments.bind(this);
     this.onUpload = this.onUpload.bind(this);
     this.onFlipLeft = this.onFlipLeft.bind(this);
     this.onFlipRight = this.onFlipRight.bind(this);
@@ -31,6 +30,8 @@ export default class AddReceiptPage extends React.Component {
       rotate: 0,
       rotate_adjust: 0,
       data: {},
+      mode: 'uploader',
+      uploading: false,
       categories: [],
       manufacturers: [],
       transactions: [],
@@ -77,27 +78,17 @@ export default class AddReceiptPage extends React.Component {
   }
   showUploader(event) {
     event.preventDefault();
-
-    document.getElementById('uploader').style.display = 'block';
-    document.getElementById('receipt-editor').style.display = 'none';
-    document.getElementById('receipt-adjustments').style.display = 'none';
-  }
-  showAdjustments(event) {
-    event.preventDefault();
-
-    document.getElementById('receipt-adjustments').style.display = 'block';
-    document.getElementById('uploader').style.display = 'none';
-    document.getElementById('receipt-editor').style.display = 'none';
+    let state = Object.assign({}, this.state);
+    state.mode = 'uploader';
+    this.setState(state);
   }
   showEditor(state) {
-    document.getElementsByClassName('next')[0].innerHTML = 'Next';
-  
-    document.getElementById('receipt-editor').style.display = 'block';
-    document.getElementById('uploader').style.display = 'none';
-    document.getElementById('receipt-adjustments').style.display = 'none';
-
+    state.mode = 'editor';
+    
     // Update version
     state.version = Date.now();
+
+    state.uploading = false;
 
     this.setState(state);
 
@@ -106,10 +97,10 @@ export default class AddReceiptPage extends React.Component {
   onUpload(event) {
     event.preventDefault();
 
-    document.getElementsByClassName('next')[0].innerHTML = '<i class="fa fa-spinner fa-spin"/>';
+    this.setState(Object.assign({}, this.state, {uploading: true}));
 
-    let that = this,
-        data = Object.assign({}, this.cropper.getData(), this.state.data);
+    let data = Object.assign({}, this.cropper.getData(), this.state.data);
+
     data.language = document.getElementById('language').value;
 
     //that.setState({});
@@ -153,54 +144,67 @@ export default class AddReceiptPage extends React.Component {
   render() {
     return (
       <div className="add-receipt">
-        <div id="uploader">
-          <a href="#" className="next" onClick={this.onUpload} style={{float:"right"}}>Next</a>
-          <div style={{clear:"both"}}/>
-          <form>
+        {this.state.mode == 'uploader' ? 
+        <div>
+          <div id="uploader">
+            <a href="#" className="next" onClick={this.onUpload} style={{float:"right"}}>
+              {
+                this.state.uploading ?
+                <i class="fa fa-spinner fa-spin"/> :
+                'Next'
+              }
+            </a>
+            <div style={{clear:"both"}}/>
+            <form>
+              <fieldset>
+                <legend>Upload</legend>
+                <input type="file" name="file" id="file" multiple draggable onChange={this.onChange}/>
+                <select placeholder="Language" name="language" id="language">
+                  <option value="fin">suomi</option>
+                  <option value="eng">English</option>
+                  <option value="spa">español</option>
+                </select>
+              </fieldset>
+            </form>
+          </div>
+          <div id="receipt-adjustments">
+            <div style={{clear:"both"}}/>
             <fieldset>
-              <legend>Upload</legend>
-              <input type="file" name="file" id="file" multiple draggable onChange={this.onChange}/>
-              <select placeholder="Language" name="language" id="language">
-                <option value="fin">suomi</option>
-                <option value="eng">English</option>
-                <option value="spa">español</option>
-              </select>
+              <legend>Adjust</legend>
+              <button onClick={this.onFlipLeft}><i className="fa fa-undo"/></button>
+              <input type="range" min="-45" max="45" defaultValue="0" step="any" onChange={this.onRotate} style={{width:'75%'}}/>
+              <button onClick={this.onFlipRight}><i className="fa fa-redo"/></button><br/>
+              Details
+              <i className="fa fa-minus"/>
+              <input type="range"
+                    min="1"
+                    max="30"
+                    defaultValue="10"
+                    step="1"
+                    onChange={this.setData.bind(this, 'threshold')}
+                    style={{width:100, transform: 'rotate(-180deg)'}}
+              />
+              <i className="fa fa-plus"/>&nbsp;
+              Soften <i className="fa fa-minus"/> <input type="range" min="0" max="5" defaultValue="1" step="1" onChange={this.setData.bind(this, 'blur')} style={{width:50}}/> <i className="fa fa-plus"/>&nbsp;
+              Sharpen <i className="fa fa-minus"/> <input type="range" min="0" max="5" defaultValue="1" step="1" onChange={this.setData.bind(this, 'sharpen')} style={{width:50}}/> <i className="fa fa-plus"/>&nbsp;
             </fieldset>
-          </form>
-        </div>
-        <div id="receipt-adjustments" style={{display:"none"}}>
-          <fieldset>
-            <legend>Adjust</legend>
-            <button onClick={this.onFlipLeft}><i className="fa fa-undo"/></button>
-            <input type="range" min="-45" max="45" defaultValue="0" step="any" onChange={this.onRotate} style={{width:'75%'}}/>
-            <button onClick={this.onFlipRight}><i className="fa fa-redo"/></button><br/>
-            Details
-            <i className="fa fa-minus"/>
-            <input type="range"
-                  min="1"
-                  max="30"
-                  defaultValue="10"
-                  step="1"
-                  onChange={this.setData.bind(this, 'threshold')}
-                  style={{width:100, transform: 'rotate(-180deg)'}}
+            {this.state.src && <div>Crop</div>}
+            <Cropper id="cropper"
+                    src={this.state.src}
+                    style={{width:'95%', maxHeight:'500px'}}
+                    autoCropArea={1}
+                    viewMode={0}
+                    rotatable={true}
+                    zoomable={true}
+                    ref={cropper => {this.cropper = cropper}}
             />
-            <i className="fa fa-plus"/>&nbsp;
-            Soften <i className="fa fa-minus"/> <input type="range" min="0" max="5" defaultValue="1" step="1" onChange={this.setData.bind(this, 'blur')} style={{width:50}}/> <i className="fa fa-plus"/>&nbsp;
-            Sharpen <i className="fa fa-minus"/> <input type="range" min="0" max="5" defaultValue="1" step="1" onChange={this.setData.bind(this, 'sharpen')} style={{width:50}}/> <i className="fa fa-plus"/>&nbsp;
-          </fieldset>
-          {this.state.src && <div>Crop</div>}
-          <Cropper id="cropper"
-                  src={this.state.src}
-                  style={{width:'95%', maxHeight:'500px'}}
-                  autoCropArea={1}
-                  viewMode={0}
-                  rotatable={true}
-                  zoomable={true}
-                  ref={cropper => {this.cropper = cropper}}
-          />
+          </div>
         </div>
-        <div id="receipt-editor" style={{display:"none"}}>
+        : ''}
+        {this.state.mode == 'editor' ?
+        <div id="receipt-editor">
           <a href="#" className="previous" onClick={this.showUploader} style={{float:"left"}}>Previous</a>
+          <div style={{clear:"both"}}/>
           <ReceiptEditor id="receipt-editor"
                          version={this.state.version}
                          products={this.state.products}
@@ -209,6 +213,7 @@ export default class AddReceiptPage extends React.Component {
                          transactions={this.state.transactions}
                          showAdjustments={this.showAdjustments}/>
         </div>
+        : ''}
       </div>
     );
   }

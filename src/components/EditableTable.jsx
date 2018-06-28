@@ -14,6 +14,7 @@ class EditableTable extends Component {
     }
 
     this.toggleChildren = this.toggleChildren.bind(this);
+    this.onColumnTitleClick = this.onColumnTitleClick.bind(this);
   }
   componentWillReceiveProps(props) {
     this.setState({
@@ -26,7 +27,7 @@ class EditableTable extends Component {
     event.preventDefault();
 
     const indexes = event.target.parentNode.parentNode.id.split('-'),
-        items = this.state.items;
+          items = [...this.state.items];
 
     let item = items[indexes.shift()];
 
@@ -39,10 +40,19 @@ class EditableTable extends Component {
     this.setState({
       items
     });
-
-    /*let items = this.state.items;
-    items[i].expanded = !items[i].expanded;
-    this.setState({items: items});*/
+  }
+  onColumnTitleClick(event, column) {
+    if (column.sortable) {
+      if (column.order == 'ASC') {
+        column.order = 'DESC';
+      }
+      else if (column.order == 'DESC') {
+        column.order = null;
+      }
+      else {
+        column.order = 'ASC';
+      }
+    }
   }
   getColumnChildren(column) {
     if (column.columns) {
@@ -71,7 +81,8 @@ class EditableTable extends Component {
         <th colSpan={count || 1}
             rowSpan={rowspan}
             data-depth={depth}
-            key={"column-"+indexes.join('-')+"-"+i}>
+            key={"column-"+indexes.join('-')+"-"+i}
+            onClick={this.onColumnTitleClick.bind(this, column)}>
           {column.label} {{'ASC': '\u25B4', 'DESC': '\u25BE'}[column.order] || ''}
         </th>
       );

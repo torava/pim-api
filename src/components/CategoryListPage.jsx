@@ -20,6 +20,8 @@ class CategoryList extends Component {
           attributes: attributes.data,
           columns: that.getColumns()
         });
+
+        document.title = "Categories";
       });
     });
   }
@@ -50,20 +52,6 @@ class CategoryList extends Component {
         id: 'price',
         label: 'Price'
       },
-      {
-        id: 'footprint',
-        label: 'Footprint',
-        columns: [
-          {
-            id: 'co2',
-            label: 'CO2'
-          },
-          {
-            id: 'methane',
-            label: 'Methane'
-          }
-        ]
-      }
     ].concat(this.getAttributeColumn(this.state.attributes));
   }
   render() {

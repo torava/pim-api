@@ -52,6 +52,15 @@ fieldset {
   border: 1px solid silver;
   border-radius: 0.5em;
 }
+.path, .path > li {
+  list-style-type: none;
+  display: inline;
+  margin: 0;
+  padding: 0;
+}
+.path > li:not(:last-child):after {
+  content: ' > ';
+}
 
 /* cropper */
 .cropper-dashed {

@@ -148,7 +148,11 @@ class Category extends Component {
             getOptionLabel={(option) => option.name[this.state.locale]}
             getOptionValue={(option) => option.id}
           /> :
-          <span>{that.renderParentPath(item.attribute)}</span>
+          <ul class="path">
+            {this.getParentPath(item.attribute).map(parent => (
+              <li>{parent.name[this.state.locale]}</li>
+            ))}
+          </ul>
         )
       },
       {
@@ -177,35 +181,49 @@ class Category extends Component {
         id: 'name',
         label: 'Name',
         property: 'contribution.name.'+that.state.locale,
-        formatter: (value, item, index) => (
-          this.state.editable ?
-          <CreatableSelect
-            isMulti
-            filterOption={this.filterOption}
-            options={that.state.attributes}
-            onChange={that.onContributionNameChange.bind(that, index)}
-            value={value}
-            getOptionLabel={(option) => option.name[this.state.locale]}
-            getOptionValue={(option) => option.id}
-          /> :
-          <span>{value}</span>
-          )
+        formatter: (value, item, index) => {
+          if (item._aggregate) {
+            return <strong>{item._aggregate}</strong>;
+          }
+          else if (this.state.editable) {
+            return (
+              <CreatableSelect
+                isMulti
+                filterOption={this.filterOption}
+                options={that.state.attributes}
+                onChange={that.onContributionNameChange.bind(that, index)}
+                value={value}
+                getOptionLabel={(option) => option.name[this.state.locale]}
+                getOptionValue={(option) => option.id}
+              />
+            );
+          }
+          else {
+            <span><a href="/category/{item.id}">{value}</a></span>
+          }
+        }
       },
       {
         id: 'amount',
         label: 'Amount',
-        formatter: (value, item, index) => (
-          this.state.editable ?
-          <span>
-            <input type="number"
-                   value={value}
-                   onChange={this.onAttributeValueChange.bind(that, index)}/>
-            <input type="text"
-                   value={item.unit}
-                   onChange={this.onAttributeUnitChange.bind(that, index)}/>
-          </span> :
-          <span>{value}{item.unit ? ' '+item.unit : ''}</span>
-        )
+        formatter: (value, item, index) => {
+          if (item._aggregate) {
+            return <strong>{value}{item.unit ? ' '+item.unit : ''}</strong>;
+          }
+          if (this.state.editable) {
+            return (<span>
+              <input type="number"
+                    value={value}
+                    onChange={this.onContributionAmountChange.bind(that, index)}/>
+              <input type="text"
+                    value={item.unit}
+                    onChange={this.onContributionUnitChange.bind(that, index)}/>
+            </span>);
+          }
+          else {
+            return (<span>{value}{item.unit ? ' '+item.unit : ''}</span>);
+          }
+        }
       }
     ]
   }
@@ -362,6 +380,17 @@ class Category extends Component {
       category
     });
   }
+
+  onContributionNameChange(index, event, val) {
+
+  }
+  onContributionAmountChange(index, event, val) {
+
+  }
+  onContributionUnitChange(index, event, val) {
+
+  }
+
   onAttributeNameChange(index, event, val) {
     let category = Object.assign({}, this.state.category),
         attributes = this.state.attributes,
@@ -595,16 +624,14 @@ class Category extends Component {
     }
     return result;
   }
-  renderParentPath(item) {
+  getParentPath(item) {
     let result = [],
         parent = item;
     if (parent) {
       while (parent = parent.parent) {
         if (!parent || !parent.name) continue;
-        result.push(<a href={parent.id}>{parent.name[this.state.locale]}</a>);
-        result.push(' > ');
+        result.push(parent);
       }
-      result.pop();
       result.reverse();
     }
     return result;
@@ -669,7 +696,11 @@ class Category extends Component {
               getOptionLabel={(option) => option.name[this.state.locale]}
               getOptionValue={(option) => option.id}
             /> :
-            that.renderParentPath(that.state.category)
+            <ul class="path">
+              {that.getParentPath(that.state.category).map((parent) => (
+                <li><a href={parent.id}>{parent.name[this.state.locale]}</a></li>
+              ))}
+            </ul>
           }
         <h1>
           {this.state.editable ?
@@ -691,7 +722,17 @@ class Category extends Component {
         <h2>Contributions</h2>
         <EditableTable
           columns={this.state.contribution_columns}
-          items={this.state.category.contributions}
+          items={[...this.state.category.contributions, {
+            _aggregate: "Total",
+            amount: function() {
+              let total = 0;
+              that.state.category.contributions.map((item) => {
+                total+= item.amount;
+              })
+              return total;
+            }(),
+            unit: 'g'
+          }]}
         />
         <h2>Attributes</h2>
         <EditableTable

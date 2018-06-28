@@ -37,6 +37,7 @@ module.exports = function (app) {
         source,
         sources,
         attribute,
+        note,
         attributes = await Attribute.query(),
         categories = await Category.query(),
         attribute_object,
@@ -52,52 +53,58 @@ module.exports = function (app) {
     }
   
     let column_names = rows[0].split(separator);
-  
+
     for (let i = 1; i < rows.length; i++) {
       columns = rows[i].split(separator);
       item = {};
+      note = '';
       for (let n in columns) {
         column_name = column_names[n];
         attribute = column_name.match(/^attribute\:(.*)(\s\((.*)\))/i) ||
                     column_name.match(/^attribute\:(.*)/i);
         if (attribute) {
-          found = false;
-          for (let m in attributes) {
-            if (attribute[1] in attributes[m].name) {
-              attribute_object = {
-                id: attributes[m].id
+          if (columns[n] !== "") {
+            found = false;
+            for (let m in attributes) {
+              if (attribute[1] == attributes[m].name && attribute[3] == attributes[m].unit) {
+                attribute_object = {
+                  id: attributes[m].id
+                }
+                found = true;
+                break;
               }
-              found = true;
-              break;
             }
+            if (!found) {
+              ref = 'attribute:'+attribute[1]+','+attribute[3];
+              if (ref in refs) {
+                attribute_object = {
+                  '#ref': ref
+                }
+              }
+              else {
+                refs[ref] = true;
+                attribute_object = {
+                  '#id': ref,
+                  name: {
+                    'fi-FI': attribute[1]
+                  },
+                  unit: attribute[3]
+                }
+              }
+            }
+            value = parseFloat(columns[n].replace(',', '.'));
+            Object.assign(item, {
+              attributes: [
+                {
+                  attribute: attribute_object,
+                  value
+                }
+              ]
+            });
           }
-          if (!found) {
-            ref = 'attribute:'+attribute[1];
-            if (ref in refs) {
-              attribute_object = {
-                '#ref': ref
-              }
-            }
-            else {
-              refs[ref] = true;
-              attribute_object = {
-                '#id': ref,
-                name: {
-                  'fi-FI': attribute[1]
-                },
-                unit: attribute[3]
-              }
-            }
-          }
-          value = parseFloat(columns[n].replace(',', '.'));
-          Object.assign(item, {
-            attributes: [
-              {
-                attribute: attribute_object,
-                value
-              }
-            ]
-          });
+        }
+        else if (column_name.toLowerCase() == 'note') {
+          note = columns[n];
         }
         else if (['source', 'lähde'].indexOf(column_name.toLowerCase()) !== -1) {
           if (!columns[n]) continue;
@@ -117,17 +124,20 @@ module.exports = function (app) {
               if (!item.attributes[m].sources) item.attributes[m].sources = [];
               if (ref in refs) {
                 item.attributes[m].sources.push({
-                  '#ref': ref
+                  source: {
+                    '#ref': ref
+                  }
                 });
               }
               else {
                 refs[ref] = true,
                 item.attributes[m].sources.push({
-                  '#id': ref,
-                  source : {
+                  source: {
+                    '#id': ref,
                     name: source,
-                    year
-                  }
+                    publication_date: String(year)
+                  },
+                  note
                 });
               }
             }
@@ -353,10 +363,11 @@ app.post('/api/category', async function(req, res) {
     category = req.body;
   }
   console.dir(category, {depth:null});
-  res.send(category);
-  return;
   Category.query()
-    .upsertGraph(category)
+    .upsertGraph(category, {
+      noDelete: true,
+      relate: true
+    })
     .then(category => {
       res.send(category);
     })

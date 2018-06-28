@@ -426,7 +426,7 @@ app.get('/api/import/getexternalcategoriesfineli', async function(req, res) {
 
           n = 0;
           // put attributes to array
-          for (i in attributes) {
+          for (let i in attributes) {
             attribute_values.push(attributes[i]);
     
             // add attribute values to database in 20 item chunks
@@ -447,7 +447,7 @@ app.get('/api/import/getexternalcategoriesfineli', async function(req, res) {
             n++;
           }
 
-          console.log('all done '+i+'/'+attribute_count+' '+moment().format());
+          console.log('all done '+attribute_count+'/'+attribute_count+' '+moment().format());
 
           /* macbook benchmark in 20 chunks
 
@@ -467,6 +467,15 @@ app.get('/api/import/getexternalcategoriesfineli', async function(req, res) {
           done 34960/295043 2018-06-12T02:28:18+03:00
           done 34980/295043 2018-06-12T02:28:21+03:00
           done 35000/295043 2018-06-12T02:28:23+03:00
+
+          1 chunk
+
+          files 2018-06-28T02:59:14+03:00
+          meta 2018-06-28T02:59:14+03:00
+          food 2018-06-28T02:59:14+03:00
+          written 2018-06-28T02:59:19+03:00
+          contributions 2018-06-28T02:59:30+03:00
+          all done 295043/295043 2018-06-28T03:05:28+03:00
 
           */
 

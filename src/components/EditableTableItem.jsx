@@ -20,8 +20,6 @@ const itemTarget = {
 	hover(props, monitor, component) {
 		const dragIndex = monitor.getItem().index
     const hoverIndex = props.index
-    
-    console.log(dragIndex, hoverIndex);    
 
 		// Don't replace items with themselves
 		if (dragIndex === hoverIndex) {
@@ -79,36 +77,6 @@ class EditableTableItem extends Component {
   
   constructor(props) {
     super(props);
-    this.toggleChildren = this.toggleChildren.bind(this);
-  }
-  toggleChildren(event) {
-    /*let children = document.getElementsByClassName(this.props.rowIndex),
-        arrow = event.target.getElementsByClassName('arrow')[0],
-        expanded = arrow.innerHTML === '\u25BE',
-        children_class = (this.props.className ? this.props.className+" " : "")+this.props.rowIndex,
-        child_parent_expanded;
-    arrow.innerHTML = expanded ? '\u25B8' : '\u25BE';
-    event.target.parentNode.setAttribute('data-expanded', !expanded);
-    for (let i = 0; i < children.length; i++) {
-      if (!expanded) { // opening
-        child_parent_expanded = document.getElementById(children[i].getAttribute('data-parent')).getAttribute('data-expanded');
-        if (child_parent_expanded) {
-          children[i].style.display = 'table-row';
-        }
-        else {
-          children[i].style.display = 'none';
-        }
-      }
-      else { // closing
-        children[i].style.display = 'none';
-      }
-    }*/
-  }
-  toggleChildView(event) {
-    let childView = document.getElementById(this.props.rowIndex+"-childView");
-    if (childView) {
-      childView.style.display = childView.style.display == 'none' ? 'block' : 'none';
-    }
   }
   renderColumns(columns, indexes, tds) {
     const that = this;

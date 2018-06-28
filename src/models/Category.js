@@ -13,7 +13,7 @@ class Category extends Model {
 			properties: {
 				id: {type: 'integer'},
 				name: {type: 'object'},
-				attributes: {type: 'object'}
+				aliases: {type: 'object'}
 			}
 		}
 	}

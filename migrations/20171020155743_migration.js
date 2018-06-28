@@ -27,6 +27,7 @@ exports.up = function(knex, Promise) {
   .createTable('Category', function(table) {
     table.increments('id').primary();
     table.json('name');
+    table.json('aliases');
     table.integer('parentId').unsigned().references('id').inTable('Category');
   })
   .createTable('Product', function(table) {
@@ -115,7 +116,8 @@ exports.up = function(knex, Promise) {
       .inTable('Attribute');
   })
   .createTable('Conversion', function(table) {
-    table.string('fromLocale').primary();
+    table.increments('id').primary();
+    table.string('fromLocale').unique();
     table.string('fromCurrency').unique();
     table.string('toLocale').unique();
     table.string('toCurrency').unique();
@@ -129,8 +131,10 @@ exports.up = function(knex, Promise) {
     table.string('publication_url');
   })
   .createTable('CategoryAttributeSource', function(table) {
+    table.increments('id').primary();
     table.string('reference_date');
     table.string('reference_url');
+    table.string('note');
     table
       .integer('attributeId')
       .unsigned()

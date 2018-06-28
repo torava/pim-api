@@ -11,6 +11,7 @@ class Conversion extends Model {
 			type: 'object',
 
 			properties: {
+				id: {type: 'integer'},
 				fromLocale: {type: 'string'}, 
 				fromCurrency: {type: 'string'},
 				toLocale: {type: 'string'},
