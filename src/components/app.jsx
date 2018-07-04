@@ -10,6 +10,7 @@ import CategoryPage from './CategoryPage';
 import AddReceiptPage from './AddReceiptPage';
 import EditReceiptPage from './EditReceiptPage';
 import TextBoxTool from './TextBoxTool';
+import CropTool from './CropTool';
 import NotFoundPage from './NotFoundPage';
 import { hot } from 'react-hot-loader';
 
@@ -22,6 +23,7 @@ const App = () => <Layout>
     <Route path="/category/:id" component={CategoryPage}/>
     <Route path="/edit/:id" component={EditReceiptPage}/>
     <Route path="/tool/hocr" component={TextBoxTool}/>
+    <Route path="/tool/crop" component={CropTool}/>
     <Route path="*" component={NotFoundPage}/>
   </Switch>
 </Layout>;

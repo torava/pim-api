@@ -20,6 +20,7 @@ export default class AddReceiptPage extends React.Component {
 
     this.onChange = this.onChange.bind(this);
     this.showUploader = this.showUploader.bind(this);
+    this.showAdjustments = this.showAdjustments.bind(this);
     this.onUpload = this.onUpload.bind(this);
     this.onFlipLeft = this.onFlipLeft.bind(this);
     this.onFlipRight = this.onFlipRight.bind(this);
@@ -35,6 +36,7 @@ export default class AddReceiptPage extends React.Component {
       categories: [],
       manufacturers: [],
       transactions: [],
+      cropper_data: null,
       version: 0
     };
   }
@@ -57,14 +59,17 @@ export default class AddReceiptPage extends React.Component {
 
     var formData = new FormData();
       formData.append('file', files[0]);
-      axios.post('/api/receipt/picture', formData)
+      axios.post('/api/receipt/prepare', formData)
       .then(function(response) {
-        /*that.setState({transactions: []});
+        that.setState({transactions: []});
 
-        var transactions = [{receipts:[{file: response.data.file}]}];
-        that.setState({transactions: transactions});*/
+        var transactions = [{receipts:[{file: response.data.id}]}];
+        that.setState({
+          transactions,
+          cropper_data: response.data.bounds
+        });
 
-        that.showEditor(response.data);
+        that.showAdjustments();
       })
       .catch(function(error) {
         console.error(error);
@@ -80,6 +85,12 @@ export default class AddReceiptPage extends React.Component {
     event.preventDefault();
     let state = Object.assign({}, this.state);
     state.mode = 'uploader';
+    this.setState(state);
+  }
+  showAdjustments(event) {
+    event && event.preventDefault();
+    let state = Object.assign({}, this.state);
+    state.mode = 'adjustments';
     this.setState(state);
   }
   showEditor(state) {
@@ -99,7 +110,8 @@ export default class AddReceiptPage extends React.Component {
 
     this.setState(Object.assign({}, this.state, {uploading: true}));
 
-    let data = Object.assign({}, this.cropper.getData(), this.state.data);
+    let data = Object.assign({}, this.cropper.getData(), this.state.data),
+        that = this;
 
     data.language = document.getElementById('language').value;
 
@@ -107,7 +119,7 @@ export default class AddReceiptPage extends React.Component {
 
     axios.post('/api/receipt/data/'+this.state.transactions[0].receipts[0].file, data)
     .then(function(response) {
-      showEditor(response.data);
+      that.showEditor(response.data);
     })
     .catch(function(error) {
       console.error(error);
@@ -144,13 +156,13 @@ export default class AddReceiptPage extends React.Component {
   render() {
     return (
       <div className="add-receipt">
-        {this.state.mode == 'uploader' ? 
+        {this.state.mode == 'uploader' || this.state.mode == 'adjustments' ? 
         <div>
           <div id="uploader">
             <a href="#" className="next" onClick={this.onUpload} style={{float:"right"}}>
               {
                 this.state.uploading ?
-                <i class="fa fa-spinner fa-spin"/> :
+                <i className="fa fa-spinner fa-spin">&nbsp;</i> :
                 'Next'
               }
             </a>
@@ -160,13 +172,14 @@ export default class AddReceiptPage extends React.Component {
                 <legend>Upload</legend>
                 <input type="file" name="file" id="file" multiple draggable onChange={this.onChange}/>
                 <select placeholder="Language" name="language" id="language">
-                  <option value="fin">suomi</option>
-                  <option value="eng">English</option>
-                  <option value="spa">español</option>
+                  <option value="fi-FI">suomi</option>
+                  <option value="en-EN">English</option>
+                  <option value="es-AR">español</option>
                 </select>
               </fieldset>
             </form>
           </div>
+          {this.state.mode == 'adjustments' ?
           <div id="receipt-adjustments">
             <div style={{clear:"both"}}/>
             <fieldset>
@@ -185,26 +198,28 @@ export default class AddReceiptPage extends React.Component {
                     style={{width:100, transform: 'rotate(-180deg)'}}
               />
               <i className="fa fa-plus"/>&nbsp;
-              Soften <i className="fa fa-minus"/> <input type="range" min="0" max="5" defaultValue="1" step="1" onChange={this.setData.bind(this, 'blur')} style={{width:50}}/> <i className="fa fa-plus"/>&nbsp;
-              Sharpen <i className="fa fa-minus"/> <input type="range" min="0" max="5" defaultValue="1" step="1" onChange={this.setData.bind(this, 'sharpen')} style={{width:50}}/> <i className="fa fa-plus"/>&nbsp;
+              Soften <i className="fa fa-minus"/> <input type="range" min="0" max="5" defaultValue="0" step="1" onChange={this.setData.bind(this, 'blur')} style={{width:50}}/> <i className="fa fa-plus"/>&nbsp;
+              Sharpen <i className="fa fa-minus"/> <input type="range" min="0" max="5" defaultValue="0" step="1" onChange={this.setData.bind(this, 'sharpen')} style={{width:50}}/> <i className="fa fa-plus"/>&nbsp;
             </fieldset>
             {this.state.src && <div>Crop</div>}
             <Cropper id="cropper"
                     src={this.state.src}
-                    style={{width:'95%', maxHeight:'500px'}}
+                    style={{width:'95%', maxHeight:'700px'}}
                     autoCropArea={1}
+                    autoCrop={true}
+                    data={this.state.cropper_data}
                     viewMode={0}
                     rotatable={true}
                     zoomable={true}
                     ref={cropper => {this.cropper = cropper}}
             />
-          </div>
+          </div> :
+          ''}
         </div>
         : ''}
         {this.state.mode == 'editor' ?
         <div id="receipt-editor">
-          <a href="#" className="previous" onClick={this.showUploader} style={{float:"left"}}>Previous</a>
-          <div style={{clear:"both"}}/>
+          <a href="#" className="previous" onClick={this.showAdjustments} style={{float:"left"}}>Previous</a>
           <ReceiptEditor id="receipt-editor"
                          version={this.state.version}
                          products={this.state.products}

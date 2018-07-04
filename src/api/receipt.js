@@ -5,6 +5,7 @@ const Attribute = require('../models/Attribute');
 const Manufacturer = require('../models/Manufacturer');
 const multer = require('multer');
 const express = require('express');
+const Jimp = require('jimp');
 const app = express();
 const fs = require('fs');
 const child_process = require('child_process');
@@ -12,15 +13,39 @@ const _ = require('lodash');
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 const sizeOf = require('image-size');
+const moment = require('moment');
 
 module.exports = function (app) {
 
-const upload_path = __dirname+"/resources/uploads";
+const upload_path = __dirname+"/../../resources/uploads";
 
 const upload = multer({
   dest: upload_path,
   limits: {fileSize: 10000000}
 }).single('file');
+
+function getClosestCategory(toCompare, locale) {
+  return new Promise((resolve, reject) => {
+    Category.query()
+    .then(categories => {
+      let name, category, response = null, max_distance = 0, distance, match;
+      toCompare = toCompare.toLowerCase();
+      for (let i in categories) {
+        category = categories[i];
+        name = category.name[locale];
+        if (!name) continue;
+        match = new RegExp('\\b'+_.escapeRegExp(name)+'\\b', 'i');
+        distance = toCompare.match(match) && name.length/toCompare.length;
+        if (distance > max_distance) {
+          max_distance = distance;
+          response = category;
+        }
+      }
+      resolve(response);
+    })
+    .catch(reject);
+  });
+}
 
 function parseYear(year) {
   if (year.length == 2) {
@@ -56,11 +81,9 @@ async function getDataFromReceipt(result, text, locale) {
   .replace(/—/g, '-')
   .replace(/ +/g, ' ');
 
-  console.log(text);
-
   let line, line_name, line_product_name, line_price, line_prices, item_number, line_text,
     line_total, line_date, line_address, line_vat, line_item_details, quantity, measure,
-    line_number_format, total_price_computed = 0, name, line_item, line_phone_number,
+    line_number_format, total_price_computed = 0, name, date, line_item, line_phone_number,
     total_price, price, has_discount, previous_line, found_attribute, category,
     items = [], line_number = 0, data = {party:{}},
     lines = text.split("\n");
@@ -121,19 +144,24 @@ async function getDataFromReceipt(result, text, locale) {
       if (!data.date) {
         // 1.1.12 1:12
         line_date = line.match(/((\d{1,2})[\.|\,](\d{1,2})[\.|\,](\d{2,4}))(\s)?((\d{1,2}):((\d{1,2})\:)?(\d{1,2})?)?/);
-        if (line_date) {
-          data.date = Date.parse(parseYear(line_date[4])+'/'+line_date[3]+'/'+line_date[2]+' '+line_date[6]);
+        date = line_date && parseYear(line_date[4])+'-'+line_date[3]+'-'+line_date[2]+' '+line_date[6];
+        if (date) {
+          console.log(line_date, date);
+          data.date = date;
 
           found_attribute = 'date';
         }
-      }
-      else {
-        // 1:12 1-1-12
-        line_date = line.match(/((\d{1,2}:)(\d{1,2}:)?(\d{1,2})?)?(\s)?((\d{1,2})[\-|\.](\d{1,2})[\-|\.](\d{2,4}))/);
-        if (line_date) {
-          data.date = Date.parse(parseYear(line_date[9])+'/'+line_date[8]+'/'+line_date[7]+' '+line_date[1]);
 
-          found_attribute = 'date';
+        if (!date || !line_date[6]) {
+          // 1:12 1-1-12
+          line_date = line.match(/((\d{1,2}:)(\d{1,2}:)?(\d{1,2})?)?(\s)?((\d{1,2})[\-|\.](\d{1,2})[\-|\.](\d{2,4}))/);
+          date = line_date && parseYear(line_date[9])+'-'+line_date[8]+'-'+line_date[7]+' '+line_date[1];
+          if (date) {
+            console.log(line_date, date);
+            data.date = date;
+
+            found_attribute = 'date';
+          }
         }
       }
 
@@ -173,7 +201,7 @@ async function getDataFromReceipt(result, text, locale) {
       // general attributes
 
       // total line
-      line_total = line_number_format.match(/^(yhteensä|yhteensa).*[^0-9]((\d+\.\d{2})(\-)?\s)?((\d+\.\d{2})(\-)?)$/i);
+      line_total = line_number_format.match(/^(total|summa|yhteensä|yhteensa).*[^0-9]((\d+\.\d{2})(\-)?\s)?((\d+\.\d{2})(\-)?)$/i);
       if (line_total) {
         if (line_total[2]) continue;
 
@@ -218,7 +246,7 @@ async function getDataFromReceipt(result, text, locale) {
       
       // item line
       if (!has_discount && !data.total_price_read && !line.match(/käteinen|kateinen|käte1nen|kate1nen|taka1s1n|takaisin/i)) {
-        line_price = line_number_format.match(/\s((\d+\.\d{2})(\-)?\s?){1,2}[\s|T|1|A|B|8|\[|\]]{0,2}$/i);
+        line_price = line_number_format.match(/\s((\d+\.\d{2})(\-)?){1,2}\s*.{0,3}$/i);
         if (line_price) {
           line_item = line.substring(0, line_price.index).match(/^((\d+)\s)?([\u00C0-\u017F-a-z0-9\s\-\.\,\+\&\%\=\/\(\)\{\}\[\]]+)$/i);
           if (line_item) {
@@ -506,9 +534,14 @@ async function getDataFromReceipt(result, text, locale) {
 function processReceiptImage(filepath, data, resize) {
   return new Promise((resolve, reject) => {
     let script = [filepath,
-                  '-auto-orient',
+                  //'-auto-orient',
                   '-type', 'grayscale',
-                  '-background', 'white'],
+                  '-background', 'white',
+                  '-bordercolor', 'white',
+                  '-border', '10',
+                  //'-normalize',
+                  //'-contrast-stretch', '0'
+                ],
         parameters = {threshold: 10, blur: 1, sharpen: 1};
 
     if (!data) data = {};
@@ -531,8 +564,6 @@ function processReceiptImage(filepath, data, resize) {
 
     if (resize) {
       script = script.concat(['-adaptive-resize', resize === true ? '800x' : resize,
-          '-normalize',
-          //'-contrast-stretch', '0'
       ]);
     }
 
@@ -547,13 +578,11 @@ function processReceiptImage(filepath, data, resize) {
         '-set', 'option:deskew:autocrop', '1',
         '-deskew', '40%',
         '-fuzz', '5%',
-        //'-bordercolor', 'white',
-        //'-border', '50',
         '-trim',
         '+repage',
         '-strip',
         'PNG:'+filepath+'_edited']);
-
+    console.log(script);
     child_process.execFile('convert', script, function(error, stdout, stderr) {
       if (error) console.error(error);
       process.stdout.write(stdout);
@@ -688,6 +717,97 @@ app.get('/api/receipt/data/:id', function(req, res) {
   });
 });
 
+app.post('/api/receipt/prepare/', function(req, res) {
+  let script,
+      color,
+      width,
+      height,
+      original_width,
+      original_height,
+      distances = {
+        nw: 999,
+        ne: 999,
+        se: 999,
+        sw: 999
+      },
+      bounds,
+      ratio,
+      distance;
+  upload(req, res, (err) => {
+    let file = req.file;
+    script = [file.path,
+              '-auto-orient',
+              '-resize', '100',
+              //'-median', '1',
+              //'-lat', '100x100-1%',
+              '-median', 10,
+              '-normalize',
+              '-threshold', '50%',
+              'PNG:'+file.path+'_median'];
+
+    child_process.execFile('convert', script, function(error, stdout, stderr) {
+      if (error) console.error(error);
+      process.stdout.write(stdout);
+      process.stderr.write(stderr);
+      
+      Jimp.read(file.path, (err, original) => {
+        original_width = original.bitmap.width;
+        original_height = original.bitmap.height;
+        bounds = {
+          x: original_width,
+          y: original_height,
+          width: 0,
+          height: 0
+        }
+        Jimp.read(file.path+'_median', (err, image) => {
+          width = image.bitmap.width;
+          height = image.bitmap.height;
+          ratio = original_width/width;
+          image.scan(0, 0, width, height, function (x, y, index) {
+            color = image.getPixelColor(x, y);
+            if (color == '0xFFFFFFFF') {
+              bounds.x = Math.min(bounds.x, x*ratio);
+              bounds.y = Math.min(bounds.y, y*ratio);
+              bounds.width = Math.max(bounds.width, x*ratio-bounds.x);
+              bounds.height = Math.max(bounds.height, y*ratio-bounds.y);
+              /*
+              how about polygon
+              distance = Math.sqrt(Math.pow(x-0, 2)+Math.pow(y-0, 2));
+              if (distances.nw > distance) {
+                bounds.nw = [x,y];
+                distances.nw = distance;
+                return true;
+              }
+              distance = Math.sqrt(Math.pow(x-width, 2)+Math.pow(y-0, 2));
+              if (distances.ne > distance) {
+                bounds.ne = [x,y];
+                distances.ne = distance;
+                return true;
+              }
+              distance = Math.sqrt(Math.pow(x-0, 2)+Math.pow(y-height, 2));
+              if (distances.sw > distance) {
+                bounds.sw = [x,y];
+                distances.sw = distance;
+                return true;
+              }
+              distance = Math.sqrt(Math.pow(x-width, 2)+Math.pow(y-height, 2));
+              if (distances.se > distance) {
+                bounds.se = [x,y];
+                distances.se = distance;
+                return true;
+              }*/
+            }
+          });
+          res.send({
+            bounds,
+            id: file.filename
+          })
+        });
+      });
+    });
+  });
+});
+
 app.post('/api/receipt/hocr/', function(req, res) {
   upload(req, res, function(err) {
     if (err) {
@@ -738,8 +858,8 @@ function processReceipt(data, language, id) {
         Manufacturer.query()
         .then(manufacturer => {
           data.manufacturers = manufacturer;
-          processReceiptImage(filepath, data, true).then(response => {
-            extractTextFromFile(filepath, language).then(async (text) => {
+          return processReceiptImage(filepath, data, true).then(response => {
+            return extractTextFromFile(filepath, language).then(async (text) => {
               if (text) {
                 data = await getDataFromReceipt(data, text, language);
                 //data.transactions[0].receipts = [{}];
@@ -752,11 +872,35 @@ function processReceipt(data, language, id) {
                 }
               }
               resolve(data);
+            })
+            .catch(error => {
+              console.error(error);
+              throw new Error();
             });
+          })
+          .catch(error => {
+            console.error(error);
+            throw new Error();
           });
+        })
+        .catch(error => {
+          console.error(error);
+          throw new Error();
         });
+      })
+      .catch(error => {
+        console.error(error);
+        throw new Error();
       });
+    })
+    .catch(error => {
+      console.error(error);
+      throw new Error();
     });
+  })
+  .catch(error => {
+    console.error(error);
+    throw new Error();
   });
 }
 

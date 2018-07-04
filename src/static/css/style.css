@@ -12,7 +12,7 @@ header nav {
 }
 .header-container {
   margin: auto;
-  max-width: 1000px;
+  max-width: 1200px;
 }
 table {
   border-collapse: collapse;
@@ -36,7 +36,7 @@ table table {
   color: black;
 }
 .app-content {
-  max-width: 1000px;
+  max-width: 1200px;
   padding: 0.5em;
   margin: auto;
 }
@@ -137,4 +137,11 @@ fieldset {
   table.no-more-tables > tbody > tr > td > input {
     width: auto;
   }
+}
+
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box ul.react-datepicker__time-list {
+  padding: 0
+}
+.input-row > div {
+  display: inline-block;
 }

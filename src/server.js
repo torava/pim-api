@@ -63,6 +63,7 @@ app.get('*', (req, res) => {
 <script src="http://localhost:8097"></script>
 <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
 <link rel="stylesheet" href="/css/treetabular.css">
+<link rel="stylesheet" href="/css/react-datepicker.css">
 <link rel="stylesheet" href="/css/react-table.css">
 <link rel="stylesheet" href="/css/cropper.css">
 <link rel="stylesheet" href="/css/style.css">

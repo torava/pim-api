@@ -214,7 +214,7 @@ function getCategories(parent) {
 }
 
 function getClosestCategory(toCompare, locale) {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     Category.query()
     .then(categories => {
       let name, category, response = null, max_distance = 0, distance, match;

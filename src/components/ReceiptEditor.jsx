@@ -7,6 +7,7 @@ import axios from 'axios';
 import Cropper from 'react-cropper';
 import moment from 'moment';
 import Autosuggest from 'react-autosuggest';
+import DatePicker from 'react-datepicker';
 
 function toNumber(n) {
   let f = parseFloat(n);
@@ -107,8 +108,13 @@ export default class addReceiptPage extends React.Component {
     this.onCategorySuggestionsFetchRequested = this.onCategorySuggestionsFetchRequested.bind(this);
     this.onCategorySuggestionsClearRequested = this.onCategorySuggestionsClearRequested.bind(this);
 
+    let transactions = props.transactions;
+
+    if (transactions && transactions.length)
+      transactions[0].items.push({});
+
     this.state = {
-      transactions: this.props.transactions,
+      transactions,
       manufacturers: this.props.manufacturers,
       categories: this.props.categories,
       products: this.props.products,
@@ -117,8 +123,13 @@ export default class addReceiptPage extends React.Component {
     }
   }
   componentWillReceiveProps(props) {
+    let transactions = props.transactions;
+   
+    if (transactions && transactions.length)
+      transactions[0].items.push({});
+    
     this.setState({
-      transactions: props.transactions,
+      transactions,
       manufacturers: props.manufacturers,
       categories: props.categories,
       products: props.products,
@@ -164,14 +175,12 @@ export default class addReceiptPage extends React.Component {
       transactions
     })  
   }
-  onDateChange(event) {
-    if (!isNaN(Date.parse(event.target.value))) {
-      let transactions = this.state.transactions;
-      transactions[0].date = event.target.value;
-      this.setState({
-        transactions
-      });
-    }
+  onDateChange(date) {
+    let transactions = this.state.transactions;
+    transactions[0].date = moment(date).format('YYYY-MM-DD HH:MM:SS');
+    this.setState({
+      transactions
+    });
   }
   onItemNumberChange(key, event) {
     let transactions = this.state.transactions;
@@ -293,6 +302,7 @@ export default class addReceiptPage extends React.Component {
       total_price+= transactions[0].items[i].price;
     }
     transactions[0].total_price = total_price;
+
     this.setState({
       transactions: transactions
     });
@@ -300,7 +310,16 @@ export default class addReceiptPage extends React.Component {
   onDeleteItem(key, event) {
     //e.target.parentNode.outerHTML = '';
     let transactions = this.state.transactions;
+
     transactions[0].items.splice(key, 1);
+
+    let total_price = 0;
+
+    for (let i in transactions[0].items) {
+      total_price+= transactions[0].items[i].price;
+    }
+    transactions[0].total_price = total_price;
+
     this.setState({
       version: Date.now(), // Update version
       transactions: transactions
@@ -350,7 +369,8 @@ export default class addReceiptPage extends React.Component {
 
     return inputLength === 0 ? [] : this.state.categories.filter(category => {
       let name = category.name['fi-FI'];
-      return name && name.toLowerCase().slice(0, inputLength) === inputValue;
+      //return name && name.toLowerCase().slice(0, inputLength) === inputValue;
+      return name && name.toLowerCase().indexOf(inputValue) !== -1;
     });
   };
 
@@ -376,7 +396,6 @@ export default class addReceiptPage extends React.Component {
       return (
         <div id="receipt-content" className="receipt-content">
           <a href="#" className="next" onClick={this.saveReceipt} style={{float:"right"}}>Submit</a>
-          <a href="#" onClick={this.props.showAdjustments} style={{clear:"both", display:"block"}}>Adjust picture</a>
           <div style={{clear:"both"}}/>
           <datalist id="manufacturers">
             {this.state.manufacturers.map(function(item, i) {
@@ -454,13 +473,16 @@ export default class addReceiptPage extends React.Component {
                      onChange={this.onFieldChange.bind(this, 'party', 'phone_number')}
               />
             </div>
-            <div>
+            <div class="input-row">
               <label for="date">Date:&nbsp;</label>
-              <input id="date"
-                     placeholder="Date"
+              <DatePicker
+                     placeholderText="Date"
+                     showTimeSelect
+                     locale={window.navigator.userLanguage || window.navigator.language}
+                     timeFormat="HH:mm"
+                     dateFormat="L HH:mm:ss"
                      key={"date-"+this.state.version} 
-                     type="datetime-local"
-                     defaultValue={this.state.transactions[0].date && moment(this.state.transactions[0].date).format('YYYY-MM-DDTHH:mm:ss') || ''}
+                     selected={this.state.transactions[0].date && moment(this.state.transactions[0].date) || null}
                      onChange={this.onDateChange.bind(this)}
               />
             </div>

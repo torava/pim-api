@@ -8,7 +8,7 @@ import Cropper from 'react-cropper';
 import moment from 'moment';
 import ReceiptEditor from './ReceiptEditor';
 
-export default class addReceiptPage extends React.Component {
+export default class editReceiptPage extends React.Component {
   constructor(props) {
     super(props);
 
