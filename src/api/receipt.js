@@ -536,8 +536,8 @@ function processReceiptImage(filepath, data, resize) {
     let script = [filepath,
                   //'-auto-orient',
                   '-type', 'grayscale',
-                  '-background', 'white',
-                  '-bordercolor', 'white',
+                  '-background', 'none',
+                  '-bordercolor', 'none',
                   '-border', '10',
                   //'-normalize',
                   //'-contrast-stretch', '0'
