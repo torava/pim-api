@@ -582,7 +582,7 @@ function processReceiptImage(filepath, data, resize) {
         '+repage',
         '-strip',
         'PNG:'+filepath+'_edited']);
-    console.log(script);
+    console.log(script.join(' '));
     child_process.execFile('convert', script, function(error, stdout, stderr) {
       if (error) console.error(error);
       process.stdout.write(stdout);

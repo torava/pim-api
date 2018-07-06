@@ -26,11 +26,17 @@ export default class AddReceiptPage extends React.Component {
     this.onFlipRight = this.onFlipRight.bind(this);
     this.onRotate = this.onRotate.bind(this);
     this.setData = this.setData.bind(this);
+    this.onCrop = this.onCrop.bind(this);
     this.state = {
       products: [],
-      rotate: 0,
+      //rotate: 0,
       rotate_adjust: 0,
-      data: {},
+      data: {
+        threshold: 10,
+        blur: 0,
+        sharpen: 0,
+        rotate: 0
+      },
       mode: 'uploader',
       uploading: false,
       categories: [],
@@ -66,7 +72,7 @@ export default class AddReceiptPage extends React.Component {
         var transactions = [{receipts:[{file: response.data.id}]}];
         that.setState({
           transactions,
-          cropper_data: response.data.bounds
+          data: Object.assign({}, that.state.data, response.data.bounds)
         });
 
         that.showAdjustments();
@@ -110,7 +116,7 @@ export default class AddReceiptPage extends React.Component {
 
     this.setState(Object.assign({}, this.state, {uploading: true}));
 
-    let data = Object.assign({}, this.cropper.getData(), this.state.data),
+    let data = Object.assign({}, this.state.data),
         that = this;
 
     data.language = document.getElementById('language').value;
@@ -125,32 +131,39 @@ export default class AddReceiptPage extends React.Component {
       console.error(error);
     });
   }
-  setData(attribute, event) {
-    let data = this.state.data;
-    data[attribute] = event.target.value;
+  setData(attribute, event, value) {
+    let data = Object.assign({}, this.state.data);
+    data[attribute] = value || event.target.value;
     this.setState({
       data: data
     });
   }
+  onCrop() {
+    this.setState({
+      data: Object.assign({}, this.state.data, this.cropper.getData())
+    });
+  }
   onFlipLeft(event) {
-    let rotate = this.cropper.getData().rotate-90;
+    let rotate = this.state.data.rotate-90;
     if (rotate < 0) rotate = 360+rotate%360;
-    this.cropper.rotateTo(rotate);
+    this.setData('rotate', null, rotate);
   }
   onFlipRight(event) {
-    let rotate = this.cropper.getData().rotate+90;
+    let rotate = this.state.data.rotate+90;
     if (rotate < 0) rotate = 360+rotate%360;
-    this.cropper.rotateTo(rotate); 
+    this.setData('rotate', null, rotate);
   }
   onRotate(event) {
     let previous = this.state.rotate_adjust;
     let rotate_adjust = parseFloat(event.target.value);
     this.setState({rotate_adjust:rotate_adjust});   
 
-    let rotate = this.cropper.getData().rotate+rotate_adjust-previous;
+    let rotate = this.state.data.rotate+rotate_adjust-previous;
     if (rotate < 0) rotate = 360+rotate%360;
 
-    this.cropper.rotateTo(rotate);
+    //this.cropper.rotateTo(rotate);
+
+    this.setData('rotate', null, rotate);
   }
   
   render() {
@@ -185,33 +198,62 @@ export default class AddReceiptPage extends React.Component {
             <fieldset>
               <legend>Adjust</legend>
               <button onClick={this.onFlipLeft}><i className="fa fa-undo"/></button>
-              <input type="range" min="-45" max="45" defaultValue="0" step="any" onChange={this.onRotate} style={{width:'75%'}}/>
+              <input type="range"
+                     min="-45"
+                     max="45"
+                     value={this.state.rotate_adjust}
+                     step="any"
+                     onChange={this.onRotate}
+                     style={{width:'75%'}}
+              />
               <button onClick={this.onFlipRight}><i className="fa fa-redo"/></button><br/>
               Details
               <i className="fa fa-minus"/>
               <input type="range"
                     min="1"
                     max="30"
-                    defaultValue="10"
+                    value={this.state.data.threshold}
                     step="1"
                     onChange={this.setData.bind(this, 'threshold')}
                     style={{width:100, transform: 'rotate(-180deg)'}}
               />
               <i className="fa fa-plus"/>&nbsp;
-              Soften <i className="fa fa-minus"/> <input type="range" min="0" max="5" defaultValue="0" step="1" onChange={this.setData.bind(this, 'blur')} style={{width:50}}/> <i className="fa fa-plus"/>&nbsp;
-              Sharpen <i className="fa fa-minus"/> <input type="range" min="0" max="5" defaultValue="0" step="1" onChange={this.setData.bind(this, 'sharpen')} style={{width:50}}/> <i className="fa fa-plus"/>&nbsp;
+              Soften
+              <i className="fa fa-minus"/>
+              <input type="range"
+                     min="0"
+                     max="5"
+                     value={this.state.data.blur}
+                     step="1"
+                     onChange={this.setData.bind(this, 'blur')}
+                     style={{width:50}}
+              />
+              <i className="fa fa-plus"/>&nbsp;
+              Sharpen
+              <i className="fa fa-minus"/>
+              <input type="range"
+                     min="0"
+                     max="5"
+                     value={this.state.data.sharpen}
+                     step="1"
+                     onChange={this.setData.bind(this, 'sharpen')}
+                     style={{width:50}}
+              />
+              <i className="fa fa-plus"/>&nbsp;
             </fieldset>
             {this.state.src && <div>Crop</div>}
             <Cropper id="cropper"
                     src={this.state.src}
-                    style={{width:'95%', maxHeight:'700px'}}
+                    style={{width:'300px', maxHeight:'300px'}}
                     autoCropArea={1}
                     autoCrop={true}
-                    data={this.state.cropper_data}
+                    data={this.state.data}
                     viewMode={0}
                     rotatable={true}
-                    zoomable={true}
+                    zoomable={false}
                     ref={cropper => {this.cropper = cropper}}
+                    cropend={this.onCrop.bind(this)}
+                    zoom={this.onCrop.bind(this)}
             />
           </div> :
           ''}
