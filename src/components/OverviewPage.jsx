@@ -119,7 +119,12 @@ export default class ReceiptList extends React.Component {
 
     let that = this;
 
-    this.state = {};
+    this.onDepthChange = this.onDepthChange.bind(this);
+
+    this.state = {
+      depth: 5,
+      ready: false
+    };
 
     axios.get('/api/attribute/')
     .then(function(attributes) {
@@ -128,6 +133,14 @@ export default class ReceiptList extends React.Component {
       .then(function(response) {
         that.setState({
           transactions: response.data
+        });
+        axios.get('/api/item/')
+        .then(response => {
+          that.setState({items: response.data});
+          that.resolveItems();
+        })
+        .catch(function(error) {
+          console.error(error);
         });
       })
       .catch(function(error) {
@@ -145,31 +158,130 @@ export default class ReceiptList extends React.Component {
   handleBrush(domain) {
     this.setState({zoomDomain: domain});
   }
+  onDepthChange(event) {
+    this.setState({
+      depth: event.target.value
+    });
+    this.resolveItems();
+  }
+  resolveItems() {
+    let that = this,
+        index, found, id, name,
+        indexed_items = [0],
+        resolved_items = [];
+    that.state.items.map(item => {
+      id = false;
+      if (that.state.depth > 2) {
+        let current_depth, child = item.product;
+        if (item.product.category) {
+          child = item.product.category;
+          if (item.product.category.parent) {
+            current_depth = that.state.depth-2;
+            child = item.product.category.parent;
+            while (current_depth > 0) {
+              if (child && child.parent) {
+                child = child.parent;
+                current_depth-= 1;
+              }
+              else {
+                //child = false;
+                break;
+              }
+            }
+          }
+        }
+        if (child) {
+          id = 'c'+child.id;
+          name = child.name;
+        }
+      }
+      if ((!id || that.state.depth == 2) && item.product.category && item.product.category.parent) {
+        id = 'c'+item.product.category.parent.id;
+        name = item.product.category.parent.name;
+      }
+      if ((!id || that.state.depth == 1) && item.product.category) {
+        id = 'c'+item.product.category.id;
+        name = item.product.category.name;
+      }
+      if (!id || that.state.depth == 0) {
+        id = 'p'+item.product.id;
+        name = item.product.name;
+      }
+      if (id === false) {
+        resolved_items[0] = {
+          id: 0,
+          name: 'Uncategorized',
+          data: Object.assign(resolved_items[0] && resolved_items[0].data || [], {
+            date: item.transaction.date,
+            price: item.price,
+            name: item.product.name
+          })
+        }
+        return;
+      }
+      // if item is already in resolved items then sum to price
+      found = false;
+      resolved_items.map(resolved_item => {
+        if (resolved_item.id === id) {
+          resolved_item.data.push({
+            date: item.transaction.date,
+            price: item.price,
+            name: item.product.name
+          });
+          found = true;
+          return;
+        }
+      });
+      // otherwise check indexed items
+      if (!found) {
+        index = indexed_items.indexOf(id);
+        if (index === -1) {
+          indexed_items.push(id);
+          index = indexed_items.length-1;
+        }
+        resolved_items[index] = {
+          id: id,
+          name: name.hasOwnProperty('fi-FI') ? name['fi-FI'] : name,
+          data: [{
+            date: item.transaction.date,
+            price: item.price,
+            name: item.product.name
+          }],
+        }
+      }
+    });
+    console.log(resolved_items);
+    that.setState({
+      resolved_items,
+      ready: true
+    });
+  }
   render() {
-    if (!this.state.transactions || !this.state.transactions.length) {
+    if (!this.state.ready) {
       return <div/>
     }
     else
     return (
       <div>
         <div>
+          <input type="range" min="0" max="5" step="1" onChange={this.onDepthChange.bind(this)}/>
           <VictoryChart
             scale={{ x: "time" }}
           >
             <VictoryStack colorScale="warm">
-            {this.state.transactions.map(transaction => {
+            {this.state.resolved_items.map(item => {
               return <VictoryGroup
-                data={transaction.items}
+                data={item.data}
                 x={d => moment(d.date).toDate()}
-                y="total_price"
+                y="price"
               >
                 <VictoryArea
-                  name="area-1"
+                  name={item.name}
                 />
                 <VictoryPortal>
                   <VictoryScatter
                     style={{ data: { fill: "black" } }}
-                    labels={(d) => "pöllö"}
+                    labels={(d) =>d.name}
                     labelComponent={<VictoryTooltip/>}
                   />
                 </VictoryPortal>
