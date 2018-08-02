@@ -240,6 +240,10 @@ function getAttributes(builder) {
   builder.eager('[products.[items], contributions.[contribution], attributes, children(getAttributes)]', {getAttributes});
 }
 
+function getTransactions(builder) {
+  builder.eager('[products.items.transaction, children(getTransactions)]', {getTransactions});
+}
+
 function resolveCategories(items, locale) {
   if (!locale) return;
   let item_attributes,
@@ -273,6 +277,24 @@ function resolveCategories(items, locale) {
       parent = parent.parent;
     }
   }
+}
+
+function resolveCategoryPrices(categories) {
+  categories && categories.reduce(function resolver(sum, category) {
+    if (category.hasOwnProperty('products') && category.products.length) {
+      let item_prices = 0;
+      category.products.map(product => {
+        product.items.map(item => {
+          item_prices+= item.price;
+        });
+      });
+      category.price_sum = (category.price_sum || 0)+item_prices; 
+    }
+    if (category.hasOwnProperty('children') && category.children.length) {
+      category.price_sum = (category.price_sum || 0)+category.children.reduce(resolver, 0);
+    }
+    return sum+(category.price_sum || 0);
+  }, 0);
 }
 
 app.get('/api/category', function(req, res) {
@@ -315,9 +337,22 @@ app.get('/api/category', function(req, res) {
       throw new Error();
     });
   }
+  else if (req.query.hasOwnProperty('transactions')) {
+    Category.query()
+    .where('parentId', null)
+    .eager('[children(getTransactions)]', {getTransactions})
+    .then(categories => {
+      resolveCategoryPrices(categories);
+      res.send(categories);
+    })
+    .catch(error => {
+      console.error(error);
+      throw new Error();
+    });
+  }
   else if (req.query.hasOwnProperty('attributes')) {
     Category.query()
-    .limit(200)
+    //.limit(200)
     .eager('[attributes]')
     .then(categories => {
       resolveCategories(categories, req.query.locale);

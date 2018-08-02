@@ -7,6 +7,7 @@ module.exports = function (app) {
 
 app.get('/api/product', function(req, res) {
   Product.query()
+  .eager('[category.[parent.^], items.[transaction]]')
     .then(product => {
       res.send(product);
     })

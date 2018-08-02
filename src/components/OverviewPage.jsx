@@ -1,9 +1,19 @@
 'use strict';
 
 import React from 'react';
+import moment from 'moment';
 import {Link} from 'react-router';
 import axios from 'axios';
 import ReactTable from 'react-table';
+import {  VictoryChart,
+          VictoryStack,
+          VictoryArea,
+          VictoryZoomContainer,
+          VictoryTooltip,
+          VictoryGroup,
+          VictoryPortal,
+          VictoryScatter
+       } from 'victory';
 
 function convertMeasure(measure, from_unit, to_unit) {
   const factors = {
@@ -128,24 +138,65 @@ export default class ReceiptList extends React.Component {
       console.error(error);
     });
   }
+  handleZoom(domain) {
+    this.setState({selectedDomain: domain});
+  }
+
+  handleBrush(domain) {
+    this.setState({zoomDomain: domain});
+  }
   render() {
+    if (!this.state.transactions || !this.state.transactions.length) {
+      return <div/>
+    }
+    else
     return (
-      <ReactTable
-        data={this.state.transactions}
-        columns={transaction_columns}
-        pageSize={this.state.transactions ? this.state.transactions.length : 1}
-        showPagination={false}
-        SubComponent={row => {
-          return (
-            <ReactTable
-              data={this.state.transactions[row.index].items}
-              pageSize={this.state.transactions[row.index].items ? this.state.transactions[row.index].items.length : 1}
-              showPagination={false}
-              columns={item_columns}
-              />
-          );
-        }}
-      />
+      <div>
+        <div>
+          <VictoryChart
+            scale={{ x: "time" }}
+          >
+            <VictoryStack colorScale="warm">
+            {this.state.transactions.map(transaction => {
+              return <VictoryGroup
+                data={transaction.items}
+                x={d => moment(d.date).toDate()}
+                y="total_price"
+              >
+                <VictoryArea
+                  name="area-1"
+                />
+                <VictoryPortal>
+                  <VictoryScatter
+                    style={{ data: { fill: "black" } }}
+                    labels={(d) => "pöllö"}
+                    labelComponent={<VictoryTooltip/>}
+                  />
+                </VictoryPortal>
+              </VictoryGroup>
+            })}
+            </VictoryStack>
+          </VictoryChart>
+        </div>
+        <div>
+          <ReactTable
+            data={this.state.transactions}
+            columns={transaction_columns}
+            pageSize={this.state.transactions ? this.state.transactions.length : 1}
+            showPagination={false}
+            SubComponent={row => {
+              return (
+                <ReactTable
+                  data={this.state.transactions[row.index].items}
+                  pageSize={this.state.transactions[row.index].items ? this.state.transactions[row.index].items.length : 1}
+                  showPagination={false}
+                  columns={item_columns}
+                  />
+              );
+            }}
+          />
+        </div>
+      </div>
     );
   }
 }
