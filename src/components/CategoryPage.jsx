@@ -62,6 +62,7 @@ class Category extends Component {
       document.title = "Category - "+this.state.category.name[this.state.locale];
 
       that.addNewCategoryAttribute();
+      that.addNewCategoryContribution();
 
       for (let i in that.state.category.attributes) {
         that.addNewCategoryAttributeSource(i);
@@ -236,6 +237,15 @@ class Category extends Component {
       },
       sources: []
     });
+
+    this.setState({
+      category
+    });
+  }
+  addNewCategoryContribution() {
+    let category = Object.assign({}, this.state.category);
+
+    category.contributions.push({});
 
     this.setState({
       category
@@ -570,6 +580,8 @@ class Category extends Component {
 
     let inputLength = inputValue.length;
 
+    console.log(option, inputValue);
+
     return inputLength > 0 && option.label.toLowerCase().slice(0, inputLength) === inputValue;
   }
 
@@ -578,6 +590,7 @@ class Category extends Component {
 
     this.setState({
       editable: true,
+      previous_category: Object.assign({}, this.state.category),
       product_columns: this.getProductColumns(),
       attribute_columns: this.getAttributeColumns(),
       source_columns: this.getSourceColumns(),
@@ -591,6 +604,7 @@ class Category extends Component {
     
     this.setState({
       editable: false,
+      category: Object.assign({}, this.state.previous_category),
       product_columns: this.getProductColumns(),
       attribute_columns: this.getAttributeColumns(),
       source_columns: this.getSourceColumns(),
@@ -600,16 +614,30 @@ class Category extends Component {
     });
   }
   save(event) {
+    let that = this,
+        category = Object.assign({}, this.state.category);
+
     event.preventDefault();
+
+    category.attributes.filter(attribute => {
+      attribute.sources.filter(source => {
+        return !!source.name;
+      });
+      return !!attribute.name;
+    });
+    category.contributions.filter(contribution => {
+      return !!contribution.name
+    });
     
-    this.setState({
-      editable: false,
-      product_columns: this.getProductColumns(),
-      attribute_columns: this.getAttributeColumns(),
-      source_columns: this.getSourceColumns(),
-      attributeSuggestions: [],
-      categorySuggestions: [],
-      sourceSuggestions: []
+    axios.post('/api/category/', category)
+    .then(function(response) {
+      console.log(response);
+      that.setState({
+        editable: false
+      });
+    })
+    .catch(function(error) {
+      console.error(error);
     });
   }
   getParents(item) {
@@ -688,12 +716,12 @@ class Category extends Component {
           {that.state.editable ? 
             <CreatableSelect
               isMulti
-              filterOption={this.filterOption}
+              //filterOption={this.filterOption}
               options={this.state.categories}
               onChange={this.onCategoryParentChange}
               value={this.getParents(that.state.category)}
               matchPos="start"
-              getOptionLabel={(option) => option.name[this.state.locale]}
+              getOptionLabel={(option) => option.name[this.state.locale] || ""}
               getOptionValue={(option) => option.id}
             /> :
             <ul class="path">
