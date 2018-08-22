@@ -13,8 +13,10 @@ import {  VictoryChart,
           VictoryGroup,
           VictoryPie,
           VictoryPortal,
+          VictoryBar,
           VictoryScatter
        } from 'victory';
+import Timeline from 'react-visjs-timeline'
 
 function convertMeasure(measure, from_unit, to_unit) {
   const factors = {
@@ -126,7 +128,9 @@ export default class ReceiptList extends React.Component {
       depth: 5,
       ready: false,
       resolved_pie_items: [],
-      resolved_stack_items: []
+      resolved_stack_items: [],
+      resolved_timeline_items: [],
+      resolved_timeline_categories: []
     };
 
     axios.get('/api/attribute/')
@@ -137,11 +141,25 @@ export default class ReceiptList extends React.Component {
         that.setState({
           transactions: response.data
         });
-        axios.get('/api/item/')
+        axios.get('/api/category/')
         .then(response => {
-          that.setState({items: response.data});
-          that.resolvePieItems();
-          that.resolveStackItems();
+          that.setState({
+            categories: response.data
+          });
+          axios.get('/api/item/')
+          .then(response => {
+            that.setState({items: response.data});
+            that.resolvePieItems();
+            that.resolveStackItems();
+            that.resolveTimelineItems();
+            that.resolveTimelineCategories();
+            that.setState({
+              ready: true
+            })
+          })
+          .catch(function(error) {
+            console.error(error);
+          });
         })
         .catch(function(error) {
           console.error(error);
@@ -168,6 +186,52 @@ export default class ReceiptList extends React.Component {
     });
     this.resolvePieItems();
     this.resolveStackItems();
+    this.resolveTimelineItems();
+  }
+  getItemNameByDepth(item, depth) {
+    let name,
+        id = false;
+    if (depth > 2) {
+      let current_depth, child = false;
+      if (item.product.category) {
+        //child = item.product.category;
+        if (item.product.category.parent) {
+          current_depth = depth-2;
+          child = item.product.category.parent;
+          while (current_depth > 0) {
+            if (child && child.parent) {
+              child = child.parent;
+              current_depth-= 1;
+            }
+            else {
+              //child = false;
+              break;
+            }
+          }
+        }
+      }
+      if (child) {
+        id = 'c'+child.id;
+        name = child.name;
+      }
+    }
+    if ((!id || depth == 2) && item.product.category && item.product.category.parent) {
+      id = 'c'+item.product.category.parent.id;
+      name = item.product.category.parent.name;
+    }
+    if ((!id || depth == 1) && item.product.category) {
+      id = 'c'+item.product.category.id;
+      name = item.product.category.name;
+    }
+    if (depth == 0) {
+      id = 'p'+item.product.id;
+      name = item.product.name;
+    }
+    if (id === false) {
+      id = 0;
+      name = 'Uncategorized';
+    }
+    return {id, name};
   }
   resolvePieItems() {
     let that = this,
@@ -236,57 +300,19 @@ export default class ReceiptList extends React.Component {
     });
     console.log(resolved_items);
     that.setState({
-      resolved_pie_items: resolved_items,
-      ready: true
+      resolved_pie_items: resolved_items
     });
   }
   resolveStackItems() {
     let that = this,
         index, found, id, name,
         indexed_items = [0],
-        resolved_items = [];
+        resolved_items = [],
+        values;
     that.state.items.map(item => {
-      id = false;
-      if (that.state.depth > 2) {
-        let current_depth, child = false;
-        if (item.product.category) {
-          //child = item.product.category;
-          if (item.product.category.parent) {
-            current_depth = that.state.depth-2;
-            child = item.product.category.parent;
-            while (current_depth > 0) {
-              if (child && child.parent) {
-                child = child.parent;
-                current_depth-= 1;
-              }
-              else {
-                //child = false;
-                break;
-              }
-            }
-          }
-        }
-        if (child) {
-          id = 'c'+child.id;
-          name = child.name;
-        }
-      }
-      if ((!id || that.state.depth == 2) && item.product.category && item.product.category.parent) {
-        id = 'c'+item.product.category.parent.id;
-        name = item.product.category.parent.name;
-      }
-      if ((!id || that.state.depth == 1) && item.product.category) {
-        id = 'c'+item.product.category.id;
-        name = item.product.category.name;
-      }
-      if (that.state.depth == 0) {
-        id = 'p'+item.product.id;
-        name = item.product.name;
-      }
-      if (id === false) {
-        id = 0;
-        name = 'Uncategorized';
-      }
+      values = that.getItemNameByDepth(item, that.state.depth);
+      id = values.id;
+      name = values.name;
       // if item is already in resolved items then sum to price
       found = false;
       resolved_items.map(resolved_item => {
@@ -334,9 +360,41 @@ export default class ReceiptList extends React.Component {
     });
     console.log(resolved_items);
     that.setState({
-      resolved_stack_items: resolved_items,
-      ready: true
+      resolved_stack_items: resolved_items
     });
+  }
+  resolveTimelineItems() {
+    let that = this,
+        resolved_items = [];
+    that.state.transactions.map(transaction => {
+      transaction.items.map(item => {
+        resolved_items.push({
+          content: item.product.name.hasOwnProperty('fi-FI') ? item.product.name['fi-FI'] : item.product.name,
+          start: transaction.date,
+          group: that.getItemNameByDepth(item).id
+        });
+      });
+    });
+    console.log(resolved_items);
+    that.setState({
+      resolved_timeline_items: resolved_items
+    });
+  }
+  resolveTimelineCategories() {
+    let resolved_categories = [{
+      id: 0,
+      content: 'Uncategorized'
+    }];
+    this.state.categories.map(category => {
+      resolved_categories.push({
+        id: category.id,
+        content: category.name.hasOwnProperty('fi-FI') ? category.name['fi-FI'] : category.name
+      });
+    });
+    console.log(resolved_categories);
+    this.setState({
+      resolved_timeline_categories: resolved_categories
+    })
   }
   render() {
     if (!this.state.ready) {
@@ -347,36 +405,42 @@ export default class ReceiptList extends React.Component {
       <div>
         <div>
           <input type="range" min="0" max="5" step="1" onChange={this.onDepthChange.bind(this)}/>
+          <Timeline
+            items={this.state.resolved_timeline_items}
+            groups={this.state.resolved_categories}
+          />
           <VictoryChart
             scale={{ x: "time" }}
           >
             <VictoryStack
               colorScale="warm"
             >
-            {this.state.resolved_stack_items.map(item => {
-              return <VictoryGroup
-                data={item.data}
+              <VictoryGroup
+                data={this.state.transactions}
                 x={d => moment(d.date).toDate()}
-                y="price"
+                y="total_price"
               >
                 <VictoryArea
-                  name={item.data[0].name}
+                  name="area-1"
                 />
                 <VictoryScatter
-                  labels={item.data[0].name}
+                  labels={d => moment(d.date).toDate()+": "+d.price}
                   style={{ data: { fill: "black" } }}
                   labelComponent={<VictoryTooltip renderInPortal/>}
                 />
               </VictoryGroup>
-            })}
-          </VictoryStack>
-        </VictoryChart>
-        <VictoryPie
-          colorScale="warm"
-          data={this.state.resolved_pie_items}
-          x="name"
-          y="price"
-        />
+            </VictoryStack>
+          </VictoryChart>  
+          <VictoryChart>
+            <VictoryBar horizontal
+              colorScale="warm"
+              sortOrder="descending"
+              sortKey="price"
+              data={this.state.resolved_pie_items}
+              x="name"
+              y="price"
+            />
+          </VictoryChart>
         </div>
         <div>
           <ReactTable
@@ -400,3 +464,36 @@ export default class ReceiptList extends React.Component {
     );
   }
 }
+
+/*<VictoryChart
+    scale={{ x: "time" }}
+  >
+    <VictoryStack
+      colorScale="warm"
+    >
+    {this.state.resolved_stack_items.map(item => {
+      return <VictoryGroup
+        data={item.data}
+        x={d => moment(d.date).toDate()}
+        y="price"
+      >
+        <VictoryArea
+          name={item.data[0].name}
+        />
+        <VictoryScatter
+          labels={item.data[0].name}
+          style={{ data: { fill: "black" } }}
+          labelComponent={<VictoryTooltip renderInPortal/>}
+        />
+      </VictoryGroup>
+    })}
+  </VictoryStack>
+</VictoryChart>
+<VictoryPie
+  colorScale="warm"
+  data={this.state.resolved_pie_items}
+  labels={d => d.name+": "+d.price}
+  x="name"
+  y="price"
+/>
+*/
