@@ -1,122 +1,23 @@
 'use strict';
 
-import React from 'react';
-import moment from 'moment';
-import {Link} from 'react-router';
 import axios from 'axios';
-import ReactTable from 'react-table';
+import moment from 'moment';
+import React, {Component} from 'react';
+import EditableTable from './EditableTable';
 import {  VictoryChart,
-          VictoryStack,
-          VictoryArea,
-          VictoryZoomContainer,
-          VictoryTooltip,
-          VictoryGroup,
-          VictoryPie,
-          VictoryPortal,
-          VictoryBar,
-          VictoryScatter
-       } from 'victory';
-import Timeline from 'react-visjs-timeline'
+  VictoryStack,
+  VictoryArea,
+  VictoryZoomContainer,
+  VictoryTooltip,
+  VictoryGroup,
+  VictoryPie,
+  VictoryPortal,
+  VictoryLine,
+  VictoryBar,
+  VictoryScatter
+} from 'victory';
 
-function convertMeasure(measure, from_unit, to_unit) {
-  const factors = {
-    y: -24,
-    z: -21,
-    a: -16,
-    f: -15,
-    p: -12,
-    n: -9,
-    µ: -6,
-    m: -3,
-    c: -2,
-    d: -1,
-    '': 0,
-    da: 1,
-    h: 2,
-    k: 3,
-    M: 6,
-    G: 9,
-    T: 12,
-    P: 15,
-    E: 18,
-    Z: 21,
-    Y: 24
-  }
-  if (from_unit && from_unit.length > 1) {
-    from_unit = from_unit.substring(0,1);
-    from_unit = from_unit.toLowerCase();
-  }
-  else {
-    from_unit = '';
-  }
-  if (to_unit && to_unit.length > 1) {
-    to_unit = to_unit.substring(0,1);
-    to_unit = to_unit.toLowerCase();
-  }
-  else {
-    to_unit = '';
-  }
-  let conversion = factors[from_unit]-factors[to_unit];
-  console.log(conversion, from_unit, to_unit);
-  return measure*Math.pow(10, conversion);
-}
-
-const transaction_columns = [
-  {
-    Header: 'Date',
-    accessor: 'date',
-    Cell: props => <span><a href={"/edit/"+props.original.id}>{new Date(props.value).toLocaleString()}</a></span>
-  },
-  {
-    Header: 'Store',
-    id: 'party_name',
-    accessor: d => d.party.name
-  },
-  {
-    Header: 'Total Price',
-    accessor: 'total_price'
-  }
-]
-
-const item_columns = [
-  {
-    Header: 'Name',
-    accessor: d => d.product.name,
-    id: 'product_name'
-  },
-  {
-    Header: 'Quantity',
-    id: 'quantity'
-  },
-  {
-    Header: 'Measure',
-    id: 'measure'
-  },
-  {
-    Header: 'Category',
-    accessor: d => d.product.category && d.product.category.name['fi-FI'],
-    id: 'category_name',
-    Cell: props => props.value ? <span><a href={"/category/"+props.original.product.category.id}>{props.value}</a></span> : <span></span>
-  },
-  {
-    Header: 'Price',
-    id: 'price',
-    accessor: d => {
-      let currency = localStorage.getItem('currency');
-      console.log(currency, d);
-      return d.price;
-    }
-  },
-  {
-    Header: 'Price/Measure',
-    id: 'pricepermeasure',
-    accessor: d => {
-      return d.measure ? d.price/convertMeasure(d.measure, d.unit, 'kg') : null;
-    }
-  }
-]
-
-export default class ReceiptList extends React.Component {
+class OverviewPage extends Component {
   constructor(props) {
     super(props);
 
@@ -125,15 +26,16 @@ export default class ReceiptList extends React.Component {
     this.onDepthChange = this.onDepthChange.bind(this);
 
     this.state = {
-      depth: 5,
+      depth: 1,
       ready: false,
+      attribute_aggregates: {},
       resolved_pie_items: [],
       resolved_stack_items: [],
       resolved_timeline_items: [],
       resolved_timeline_categories: []
     };
 
-    axios.get('/api/attribute/')
+    axios.get('/api/attribute/?parent')
     .then(function(attributes) {
       that.setState({attributes: attributes.data});
       axios.get('/api/transaction/')
@@ -141,21 +43,27 @@ export default class ReceiptList extends React.Component {
         that.setState({
           transactions: response.data
         });
-        axios.get('/api/category/')
+        axios.get('/api/item/')
         .then(response => {
-          that.setState({
-            categories: response.data
-          });
-          axios.get('/api/item/')
-          .then(response => {
-            that.setState({items: response.data});
-            that.resolvePieItems();
-            that.resolveStackItems();
-            that.resolveTimelineItems();
-            that.resolveTimelineCategories();
+          that.setState({items: response.data});
+          axios.get('/api/category/?transactions&locale=fi-FI')
+          .then(function(response) {
             that.setState({
-              ready: true
-            })
+              categories: [...response.data],
+              resolved_categories: [...response.data],
+              columns: that.getColumns(),
+              attribute_columns: that.getAttributeColumns()
+            }, () => {
+              that.resolvePieItems();
+              that.resolveStackItems();
+              that.aggregateCategoryPrice();
+
+              document.title = "Categories";
+
+              that.setState({
+                ready: true
+              });
+            });
           })
           .catch(function(error) {
             console.error(error);
@@ -363,137 +271,177 @@ export default class ReceiptList extends React.Component {
       resolved_stack_items: resolved_items
     });
   }
-  resolveTimelineItems() {
-    let that = this,
-        resolved_items = [];
-    that.state.transactions.map(transaction => {
-      transaction.items.map(item => {
-        resolved_items.push({
-          content: item.product.name.hasOwnProperty('fi-FI') ? item.product.name['fi-FI'] : item.product.name,
-          start: transaction.date,
-          group: that.getItemNameByDepth(item).id
+  aggregateCategoryPrice() {
+    let categories = [...this.state.categories];
+    categories.reduce(function resolver(sum, category) {
+      if (category.hasOwnProperty('products') && category.products.length) {
+        let item_prices = 0;
+        category.products.map(product => {
+          product.items.map(item => {
+            item_prices+= item.price;
+          });
         });
-      });
-    });
-    console.log(resolved_items);
-    that.setState({
-      resolved_timeline_items: resolved_items
+        category.price_sum = item_prices; 
+      }
+      if (category.hasOwnProperty('children') && category.children.length) {
+        category.price_sum = category.children.reduce(resolver, 0);
+      }
+      return sum+(category.price_sum || 0);
+    }, 0);
+    console.log(categories);
+    this.setState({
+      resolved_categories: categories
     });
   }
-  resolveTimelineCategories() {
-    let resolved_categories = [{
-      id: 0,
-      content: 'Uncategorized'
-    }];
-    this.state.categories.map(category => {
-      resolved_categories.push({
-        id: category.id,
-        content: category.name.hasOwnProperty('fi-FI') ? category.name['fi-FI'] : category.name
-      });
-    });
-    console.log(resolved_categories);
+  aggregateCategoryAttribute() {
+    let categories = [...this.state.resolved_categories],
+        attribute_aggregates = this.state.attribute_aggregates;
+    for (let attribute_id in attribute_aggregates) {
+      categories.reduce(function resolver(sum, category) {
+        let item_measure = 0;
+        if (category.hasOwnProperty('products') && category.products.length) {
+          category.products.map(product => {
+            product.items.map(item => {
+              item_measure+= (item.quantity || 1)*(item.measure/100);
+            });
+          });
+        }
+        if (category.attributes.hasOwnProperty(attribute_id)) {
+          if (!category.hasOwnProperty('attribute_sum')) {
+            category.attribute_sum = {};
+          }
+          category.attribute_sum[attribute_id] = category.attributes[attribute_id].value*item_measure; 
+        }
+        if (category.hasOwnProperty('children') && category.children.length) {
+          if (!category.hasOwnProperty('attribute_sum')) {
+            category.attribute_sum = {};
+          }
+          category.attribute_sum[attribute_id] = category.children.reduce(resolver, 0);
+        }
+        return sum+(category.attribute_sum && category.attribute_sum[attribute_id] || 0);
+      }, 0);
+    }
     this.setState({
-      resolved_timeline_categories: resolved_categories
-    })
+      resolved_categories: categories
+    });
+  }
+  getColumns() {
+    let attribute_aggregate_columns = [],
+        attribute_aggregates = Object.assign({}, this.state.attribute_aggregates),
+        aggregate;
+    for (let id in attribute_aggregates) {
+      aggregate = attribute_aggregates[id];
+      aggregate && attribute_aggregate_columns.push({
+        id: aggregate.name['fi-FI']+'_sum',
+        formatter: (value, item) => {
+          console.log(id);
+          return item.attribute_sum && item.attribute_sum[id] && item.attribute_sum[id].toLocaleString('fi-FI', {minimumFractionDigits: 2,maximumFractionDigits:2});
+        },
+        label: aggregate.name['fi-FI']+(aggregate.unit && " ("+aggregate.unit+")")
+      });
+    }
+    return [
+      {
+        id: 'name',
+        label: 'Name',
+        property: 'name',
+        formatter: (value, item) => <a href={"/category/"+item.id}>{value}</a>,
+        width: '700'
+      },
+      {
+        id: 'price_sum',
+        formatter: value => value && value.toLocaleString('fi-FI', {style: 'currency', currency: 'EUR'}),
+        label: 'Price'
+      }
+    ].concat(attribute_aggregate_columns);
+  }
+  getAttributeColumns() {
+    return [
+      {
+        formatter: (value, attribute) => <input type="checkbox" name={attribute.id} onChange={this.setAttributeAggregateVisibility.bind(this, attribute)}/>
+      },
+      {
+        id: 'name',
+        label: 'Name',
+        formatter: (value, attribute) => <label for={"toggle-attribute-"+attribute.id}>{value['fi-FI']}</label>
+      }
+    ]
+  }
+  setAttributeAggregateVisibility(attribute, event) {
+    let attribute_aggregates = Object.assign({}, this.state.attribute_aggregates),
+        that = this;
+    if (event.target.value === 'on') {
+      attribute_aggregates[attribute.id] = attribute;
+    }
+    else {
+      attribute_aggregates[attribute.id] = false;
+    }
+    this.setState({
+      attribute_aggregates
+    }, () => {
+      that.setState({
+        columns: that.getColumns()
+      });
+      that.aggregateCategoryPrice();
+      that.aggregateCategoryAttribute();
+    });
   }
   render() {
-    if (!this.state.ready) {
-      return <div/>
-    }
-    else
+    if (!this.state.ready) return null;
     return (
       <div>
-        <div>
-          <input type="range" min="0" max="5" step="1" onChange={this.onDepthChange.bind(this)}/>
-          <Timeline
-            items={this.state.resolved_timeline_items}
-            groups={this.state.resolved_categories}
-          />
-          <VictoryChart
-            scale={{ x: "time" }}
-          >
-            <VictoryStack
-              colorScale="warm"
-            >
-              <VictoryGroup
-                data={this.state.transactions}
-                x={d => moment(d.date).toDate()}
-                y="total_price"
-              >
-                <VictoryArea
-                  name="area-1"
-                />
-                <VictoryScatter
-                  labels={d => moment(d.date).toDate()+": "+d.price}
-                  style={{ data: { fill: "black" } }}
-                  labelComponent={<VictoryTooltip renderInPortal/>}
-                />
-              </VictoryGroup>
-            </VictoryStack>
-          </VictoryChart>  
-          <VictoryChart>
-            <VictoryBar horizontal
-              colorScale="warm"
-              sortOrder="descending"
-              sortKey="price"
-              data={this.state.resolved_pie_items}
-              x="name"
-              y="price"
+        <h2>Transactions</h2>
+        <VictoryChart
+          scale={{ x: "time" }}
+          style={{parent:{ width:'100em', height:'30em' }}}
+          containerComponent={
+            <VictoryZoomContainer
+              zoomDimension="x"
+              zoomDomain={this.state.zoomDomain}
+              onZoomDomainChange={this.handleZoom.bind(this)}
             />
-          </VictoryChart>
-        </div>
-        <div>
-          <ReactTable
+          }
+        >
+          <VictoryGroup
             data={this.state.transactions}
-            columns={transaction_columns}
-            pageSize={this.state.transactions ? this.state.transactions.length : 1}
-            showPagination={false}
-            SubComponent={row => {
-              return (
-                <ReactTable
-                  data={this.state.transactions[row.index].items}
-                  pageSize={this.state.transactions[row.index].items ? this.state.transactions[row.index].items.length : 1}
-                  showPagination={false}
-                  columns={item_columns}
-                  />
-              );
-            }}
-          />
-        </div>
+            x={d => moment(d.date).toDate()}
+            y="total_price"
+          >
+            <VictoryLine/>
+            <VictoryScatter
+              labels={d => moment(d.date).toDate().toLocaleDateString('fi-FI')+" "+moment(d.date).toDate().toLocaleTimeString('fi-FI')+", "+(d.party && d.party.name)+": "+d.total_price}
+              style={{ data: { fill: "black" } }}
+              labelComponent={<VictoryTooltip renderInPortal/>}
+            />
+          </VictoryGroup>
+        </VictoryChart>  
+        <h2>Attributes</h2>
+        <EditableTable
+          columns={this.state.attribute_columns}
+          items={this.state.attributes}
+        />
+        <h2>Categories</h2>
+        <EditableTable
+          columns={this.state.columns}
+          items={this.state.resolved_categories}
+        />
       </div>
     );
   }
 }
 
-/*<VictoryChart
-    scale={{ x: "time" }}
-  >
-    <VictoryStack
-      colorScale="warm"
-    >
-    {this.state.resolved_stack_items.map(item => {
-      return <VictoryGroup
-        data={item.data}
-        x={d => moment(d.date).toDate()}
-        y="price"
-      >
-        <VictoryArea
-          name={item.data[0].name}
-        />
-        <VictoryScatter
-          labels={item.data[0].name}
-          style={{ data: { fill: "black" } }}
-          labelComponent={<VictoryTooltip renderInPortal/>}
-        />
-      </VictoryGroup>
-    })}
-  </VictoryStack>
-</VictoryChart>
-<VictoryPie
-  colorScale="warm"
-  data={this.state.resolved_pie_items}
-  labels={d => d.name+": "+d.price}
-  x="name"
-  y="price"
-/>
-*/
+module.exports = OverviewPage;
+
+/*
+<VictoryChart
+          style={{parent:{ width: '70em', height:'100em', overflow: 'scroll' }}}
+        >
+          <VictoryBar horizontal
+            colorScale="warm"
+            sortOrder="descending"
+            sortKey="price"
+            data={this.state.resolved_pie_items}
+            x="name"
+            y="price"
+          />
+        </VictoryChart>*/

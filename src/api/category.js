@@ -241,37 +241,42 @@ function getAttributes(builder) {
 }
 
 function getTransactions(builder) {
-  builder.eager('[products.items.transaction, children(getTransactions)]', {getTransactions});
+  builder.eager('[products.items.transaction, attributes, children(getTransactions)]', {getTransactions});
 }
 
 function resolveCategories(items, locale) {
   if (!locale) return;
   let item_attributes,
       resolved_attributes,
+      item,
       index;
   for (let i in items) {
+    item = items[i];
     resolved_attributes = {};
-    item_attributes = items[i].attributes;
+    item_attributes = item.attributes;
     for (let n in item_attributes) {
-      if (!item_attributes[n].attribute) continue;
-      item_attributes[n].attribute.name = item_attributes[n].attribute.name[locale];
-      resolved_attributes[item_attributes[n].attributeId] = item_attributes[n];
-
-      let parent = item_attributes[n].attribute.parent;
-      while (parent) {
-        if (parent.name && parent.name.hasOwnProperty(locale)) {
-          parent.name = parent.name[locale];
+      if (item_attributes[n].attribute) {
+        if (item_attributes[n].attribute.name.hasOwnProperty(locale)) {
+          item_attributes[n].attribute.name = item_attributes[n].attribute.name[locale];
         }
-        parent = parent.parent;
-      }
-    }
-    items[i].attributes = resolved_attributes;
-    if (items[i].children) {
-      resolveCategories(items[i].children, locale);
-    }
-    items[i].name = items[i].name[locale];
 
-    let parent = items[i].parent;
+        let parent = item_attributes[n].attribute.parent;
+        while (parent) {
+          if (parent.name && parent.name.hasOwnProperty(locale)) {
+            parent.name = parent.name[locale];
+          }
+          parent = parent.parent;
+        }
+      }
+      resolved_attributes[item_attributes[n].attributeId] = item_attributes[n];
+    }
+    item.attributes = resolved_attributes;
+    if (item.children) {
+      resolveCategories(item.children, locale);
+    }
+    item.name = item.name[locale];
+
+    let parent = item.parent;
     while (parent) {
       parent.name = parent.name[locale];
       parent = parent.parent;
@@ -340,9 +345,10 @@ app.get('/api/category', function(req, res) {
   else if (req.query.hasOwnProperty('transactions')) {
     Category.query()
     .where('parentId', null)
-    .eager('[children(getTransactions)]', {getTransactions})
+    .eager('[attributes, children(getTransactions)]', {getTransactions})
     .then(categories => {
       resolveCategoryPrices(categories);
+      resolveCategories(categories, req.query.locale);
       res.send(categories);
     })
     .catch(error => {

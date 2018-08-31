@@ -10,14 +10,16 @@ class CategoryList extends Component {
 
     let that = this;
 
+    this.state = {};
+
     axios.get('/api/attribute/?parent')
     .then(function(attributes) {
       that.setState({attributes: attributes.data});
       
       axios.get('/api/category/?attributes&parent&locale=fi-FI')
-      .then(function(attributes) {
+      .then(function(categories) {
         that.setState({
-          attributes: attributes.data,
+          categories: categories.data,
           columns: that.getColumns()
         });
 
@@ -59,7 +61,7 @@ class CategoryList extends Component {
     return (
       <EditableTable
         columns={this.state.columns}
-        items={this.state.attributes}
+        items={this.state.categories}
       />
     );
   }

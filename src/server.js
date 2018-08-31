@@ -60,7 +60,7 @@ app.get('*', (req, res) => {
 `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
 <meta charset="utf8">
-<script src="http://localhost:8097"></script>
+<script src="http://192.168.10.51:8097"></script>
 <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
 <link rel="stylesheet" href="/css/treetabular.css">
 <link rel="stylesheet" href="/css/react-datepicker.css">

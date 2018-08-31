@@ -24,7 +24,8 @@ export default class Layout extends React.Component {
           <div className="header-container">
             <div style={{float:'left'}}>
               <nav>
-                <Link to="/">Receipts</Link>&nbsp;
+                <Link to="/">Dashboard</Link>&nbsp;
+                <Link to="/transactions">Transactions</Link>&nbsp;
                 <Link to="/items">Items</Link>&nbsp;
                 <Link to="/categories">Categories</Link>&nbsp;
                 <Link to="/add">Add</Link>

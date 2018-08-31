@@ -3,12 +3,26 @@ const express = require('express');
 const app = express();
 module.exports = function (app) {
 
+function resolveAttributes(attributes) {
+  let resolved_attributes = {};
+  attributes.map((attribute) => {
+    if (attribute.children) {
+      attribute.children = resolveAttributes(attribute.children);
+    }
+    resolved_attributes[attribute.id] = attribute;
+  });
+  return resolved_attributes;
+}
+
 app.get('/api/attribute', function(req, res) {
   if (req.query.hasOwnProperty('parent')) {
     Attribute.query()
     .where('parentId', req.query.parent || null)
     .eager('[children.^]')
     .then(attributes => {
+      if (req.query.hasOwnProperty('indexed')) {
+        attributes = resolveAttributes(attributes);
+      }
       res.send(attributes);
     })
     .catch(error => {
