@@ -534,7 +534,7 @@ async function getDataFromReceipt(result, text, locale) {
 function processReceiptImage(filepath, data, resize) {
   return new Promise((resolve, reject) => {
     let script = [filepath,
-                  //'-auto-orient',
+                  '-auto-orient',
                   '-type', 'grayscale',
                   '-background', 'none',
                   '-bordercolor', 'none',
@@ -582,6 +582,10 @@ function processReceiptImage(filepath, data, resize) {
         '+repage',
         '-strip',
         'PNG:'+filepath+'_edited']);
+
+    script = [filepath,
+      'PNG:'+filepath+'_edited'];
+      
     console.log(script.join(' '));
     child_process.execFile('convert', script, function(error, stdout, stderr) {
       if (error) console.error(error);
@@ -737,6 +741,7 @@ app.post('/api/receipt/prepare/', function(req, res) {
     let file = req.file;
     script = [file.path,
               '-auto-orient',
+              '-strip',
               '-resize', '100',
               //'-median', '1',
               //'-lat', '100x100-1%',
@@ -819,9 +824,15 @@ app.post('/api/receipt/hocr/', function(req, res) {
 
     console.log(file);
 
-    processReceiptImage(file.path, {}, true).then((response) => {
+    processReceiptImage(file.path, {
+      sharpen: false,
+      blur: false
+    }, false).then((response) => {
       child_process.execFile('tesseract', [
         '-l', 'fin',
+        '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.- ',
+        '-c', 'textord_max_noise_size=30',
+        '-c', 'textord_noise_sizelimit=1',
         file.path+'_edited',
         'stdout',
         'output',
