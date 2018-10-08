@@ -147,6 +147,9 @@ class OverviewPage extends Component {
         resolved_items = [];
     that.state.items.map(item => {
       id = false;
+      if (!item || !item.product) {
+        return true;
+      }
       if (that.state.depth > 2) {
         let current_depth, child = false;
         if (item.product.category) {
@@ -171,15 +174,15 @@ class OverviewPage extends Component {
           name = child.name;
         }
       }
-      if ((!id || that.state.depth == 2) && item && item.product && item.product.category && item.product.category.parent) {
+      if ((!id || that.state.depth == 2) && item.product.category && item.product.category.parent) {
         id = 'c'+item.product.category.parent.id;
         name = item.product.category.parent.name;
       }
-      if ((!id || that.state.depth == 1) && item && item.product && item.product.category) {
+      if ((!id || that.state.depth == 1) && item.product.category) {
         id = 'c'+item.product.category.id;
         name = item.product.category.name;
       }
-      if (that.state.depth == 0 && item && item.product) {
+      if (that.state.depth == 0) {
         id = 'p'+item.product.id;
         name = item.product.name;
       }
