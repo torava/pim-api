@@ -171,7 +171,7 @@ class OverviewPage extends Component {
           name = child.name;
         }
       }
-      if ((!id || that.state.depth == 2) && item.product.category && item.product.category.parent) {
+      if ((!id || that.state.depth == 2) && item && item.product && item.product.category && item.product.category.parent) {
         id = 'c'+item.product.category.parent.id;
         name = item.product.category.parent.name;
       }
