@@ -99,6 +99,11 @@ class OverviewPage extends Component {
   getItemNameByDepth(item, depth) {
     let name,
         id = false;
+    if (!item || !item.product) {
+      id = 0;
+      name = 'Uncategorized';
+      return {id, name};
+    }
     if (depth > 2) {
       let current_depth, child = false;
       if (item.product.category) {
