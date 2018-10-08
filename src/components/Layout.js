@@ -22,15 +22,6 @@ export default class Layout extends React.Component {
       <div className="app-container">
        <header>
           <div className="header-container">
-            <div style={{float:'left'}}>
-              <nav>
-                <Link to="/">Dashboard</Link>&nbsp;
-                <Link to="/transactions">Transactions</Link>&nbsp;
-                <Link to="/items">Items</Link>&nbsp;
-                <Link to="/categories">Categories</Link>&nbsp;
-                <Link to="/add">Add</Link>
-              </nav>
-            </div>
             <div style={{float:'right'}}>
               <select id="currency" onChange={this.onCurrencyChange.bind(this)}>
                 <option>EUR</option>
@@ -42,11 +33,23 @@ export default class Layout extends React.Component {
                 <option>en-US</option>
                 <option>es-AR</option>
               </select>
+              <Link to="/" className="button"><i className="fas fa-user"></i></Link>
             </div>
             <div style={{clear:'both'}}/>
           </div>
         </header>
         <div className="app-content">{this.props.children}</div>
+        <footer>
+          <div className="footer-container">
+            <nav>
+              <Link to="/" className="button"><i className="fas fa-chart-area"></i></Link>&nbsp;
+              <Link to="/categories" className="button"><i className="fas fa-search"></i></Link>&nbsp;
+              <Link to="/add" className="button"><i className="fas fa-plus"></i></Link>
+              <Link to="/transactions" className="button"><i className="fas fa-shopping-cart"></i></Link>&nbsp;
+              <Link to="/items" className="button"><i className="fas fa-box-open"></i></Link>&nbsp;
+            </nav>
+          </div>
+        </footer>
       </div>
     );
   }

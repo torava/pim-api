@@ -5,8 +5,11 @@ body {
   font-size: 14px;
   margin: 0;
 }
-header {
-  box-shadow: 0 1px 1px silver;
+a {
+  color: black;
+}
+header, footer {
+  box-shadow: 0 1px 2px silver;
   padding: 0.5em;
 }
 header nav {
@@ -15,6 +18,22 @@ header nav {
 .header-container {
   margin: auto;
   max-width: 1200px;
+}
+footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+header .button {
+  padding: 0 0.5em;
+  font-size: 1.5em;
+}
+footer .button {
+  width: 19%;
+  text-align: center;
+  display: inline-block;
+  font-size: 2em;
 }
 table {
   border-collapse: collapse;
