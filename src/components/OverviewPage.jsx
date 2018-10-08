@@ -393,7 +393,7 @@ class OverviewPage extends Component {
         <h2>Transactions</h2>
         <VictoryChart
           scale={{ x: "time" }}
-          style={{parent:{ width:'100em', height:'30em' }}}
+          style={{parent:{ height:'30em' }}}
           containerComponent={
             <VictoryZoomContainer
               zoomDimension="x"
@@ -415,15 +415,15 @@ class OverviewPage extends Component {
             />
           </VictoryGroup>
         </VictoryChart>  
-        <h2>Attributes</h2>
-        <EditableTable
-          columns={this.state.attribute_columns}
-          items={this.state.attributes}
-        />
         <h2>Categories</h2>
         <EditableTable
           columns={this.state.columns}
           items={this.state.resolved_categories}
+        />
+        <h2>Attributes</h2>
+        <EditableTable
+          columns={this.state.attribute_columns}
+          items={this.state.attributes}
         />
       </div>
     );
