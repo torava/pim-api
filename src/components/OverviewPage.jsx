@@ -175,11 +175,11 @@ class OverviewPage extends Component {
         id = 'c'+item.product.category.parent.id;
         name = item.product.category.parent.name;
       }
-      if ((!id || that.state.depth == 1) && item.product.category) {
+      if ((!id || that.state.depth == 1) && item && item.product && item.product.category) {
         id = 'c'+item.product.category.id;
         name = item.product.category.name;
       }
-      if (that.state.depth == 0) {
+      if (that.state.depth == 0 && item && item.product) {
         id = 'p'+item.product.id;
         name = item.product.name;
       }
