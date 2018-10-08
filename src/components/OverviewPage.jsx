@@ -226,6 +226,9 @@ class OverviewPage extends Component {
         resolved_items = [],
         values;
     that.state.items.map(item => {
+      if (!item || !item.product) {
+        return true;
+      }
       values = that.getItemNameByDepth(item, that.state.depth);
       id = values.id;
       name = values.name;
