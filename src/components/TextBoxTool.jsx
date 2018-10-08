@@ -3,6 +3,30 @@
 import axios from 'axios';
 import React, {Component} from 'react';
 
+function deskew( mat, angle, reqid = '0', drawGrid = false ) {
+  angle = angle || computeSkew( mat.cvtColor(cv.COLOR_BGR2GRAY).bitwiseNot() );
+
+  let nGray = mat.cvtColor(cv.COLOR_BGR2GRAY),
+    mGray = nGray.bilateralFilter( 10, 60, 60 ),
+    mEdge = mGray.canny(0 , 1, 5),
+    contours = mEdge.findContours(cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE),
+    rotatedRect = contours.sort( (c0, c1) => c1.area - c0.area )[0].minAreaRect(),
+    initCAngle = rotatedRect.angle,
+    contourAngle = rotatedRect.size.width < rotatedRect.size.height ? initCAngle + 90 : initCAngle;
+
+  return mat.warpAffine( cv.getRotationMatrix2D( new cv.Point( mat.cols / 2, mat.rows / 2 ), contourAngle ) );
+}
+
+function computeSkew( mat ) { // mat is expected to already be grayscale and inverted
+  let [ height, width ] = mat.sizes,
+    lines = mat.houghLinesP(1, Math.PI/180, 100, minLineLength = width / 2.0, maxLineGap = 20),
+    angle = lines.reduce((ac, line, index) => {
+      return ac + Math.atan2( line.w - line.x, line.z - line.y )
+    }, 0);
+
+  return angle / lines.length * 180 / Math.PI;
+}
+
 export default class TextBoxTool extends Component {
   constructor(props) {
     super(props);
@@ -27,137 +51,161 @@ export default class TextBoxTool extends Component {
 
     if (!files[0]) return;
 
-    let img = document.getElementById('img'),
-        formData = new FormData(),
-        origimg = new Image(),
-        reader = new FileReader();
+    let formData = new FormData(),
+        img = new Image(),
+        reader = new FileReader(),
+        canvas = document.createElement('canvas'),
+        target_canvas = document.getElementById('canvas'),
+        context = canvas.getContext('2d'),
+        src, dst;
 
     reader.readAsDataURL(files[0]);
-    reader.onload = (e) => {
-      origimg.src = e.target.result;
-      img.src = e.target.result;
+    
+    img.onload = (e) => {
+      target_canvas.width = canvas.width = img.width;
+      target_canvas.height = canvas.height = img.height;
+      context.drawImage(img, 0, 0, img.width, img.height);
+      src = cv.imread(canvas);
+      dst = new cv.Mat();
+
+      cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
+
+      let angle = computeSkew(src);
+
+      console.log(angle);
+
+      src = deskew(src, angle, 0, true);
+
+      // You can try more different parameters
+      cv.adaptiveThreshold(src, dst, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 19, 20);
+      cv.imshow('canvas', dst);
+      src.delete();
+      dst.delete();
     }
+    img.src = URL.createObjectURL(files[0]);
 
-    formData.append('file', files[0]);
-    axios.post('/api/receipt/hocr', formData)
-    .then((response) => {
-      img.src = '/api/receipt/picture/'+response.data.id;
-      img.onload = () => {
-        let result = document.getElementById('result');
+    var Tesseract = window.Tesseract;
 
-        result.innerHTML = response.data.hocr;
+    Tesseract.recognize(files[0], {
+      lang: 'fin',
+      tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.- ',
+      textord_max_noise_size: 30,
+      textord_noise_sizelimit: 1
+    })
+    .progress(message => console.log(message))
+    .catch(err => console.error(err))
+    .then(result => {
+      let words = result.words,
+          word,
+          coords, distances = [],
+          origwidth = img.naturalWidth,
+          factor = img.width/origwidth,
+          wrapper = document.getElementById('canvas-wrapper'),
+          boxes = [],
+          left, top, right, bottom, width, height,
+          x_sum = 0,
+          x_gravity,
+          text,
+          boundaries = {};
 
-        let words = result.getElementsByClassName('ocrx_word'),
-            coords, distances = [],
-            origwidth = img.naturalWidth,
-            factor = img.width/origwidth,
-            wrapper = document.getElementById('canvas-wrapper'),
-            boxes = [],
-            left, top, right, bottom, width, height,
-            x_sum = 0,
-            x_gravity,
-            text,
-            boundaries = {};
+      console.log(img.width, origwidth);
 
-        console.log(img.width, origimg.width);
+      for (let i in words) {
+        word = words[i];
+        if (!word.text || !word.text.trim()) continue;
+        x_sum+= parseInt(word.bbox.x0)+parseInt(word.bbox.x1)/2;
+      }
 
-        for (let i in words) {
-          if (!words[i].innerText || !words[i].innerText.trim()) continue;
-          words[i].coords = coords = words[i].title.split(';')[0].substring(5).split(' ');
-          x_sum+= parseInt(coords[0])+parseInt(coords[2])/2;
+      x_gravity = x_sum/words.length;
+
+      for (let i in words) {
+        word = words[i];
+        console.log(word.text);
+        if (!word.text || !word.text.trim()) continue;
+        left = word.bbox.x0;
+        top = word.bbox.y0;
+        right = word.bbox.x1;
+        bottom = word.bbox.y1;
+
+        if (boundaries.hasOwnProperty('left')) {
+          boundaries.left = Math.min(left, boundaries.left);
+          boundaries.top = Math.min(top, boundaries.top);
+          boundaries.right = Math.max(right, boundaries.right);
+          boundaries.bottom = Math.max(bottom, boundaries.bottom);
+        }
+        else {
+          boundaries.left = left;
+          boundaries.top = top;
+          boundaries.right = right;
+          boundaries.bottom = bottom;
         }
 
-        x_gravity = x_sum/words.length;
+        left*= factor;
+        top*= factor;
+        right*= factor;
+        bottom*= factor;
 
-        for (let i in words) {
-          console.log(words[i].innerHTML);
-          if (!words[i].innerText || !words[i].innerText.trim()) continue;
-          coords = words[i].coords;
-          left = parseInt(coords[0]);
-          top = parseInt(coords[1]);
-          right = parseInt(coords[2]);
-          bottom = parseInt(coords[3]);
+        width = right-left;
+        height = bottom-top;
 
-          if (boundaries.hasOwnProperty('left')) {
-            boundaries.left = Math.min(left, boundaries.left);
-            boundaries.top = Math.min(top, boundaries.top);
-            boundaries.right = Math.max(right, boundaries.right);
-            boundaries.bottom = Math.max(bottom, boundaries.bottom);
-          }
-          else {
-            boundaries.left = left;
-            boundaries.top = top;
-            boundaries.right = right;
-            boundaries.bottom = bottom;
-          }
+        text = word.text;
 
-          left*= factor;
-          top*= factor;
-          right*= factor;
-          bottom*= factor;
-
-          width = right-left;
-          height = bottom-top;
-
-          text = words[i].innerText;
-
-          boxes.push((
-            <div title={text} style={{
-              left,
-              top,
-              width,
-              height,
-              border: '1px solid blue',
-              position: 'absolute'
-            }}/>
-          ));
-          distances.push(
-            <li data-distance={left-x_gravity*factor}>{text} {left-x_gravity*factor}</li>
-          );
-        }
-
-        distances.sort((a,b) => {
-          console.log(a,b);
-          return a.props['data-distance'] < b.props['data-distance']
-        });
-
-        console.log(boundaries);
-
-        boxes.unshift((
-          <div style={{
-            left: boundaries.left*factor,
-            top: boundaries.top*factor,
-            width: (boundaries.right-boundaries.left)*factor,
-            height: (boundaries.bottom-boundaries.top)*factor,
-            border: '1px solid red',
-            position: 'absolute'
-          }}/>
-        ));
-        boxes.unshift(
-          <div style={{
-            left: x_gravity*factor,
-            top: 0,
-            width: 0,
-            height: img.height,
-            border: '1px solid red',
-            position: 'absolute'
-          }}/>
-        );
-        boxes.unshift(
-          <div style={{
-            left: words[Math.floor(words.length/2)].coords[0]*factor,
-            top: 0,
-            width: 0,
-            height: img.height,
+        boxes.push((
+          <div title={text} style={{
+            left,
+            top,
+            width,
+            height,
             border: '1px solid blue',
             position: 'absolute'
           }}/>
+        ));
+        distances.push(
+          <li data-distance={left-x_gravity*factor}>{text} {left-x_gravity*factor}</li>
         );
-        that.setState({
-          boxes,
-          distances
-        });
       }
+
+      distances.sort((a,b) => {
+        console.log(a,b);
+        return a.props['data-distance'] < b.props['data-distance']
+      });
+
+      console.log(boundaries);
+
+      boxes.unshift((
+        <div style={{
+          left: boundaries.left*factor,
+          top: boundaries.top*factor,
+          width: (boundaries.right-boundaries.left)*factor,
+          height: (boundaries.bottom-boundaries.top)*factor,
+          border: '1px solid red',
+          position: 'absolute'
+        }}/>
+      ));
+      boxes.unshift(
+        <div style={{
+          left: x_gravity*factor,
+          top: 0,
+          width: 0,
+          height: img.height,
+          border: '1px solid red',
+          position: 'absolute'
+        }}/>
+      );
+      boxes.unshift(
+        <div style={{
+          left: words[Math.floor(words.length/2)].bbox.x0*factor,
+          top: 0,
+          width: 0,
+          height: img.height,
+          border: '1px solid blue',
+          position: 'absolute'
+        }}/>
+      );
+      that.setState({
+        boxes,
+        distances
+      });
     })
     .catch(function(error) {
       console.error(error);
@@ -168,6 +216,7 @@ export default class TextBoxTool extends Component {
       <div>
         <input type="file" name="file" id="file" multiple draggable onChange={this.onChange} style={{display:"block"}}/>
         <div id="result" style={{display:'none'}}/>
+        <canvas id="canvas"/>
         <div id="canvas-wrapper" style={{position:"relative"}}>
           <img id="img" style={{width:'500px'}}/>
           {this.state.boxes}

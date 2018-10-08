@@ -6,7 +6,6 @@ import {Link} from 'react-router';
 import axios from 'axios';
 import Cropper from 'react-cropper';
 import moment from 'moment';
-import ReceiptEditor from './ReceiptEditor';
 
 function confirmExit() {
     return "You have attempted to leave this page. Are you sure?";
@@ -63,7 +62,13 @@ export default class AddReceiptPage extends React.Component {
 
     if (!files[0]) return;
 
-    var formData = new FormData();
+    var Tesseract = window.Tesseract;
+    Tesseract.recognize(files[0])
+    .progress(message => console.log(message))
+    .catch(err => console.error(err))
+    .then(result => console.log(result));
+
+    /*var formData = new FormData();
       formData.append('file', files[0]);
       axios.post('/api/receipt/prepare', formData)
       .then(function(response) {
@@ -85,7 +90,7 @@ export default class AddReceiptPage extends React.Component {
     reader.onload = () => {
       this.setState({ src: reader.result });
     };
-    reader.readAsDataURL(files[0]);
+    reader.readAsDataURL(files[0]);*/
   }
   showUploader(event) {
     event.preventDefault();
