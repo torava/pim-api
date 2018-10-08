@@ -232,7 +232,7 @@ class OverviewPage extends Component {
       // if item is already in resolved items then sum to price
       found = false;
       resolved_items.map(resolved_item => {
-        if (!resolved_item || !resolved.item.product) {
+        if (!resolved_item || !resolved_item.product) {
           return true;
         }
         if (resolved_item.id === id) {
