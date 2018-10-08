@@ -393,7 +393,7 @@ class OverviewPage extends Component {
         <h2>Transactions</h2>
         <VictoryChart
           scale={{ x: "time" }}
-          style={{parent:{ height:'30em' }}}
+          crossAxis={true}
           containerComponent={
             <VictoryZoomContainer
               zoomDimension="x"
