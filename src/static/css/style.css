@@ -19,6 +19,10 @@ header nav {
   margin: auto;
   max-width: 1200px;
 }
+.logo a {
+  font-size: 1.5em;
+  text-decoration: none;
+}
 footer {
   position: fixed;
   bottom: 0;

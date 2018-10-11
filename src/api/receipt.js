@@ -536,8 +536,8 @@ function processReceiptImage(filepath, data, resize) {
     let script = [filepath,
                   '-auto-orient',
                   '-type', 'grayscale',
-                  '-background', 'none',
-                  '-bordercolor', 'none',
+                  '-background', 'white',
+                  '-bordercolor', 'white',
                   '-border', '10',
                   //'-normalize',
                   //'-contrast-stretch', '0'
@@ -582,10 +582,7 @@ function processReceiptImage(filepath, data, resize) {
         '+repage',
         '-strip',
         'PNG:'+filepath+'_edited']);
-
-    script = [filepath,
-      'PNG:'+filepath+'_edited'];
-      
+    
     console.log(script.join(' '));
     child_process.execFile('convert', script, function(error, stdout, stderr) {
       if (error) console.error(error);

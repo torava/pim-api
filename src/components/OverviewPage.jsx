@@ -23,12 +23,15 @@ class OverviewPage extends Component {
 
     let that = this;
 
+    let locale = window.localStorage.getItem('locale');
+
     this.onDepthChange = this.onDepthChange.bind(this);
 
     this.state = {
       depth: 1,
       ready: false,
       attribute_aggregates: {},
+      transaction_aggregates: {monthly:[]},
       resolved_pie_items: [],
       resolved_stack_items: [],
       resolved_timeline_items: [],
@@ -42,35 +45,39 @@ class OverviewPage extends Component {
       .then(function(response) {
         that.setState({
           transactions: response.data
-        });
-        axios.get('/api/item/')
-        .then(response => {
-          that.setState({items: response.data});
-          axios.get('/api/category/?transactions&locale=fi-FI')
-          .then(function(response) {
-            that.setState({
-              categories: [...response.data],
-              resolved_categories: [...response.data],
-              columns: that.getColumns(),
-              attribute_columns: that.getAttributeColumns()
-            }, () => {
-              that.resolvePieItems();
-              that.resolveStackItems();
-              that.aggregateCategoryPrice();
-
-              document.title = "Categories";
-
+        }, () => {
+          that.setState({
+            transaction_aggregates: that.aggregateTransactions()
+          });
+          axios.get('/api/item/')
+          .then(response => {
+            that.setState({items: response.data});
+            axios.get('/api/category/?transactions&locale='+locale)
+            .then(function(response) {
               that.setState({
-                ready: true
+                categories: [...response.data],
+                resolved_categories: [...response.data],
+                columns: that.getColumns(),
+                attribute_columns: that.getAttributeColumns()
+              }, () => {
+                that.resolvePieItems();
+                that.resolveStackItems();
+                that.aggregateCategoryPrice();
+
+                document.title = "Categories";
+
+                that.setState({
+                  ready: true
+                });
               });
+            })
+            .catch(function(error) {
+              console.error(error);
             });
           })
           .catch(function(error) {
             console.error(error);
           });
-        })
-        .catch(function(error) {
-          console.error(error);
         });
       })
       .catch(function(error) {
@@ -95,6 +102,27 @@ class OverviewPage extends Component {
     this.resolvePieItems();
     this.resolveStackItems();
     this.resolveTimelineItems();
+  }
+  aggregateTransactions() {
+    let date,
+        aggregates = {
+      monthly: {}
+    };
+    this.state.transactions.map(transaction => {
+      date = moment(transaction.date, 'YYYY-MM-01').format();
+      if (aggregates.monthly.hasOwnProperty(date)) {
+        aggregates.monthly[date].total_price+= transaction.total_price;
+      }
+      else {
+        aggregates.monthly[date] = {
+          date: date,
+          goal: 100,
+          total_price: transaction.total_price
+        }
+      }
+    });
+    aggregates.monthly = Object.values(aggregates.monthly);
+    return aggregates;
   }
   getItemNameByDepth(item, depth) {
     let name,
@@ -149,7 +177,8 @@ class OverviewPage extends Component {
   resolvePieItems() {
     let that = this,
         found, id, name,
-        resolved_items = [];
+        resolved_items = [],
+        locale = window.localStorage.getItem('locale');
     that.state.items.map(item => {
       id = false;
       if (!item || !item.product) {
@@ -208,7 +237,7 @@ class OverviewPage extends Component {
       if (!found) {
         resolved_items.push({
           id: id,
-          name: name.hasOwnProperty('fi-FI') ? name['fi-FI'] : name,
+          name: name.hasOwnProperty(locale) ? name[locale] : name,
           price: item.price,
           item_names: [item.product.name]
         });
@@ -224,7 +253,8 @@ class OverviewPage extends Component {
         index, found, id, name,
         indexed_items = [0],
         resolved_items = [],
-        values;
+        values,
+        locale = window.localStorage.getItem('locale');
     that.state.items.map(item => {
       if (!item || !item.product) {
         return true;
@@ -242,7 +272,7 @@ class OverviewPage extends Component {
           resolved_item.data.map(data => {
             if (data.transaction_id === item.transaction.id) {
               data.price+= item.price;
-              data.name = name.hasOwnProperty('fi-FI') ? name['fi-FI'] : name;
+              data.name = name.hasOwnProperty(locale) ? name[locale] : name;
               data.item_names.push(item.product.name);
               found = true;
               return;
@@ -251,7 +281,7 @@ class OverviewPage extends Component {
           if (!found) {
             resolved_item.data.push({
               transaction_id: item.transaction.id,
-              name: name.hasOwnProperty('fi-FI') ? name['fi-FI'] : name,
+              name: name.hasOwnProperty(locale) ? name[locale] : name,
               date: item.transaction.date,
               price: item.price,
               item_names: [item.product.name]
@@ -273,7 +303,7 @@ class OverviewPage extends Component {
           data: [{
             transaction_id: item.transaction.id,
             date: item.transaction.date,
-            name: name.hasOwnProperty('fi-FI') ? name['fi-FI'] : name,
+            name: name.hasOwnProperty(locale) ? name[locale] : name,
             price: item.price,
             item_names: [item.product.name]
           }]
@@ -342,16 +372,18 @@ class OverviewPage extends Component {
   getColumns() {
     let attribute_aggregate_columns = [],
         attribute_aggregates = Object.assign({}, this.state.attribute_aggregates),
-        aggregate;
+        aggregate,
+        locale = window.localStorage.getItem('locale'),
+        currency = window.localStorage.getItem('currency');
     for (let id in attribute_aggregates) {
       aggregate = attribute_aggregates[id];
       aggregate && attribute_aggregate_columns.push({
-        id: aggregate.name['fi-FI']+'_sum',
+        id: aggregate.name[locale]+'_sum',
         formatter: (value, item) => {
           console.log(id);
-          return item.attribute_sum && item.attribute_sum[id] && item.attribute_sum[id].toLocaleString('fi-FI', {minimumFractionDigits: 2,maximumFractionDigits:2});
+          return item.attribute_sum && item.attribute_sum[id] && item.attribute_sum[id].toLocaleString(locale, {minimumFractionDigits: 2,maximumFractionDigits:2});
         },
-        label: aggregate.name['fi-FI']+(aggregate.unit && " ("+aggregate.unit+")")
+        label: aggregate.name[locale]+(aggregate.unit && " ("+aggregate.unit+")")
       });
     }
     return [
@@ -364,7 +396,7 @@ class OverviewPage extends Component {
       },
       {
         id: 'price_sum',
-        formatter: value => value && value.toLocaleString('fi-FI', {style: 'currency', currency: 'EUR'}),
+        formatter: value => value && value.toFixed(2),
         label: 'Price'
       }
     ].concat(attribute_aggregate_columns);
@@ -377,7 +409,7 @@ class OverviewPage extends Component {
       {
         id: 'name',
         label: 'Name',
-        formatter: (value, attribute) => <label for={"toggle-attribute-"+attribute.id}>{value['fi-FI']}</label>
+        formatter: (value, attribute) => <label for={"toggle-attribute-"+attribute.id}>{value[locale]}</label>
       }
     ]
   }
@@ -402,6 +434,7 @@ class OverviewPage extends Component {
   }
   render() {
     if (!this.state.ready) return null;
+    let locale = window.localStorage.getItem('locale');
     return (
       <div>
         <h2>Transactions</h2>
@@ -416,23 +449,30 @@ class OverviewPage extends Component {
             />
           }
         >
-          <VictoryGroup
-            data={this.state.transactions}
+          <VictoryLine
+            data={this.state.transaction_aggregates.monthly}
+            x={d => moment(d.date).toDate()}
+            y="goal"
+            labels={d => d.goal}
+            style={{ data: { stroke: "tomato" } }}
+            labelComponent={<VictoryTooltip renderInPortal/>}
+          />
+          <VictoryBar
+            data={this.state.transaction_aggregates.monthly}
             x={d => moment(d.date).toDate()}
             y="total_price"
-          >
-            <VictoryLine/>
-            <VictoryScatter
-              labels={d => moment(d.date).toDate().toLocaleDateString('fi-FI')+" "+moment(d.date).toDate().toLocaleTimeString('fi-FI')+", "+(d.party && d.party.name)+": "+d.total_price}
-              style={{ data: { fill: "black" } }}
-              labelComponent={<VictoryTooltip renderInPortal/>}
-            />
-          </VictoryGroup>
+            labels={d => d.total_price}
+            style={{ data: { fill: "black" } }}
+            labelComponent={<VictoryTooltip renderInPortal/>}
+          />
         </VictoryChart>  
         <h2>Categories</h2>
         <EditableTable
           columns={this.state.columns}
           items={this.state.resolved_categories}
+          filter={(item) => {
+            return item.price_sum > 0
+          }}
         />
         <h2>Attributes</h2>
         <EditableTable

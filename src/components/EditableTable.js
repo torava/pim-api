@@ -13,6 +13,7 @@ class EditableTable extends Component {
       childView: props.childView,
       items: props.items,
       resolved_items: props.items,
+      filter: props.filter,
       column_orders: {},
       ready: false
     }
@@ -64,7 +65,10 @@ class EditableTable extends Component {
     this.setState({
       column_orders
     }, () => {
-      that.resolveItems();
+      this.setState({
+        resolved_items: that.resolveItems(that.state.items),
+        ready: true
+      })
     });
   }
   getColumnChildren(column) {
@@ -76,8 +80,11 @@ class EditableTable extends Component {
     }
     else return column;
   }
-  resolveItems() {
-    let resolved_items = [...this.state.items],
+  resolveItems(items) {
+    console.log(this);
+    if (!items) return [];
+
+    let resolved_items = [...items],
         column_orders = this.state.column_orders,
         column_order,
         order;
@@ -101,10 +108,7 @@ class EditableTable extends Component {
       }
     });
     console.log(column_orders);
-    this.setState({
-      resolved_items,
-      ready: true
-    })
+    return resolved_items;
   }
   renderColumns(column, indexes, content, total, depth, cols) {
     let count,
@@ -160,11 +164,15 @@ class EditableTable extends Component {
         {thead}
         <tbody>
           {that.state.resolved_items && that.state.resolved_items.map((item, i) => {
+            if (that.state.filter && !that.state.filter(item)) return true;
+
             return <EditableTableItem
                     key={i}
                     rowIndex={i}
                     item={item}
+                    filter={that.state.filter}
                     columns={that.state.columns}
+                    resolveItems={that.resolveItems.bind(that)}
                     depth={0}
                     toggleChildren={that.toggleChildren}
                     childView={that.state.childView}

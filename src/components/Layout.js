@@ -22,6 +22,9 @@ export default class Layout extends React.Component {
       <div className="app-container">
        <header>
           <div className="header-container">
+            <div className="logo" style={{float:'left'}}>
+              <Link to="/">Teimo</Link>
+            </div>
             <div style={{float:'right'}}>
               <select id="currency" onChange={this.onCurrencyChange.bind(this)}>
                 <option>EUR</option>

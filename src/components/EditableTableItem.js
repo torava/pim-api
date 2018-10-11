@@ -137,7 +137,9 @@ class EditableTableItem extends Component {
     //row = connectDragSource(connectDropTarget(row));
 
     if (that.props.item.expanded && that.props.item.children && that.props.item.children.length) {
-      let children = that.props.item.children.map((item, i) => {
+      let children = that.props.resolveItems(that.props.item.children).map((item, i) => {
+          if (that.props.filter && !that.props.filter(item)) return true;
+
           return <EditableTableItem
                     rowIndex={this.props.rowIndex+"-"+i}
                     parent={this.props.rowIndex}
@@ -145,6 +147,8 @@ class EditableTableItem extends Component {
                     item={item}
                     columns={that.props.columns}
                     expanded={that.props.item}
+                    resolveItems={that.props.resolveItems}
+                    filter={that.props.filter}
                     depth={that.props.depth+1}
                     connectDragSource={connectDragSource}
                     connectDropTarget={connectDropTarget}
