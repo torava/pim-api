@@ -145,7 +145,7 @@ async function getDataFromReceipt(result, text, locale) {
         // 1.1.12 1:12
         line_date = line.match(/((\d{1,2})[\.|\,](\d{1,2})[\.|\,](\d{2,4}))(\s)?((\d{1,2}):((\d{1,2})\:)?(\d{1,2})?)?/);
         date = line_date && parseYear(line_date[4])+'-'+line_date[3]+'-'+line_date[2]+' '+line_date[6];
-        if (date) {
+        if (date && moment(date).isValid()) {
           console.log(line_date, date);
           data.date = date;
 
@@ -156,7 +156,7 @@ async function getDataFromReceipt(result, text, locale) {
           // 1:12 1-1-12
           line_date = line.match(/((\d{1,2}:)(\d{1,2}:)?(\d{1,2})?)?(\s)?((\d{1,2})[\-|\.](\d{1,2})[\-|\.](\d{2,4}))/);
           date = line_date && parseYear(line_date[9])+'-'+line_date[8]+'-'+line_date[7]+' '+line_date[1];
-          if (date) {
+          if (date && moment(date).isValid()) {
             console.log(line_date, date);
             data.date = date;
 

@@ -51,6 +51,7 @@ export default class Layout extends React.Component {
                       onChange={this.onLocaleChange.bind(this)}
               >
                 <option value="fi-FI">fi-FI</option>
+                <option value="sv-SV">sv-SV</option>
                 <option value="en-US">en-US</option>
                 <option value="es-AR">es-AR</option>
               </select>
