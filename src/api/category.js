@@ -20,6 +20,27 @@ const sizeOf = require('image-size');
 
 module.exports = function (app) {
 
+  function first(list) {
+    for (let i in list) {
+      return list[i];
+    }
+  }
+  function getNameLocale(name, locale, strict) {
+    if (!name) {
+      return name;
+    }
+    if (typeof name === 'string') {
+      return name;
+    }
+    else if (name.hasOwnProperty(locale)) {
+      return name[locale];
+    }
+    else if (!strict) {
+      return first(name);
+    }
+    else return '';
+  }
+
   const CSV_SEPARATOR = ";";
 
   async function csvToObject(csv) {
@@ -256,15 +277,11 @@ function resolveCategories(items, locale) {
     item_attributes = item.attributes;
     for (let n in item_attributes) {
       if (item_attributes[n].attribute) {
-        if (item_attributes[n].attribute.name.hasOwnProperty(locale)) {
-          item_attributes[n].attribute.name = item_attributes[n].attribute.name[locale];
-        }
+        item_attributes[n].attribute.name = getNameLocale(item_attributes[n].attribute.name, locale);
 
         let parent = item_attributes[n].attribute.parent;
         while (parent) {
-          if (parent.name && parent.name.hasOwnProperty(locale)) {
-            parent.name = parent.name[locale];
-          }
+          parent.name = getNameLocale(parent.name, locale);
           parent = parent.parent;
         }
       }
@@ -274,11 +291,11 @@ function resolveCategories(items, locale) {
     if (item.children) {
       resolveCategories(item.children, locale);
     }
-    item.name = item.name[locale];
+    item.name = getNameLocale(item.name, locale);
 
     let parent = item.parent;
     while (parent) {
-      parent.name = parent.name[locale];
+      parent.name = getNameLocale(parent.name, locale);
       parent = parent.parent;
     }
   }
