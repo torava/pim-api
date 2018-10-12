@@ -2,20 +2,31 @@
 
 import React from 'react';
 import {Link} from 'react-router-dom';
+import {locale} from './locale';
 
 export default class Layout extends React.Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      currency: locale.getCurrency(),
+      locale: locale.getLocale()
+    }
+
     this.onCurrencyChange = this.onCurrencyChange.bind(this);
     this.onLocaleChange = this.onLocaleChange.bind(this);
   }
   onCurrencyChange(event) {
-    console.log(event.target.value);
-    window.localStorage.setItem('currency', event.target.value);
+    locale.setCurrency(event.target.value);
+    this.setState({
+      currency: locale.getCurrency()
+    });
   }
   onLocaleChange(event) {
-    window.localStorage.setItem('locale', event.target.value);
+    locale.setLocale(event.target.value);
+    this.setState({
+      locale: locale.getLocale()
+    });
   }
   render() {
     return (
@@ -26,22 +37,31 @@ export default class Layout extends React.Component {
               <Link to="/">Teimo</Link>
             </div>
             <div style={{float:'right'}}>
-              <select id="currency" onChange={this.onCurrencyChange.bind(this)}>
-                <option>EUR</option>
-                <option>CAD</option>
-                <option>ARS</option>
+              <select id="currency"
+                      value={this.state.currency}
+                      onChange={this.onCurrencyChange.bind(this)
+              }>
+                <option value="EUR">EUR</option>
+                <option value="USD">USD</option>
+                <option value="CAD">CAD</option>
+                <option value="ARS">ARS</option>
               </select>
-              <select id="locale" onChange={this.onLocaleChange.bind(this)}>
-                <option>fi-FI</option>
-                <option>en-US</option>
-                <option>es-AR</option>
+              <select id="locale"
+                      value={this.state.locale}
+                      onChange={this.onLocaleChange.bind(this)}
+              >
+                <option value="fi-FI">fi-FI</option>
+                <option value="en-US">en-US</option>
+                <option value="es-AR">es-AR</option>
               </select>
               <Link to="/" className="button"><i className="fas fa-user"></i></Link>
             </div>
             <div style={{clear:'both'}}/>
           </div>
         </header>
-        <div className="app-content">{this.props.children}</div>
+        <div className="app-content">{
+          this.props.children
+        }</div>
         <footer>
           <div className="footer-container">
             <nav>

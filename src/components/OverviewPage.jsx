@@ -16,14 +16,13 @@ import {  VictoryChart,
   VictoryBar,
   VictoryScatter
 } from 'victory';
+import {locale} from './locale';
 
 class OverviewPage extends Component {
   constructor(props) {
     super(props);
 
     let that = this;
-
-    let locale = window.localStorage.getItem('locale');
 
     this.onDepthChange = this.onDepthChange.bind(this);
 
@@ -52,7 +51,7 @@ class OverviewPage extends Component {
           axios.get('/api/item/')
           .then(response => {
             that.setState({items: response.data});
-            axios.get('/api/category/?transactions&locale='+locale)
+            axios.get('/api/category/?transactions&locale='+locale.getLocale())
             .then(function(response) {
               that.setState({
                 categories: [...response.data],
@@ -177,8 +176,7 @@ class OverviewPage extends Component {
   resolvePieItems() {
     let that = this,
         found, id, name,
-        resolved_items = [],
-        locale = window.localStorage.getItem('locale');
+        resolved_items = [];
     that.state.items.map(item => {
       id = false;
       if (!item || !item.product) {
@@ -237,7 +235,7 @@ class OverviewPage extends Component {
       if (!found) {
         resolved_items.push({
           id: id,
-          name: name.hasOwnProperty(locale) ? name[locale] : name,
+          name: name.hasOwnProperty(locale.getLocale()) ? name[locale.getLocale()] : name,
           price: item.price,
           item_names: [item.product.name]
         });
@@ -253,8 +251,7 @@ class OverviewPage extends Component {
         index, found, id, name,
         indexed_items = [0],
         resolved_items = [],
-        values,
-        locale = window.localStorage.getItem('locale');
+        values;
     that.state.items.map(item => {
       if (!item || !item.product) {
         return true;
@@ -272,7 +269,7 @@ class OverviewPage extends Component {
           resolved_item.data.map(data => {
             if (data.transaction_id === item.transaction.id) {
               data.price+= item.price;
-              data.name = name.hasOwnProperty(locale) ? name[locale] : name;
+              data.name = name.hasOwnProperty(locale.getLocale()) ? name[locale.getLocale()] : name;
               data.item_names.push(item.product.name);
               found = true;
               return;
@@ -281,7 +278,7 @@ class OverviewPage extends Component {
           if (!found) {
             resolved_item.data.push({
               transaction_id: item.transaction.id,
-              name: name.hasOwnProperty(locale) ? name[locale] : name,
+              name: name.hasOwnProperty(locale.getLocale()) ? name[locale.getLocale()] : name,
               date: item.transaction.date,
               price: item.price,
               item_names: [item.product.name]
@@ -303,7 +300,7 @@ class OverviewPage extends Component {
           data: [{
             transaction_id: item.transaction.id,
             date: item.transaction.date,
-            name: name.hasOwnProperty(locale) ? name[locale] : name,
+            name: name.hasOwnProperty(locale.getLocale()) ? name[locale.getLocale()] : name,
             price: item.price,
             item_names: [item.product.name]
           }]
@@ -372,18 +369,16 @@ class OverviewPage extends Component {
   getColumns() {
     let attribute_aggregate_columns = [],
         attribute_aggregates = Object.assign({}, this.state.attribute_aggregates),
-        aggregate,
-        locale = window.localStorage.getItem('locale'),
-        currency = window.localStorage.getItem('currency');
+        aggregate;
     for (let id in attribute_aggregates) {
       aggregate = attribute_aggregates[id];
       aggregate && attribute_aggregate_columns.push({
-        id: aggregate.name[locale]+'_sum',
+        id: aggregate.name[locale.getLocale()]+'_sum',
         formatter: (value, item) => {
           console.log(id);
-          return item.attribute_sum && item.attribute_sum[id] && item.attribute_sum[id].toLocaleString(locale, {minimumFractionDigits: 2,maximumFractionDigits:2});
+          return item.attribute_sum && item.attribute_sum[id] && item.attribute_sum[id].toLocaleString(locale.getLocale(), {minimumFractionDigits: 2,maximumFractionDigits:2});
         },
-        label: aggregate.name[locale]+(aggregate.unit && " ("+aggregate.unit+")")
+        label: aggregate.name[locale.getLocale()]+(aggregate.unit && " ("+aggregate.unit+")")
       });
     }
     return [
@@ -409,7 +404,7 @@ class OverviewPage extends Component {
       {
         id: 'name',
         label: 'Name',
-        formatter: (value, attribute) => <label for={"toggle-attribute-"+attribute.id}>{value[locale]}</label>
+        formatter: (value, attribute) => <label for={"toggle-attribute-"+attribute.id}>{value[locale.getLocale()]}</label>
       }
     ]
   }
@@ -434,12 +429,13 @@ class OverviewPage extends Component {
   }
   render() {
     if (!this.state.ready) return null;
-    let locale = window.localStorage.getItem('locale');
     return (
       <div>
         <h2>Transactions</h2>
         <VictoryChart
           scale={{ x: "time" }}
+          width={600}
+          height={400}
           crossAxis={true}
           containerComponent={
             <VictoryZoomContainer
@@ -462,7 +458,15 @@ class OverviewPage extends Component {
             x={d => moment(d.date).toDate()}
             y="total_price"
             labels={d => d.total_price}
-            style={{ data: { fill: "black" } }}
+            style={{ data: { fill: "gray" } }}
+            labelComponent={<VictoryTooltip renderInPortal/>}
+          />
+          <VictoryBar
+            data={this.state.transactions}
+            x={d => moment(d.date).toDate()}
+            y="total_price"
+            labels={d => d.total_price}
+            style={{ data: { fill: "navy" } }}
             labelComponent={<VictoryTooltip renderInPortal/>}
           />
         </VictoryChart>  
