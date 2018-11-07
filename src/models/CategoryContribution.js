@@ -3,8 +3,9 @@ Category Contribution DB model
 */
 
 import {Model} from 'objection';
+import Category from './Category';
 
-class CategoryContribution extends Model {
+export default class CategoryContribution extends Model {
 	static get tableName() {
 		return 'CategoryContribution';
 	}
@@ -25,7 +26,7 @@ class CategoryContribution extends Model {
 		return {
 			category: {
 				relation: Model.BelongsToOneRelation,
-				modelClass: __dirname+'/Category',
+				modelClass: Category,
 				join: {
 					from: 'CategoryContribution.categoryId',
 					to: 'Category.id'
@@ -33,7 +34,7 @@ class CategoryContribution extends Model {
 			},
 			contribution: {
 				relation: Model.BelongsToOneRelation,
-				modelClass: __dirname+'/Category',
+				modelClass: Category,
 				join: {
 					from: 'CategoryContribution.contributionId',
 					to: 'Category.id'
@@ -42,5 +43,3 @@ class CategoryContribution extends Model {
     }
   }
 }
-
-module.exports = CategoryContribution;

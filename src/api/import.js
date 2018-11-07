@@ -1,14 +1,12 @@
-const Category = require('../models/Category');
-const Attribute = require('../models/Attribute');
-const CategoryContribution = require('../models/CategoryContribution');
-const Source = require('../models/Source');
-const express = require('express');
-const app = express();
-const fs = require('fs');
-const request = require('request');
-const moment = require('moment');
+import Category from '../models/Category';
+import Attribute from '../models/Attribute';
+import CategoryContribution from '../models/CategoryContribution';
+import Source from '../models/Source';
+import fs from 'fs';
+import request from 'request';
+import moment from 'moment';
 
-module.exports = function (app) {
+export default app => {
 
 app.get('/api/import/getexternalcategoriesfineli', async function(req, res) {
   console.log('files '+moment().format());

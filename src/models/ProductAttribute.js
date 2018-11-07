@@ -21,8 +21,10 @@ methane
 */
 
 import {Model} from 'objection';
+import Product from './Product';
+import Attribute from './Attribute';
 
-class ProductAttribute extends Model {
+export default class ProductAttribute extends Model {
 	static get tableName() {
 		return 'ProductAttribute';
 	}
@@ -41,7 +43,7 @@ class ProductAttribute extends Model {
 		return {
 			product: {
 				relation: Model.BelongsToOneRelation,
-				modelClass: __dirname+'/Product',
+				modelClass: Product,
 				join: {
 					from: 'ProductAttribute.productId',
 					to: 'Product.id'
@@ -49,7 +51,7 @@ class ProductAttribute extends Model {
 			},
 			attribute: {
 				relation: Model.BelongsToOneRelation,
-				modelClass: __dirname+'/Attribute',
+				modelClass: Attribute,
 				join: {
 					from: 'ProductAttribute.attributeId',
 					to: 'Attribute.id'
@@ -58,5 +60,3 @@ class ProductAttribute extends Model {
     }
   }
 }
-
-module.exports = ProductAttribute;

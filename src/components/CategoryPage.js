@@ -6,7 +6,7 @@ import Autosuggest from 'react-autosuggest';
 import EditableTable from './EditableTable';
 import CreatableSelect from 'react-select/lib/Creatable';
 
-class Category extends Component {
+export default class Category extends Component {
   constructor(props) {
     super(props);
 
@@ -802,5 +802,3 @@ class Category extends Component {
     );
   }
 }
-
-module.exports = Category;

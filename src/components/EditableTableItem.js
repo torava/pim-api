@@ -174,7 +174,7 @@ class EditableTableItem extends Component {
   }
 }
 
-module.exports = _.flow(
+export default _.flow(
   DragSource(ItemTypes.EDITABLETABLEITEM, itemSource, (connect, monitor) => {
     return {
     connectDragSource: connect.dragSource(),

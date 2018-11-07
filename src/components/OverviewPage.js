@@ -39,7 +39,7 @@ function getNameLocale(name, strict) {
   else return '';
 }
 
-class OverviewPage extends Component {
+export default class OverviewPage extends Component {
   constructor(props) {
     super(props);
 
@@ -510,8 +510,6 @@ class OverviewPage extends Component {
     );
   }
 }
-
-module.exports = OverviewPage;
 
 /*
 <VictoryChart

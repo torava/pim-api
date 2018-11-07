@@ -34,7 +34,7 @@ export default class Layout extends React.Component {
        <header>
           <div className="header-container">
             <div className="logo" style={{float:'left'}}>
-              <Link to="/">Teimo</Link>
+              <Link to="/"></Link>
             </div>
             <div style={{float:'right'}}>
               <select id="currency"

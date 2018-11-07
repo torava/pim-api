@@ -184,4 +184,4 @@ class EditableTable extends Component {
   }
 }
 
-module.exports = DragDropContext(TouchBackend)(EditableTable);
+export default DragDropContext(TouchBackend)(EditableTable);

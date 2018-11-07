@@ -1,6 +1,8 @@
 import {Model} from 'objection';
+import CategoryAttribute from './CategoryAttribute';
+import Source from './Source';
 
-class CategoryAttributeSource extends Model {
+export default class CategoryAttributeSource extends Model {
 	static get tableName() {
 		return 'CategoryAttributeSource';
 	}
@@ -22,7 +24,7 @@ class CategoryAttributeSource extends Model {
 		return {
 			attribute: {
 				relation: Model.BelongsToOneRelation,
-				modelClass: __dirname+'/CategoryAttribute',
+				modelClass: CategoryAttribute,
 				join: {
 					from: 'CategoryAttributeSource.attributeId',
 					to: 'CategoryAttribute.id'
@@ -30,7 +32,7 @@ class CategoryAttributeSource extends Model {
 			},
 			source: {
 				relation: Model.BelongsToOneRelation,
-				modelClass: __dirname+'/Source',
+				modelClass: Source,
 				join: {
 					from: 'CategoryAttributeSource.sourceId',
 					to: 'Source.id'
@@ -39,5 +41,3 @@ class CategoryAttributeSource extends Model {
     }
   }
 }
-
-module.exports = CategoryAttributeSource;

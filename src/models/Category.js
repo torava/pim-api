@@ -1,6 +1,9 @@
 import {Model} from 'objection';
+import Product from './Product';
+import CategoryAttribute from './CategoryAttribute';
+import CategoryContribution from './CategoryContribution';
 
-class Category extends Model {
+export default class Category extends Model {
 
 	static get tableName() {
 		return 'Category';
@@ -22,7 +25,7 @@ class Category extends Model {
 		return {
 			products: {
 				relation: Model.HasManyRelation,
-				modelClass: __dirname+'/Product',
+				modelClass: Product,
 				join: {
 					from: 'Category.id',
 					to: 'Product.categoryId'
@@ -30,7 +33,7 @@ class Category extends Model {
 			},
 			attributes: {
 				relation: Model.HasManyRelation,
-				modelClass: __dirname+'/CategoryAttribute',
+				modelClass: CategoryAttribute,
 				join: {
 					from: 'Category.id',
 					to: 'CategoryAttribute.categoryId'
@@ -38,7 +41,7 @@ class Category extends Model {
 			},
 			contributions: {
 				relation: Model.HasManyRelation,
-				modelClass: __dirname+'/CategoryContribution',
+				modelClass: CategoryContribution,
 				join: {
 					from: 'Category.id',
 					to: 'CategoryContribution.categoryId'
@@ -46,7 +49,7 @@ class Category extends Model {
 			},
 			children: {
 				relation: Model.HasManyRelation,
-				modelClass: __dirname+'/Category',
+				modelClass: Category,
 				join: {
 					from: 'Category.id',
 					to: 'Category.parentId'
@@ -54,7 +57,7 @@ class Category extends Model {
 			},
 			parent: {
 				relation: Model.BelongsToOneRelation,
-				modelClass: __dirname+'/Category',
+				modelClass: Category,
 				join: {
 					from: 'Category.parentId',
 					to: 'Category.id'
@@ -63,5 +66,3 @@ class Category extends Model {
 		}
 	}
 }
-
-module.exports = Category;

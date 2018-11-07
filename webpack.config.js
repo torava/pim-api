@@ -1,4 +1,6 @@
 const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const nodeExternals = require('webpack-node-externals');
 
 const client = {
   entry: {
@@ -7,6 +9,17 @@ const client = {
   output: {
     path: path.join(__dirname, 'src', 'static', 'js'),
     filename: 'bundle.js',
+    publicPath: '/'
+  },
+  devServer: {
+    contentBase: path.join(__dirname, 'src', 'static'),
+    port: 42808,
+    hot: true,
+    host: '0.0.0.0',
+    historyApiFallback: true,
+    proxy: {
+      "/api": "http://localhost:42809"
+    }
   },
   module: {
     rules: [
@@ -16,7 +29,7 @@ const client = {
           loader: 'babel-loader',
           options: {
             cacheDirectory: '.babel_cache',
-            presets: ['env']
+            presets: ['@babel/preset-env']
           }
         },
         include: path.join(__dirname, 'src')
@@ -29,26 +42,27 @@ const client = {
   },
   externals: {
     knex: 'commonjs knex'
-  }
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: './src/static/index.html'
+    })
+  ]
 };
 
 const server = {
   target: 'node',
-  node: {
-    __dirname: false,
-  },
-  devServer: {
-    contentBase: path.join(__dirname, "src"),
-    hot: true
-  },
-  entry: {
-    js: './src/server.js',
-  },
+  node: false,
+  entry: [
+    'regenerator-runtime/runtime',
+    './src/server.js'
+  ],
   output: {
     path: path.join(__dirname, 'src'),
-    publicPath: '/src/',
-    filename: 'server-es5.js',
-    libraryTarget: 'commonjs2',
+    filename: 'server-compiled.js'
+  },
+  watchOptions: {
+    ignored: ['src/static', 'node_modules']
   },
   cache: false,
   module: {
@@ -59,20 +73,30 @@ const server = {
           loader: 'babel-loader',
           options: {
             cacheDirectory: '.babel_cache',
-            presets: ['env']
+            presets: [
+              ['@babel/preset-env',
+              {
+                targets: {
+                  node: 'current',
+                },
+                exclude: ['babel-plugin-transform-classes']
+              }]
+            ]
           }
         },
         include: path.join(__dirname, 'src')
-      },
-      { test: /\.css$/, loader: "style-loader!css-loader" }
+      }
     ],
   },
   resolve: {
-    extensions: [".js", ".jsx", ".css"]
+    extensions: [".js", ".jsx"],
+    modules: [path.resolve(__dirname, 'src'), 'node_modules']
   },
-  externals: {
-    knex: 'commonjs knex'
-  }
+  externals: [{
+    knex: 'commonjs knex',
+    },
+    nodeExternals()
+  ]
 };
 
 module.exports = [client, server];

@@ -164,5 +164,3 @@ export default class TransactionList extends React.Component {
     );
   }
 }
-
-module.exports = TransactionList;

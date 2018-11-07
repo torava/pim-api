@@ -1,6 +1,8 @@
 import {Model} from 'objection';
+import Transaction from './Transaction';
+import Product from './Product';
 
-class Item extends Model {
+export default class Item extends Model {
 
 	static get tableName() {
 		return 'Item';
@@ -27,7 +29,7 @@ class Item extends Model {
 		return {
 			transaction: {
 				relation: Model.BelongsToOneRelation,
-				modelClass: __dirname+'/Transaction',
+				modelClass: Transaction,
 				join: {
 					from: 'Item.transactionId',
 					to: 'Transaction.id'
@@ -35,7 +37,7 @@ class Item extends Model {
 			},
 			product: {
 				relation: Model.BelongsToOneRelation,
-				modelClass: __dirname+'/Product',
+				modelClass: Product,
 				join: {
 					from: 'Item.productId',
 					to: 'Product.id'
@@ -44,5 +46,3 @@ class Item extends Model {
 		}
 	}
 }
-
-module.exports = Item;

@@ -1,24 +1,8 @@
-const Transaction = require('../models/Transaction');
-const Product = require('../models/Product');
-const Category = require('../models/Category');
-const Attribute = require('../models/Attribute');
-const Manufacturer = require('../models/Manufacturer');
-const Source = require('../models/Source');
-const Item = require('../models/Item');
-const multer = require('multer');
-const express = require('express');
-const app = express();
-const im = require('imagemagick');
-const fs = require('fs');
-const request = require('request');
-const child_process = require('child_process');
-const _ = require('lodash');
-const moment = require('moment');
-const jsdom = require("jsdom");
-const { JSDOM } = jsdom;
-const sizeOf = require('image-size');
+import Category from '../models/Category';
+import Attribute from '../models/Attribute';
+import _ from 'lodash';
 
-module.exports = function (app) {
+export default app => {
 
   function first(list) {
     for (let i in list) {
@@ -236,6 +220,7 @@ function getCategories(parent) {
 
 function getClosestCategory(toCompare, locale) {
   return new Promise((resolve, reject) => {
+    
     Category.query()
     .then(categories => {
       let name, category, response = null, max_distance = 0, distance, match;

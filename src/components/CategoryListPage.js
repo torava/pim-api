@@ -4,7 +4,7 @@ import axios from 'axios';
 import React, {Component} from 'react';
 import EditableTable from './EditableTable';
 
-class CategoryList extends Component {
+export default class CategoryList extends Component {
   constructor(props) {
     super(props);
 
@@ -66,5 +66,3 @@ class CategoryList extends Component {
     );
   }
 }
-
-module.exports = CategoryList;

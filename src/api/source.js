@@ -1,9 +1,6 @@
-const Source = require('../models/Source');
-const express = require('express');
-const app = express();
-const _ = require('lodash');
+import Source from '../models/Source';
 
-module.exports = function (app) {
+export default app => {
 
 app.get('/api/source', function(req, res) {
   Source.query()

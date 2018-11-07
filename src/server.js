@@ -1,17 +1,9 @@
 'use strict';
 
-import path from 'path';
-import {Server, createServer} from 'http';
+import {Server} from 'http';
 import Express from 'express';
 import bodyParser from 'body-parser';
-import multer from 'multer';
-import React from 'react';
-import App from './components/App';
 import registerApi from './api';
-import {renderToString} from 'react-dom/server';
-import {StaticRouter, RouterContext} from 'react-router';
-import fs from 'fs';
-import tesseract from 'node-tesseract';
 import Knex from 'knex';
 import knexConfig from '../knexfile';
 import {Model} from 'objection';
@@ -20,7 +12,7 @@ const app = new Express();
 const server = new Server(app);
 
 // define the folder that will be used for static assets
-app.use(Express.static(path.join(__dirname, 'static')));
+//app.use(Express.static('src/static'));
 
 // Initialize knex.
 const knex = Knex(knexConfig.development);
@@ -44,35 +36,10 @@ app.use(bodyParser.urlencoded({
 */
 app.use(bodyParser.json({limit: '50mb'}));
 
-const port = process.env.PORT || 42808;
+const port = process.env.PORT || 42809;
 const env = process.env.NODE_ENV || 'production';
 
 registerApi(app);
-
-app.get('*', (req, res) => {
-  const context = {};
-  const html = renderToString(
-    <StaticRouter location={req.url} context={context}>
-      <App/>
-    </StaticRouter>
-  );
-  res.write(
-`<!doctype html>
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
-<meta charset="utf8">
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
-<link rel="stylesheet" href="/css/treetabular.css">
-<link rel="stylesheet" href="/css/react-datepicker.css">
-<link rel="stylesheet" href="/css/react-table.css">
-<link rel="stylesheet" href="/css/cropper.css">
-<link rel="stylesheet" href="/css/style.css">
-<div id="app">`+
-html+
-`</div>
-<script src="/js/bundle.js"></script>`
-  );
-  res.end();
-});
 
 server.listen(port, (err) => {
   if (err) {
@@ -83,5 +50,3 @@ server.listen(port, (err) => {
       Server running on http://localhost:${port} [${env}]
     `);
 });
-
-export default server;

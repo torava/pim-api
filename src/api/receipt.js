@@ -1,21 +1,17 @@
-const Transaction = require('../models/Transaction');
-const Product = require('../models/Product');
-const Category = require('../models/Category');
-const Attribute = require('../models/Attribute');
-const Manufacturer = require('../models/Manufacturer');
-const multer = require('multer');
-const express = require('express');
-const Jimp = require('jimp');
-const app = express();
-const fs = require('fs');
-const child_process = require('child_process');
-const _ = require('lodash');
-const jsdom = require("jsdom");
-const { JSDOM } = jsdom;
-const sizeOf = require('image-size');
-const moment = require('moment');
+import Transaction from '../models/Transaction';
+import Product from '../models/Product';
+import Category from '../models/Category';
+import Manufacturer from '../models/Manufacturer';
+import multer from 'multer';
+import Jimp from 'jimp';
+import fs from 'fs';
+import child_process from 'child_process';
+import _ from 'lodash';
+import {JSDOM} from 'jsdom';
+import sizeOf from 'image-size';
+import moment from 'moment';
 
-module.exports = function (app) {
+export default app => {
 
 const upload_path = __dirname+"/../../resources/uploads";
 

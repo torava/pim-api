@@ -1,6 +1,10 @@
 import {Model} from 'objection';
+import Item from './Item';
+import ProductAttribute from './ProductAttribute';
+import Category from './Category';
+import Manufacturer from './Manufacturer';
 
-class Product extends Model {
+export default class Product extends Model {
 	static get tableName() {
 		return 'Product';
 	}
@@ -22,7 +26,7 @@ class Product extends Model {
 		return {
 			items: {
 				relation: Model.HasManyRelation,
-				modelClass: __dirname+'/Item',
+				modelClass: Item,
 				join: {
 					from: 'Product.id',
 					to: 'Item.productId'
@@ -30,7 +34,7 @@ class Product extends Model {
 			},
 			attributes: {
 				relation:	Model.HasManyRelation,
-				modelClass: __dirname+'/ProductAttribute',
+				modelClass: ProductAttribute,
 				join: {
 					from: 'Product.id',
 					to: 'ProductAttribute.productId'
@@ -38,7 +42,7 @@ class Product extends Model {
 			},
 			category: {
 				relation: Model.BelongsToOneRelation,
-				modelClass: __dirname+'/Category',
+				modelClass: Category,
 				join: {
 					from: 'Product.categoryId',
 					to: 'Category.id'
@@ -46,7 +50,7 @@ class Product extends Model {
 			},
 			manufacturer: {
 				relation: Model.BelongsToOneRelation,
-				modelClass: __dirname+'/Manufacturer',
+				modelClass: Manufacturer,
 				join: {
 					from: 'Product.manufacturerId',
 					to: 'Manufacturer.id'
@@ -55,5 +59,3 @@ class Product extends Model {
 		}
 	}
 }
-
-module.exports = Product;
