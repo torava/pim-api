@@ -3,22 +3,65 @@ import Attribute from '../models/Attribute';
 import _ from 'lodash';
 import {NerManager} from 'node-nlp';
 import moment from 'moment';
+import fs from 'fs';
 
 export default app => {
-  const manager = new NerManager({ threshold: 0.5 });
+  const manager = new NerManager({ language: 'fi', threshold: 0.5 });
+  const meta_manager = new NerManager({ language: 'fi', threshold: 0.8 });
+
+  meta_manager.addNamedEntityText(
+    'details',
+    'weighting',
+    ['fi'],
+    ['punnittu', 'kivineen', 'kivetön', 'kuorineen', 'kuorittu', 'keskiarvo'],
+  );
+  meta_manager.addNamedEntityText(
+    'details',
+    'cooking',
+    ['fi'],
+    ['keitetty', 'paistettu', 'tuore', 'kuivattu', 'suurustamaton', 'ei kastiketta'],
+  );
+  meta_manager.addNamedEntityText(
+    'details',
+    'spicing',
+    ['fi'],
+    ['suolattu', 'suolaton', 'tomaattinen', 'sokeroitu', 'sokeroimaton', 'maustettu', 'maustamaton'],
+  );
+  meta_manager.addNamedEntityText(
+    'details',
+    'type',
+    ['fi'],
+    ['luomu', 'irto', 'laktoositon', 'vähälaktoosinen'],
+  );
 
   Category.query()
   .eager('[children, parent.^]')
   .then(async categories => {
-    let n = 0;
+    let n = 0, name, entity_name, entities, category;
     console.log(moment().format()+' [NerManager] Adding categories');
-    categories.map(category => {
+    for (let i in categories) {
+      category = categories[i];
       if (!category.children.length) {
-        //category.name['en-US'] && manager.addDocument('en', category.name['en-US'], category.name['en-US']);
-        category.name['fi-FI'] && manager.addNamedEntityText(getParentPath(category), stringToSlug(category.name['fi-FI'], "_"), ['fi'], [category.name['fi-FI']]);
-        n++;
+        name = category.name['fi-FI'];
+        entity_name = name;
+        if (name) {
+          entities = await meta_manager.findEntities(
+            name,
+            'fi',
+          ).then(result => {
+            return result;
+          });
+          entities.map(entity => {
+            entity_name = entity_name.replace(new RegExp(escapeRegExp(entity.sourceText)+",?\s?"), "")
+                                     .replace(/^,?\s*/, "")
+                                     .replace(/,?(\sja)?\s*$/, "");
+          });
+          manager.addNamedEntityText(getParentPath(category), stringToSlug(name, "_"), ['fi'], [entity_name]);
+          n++;
+        }
       }
-    });
+    }
+    fs.writeFileSync('./ner.json', JSON.stringify(manager.save()));
     console.log(moment().format()+' [NerManager] Added '+n+' categories');
   });
 
@@ -279,11 +322,24 @@ function getCategories(parent) {
 }
 
 async function getClosestCategory(toCompare, locale) {
-  manager.findEntities(
+  let entity_name = toCompare;
+  meta_manager.findEntities(
     toCompare,
-    'fi',
-  ).then(entities => {
-    console.log(entities);
+    'fi'
+  )
+  .then(meta_entities => {
+    meta_entities.map(meta_entity => {
+      entity_name = entity_name.replace(new RegExp(escapeRegExp(meta_entity.sourceText)+",?\s?"), "")
+                               .replace(/^,?\s*/, "")
+                               .replace(/,?(\sja)?\s*$/, "");
+    });
+    manager.findEntities(
+      entity_name,
+      'fi',
+    ).then(entities => {
+      console.log(meta_entities);
+      console.log(entities);
+    });
   });
 
   return new Promise((resolve, reject) => {
@@ -302,7 +358,6 @@ async function getClosestCategory(toCompare, locale) {
           response = category;
         }
       }
-      console.log(response, response.id, response.id.toString());
       resolve(response);
     })
     .catch(reject);
@@ -378,7 +433,7 @@ app.get('/api/category', function(req, res) {
   else */
   if (req.query.match) {
     getClosestCategory(req.query.match, req.query.locale).then(category => {
-      res.send(category.id.toString());
+      res.send(category ? category.id.toString() : "");
     });
     /*
     Category.query()
