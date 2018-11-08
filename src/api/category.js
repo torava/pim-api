@@ -1,8 +1,34 @@
 import Category from '../models/Category';
 import Attribute from '../models/Attribute';
 import _ from 'lodash';
+import {NlpManager} from 'node-nlp';
+import moment from 'moment';
 
 export default app => {
+  const manager = new NlpManager({ languages: ['fi'] });
+
+  Category.query()
+  .eager('[children, parent.^]')
+  .then(async categories => {
+    let n = 0;
+    console.log(moment().format()+' [NlpManager] Adding categories');
+    categories.map(category => {
+      if (!category.children.length && n < 200) {
+        //category.name['en-US'] && manager.addDocument('en', category.name['en-US'], category.name['en-US']);
+        category.name['fi-FI'] && manager.addDocument('fi', category.name['fi-FI'], getParentPath(category)+"."+stringToSlug(category.name['fi-FI'], "_"));
+        n++;
+      }
+    });
+    console.log(moment().format()+' [NlpManager] Added '+n+' categories');
+    let start = moment();
+    console.log(moment().format()+' [NlpManager] Training');
+    await manager.train('fi');
+    let end = moment();
+    console.log(moment().format()+' [NlpManager] Trained in '+end.diff(start)+' ms');
+    console.log(moment().format()+' [NlpManager] Saving')
+    manager.save('nlp.json');
+    console.log(moment().format()+' [NlpManager] Saved');
+  });
 
   function first(list) {
     for (let i in list) {
@@ -15,7 +41,7 @@ export default app => {
     }
     if (typeof name === 'string') {
       return name;
-    }
+    } 
     else if (name.hasOwnProperty(locale)) {
       return name[locale];
     }
@@ -202,6 +228,48 @@ export default app => {
     return items;
   }
 
+  function getParentPath(item) {
+    let result = "",
+        parent = item,
+        name;
+    if (parent) {
+      while (parent = parent.parent) {
+        name = getNameLocale(parent.name, 'fi-FI');
+        if (!name) continue;
+        result = stringToSlug(name, "_")+(result ? "."+result : "");
+      }
+    }
+    return result;
+  }
+
+  function escapeRegExp(stringToGoIntoTheRegex) {
+    return stringToGoIntoTheRegex.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+  }
+
+  function stringToSlug(str,  sep) {
+    let sep_regexp = escapeRegExp(sep);
+
+    str = str.replace(/^\s+|\s+$/g, ""); // trim
+    str = str.toLowerCase();
+  
+    // remove accents, swap ñ for n, etc
+    var from = "åàáãäâèéëêìíïîòóöôùúüûñç·/_,:;";
+    var to = "aaaaaaeeeeiiiioooouuuunc------";
+  
+    for (var i = 0, l = from.length; i < l; i++) {
+      str = str.replace(new RegExp(from.charAt(i), "g"), to.charAt(i));
+    }
+
+    str = str
+      .replace(/[^a-z0-9 -]/g, "") // remove invalid chars
+      .replace(/\s+/g, "-") // collapse whitespace and replace by -
+      .replace(new RegExp("-+", "g"), sep) // collapse dashes
+      .replace(new RegExp(sep_regexp+"+"), "") // trim - from start of text
+      .replace(new RegExp(sep_regexp+"+$"), ""); // trim - from end of text
+  
+    return str;
+  }
+
 function getCategories(parent) {
   return new Promise((resolve, reject) => {
     Category.query()
@@ -218,9 +286,11 @@ function getCategories(parent) {
   });
 }
 
-function getClosestCategory(toCompare, locale) {
+async function getClosestCategory(toCompare, locale) {
+  const result = await manager.process('fi', toCompare);
+  console.log(result);
+  
   return new Promise((resolve, reject) => {
-    
     Category.query()
     .then(categories => {
       let name, category, response = null, max_distance = 0, distance, match;
@@ -236,6 +306,7 @@ function getClosestCategory(toCompare, locale) {
           response = category;
         }
       }
+      console.log(response, response.id, response.id.toString());
       resolve(response);
     })
     .catch(reject);
@@ -310,7 +381,9 @@ app.get('/api/category', function(req, res) {
   }
   else */
   if (req.query.match) {
-    res.send(getClosestCategory(req.query.match).id.toString());
+    getClosestCategory(req.query.match, req.query.locale).then(category => {
+      res.send(category.id.toString());
+    });
     /*
     Category.query()
     //.eager('[products.[items], attributes, children.^]')
