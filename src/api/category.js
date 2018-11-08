@@ -1,33 +1,25 @@
 import Category from '../models/Category';
 import Attribute from '../models/Attribute';
 import _ from 'lodash';
-import {NlpManager} from 'node-nlp';
+import {NerManager} from 'node-nlp';
 import moment from 'moment';
 
 export default app => {
-  const manager = new NlpManager({ languages: ['fi'] });
+  const manager = new NerManager({ threshold: 0.5 });
 
   Category.query()
   .eager('[children, parent.^]')
   .then(async categories => {
     let n = 0;
-    console.log(moment().format()+' [NlpManager] Adding categories');
+    console.log(moment().format()+' [NerManager] Adding categories');
     categories.map(category => {
-      if (!category.children.length && n < 200) {
+      if (!category.children.length) {
         //category.name['en-US'] && manager.addDocument('en', category.name['en-US'], category.name['en-US']);
-        category.name['fi-FI'] && manager.addDocument('fi', category.name['fi-FI'], getParentPath(category)+"."+stringToSlug(category.name['fi-FI'], "_"));
+        category.name['fi-FI'] && manager.addNamedEntityText(getParentPath(category), stringToSlug(category.name['fi-FI'], "_"), ['fi'], [category.name['fi-FI']]);
         n++;
       }
     });
-    console.log(moment().format()+' [NlpManager] Added '+n+' categories');
-    let start = moment();
-    console.log(moment().format()+' [NlpManager] Training');
-    await manager.train('fi');
-    let end = moment();
-    console.log(moment().format()+' [NlpManager] Trained in '+end.diff(start)+' ms');
-    console.log(moment().format()+' [NlpManager] Saving')
-    manager.save('nlp.json');
-    console.log(moment().format()+' [NlpManager] Saved');
+    console.log(moment().format()+' [NerManager] Added '+n+' categories');
   });
 
   function first(list) {
@@ -287,9 +279,13 @@ function getCategories(parent) {
 }
 
 async function getClosestCategory(toCompare, locale) {
-  const result = await manager.process('fi', toCompare);
-  console.log(result);
-  
+  manager.findEntities(
+    toCompare,
+    'fi',
+  ).then(entities => {
+    console.log(entities);
+  });
+
   return new Promise((resolve, reject) => {
     Category.query()
     .then(categories => {
