@@ -21,8 +21,11 @@ methane
 */
 
 import {Model} from 'objection';
+import Category from './Category';
+import Attribute from './Attribute';
+import CategoryAttributeSource from './CategoryAttributeSource';
 
-class CategoryAttribute extends Model {
+export default class CategoryAttribute extends Model {
 	static get tableName() {
 		return 'CategoryAttribute';
 	}
@@ -42,7 +45,7 @@ class CategoryAttribute extends Model {
 		return {
 			category: {
 				relation: Model.BelongsToOneRelation,
-				modelClass: __dirname+'/Category',
+				modelClass: Category,
 				join: {
 					from: 'CategoryAttribute.categoryId',
 					to: 'Category.id'
@@ -50,7 +53,7 @@ class CategoryAttribute extends Model {
 			},
 			attribute: {
 				relation: Model.BelongsToOneRelation,
-				modelClass: __dirname+'/Attribute',
+				modelClass: Attribute,
 				join: {
 					from: 'CategoryAttribute.attributeId',
 					to: 'Attribute.id'
@@ -58,7 +61,7 @@ class CategoryAttribute extends Model {
 			},
 			sources: {
 				relation: Model.HasManyRelation,
-				modelClass: __dirname+'/CategoryAttributeSource',
+				modelClass: CategoryAttributeSource,
 				join: {
 					from: 'CategoryAttribute.id',
 					to: 'CategoryAttributeSource.attributeId'
@@ -67,5 +70,3 @@ class CategoryAttribute extends Model {
     }
   }
 }
-
-module.exports = CategoryAttribute;

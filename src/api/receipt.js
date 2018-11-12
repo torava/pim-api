@@ -1,21 +1,17 @@
-const Transaction = require('../models/Transaction');
-const Product = require('../models/Product');
-const Category = require('../models/Category');
-const Attribute = require('../models/Attribute');
-const Manufacturer = require('../models/Manufacturer');
-const multer = require('multer');
-const express = require('express');
-const Jimp = require('jimp');
-const app = express();
-const fs = require('fs');
-const child_process = require('child_process');
-const _ = require('lodash');
-const jsdom = require("jsdom");
-const { JSDOM } = jsdom;
-const sizeOf = require('image-size');
-const moment = require('moment');
+import Transaction from '../models/Transaction';
+import Product from '../models/Product';
+import Category from '../models/Category';
+import Manufacturer from '../models/Manufacturer';
+import multer from 'multer';
+import Jimp from 'jimp';
+import fs from 'fs';
+import child_process from 'child_process';
+import _ from 'lodash';
+import {JSDOM} from 'jsdom';
+import sizeOf from 'image-size';
+import moment from 'moment';
 
-module.exports = function (app) {
+export default app => {
 
 const upload_path = __dirname+"/../../resources/uploads";
 
@@ -145,7 +141,7 @@ async function getDataFromReceipt(result, text, locale) {
         // 1.1.12 1:12
         line_date = line.match(/((\d{1,2})[\.|\,](\d{1,2})[\.|\,](\d{2,4}))(\s)?((\d{1,2}):((\d{1,2})\:)?(\d{1,2})?)?/);
         date = line_date && parseYear(line_date[4])+'-'+line_date[3]+'-'+line_date[2]+' '+line_date[6];
-        if (date) {
+        if (date && moment(date).isValid()) {
           console.log(line_date, date);
           data.date = date;
 
@@ -156,7 +152,7 @@ async function getDataFromReceipt(result, text, locale) {
           // 1:12 1-1-12
           line_date = line.match(/((\d{1,2}:)(\d{1,2}:)?(\d{1,2})?)?(\s)?((\d{1,2})[\-|\.](\d{1,2})[\-|\.](\d{2,4}))/);
           date = line_date && parseYear(line_date[9])+'-'+line_date[8]+'-'+line_date[7]+' '+line_date[1];
-          if (date) {
+          if (date && moment(date).isValid()) {
             console.log(line_date, date);
             data.date = date;
 
@@ -536,8 +532,8 @@ function processReceiptImage(filepath, data, resize) {
     let script = [filepath,
                   '-auto-orient',
                   '-type', 'grayscale',
-                  '-background', 'none',
-                  '-bordercolor', 'none',
+                  '-background', 'white',
+                  '-bordercolor', 'white',
                   '-border', '10',
                   //'-normalize',
                   //'-contrast-stretch', '0'
@@ -582,10 +578,7 @@ function processReceiptImage(filepath, data, resize) {
         '+repage',
         '-strip',
         'PNG:'+filepath+'_edited']);
-
-    script = [filepath,
-      'PNG:'+filepath+'_edited'];
-      
+    
     console.log(script.join(' '));
     child_process.execFile('convert', script, function(error, stdout, stderr) {
       if (error) console.error(error);

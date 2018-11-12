@@ -1,9 +1,6 @@
-const Transaction = require('../models/Transaction');
-const express = require('express');
-const app = express();
-const _ = require('lodash');
+import Transaction from '../models/Transaction';
 
-module.exports = function (app) {
+export default app => {
 
 app.delete('/api/transaction/:id', function(req, res) {
   Transaction.query()

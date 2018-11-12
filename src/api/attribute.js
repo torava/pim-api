@@ -1,7 +1,6 @@
-const Attribute = require('../models/Attribute');
-const express = require('express');
-const app = express();
-module.exports = function (app) {
+import Attribute from '../models/Attribute';
+
+export default app => {
 
 function resolveAttributes(attributes) {
   let resolved_attributes = {};

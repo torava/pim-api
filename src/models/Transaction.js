@@ -3,7 +3,7 @@ import Party from './Party';
 import Receipt from './Receipt';
 import Item from './Item';
 
-class Transaction extends Model {
+export default class Transaction extends Model {
 	static get tableName() {
 		return 'Transaction';
 	}
@@ -50,5 +50,3 @@ class Transaction extends Model {
 		}
 	};
 }
-
-module.exports = Transaction;

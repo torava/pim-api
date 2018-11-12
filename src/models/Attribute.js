@@ -22,7 +22,7 @@ methane
 
 import {Model} from 'objection';
 
-class Attribute extends Model {
+export default class Attribute extends Model {
 	static get tableName() {
 		return 'Attribute';
 	}
@@ -42,7 +42,7 @@ class Attribute extends Model {
 		return {
 			children: {
 				relation: Model.HasManyRelation,
-				modelClass: __dirname+'/Attribute',
+				modelClass: Attribute,
 				join: {
 					from: 'Attribute.id',
 					to: 'Attribute.parentId'
@@ -50,7 +50,7 @@ class Attribute extends Model {
 			},
 			parent: {
 				relation: Model.BelongsToOneRelation,
-				modelClass: __dirname+'/Attribute',
+				modelClass: Attribute,
 				join: {
 					from: 'Attribute.parentId',
 					to: 'Attribute.id'
@@ -59,5 +59,3 @@ class Attribute extends Model {
 		}
 	}
 }
-
-module.exports = Attribute;

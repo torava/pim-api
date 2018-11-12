@@ -1,24 +1,90 @@
-const Transaction = require('../models/Transaction');
-const Product = require('../models/Product');
-const Category = require('../models/Category');
-const Attribute = require('../models/Attribute');
-const Manufacturer = require('../models/Manufacturer');
-const Source = require('../models/Source');
-const Item = require('../models/Item');
-const multer = require('multer');
-const express = require('express');
-const app = express();
-const im = require('imagemagick');
-const fs = require('fs');
-const request = require('request');
-const child_process = require('child_process');
-const _ = require('lodash');
-const moment = require('moment');
-const jsdom = require("jsdom");
-const { JSDOM } = jsdom;
-const sizeOf = require('image-size');
+import Category from '../models/Category';
+import Attribute from '../models/Attribute';
+import _ from 'lodash';
+import {NerManager} from 'node-nlp';
+import moment from 'moment';
+import fs from 'fs';
 
-module.exports = function (app) {
+export default app => {
+  const manager = new NerManager({ language: 'fi', threshold: 0.5 });
+  const meta_manager = new NerManager({ language: 'fi', threshold: 0.8 });
+
+  meta_manager.addNamedEntityText(
+    'details',
+    'weighting',
+    ['fi'],
+    ['punnittu', 'kivineen', 'kivetön', 'kuorineen', 'kuorittu', 'keskiarvo'],
+  );
+  meta_manager.addNamedEntityText(
+    'details',
+    'cooking',
+    ['fi'],
+    ['keitetty', 'paistettu', 'tuore', 'kuivattu', 'suurustamaton', 'ei kastiketta'],
+  );
+  meta_manager.addNamedEntityText(
+    'details',
+    'spicing',
+    ['fi'],
+    ['suolattu', 'suolaton', 'tomaattinen', 'sokeroitu', 'sokeroimaton', 'maustettu', 'maustamaton'],
+  );
+  meta_manager.addNamedEntityText(
+    'details',
+    'type',
+    ['fi'],
+    ['luomu', 'irto', 'laktoositon', 'vähälaktoosinen'],
+  );
+
+  Category.query()
+  .eager('[children, parent.^]')
+  .then(async categories => {
+    let n = 0, name, entity_name, entities, category;
+    console.log(moment().format()+' [NerManager] Adding categories');
+    for (let i in categories) {
+      category = categories[i];
+      if (!category.children.length) {
+        name = category.name['fi-FI'];
+        entity_name = name;
+        if (name) {
+          entities = await meta_manager.findEntities(
+            name,
+            'fi',
+          ).then(result => {
+            return result;
+          });
+          entities.map(entity => {
+            entity_name = entity_name.replace(new RegExp(escapeRegExp(entity.sourceText)+",?\s?"), "")
+                                     .replace(/^,?\s*/, "")
+                                     .replace(/,?(\sja)?\s*$/, "");
+          });
+          manager.addNamedEntityText(getParentPath(category), stringToSlug(name, "_"), ['fi'], [entity_name]);
+          n++;
+        }
+      }
+    }
+    fs.writeFileSync('./ner.json', JSON.stringify(manager.save()));
+    console.log(moment().format()+' [NerManager] Added '+n+' categories');
+  });
+
+  function first(list) {
+    for (let i in list) {
+      return list[i];
+    }
+  }
+  function getNameLocale(name, locale, strict) {
+    if (!name) {
+      return name;
+    }
+    if (typeof name === 'string') {
+      return name;
+    } 
+    else if (name.hasOwnProperty(locale)) {
+      return name[locale];
+    }
+    else if (!strict) {
+      return first(name);
+    }
+    else return '';
+  }
 
   const CSV_SEPARATOR = ";";
 
@@ -197,6 +263,48 @@ module.exports = function (app) {
     return items;
   }
 
+  function getParentPath(item) {
+    let result = "",
+        parent = item,
+        name;
+    if (parent) {
+      while (parent = parent.parent) {
+        name = getNameLocale(parent.name, 'fi-FI');
+        if (!name) continue;
+        result = stringToSlug(name, "_")+(result ? "."+result : "");
+      }
+    }
+    return result;
+  }
+
+  function escapeRegExp(stringToGoIntoTheRegex) {
+    return stringToGoIntoTheRegex.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+  }
+
+  function stringToSlug(str,  sep) {
+    let sep_regexp = escapeRegExp(sep);
+
+    str = str.replace(/^\s+|\s+$/g, ""); // trim
+    str = str.toLowerCase();
+  
+    // remove accents, swap ñ for n, etc
+    var from = "åàáãäâèéëêìíïîòóöôùúüûñç·/_,:;";
+    var to = "aaaaaaeeeeiiiioooouuuunc------";
+  
+    for (var i = 0, l = from.length; i < l; i++) {
+      str = str.replace(new RegExp(from.charAt(i), "g"), to.charAt(i));
+    }
+
+    str = str
+      .replace(/[^a-z0-9 -]/g, "") // remove invalid chars
+      .replace(/\s+/g, "-") // collapse whitespace and replace by -
+      .replace(new RegExp("-+", "g"), sep) // collapse dashes
+      .replace(new RegExp(sep_regexp+"+"), "") // trim - from start of text
+      .replace(new RegExp(sep_regexp+"+$"), ""); // trim - from end of text
+  
+    return str;
+  }
+
 function getCategories(parent) {
   return new Promise((resolve, reject) => {
     Category.query()
@@ -213,7 +321,27 @@ function getCategories(parent) {
   });
 }
 
-function getClosestCategory(toCompare, locale) {
+async function getClosestCategory(toCompare, locale) {
+  let entity_name = toCompare;
+  meta_manager.findEntities(
+    toCompare,
+    'fi'
+  )
+  .then(meta_entities => {
+    meta_entities.map(meta_entity => {
+      entity_name = entity_name.replace(new RegExp(escapeRegExp(meta_entity.sourceText)+",?\s?"), "")
+                               .replace(/^,?\s*/, "")
+                               .replace(/,?(\sja)?\s*$/, "");
+    });
+    manager.findEntities(
+      entity_name,
+      'fi',
+    ).then(entities => {
+      console.log(meta_entities);
+      console.log(entities);
+    });
+  });
+
   return new Promise((resolve, reject) => {
     Category.query()
     .then(categories => {
@@ -256,15 +384,11 @@ function resolveCategories(items, locale) {
     item_attributes = item.attributes;
     for (let n in item_attributes) {
       if (item_attributes[n].attribute) {
-        if (item_attributes[n].attribute.name.hasOwnProperty(locale)) {
-          item_attributes[n].attribute.name = item_attributes[n].attribute.name[locale];
-        }
+        item_attributes[n].attribute.name = getNameLocale(item_attributes[n].attribute.name, locale);
 
         let parent = item_attributes[n].attribute.parent;
         while (parent) {
-          if (parent.name && parent.name.hasOwnProperty(locale)) {
-            parent.name = parent.name[locale];
-          }
+          parent.name = getNameLocale(parent.name, locale);
           parent = parent.parent;
         }
       }
@@ -274,11 +398,11 @@ function resolveCategories(items, locale) {
     if (item.children) {
       resolveCategories(item.children, locale);
     }
-    item.name = item.name[locale];
+    item.name = getNameLocale(item.name, locale);
 
     let parent = item.parent;
     while (parent) {
-      parent.name = parent.name[locale];
+      parent.name = getNameLocale(parent.name, locale);
       parent = parent.parent;
     }
   }
@@ -308,7 +432,9 @@ app.get('/api/category', function(req, res) {
   }
   else */
   if (req.query.match) {
-    res.send(getClosestCategory(req.query.match).id.toString());
+    getClosestCategory(req.query.match, req.query.locale).then(category => {
+      res.send(category ? category.id.toString() : "");
+    });
     /*
     Category.query()
     //.eager('[products.[items], attributes, children.^]')

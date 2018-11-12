@@ -1,6 +1,6 @@
 import {Model} from 'objection';
 
-class Manufacturer extends Model {
+export default class Manufacturer extends Model {
 
 	static get tableName() {
 		return 'Manufacturer';
@@ -24,7 +24,7 @@ class Manufacturer extends Model {
 		return {
 			parent: {
 				relation: Model.BelongsToOneRelation,
-				modelClass: __dirname+'/Manufacturer',
+				modelClass: Manufacturer,
 				join: {
 					from: 'Manufacturer.ownerId',
 					to: 'Manufacturer.id'
@@ -33,5 +33,3 @@ class Manufacturer extends Model {
 		}
 	}
 }
-
-module.exports = Manufacturer;

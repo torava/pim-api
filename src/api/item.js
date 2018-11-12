@@ -1,6 +1,6 @@
-const Item = require('../models/Item');
+import Item from '../models/Item';
 
-module.exports = function (app) {
+export default app => {
 
 app.get('/api/item', function(req, res) {
   Item.query()

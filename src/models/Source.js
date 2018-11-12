@@ -1,6 +1,6 @@
 import {Model} from 'objection';
 
-class Source extends Model {
+export default class Source extends Model {
 	static get tableName() {
 		return 'Source';
 	}
@@ -18,5 +18,3 @@ class Source extends Model {
 		}
 	}
 }
-
-module.exports = Source;

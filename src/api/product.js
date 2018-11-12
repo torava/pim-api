@@ -1,9 +1,6 @@
-const Product = require('../models/Product');
-const express = require('express');
-const app = express();
-const _ = require('lodash');
+import Product from '../models/Product';
 
-module.exports = function (app) {
+export default app => {
 
 app.get('/api/product', function(req, res) {
   Product.query()
