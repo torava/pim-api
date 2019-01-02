@@ -76,6 +76,102 @@ const imageOrientation = function (file, callback) {
   fileReader.readAsArrayBuffer(file);
 };
 
+function processImage(img) {
+  let src = cv.imread(img);
+  let dst = new cv.Mat();
+  cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
+  
+  let width, height;
+  if (rotate%180==90) {
+    width = src.rows;
+    height = src.cols;
+  }
+  else {
+    width = src.cols;
+    height = src.rows;
+  }
+
+  // get rotation matrix for rotating the image around its center in pixel coordinates
+  let center = new cv.Point((src.cols-1)/2.0, (src.rows-1)/2.0);
+  let rot = cv.getRotationMatrix2D(center, rotate, 1.0);
+  // determine bounding rectangle, center not relevant
+  let bbox = new cv.RotatedRect(new cv.Point(), src.size(), rotate);
+  console.log(bbox);
+  // adjust transformation matrix
+  rot.data[0+src.rows*2]+= bbox.size.width/2.0 - src.cols/2.0;
+  rot.data[1+src.rows*2]+= bbox.size.height/2.0 - src.rows/2.0;
+  //rot.at<double>(0,2) += bbox.width/2.0 - src.cols/2.0;
+  //rot.at<double>(1,2) += bbox.height/2.0 - src.rows/2.0;
+
+  cv.warpAffine(src, src, rot, new cv.Size(bbox.size.width, bbox.size.height));
+
+  let ksize = new cv.Size(59,59);
+  cv.GaussianBlur(src, dst, ksize, 0, 0, cv.BORDER_DEFAULT);
+
+  cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 51, 5);
+
+  // canny edge detection
+  cv.Canny(dst, dst, 1, 300, 5, false);
+
+  // find boundaries and crop
+
+  let boundaries = {};
+
+  for (let y = 0; y < dst.rows; y++) {
+    for (let x = 0; x < dst.cols; x++) {
+      let index = y*dst.cols*dst.channels()+x*dst.channels();
+      let r = dst.data[index];
+      let g = dst.data[index+1];
+      let b = dst.data[index+2];
+
+      if (r+g+b == 765) {
+        if (boundaries.hasOwnProperty('left')) {
+          boundaries.left = Math.min(x, boundaries.left);
+          boundaries.top = Math.min(y, boundaries.top);
+          boundaries.right = Math.max(x, boundaries.right);
+          boundaries.bottom = Math.max(y, boundaries.bottom);
+        }
+        else {
+          boundaries.left = x;
+          boundaries.top = y;
+          boundaries.right = x;
+          boundaries.bottom = y;
+        }
+      } 
+    }
+  }
+
+  console.log(dst,dst.rows,dst.cols,boundaries);
+
+  let left = Math.max(boundaries.left-15,0),
+      top = Math.max(boundaries.top-15,0),
+      right = Math.min(boundaries.right-boundaries.left+30,dst.cols-boundaries.left),
+      bottom = Math.min(boundaries.bottom-boundaries.top+30,dst.rows-boundaries.top);
+
+  let rect = new cv.Rect(left, top, right, bottom);
+
+  console.log(left, top, right, bottom, src.rows, src.cols);
+
+  src = src.roi(rect);
+
+  let dsize = new cv.Size(800, src.rows/src.cols*800);
+  cv.resize(src, src, dsize, 0, 0, cv.INTER_AREA);
+
+  // threshold
+
+  cv.adaptiveThreshold(src, src, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 71, 15);
+
+  // dilate and erode
+
+  /*let M2 = cv.Mat.ones(1, 1, cv.CV_8S);
+  let anchor2 = new cv.Point(1, 1);
+
+  cv.dilate(src, src, M2, anchor2, 1, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue());
+  cv.erode(src, src, M2, anchor2, 1, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue());*/
+
+  return src;
+}
+
 export default class AddReceiptPage extends React.Component {
   constructor(props) {
     super(props);
@@ -141,107 +237,7 @@ export default class AddReceiptPage extends React.Component {
         
         // crop
 
-        let src = cv.imread(img, cv.IMREAD_IGNORE_ORIENTATION);
-        let dst = new cv.Mat();
-        cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
-
-        let width, height;
-        if (rotate%180==90) {
-          width = src.rows;
-          height = src.cols;
-        }
-        else {
-          width = src.cols;
-          height = src.rows;
-        }
-
-        /*let center = new cv.Point(src.cols / 2, src.rows / 2);
-        // You can try more different parameters
-        let M = cv.getRotationMatrix2D(center, exif_rotation[value], 1);
-        cv.warpAffine(src, dst, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());*/
-
-        // get rotation matrix for rotating the image around its center in pixel coordinates
-        let center = new cv.Point((src.cols-1)/2.0, (src.rows-1)/2.0);
-        let rot = cv.getRotationMatrix2D(center, rotate, 1.0);
-        // determine bounding rectangle, center not relevant
-        let bbox = new cv.RotatedRect(new cv.Point(), src.size(), rotate);
-        console.log(bbox);
-        // adjust transformation matrix
-        rot.data[0+src.rows*2]+= bbox.size.width/2.0 - src.cols/2.0;
-        rot.data[1+src.rows*2]+= bbox.size.height/2.0 - src.rows/2.0;
-        //rot.at<double>(0,2) += bbox.width/2.0 - src.cols/2.0;
-        //rot.at<double>(1,2) += bbox.height/2.0 - src.rows/2.0;
-
-        cv.warpAffine(src, src, rot, new cv.Size(bbox.size.width, bbox.size.height));
-
-        /*let ksize = new cv.Size(60, 60);
-        let anchor = new cv.Point(-1, -1);
-        //cv.blur(src, dst, ksize, anchor, cv.BORDER_DEFAULT);
-        cv.boxFilter(src, dst, -1, ksize, anchor, true, cv.BORDER_DEFAULT);*/
-
-        let ksize = new cv.Size(59,59);
-        cv.GaussianBlur(src, dst, ksize, 0, 0, cv.BORDER_DEFAULT);
-
-        cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 51, 5);
-
-        // canny edge detection
-        cv.Canny(dst, dst, 1, 300, 5, false);
-
-        // find boundaries and crop
-
-        let boundaries = {};
-
-        for (let y = 0; y < dst.rows; y++) {
-          for (let x = 0; x < dst.cols; x++) {
-            let index = y*dst.cols*dst.channels()+x*dst.channels();
-            let r = dst.data[index];
-            let g = dst.data[index+1];
-            let b = dst.data[index+2];
-
-            if (r+g+b == 765) {
-              if (boundaries.hasOwnProperty('left')) {
-                boundaries.left = Math.min(x, boundaries.left);
-                boundaries.top = Math.min(y, boundaries.top);
-                boundaries.right = Math.max(x, boundaries.right);
-                boundaries.bottom = Math.max(y, boundaries.bottom);
-              }
-              else {
-                boundaries.left = x;
-                boundaries.top = y;
-                boundaries.right = x;
-                boundaries.bottom = y;
-              }
-            } 
-          }
-        }
-
-        console.log(dst,dst.rows,dst.cols,boundaries);
-
-        let left = Math.max(boundaries.left-15,0),
-            top = Math.max(boundaries.top-15,0),
-            right = Math.min(boundaries.right-boundaries.left+30,dst.cols-boundaries.left),
-            bottom = Math.min(boundaries.bottom-boundaries.top+30,dst.rows-boundaries.top);
-
-        let rect = new cv.Rect(left, top, right, bottom);
-
-        console.log(left, top, right, bottom, src.rows, src.cols);
-
-        src = src.roi(rect);
-
-        let dsize = new cv.Size(800, src.rows/src.cols*800);
-        cv.resize(src, src, dsize, 0, 0, cv.INTER_AREA);
-
-        // threshold
-
-        cv.adaptiveThreshold(src, src, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 71, 15);
-
-        // dilate and erode
-      
-        /*let M2 = cv.Mat.ones(1, 1, cv.CV_8S);
-        let anchor2 = new cv.Point(1, 1);
-
-        cv.dilate(src, src, M2, anchor2, 1, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue());
-        cv.erode(src, src, M2, anchor2, 1, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue());*/
+        let src = processImage(img);
 
         // create imagedata
 
@@ -249,26 +245,25 @@ export default class AddReceiptPage extends React.Component {
         var canvas = document.createElement('canvas');
         var ctx = canvas.getContext('2d');
 
-        canvas.width = src.cols/4;
-        canvas.height = src.rows/4;
+        canvas.width = src.cols;
+        canvas.height = src.rows;
 
         var imagedata = ctx.createImageData(src.cols, src.rows);
         imagedata.data.set(src.data);
         ctx.putImageData(imagedata, 0, 0);
 
-        console.log(dst.cols, dst.rows, imagedata);
-
         this.setState({ src: canvas.toDataURL() });
+
+        //this.setState({ src: img.src });
 
         that.showAdjustments();
 
         var Tesseract = window.Tesseract;
-        Tesseract.recognize(imagedata)
+
+        Tesseract.recognize(img.src)
         .progress(message => console.log(message))
         .catch(err => console.error(err))
         .then(result => console.log(result));
-
-        src.delete(); dst.delete();
       }
       img.src = base64img;
     });
