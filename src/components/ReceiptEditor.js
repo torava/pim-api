@@ -84,7 +84,7 @@ class ReceiptItem extends React.Component {
   }
 }
 
-export default class addReceiptPage extends React.Component {
+export default class ReceiptEditor extends React.Component {
   constructor(props) {
     super(props);
 

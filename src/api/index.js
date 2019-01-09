@@ -8,6 +8,7 @@ import item from './item';
 import category from './category';
 import attribute from './attribute';
 import source from './source';
+import manufacturer from './manufacturer';
 
 export default api => {
   importApi(api);
@@ -18,4 +19,5 @@ export default api => {
   category(api);
   attribute(api);
   source(api);
+  manufacturer(api);
 }

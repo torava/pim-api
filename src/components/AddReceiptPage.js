@@ -5,171 +5,12 @@ import ReactDOM from 'react-dom';
 import {Link} from 'react-router';
 import axios from 'axios';
 import Cropper from 'react-cropper';
-import moment from 'moment';
+import DataStore from './DataStore';
+import ReceiptService from './ReceiptService';
+import ReceiptEditor from './ReceiptEditor';
 
 function confirmExit() {
     return "You have attempted to leave this page. Are you sure?";
-}
-
-const exif_rotation = {
-  1: 0,
-  3: 180,
-  6: 270,
-  8: 90
-};
-
-// thx https://gist.github.com/runeb/c11f864cd7ead969a5f0
-function _arrayBufferToBase64( buffer ) {
-  var binary = ''
-  var bytes = new Uint8Array( buffer )
-  var len = bytes.byteLength;
-  for (var i = 0; i < len; i++) {
-    binary += String.fromCharCode( bytes[ i ] )
-  }
-  return window.btoa( binary );
-}
-const imageOrientation = function (file, callback) {
-  var fileReader = new FileReader();
-  fileReader.onloadend = function () {
-      var base64img = "data:" + file.type + ";base64," + _arrayBufferToBase64(fileReader.result);
-      var scanner = new DataView(fileReader.result);
-      var idx = 0;
-      var value = 1; // Non-rotated is the default
-      if (fileReader.result.length < 2 || scanner.getUint16(idx) != 0xFFD8) {
-          // Not a JPEG
-          if (callback) {
-              callback(base64img, value);
-          }
-          return;
-      }
-      idx += 2;
-      var maxBytes = scanner.byteLength;
-      var littleEndian = false;
-      while (idx < maxBytes - 2) {
-          var uint16 = scanner.getUint16(idx, littleEndian);
-          idx += 2;
-          switch (uint16) {
-              case 0xFFE1: // Start of EXIF
-                  var endianNess = scanner.getUint16(idx + 8);
-                  // II (0x4949) Indicates Intel format - Little Endian
-                  // MM (0x4D4D) Indicates Motorola format - Big Endian
-                  if (endianNess === 0x4949) {
-                      littleEndian = true;
-                  }
-                  var exifLength = scanner.getUint16(idx, littleEndian);
-                  maxBytes = exifLength - idx;
-                  idx += 2;
-                  break;
-              case 0x0112: // Orientation tag
-                  // Read the value, its 6 bytes further out
-                  // See page 102 at the following URL
-                  // http://www.kodak.com/global/plugins/acrobat/en/service/digCam/exifStandard2.pdf
-                  value = scanner.getUint16(idx + 6, littleEndian);
-                  maxBytes = 0; // Stop scanning
-                  break;
-          }
-      }
-      if (callback) {
-          callback(base64img, value);
-      }
-  }
-  fileReader.readAsArrayBuffer(file);
-};
-
-function processImage(img) {
-  let src = cv.imread(img);
-  let dst = new cv.Mat();
-  cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
-  
-  let width, height;
-  if (rotate%180==90) {
-    width = src.rows;
-    height = src.cols;
-  }
-  else {
-    width = src.cols;
-    height = src.rows;
-  }
-
-  // get rotation matrix for rotating the image around its center in pixel coordinates
-  let center = new cv.Point((src.cols-1)/2.0, (src.rows-1)/2.0);
-  let rot = cv.getRotationMatrix2D(center, rotate, 1.0);
-  // determine bounding rectangle, center not relevant
-  let bbox = new cv.RotatedRect(new cv.Point(), src.size(), rotate);
-  console.log(bbox);
-  // adjust transformation matrix
-  rot.data[0+src.rows*2]+= bbox.size.width/2.0 - src.cols/2.0;
-  rot.data[1+src.rows*2]+= bbox.size.height/2.0 - src.rows/2.0;
-  //rot.at<double>(0,2) += bbox.width/2.0 - src.cols/2.0;
-  //rot.at<double>(1,2) += bbox.height/2.0 - src.rows/2.0;
-
-  cv.warpAffine(src, src, rot, new cv.Size(bbox.size.width, bbox.size.height));
-
-  let ksize = new cv.Size(59,59);
-  cv.GaussianBlur(src, dst, ksize, 0, 0, cv.BORDER_DEFAULT);
-
-  cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 51, 5);
-
-  // canny edge detection
-  cv.Canny(dst, dst, 1, 300, 5, false);
-
-  // find boundaries and crop
-
-  let boundaries = {};
-
-  for (let y = 0; y < dst.rows; y++) {
-    for (let x = 0; x < dst.cols; x++) {
-      let index = y*dst.cols*dst.channels()+x*dst.channels();
-      let r = dst.data[index];
-      let g = dst.data[index+1];
-      let b = dst.data[index+2];
-
-      if (r+g+b == 765) {
-        if (boundaries.hasOwnProperty('left')) {
-          boundaries.left = Math.min(x, boundaries.left);
-          boundaries.top = Math.min(y, boundaries.top);
-          boundaries.right = Math.max(x, boundaries.right);
-          boundaries.bottom = Math.max(y, boundaries.bottom);
-        }
-        else {
-          boundaries.left = x;
-          boundaries.top = y;
-          boundaries.right = x;
-          boundaries.bottom = y;
-        }
-      } 
-    }
-  }
-
-  console.log(dst,dst.rows,dst.cols,boundaries);
-
-  let left = Math.max(boundaries.left-15,0),
-      top = Math.max(boundaries.top-15,0),
-      right = Math.min(boundaries.right-boundaries.left+30,dst.cols-boundaries.left),
-      bottom = Math.min(boundaries.bottom-boundaries.top+30,dst.rows-boundaries.top);
-
-  let rect = new cv.Rect(left, top, right, bottom);
-
-  console.log(left, top, right, bottom, src.rows, src.cols);
-
-  src = src.roi(rect);
-
-  let dsize = new cv.Size(800, src.rows/src.cols*800);
-  cv.resize(src, src, dsize, 0, 0, cv.INTER_AREA);
-
-  // threshold
-
-  cv.adaptiveThreshold(src, src, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 71, 15);
-
-  // dilate and erode
-
-  /*let M2 = cv.Mat.ones(1, 1, cv.CV_8S);
-  let anchor2 = new cv.Point(1, 1);
-
-  cv.dilate(src, src, M2, anchor2, 1, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue());
-  cv.erode(src, src, M2, anchor2, 1, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue());*/
-
-  return src;
 }
 
 export default class AddReceiptPage extends React.Component {
@@ -206,6 +47,21 @@ export default class AddReceiptPage extends React.Component {
       version: 0
     };
   }
+  
+  getSrc(src) {
+    // https://stackoverflow.com/questions/13626465/how-to-create-a-new-imagedata-object-independently
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+
+    canvas.width = src.cols;
+    canvas.height = src.rows;
+
+    let imagedata = ctx.createImageData(src.cols, src.rows);
+    imagedata.data.set(src.data);
+    ctx.putImageData(imagedata, 0, 0);
+
+    return canvas.toDataURL();
+  }
   onChange(event) {
     let that = this;
     event.preventDefault();
@@ -223,9 +79,7 @@ export default class AddReceiptPage extends React.Component {
 
     if (!files[0]) return;
 
-    imageOrientation(files[0], (base64img, value) => {
-      let rotate = exif_rotation[value];
-      console.log(value);
+    ReceiptService.getImageOrientation(files[0], (base64img, rotate) => {
       var img = new Image;
       img.onload = () => {
         /* http://devbutze.blogspot.com/2014/02/html5-canvas-offscreen-rendering.html
@@ -237,22 +91,12 @@ export default class AddReceiptPage extends React.Component {
         
         // crop
 
-        let src = processImage(img);
+        let src = ReceiptService.processImage(img, rotate);
 
         // create imagedata
 
-        // https://stackoverflow.com/questions/13626465/how-to-create-a-new-imagedata-object-independently
-        var canvas = document.createElement('canvas');
-        var ctx = canvas.getContext('2d');
-
-        canvas.width = src.cols;
-        canvas.height = src.rows;
-
-        var imagedata = ctx.createImageData(src.cols, src.rows);
-        imagedata.data.set(src.data);
-        ctx.putImageData(imagedata, 0, 0);
-
-        this.setState({ src: canvas.toDataURL() });
+        src = this.getSrc(src);
+        this.setState({ src });
 
         //this.setState({ src: img.src });
 
@@ -260,12 +104,39 @@ export default class AddReceiptPage extends React.Component {
 
         var Tesseract = window.Tesseract;
 
-        Tesseract.recognize(img.src)
+        Tesseract.recognize(src, {
+          lang: 'fin',
+          tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVVXYZÄÖÅabcdefghijklmnopqrstuvwxyzäöå1234567890.,-'
+        })
         .progress(message => console.log(message))
         .catch(err => console.error(err))
-        .then(result => console.log(result));
+        .then(result => {
+          console.log(result);
+          Promise.all([
+            DataStore.getProducts(),
+            DataStore.getManufacturers(),
+            DataStore.getCategories()
+          ])
+          .then(async ([products, manufacturers, categories]) => {
+            let data = {
+              products,
+              manufacturers,
+              categories
+            },
+                locale = document.getElementById('language').value;
+            await ReceiptService.getTransactionsFromReceipt(data, result.text, locale);
+            console.log(data, locale);
+            that.setState({
+              products,
+              manufacturers,
+              categories,
+              transactions: data.transactions
+            });
+            that.showEditor();
+          });
+        });
       }
-      img.src = base64img;
+      img.src = URL.createObjectURL(files[0]);
     });
 
     /*var formData = new FormData();
@@ -304,7 +175,9 @@ export default class AddReceiptPage extends React.Component {
     state.mode = 'adjustments';
     this.setState(state);
   }
-  showEditor(state) {
+  showEditor() {
+    let state = {...this.state};
+    
     state.mode = 'editor';
     
     // Update version
@@ -374,7 +247,6 @@ export default class AddReceiptPage extends React.Component {
   render() {
     return (
       <div className="add-receipt">
-        {this.state.mode == 'uploader' || this.state.mode == 'adjustments' ? 
         <div>
           <div id="uploader">
             <a href="#" className="next" onClick={this.onUpload} style={{float:"right"}}>
@@ -397,57 +269,9 @@ export default class AddReceiptPage extends React.Component {
               </fieldset>
             </form>
           </div>
-          {this.state.mode == 'adjustments' ?
           <div id="receipt-adjustments">
             <div style={{clear:"both"}}/>
-            <fieldset>
-              <legend>Adjust</legend>
-              <button onClick={this.onFlipLeft}><i className="fa fa-undo"/></button>
-              <input type="range"
-                     min="-45"
-                     max="45"
-                     value={this.state.rotate_adjust}
-                     step="any"
-                     onChange={this.onRotate}
-                     style={{width:'75%'}}
-              />
-              <button onClick={this.onFlipRight}><i className="fa fa-redo"/></button><br/>
-              Details
-              <i className="fa fa-minus"/>
-              <input type="range"
-                    min="1"
-                    max="30"
-                    value={this.state.data.threshold}
-                    step="1"
-                    onChange={this.setData.bind(this, 'threshold')}
-                    style={{width:100, transform: 'rotate(-180deg)'}}
-              />
-              <i className="fa fa-plus"/>&nbsp;
-              Soften
-              <i className="fa fa-minus"/>
-              <input type="range"
-                     min="0"
-                     max="5"
-                     value={this.state.data.blur}
-                     step="1"
-                     onChange={this.setData.bind(this, 'blur')}
-                     style={{width:50}}
-              />
-              <i className="fa fa-plus"/>&nbsp;
-              Sharpen
-              <i className="fa fa-minus"/>
-              <input type="range"
-                     min="0"
-                     max="5"
-                     value={this.state.data.sharpen}
-                     step="1"
-                     onChange={this.setData.bind(this, 'sharpen')}
-                     style={{width:50}}
-              />
-              <i className="fa fa-plus"/>&nbsp;
-            </fieldset>
             {this.state.src && <div>Crop</div>}
-            <img src={this.state.src}/>
             <Cropper id="cropper"
                     src={this.state.src}
                     style={{width:'300px', maxHeight:'300px'}}
@@ -461,10 +285,10 @@ export default class AddReceiptPage extends React.Component {
                     cropend={this.onCrop.bind(this)}
                     zoom={this.onCrop.bind(this)}
             />
-          </div> :
-          ''}
+          </div>
+          <img src={this.state.src}/>
+          <canvas id="preview"/>
         </div>
-        : ''}
         {this.state.mode == 'editor' ?
         <div id="receipt-editor">
           <a href="#" className="previous" onClick={this.showAdjustments} style={{float:"left"}}>Previous</a>
@@ -481,3 +305,43 @@ export default class AddReceiptPage extends React.Component {
     );
   }
 };
+
+function processReceipt(data, language, id) {
+  return new Promise((resolve, reject) => {
+    let filepath = upload_path+"/"+id;
+
+    Category.query()
+    .then(category => {
+      data.categories = category;
+      Product.query()
+      .then(product => {
+        data.products = product;
+
+        Manufacturer.query()
+        .then(manufacturer => {
+          data.manufacturers = manufacturer;
+          return processReceiptImage(filepath, data, true).then(response => {
+            return extractTextFromFile(filepath, language).then(async (text) => {
+              if (text) {
+                data = await getDataFromReceipt(data, text, language);
+                //data.transactions[0].receipts = [{}];
+                //data.transactions[0].receipts[0].text = text;
+                data.transactions[0].receipts[0].file = id;
+              }
+              else {
+                data = {
+                  file: id
+                }
+              }
+              resolve(data);
+            })
+          })
+        })
+      })
+    })
+  })
+  .catch(error => {
+    console.error(error);
+    throw new Error();
+  });
+}
