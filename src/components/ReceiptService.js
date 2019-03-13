@@ -1,6 +1,7 @@
 import axios from "axios";
 import moment from 'moment';
 import DataStore from './DataStore';
+import jarowinkler from 'jaro-winkler';
 
 const exif_rotation = {
   1: 0,
@@ -103,21 +104,23 @@ export default {
               .progress(message => console.log(message))
               .catch(err => console.error(err))
               .then(result => {
-                console.timeEnd('process');
+                console.timeLog('process');
                 console.log(result);
                 Promise.all([
                   DataStore.getProducts(),
                   DataStore.getManufacturers(),
                   DataStore.getCategories()
                 ])
-                .then(async ([products, manufacturers, categories]) => {
+                .then(([products, manufacturers, categories]) => {
+                  console.timeLog('process');
                   let data = {
                     products,
                     manufacturers,
                     categories
                   },
                       locale = 'fi-FI';
-                  await this.getTransactionsFromReceipt(data, result.text, locale);
+                  this.getTransactionsFromReceipt(data, result.text, locale, categories);
+                  console.timeEnd('process');
                   console.log(data, locale);
                   resolve(data.transactions);
                 });
@@ -202,34 +205,28 @@ export default {
     }
     fileReader.readAsArrayBuffer(file);
   },
-  getClosestCategory(toCompare, locale) {
-    return new Promise((resolve, reject) => {
-      DataStore.getCategories()
-      .then(categories => {
-        let name,
-            category,
-            response = null,
-            max_distance = 0,
-            distance,
-            match;
-        toCompare = toCompare.toLowerCase();
-        for (let i in categories) {
-          category = categories[i];
-          name = category.name[locale];
-          if (!name) continue;
-          match = new RegExp('\\b'+_.escapeRegExp(name)+'\\b', 'i');
-          distance = toCompare.match(match) && name.length/toCompare.length;
-          if (distance > max_distance) {
-            max_distance = distance;
-            response = category;
-          }
-        }
-        resolve(response);
-      })
-      .catch(reject);
-    });
+  getClosestCategory(toCompare, locale, categories) {
+    let name,
+        category,
+        response = null,
+        max_distance = 0,
+        distance,
+        match;
+    toCompare = toCompare.toLowerCase();
+    for (let i in categories) {
+      category = categories[i];
+      name = category.name[locale];
+      if (!name) continue;
+      distance = jarowinkler(toCompare, name);
+      if (distance > max_distance) {
+        max_distance = distance;
+        response = category;
+        response.distance = distance;
+      }
+    }
+    return response;
   },
-  async getTransactionsFromReceipt(result, text, locale) {
+  getTransactionsFromReceipt(result, text, locale, categories) {
     text = text
     .replace(/ﬂ|»|'|´|`|‘|“|"|”|\|/g, '')
     .replace(/(\d) *(\.,|\,|\.|_|\-|;) *(\d)/g, '$1.$3')
@@ -425,11 +422,11 @@ export default {
                 price: price
               });
   
-              category = await this.getClosestCategory(name, locale);
+              category = this.getClosestCategory(name, locale, categories);
   
               if (quantity) items[items.length-1].quantity = quantity;
               if (measure) items[items.length-1].measure = measure;
-              if (category) items[items.length-1].product.category = {id: category.id, name: category.locales && category.locales[locale] || category.name};
+              if (category) items[items.length-1].product.category = category/*{id: category.id, name: category.locales && category.locales[locale] || category.name}*/;
   
               let found = false;
               for (i in result.products) {
