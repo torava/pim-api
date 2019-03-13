@@ -5,6 +5,7 @@ import moment from 'moment';
 import {Link} from 'react-router';
 import axios from 'axios';
 import ReactTable from 'react-table';
+import DataStore from './DataStore';
 import {  VictoryChart,
           VictoryStack,
           VictoryArea,
@@ -126,16 +127,16 @@ export default class TransactionList extends React.Component {
       ready: false
     };
 
-      axios.get('/api/transaction/')
-      .then(function(response) {
-        that.setState({
-          transactions: response.data,
-          ready: true
-        });
-      })
-      .catch(function(error) {
-        console.error(error);
+    DataStore.getTransactions()
+    .then(function(result) {
+      that.setState({
+        transactions: result,
+        ready: true
       });
+    })
+    .catch(function(error) {
+      console.error(error);
+    });
   }
   render() {
     if (!this.state.ready) {

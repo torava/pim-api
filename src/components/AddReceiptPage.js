@@ -106,7 +106,7 @@ export default class AddReceiptPage extends React.Component {
 
         Tesseract.recognize(src, {
           lang: 'fin',
-          tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVVXYZÄÖÅabcdefghijklmnopqrstuvwxyzäöå1234567890.,-'
+          tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVVXYZÄÖÅabcdefghijklmnopqrstuvwxyzäöå1234567890-.,'
         })
         .progress(message => console.log(message))
         .catch(err => console.error(err))

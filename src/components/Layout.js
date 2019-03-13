@@ -3,6 +3,11 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
 import {locale} from './locale';
+import ReceiptService from './ReceiptService';
+
+function confirmExit() {
+  return "You have attempted to leave this page. Are you sure?";
+}
 
 export default class Layout extends React.Component {
   constructor(props) {
@@ -27,6 +32,27 @@ export default class Layout extends React.Component {
     this.setState({
       locale: locale.getLocale()
     });
+  }
+  onUpload(event) {
+    let that = this;
+    event.preventDefault();
+
+    //window.onbeforeunload = confirmExit;
+
+    let files;
+    if (event.dataTransfer) {
+      files = event.dataTransfer.files;
+    } else if (event.target) {
+      files = event.target.files;
+    }
+
+    if (!files[0]) return;
+
+    ReceiptService.upload(files)
+    .then((transactions) => {
+      console.log(transactions);
+      window.onbeforeunload = null;
+    })
   }
   render() {
     return (
@@ -68,7 +94,10 @@ export default class Layout extends React.Component {
             <nav>
               <Link to="/" className="button"><i className="fas fa-chart-area"></i></Link>&nbsp;
               <Link to="/categories" className="button"><i className="fas fa-search"></i></Link>&nbsp;
-              <Link to="/add" className="button"><i className="fas fa-plus"></i></Link>
+              <div className="button file-upload-wrapper">
+                <i className="fas fa-plus"></i>
+                <input type="file" name="upload-file" id="upload-file" multiple draggable onChange={this.onUpload}/>
+              </div>
               <Link to="/transactions" className="button"><i className="fas fa-shopping-cart"></i></Link>&nbsp;
               <Link to="/items" className="button"><i className="fas fa-box-open"></i></Link>&nbsp;
             </nav>

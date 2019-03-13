@@ -47,6 +47,114 @@ function localeToLanguage(locale) {
 }
 
 export default {
+  upload(files) {
+    return new Promise((resolve, reject) => {
+      console.time('process');
+      let tesseract = window.Tesseract.create({
+        //langPath: 'http://localhost:42808/lib/',
+        workerPath: 'http://localhost:42808/lib/worker.js',
+        corePath: 'http://localhost:42808/lib/tesseract.js-core.js'
+      }),
+          img = new Image(),
+          imagedata,
+          src;
+
+      img.onload = () => {
+        let original_promise = axios.post('/api/receipt/original', {src: files[0]});
+
+        let process_promise = new Promise((resolve, reject) => {
+          /* http://devbutze.blogspot.com/2014/02/html5-canvas-offscreen-rendering.html
+          var canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(img, img.width, img.height);*/
+          
+          // crop
+
+          src = this.processImage(img);
+
+          console.timeLog('process');
+
+          // create imagedata
+
+          imagedata = this.getSrc(src);
+
+          tesseract.detect(imagedata)
+          .then(result => {
+            let rotate = result.orientation_degrees;
+
+            console.log(result);
+            
+            src = this.rotateImage(src, 0-rotate);
+
+            imagedata = this.getSrc(src);
+            
+            //this.setState({ src: img.src });
+
+            let edited_promise = axios.post('/api/receipt/picture', {imagedata});
+            console.log(imagedata);
+            let recognize_promise = new Promise((resolve, reject) => {
+              tesseract.recognize(imagedata, {
+                lang: 'fin',
+                //tessedit_pageseg_mode: '3',
+                tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVVXYZÄÖÅabcdefghijklmnopqrstuvwxyzäöå1234567890-.,'
+              })
+              .progress(message => console.log(message))
+              .catch(err => console.error(err))
+              .then(result => {
+                console.timeEnd('process');
+                console.log(result);
+                Promise.all([
+                  DataStore.getProducts(),
+                  DataStore.getManufacturers(),
+                  DataStore.getCategories()
+                ])
+                .then(async ([products, manufacturers, categories]) => {
+                  let data = {
+                    products,
+                    manufacturers,
+                    categories
+                  },
+                      locale = 'fi-FI';
+                  await this.getTransactionsFromReceipt(data, result.text, locale);
+                  console.log(data, locale);
+                  resolve(data.transactions);
+                });
+              });
+            });
+            Promise.all([edited_promise, recognize_promise])
+            .then(([edited, recognize]) => {
+              console.log(edited, recognize);
+              resolve(recognize);
+            })
+          });
+          Promise.all([original_promise, process_promise])
+          .then(([original, process] )=> {
+            console.log(original, process);
+            saveReceipt(data.transactions).then((transactions) => {
+              resolve(transactions);
+            });
+          });
+        });
+      }
+      img.src = URL.createObjectURL(files[0]);
+    });
+  },
+  saveReceipt(transactions) {
+    return new Promise((resolve, reject) => {
+      axios.post('/api/transaction/', transactions)
+      .then(function(response) {
+        console.log(response);
+        DataStore.getTransactions(true).then((transactions) => {
+          resolve(transactions);
+        });
+      })
+      .catch(function(error) {
+        console.error(error);
+      });
+    });
+  },
   getImageOrientation(file, callback) {
     var fileReader = new FileReader();
     fileReader.onloadend = function () {
@@ -172,7 +280,7 @@ export default {
   
         // Attributes to find only once
         if (!data.party.vat) {
-          line_vat = line.match(/\d{7}[-|>]\d{1}/);
+          line_vat = line.match(/\d{7}[-|.]\d{1}/);
           if (line_vat) {
             data.party.vat = line_vat[0];
   
@@ -191,7 +299,7 @@ export default {
   
         if (!data.date) {
           // 1.1.12 1:12
-          line_date = line.match(/((\d{1,2})[\.|\,](\d{1,2})[\.|\,](\d{2,4}))(\s)?((\d{1,2}):((\d{1,2})\:)?(\d{1,2})?)?/);
+          line_date = line.match(/((\d{1,2})[\.|\,](\d{1,2})[\.|\,](\d{2,4}))(\s)?((\d{1,2})[:|,|.]((\d{1,2}):)?(\d{1,2})?)?/);
           date = line_date && parseYear(line_date[4])+'-'+line_date[3]+'-'+line_date[2]+' '+line_date[6];
           if (date && moment(date).isValid()) {
             console.log(line_date, date);
@@ -202,7 +310,7 @@ export default {
   
           if (!date || !line_date[6]) {
             // 1:12 1-1-12
-            line_date = line.match(/((\d{1,2}:)(\d{1,2}:)?(\d{1,2})?)?(\s)?((\d{1,2})[\-|\.](\d{1,2})[\-|\.](\d{2,4}))/);
+            line_date = line.match(/((\d{1,2}[:|,|.|1])(\d{1,2}:)?(\d{1,2})?)?(\s)?((\d{1,2})[\-|\.](\d{1,2})[\-|\.](\d{2,4}))/);
             date = line_date && parseYear(line_date[9])+'-'+line_date[8]+'-'+line_date[7]+' '+line_date[1];
             if (date && moment(date).isValid()) {
               console.log(line_date, date);
@@ -214,8 +322,10 @@ export default {
         }
   
         if (!data.party.street_name) {
-          line_address = line.match(/^([\u00C0-\u017F-a-z\/]+)\s?(\d+)[,|.]?\s?(\d{5})[,|.]?\s?([\u00C0-\u017F-a-z\/]+)$/i);
+          // Hämeenkatu 123-123 33100 Tampere
+          line_address = line.match(/^([\u00C0-\u017F-a-z\/]+)\s?(\d+)[,|.|-]((\d[0-3])?[,|.|-]?\s?(\d{5}))[,|.]?\s?([\u00C0-\u017F-a-z\/]+)$/i);
           if (line_address) {
+            console.log(line_address);
             data.party.street_name = toTitleCase(line_address[1]);
             data.party.street_number = line_address[2];
             data.party.postal_code = line_address[3];
@@ -578,17 +688,39 @@ export default {
   
     return result;
   },
+  getSrc(src, from_grayscale) {
+    /*if (from_grayscale) {
+      cv.cvtColor(src, src, cv.COLOR_GRAY2RGBA, 0);
+    }*/
+
+    // https://stackoverflow.com/questions/13626465/how-to-create-a-new-imagedata-object-independently
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+
+    canvas.width = src.cols;
+    canvas.height = src.rows;
+
+    console.log(src);
+
+    let imagedata = ctx.createImageData(src.cols, src.rows);
+    imagedata.data.set(src.data);
+    ctx.putImageData(imagedata, 0, 0);
+
+    return canvas.toDataURL();
+  },
   cropImage(orig) {
     let M, anchor, dsize, ksize;
   
     let src = new cv.Mat(); // src from orig
-    dsize = new cv.Size(500, orig.rows/orig.cols*500);
+    dsize = new cv.Size(800, orig.rows/orig.cols*800);
     cv.resize(orig, src, dsize, 0, 0, cv.INTER_AREA);
   
     ksize = new cv.Size(1,1);
     cv.GaussianBlur(src, src, ksize, 0, 0, cv.BORDER_DEFAULT);
   
     cv.adaptiveThreshold(src, src, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 19, 21);
+
+    console.log('thres', this.getSrc(src, true));
   
     M = cv.Mat.ones(2, 2, cv.CV_8U);
     anchor = new cv.Point(-1, -1);
@@ -597,7 +729,9 @@ export default {
   
     cv.Canny(src, src, 1, 0, 5, false);
 
-    cv.imshow('preview', src);
+    //cv.imshow('preview', src);
+
+    console.log('canny', this.getSrc(src, true));
   
     M = new cv.Mat();
     ksize = new cv.Size(100, 100);
@@ -623,13 +757,25 @@ export default {
       }
     }
 
-    let rect = cv.boundingRect(cnt);
-    let contoursColor = new cv.Scalar(255, 255, 255);
-    let rectangleColor = new cv.Scalar(255, 0, 0);
-  
     let dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
-  
+
+    let contoursColor = new cv.Scalar(255, 255, 255);
+
     cv.drawContours(dst, contours, -1, contoursColor, 1, 8, hierarchy, 100);
+
+    let rotatedRect = cv.minAreaRect(cnt);
+    let vertices = cv.RotatedRect.points(rotatedRect);
+    let rectangleColor = new cv.Scalar(0, 255, 0);
+    // draw rotatedRect
+    for (let i = 0; i < 4; i++) {
+        cv.line(dst, vertices[i], vertices[(i + 1) % 4], rectangleColor, 2, cv.LINE_AA, 0);
+    }
+
+    let rect = cv.boundingRect(cnt);
+    rectangleColor = new cv.Scalar(255, 0, 0);
+
+    console.log(rotatedRect, vertices);
+  
     let point1 = new cv.Point(rect.x, rect.y);
     let point2 = new cv.Point(rect.x + rect.width, rect.y + rect.height);
     cv.rectangle(dst, point1, point2, rectangleColor, 2, cv.LINE_AA, 0);
@@ -637,8 +783,10 @@ export default {
     let preview = new cv.Mat();
     dsize = new cv.Size(800, dst.rows/dst.cols*800);
     cv.resize(dst, preview, dsize, 0, 0, cv.INTER_AREA);
-    cv.imshow('preview', preview);
-   
+    //cv.imshow('preview', preview);
+
+    //this.rotateImage(src, rotatedRect.angle);
+
     dst.delete(); contours.delete(); hierarchy.delete(); cnt.delete();
 
     let scale = orig.cols/src.cols;
@@ -646,23 +794,42 @@ export default {
   
     orig = orig.roi(rect);
 
-    if (src.cols > src.rows) {
+    /*if (src.cols > src.rows) {
       this.rotateImage(orig, 90);
-    }
+    }*/
   
     return orig;
   },
   rotateImage(src, rotate) {
+    if (rotate < 0) {
+      rotate = 360+rotate;
+    }
     if (rotate == 270){
-      cv.transpose(src, src);  
+      cv.transpose(src, src); 
       cv.flip(src, src, 1);
     }
     else if (rotate == 90) {
       cv.transpose(src, src);  
-      cv.flip(src, src, 0);   
+      cv.flip(src, src, 0);
     }
     else if (rotate == 180){
       cv.flip(src, src, -1);
+    }
+    else if (!rotate) {}
+    else {
+      // get rotation matrix for rotating the image around its center in pixel coordinates
+      let center = new cv.Point((src.cols-1)/2.0, (src.rows-1)/2.0);
+      let rot = cv.getRotationMatrix2D(center, rotate, 1.0);
+      // determine bounding rectangle, center not relevant
+      let bbox = new cv.RotatedRect(new cv.Point(), src.size(), rotate);
+      console.log(bbox);
+      // adjust transformation matrix
+      rot.data[0+src.rows*2]+= bbox.size.width/2.0 - src.cols/2.0;
+      rot.data[1+src.rows*2]+= bbox.size.height/2.0 - src.rows/2.0;
+      //rot.at<double>(0,2) += bbox.width/2.0 - src.cols/2.0;
+      //rot.at<double>(1,2) += bbox.height/2.0 - src.rows/2.0;
+
+      cv.warpAffine(src, src, rot, new cv.Size(bbox.size.width, bbox.size.height));
     }
     return src;
   },
@@ -673,26 +840,30 @@ export default {
     cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
     src.convertTo(src, cv.CV_8U);
 
-    this.rotateImage(src, rotate);
+    //this.rotateImage(src, rotate);
   
     src = this.cropImage(src);
   
-    let dsize = new cv.Size(800, src.rows/src.cols*800);
+    let dsize = new cv.Size(1200, src.rows/src.cols*1200);
     cv.resize(src, src, dsize, 0, 0, cv.INTER_AREA);
+
+    cv.bilateralFilter(src,dst,5,75,75);
   
     // threshold
   
-    cv.adaptiveThreshold(src, src, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 71, 15);
+    cv.adaptiveThreshold(dst,dst, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 201, 15);
 
     // dilate and erode
 
-    let M = cv.Mat.ones(1, 1, cv.CV_8U);
-    let anchor = new cv.Point(-1, -1);
-    cv.dilate(src, src, M, anchor, 10);
-    cv.erode(src, src, M, anchor, 5);
+    let ksize = new cv.Size(2,2);
+    let anchor = new cv.Point(1,1);
+    let anchor2 = new cv.Point(-1,-1);
+    let M = cv.getStructuringElement(cv.MORPH_ELLIPSE, ksize, anchor);
+    cv.dilate(dst, dst, M, anchor2);
+    cv.erode(dst, dst, M, anchor2, 1);
   
-    cv.cvtColor(src, src, cv.COLOR_GRAY2RGBA, 0);
+    cv.cvtColor(dst, dst, cv.COLOR_GRAY2RGBA, 0);
 
-    return src;
+    return dst;
   }
 }

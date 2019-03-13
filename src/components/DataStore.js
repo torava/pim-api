@@ -18,6 +18,23 @@ export default {
       }
     });
   },
+  getTransactions(fetch) {
+    return new Promise((resolve, reject) => {
+      if (this.transactions && !fetch) {
+        resolve(this.products);
+      }
+      else {
+        axios.get('/api/transaction')
+        .then(response => {
+          this.transactions = response.data;
+          resolve(this.transactions);
+        })
+        .catch(error => {
+          reject(error);
+        });
+      }
+    });
+  },
   getProducts() {
     return new Promise((resolve, reject) => {
       if (this.products) {

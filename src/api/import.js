@@ -1,3 +1,5 @@
+'use strict';
+
 import Category from '../models/Category';
 import Attribute from '../models/Attribute';
 import CategoryContribution from '../models/CategoryContribution';
