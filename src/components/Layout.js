@@ -20,6 +20,9 @@ export default class Layout extends React.Component {
 
     this.onCurrencyChange = this.onCurrencyChange.bind(this);
     this.onLocaleChange = this.onLocaleChange.bind(this);
+    this.onUpload = this.onUpload.bind(this);
+
+    this.receiptService = new ReceiptService();
   }
   onCurrencyChange(event) {
     locale.setCurrency(event.target.value);
@@ -34,7 +37,6 @@ export default class Layout extends React.Component {
     });
   }
   onUpload(event) {
-    let that = this;
     event.preventDefault();
 
     //window.onbeforeunload = confirmExit;
@@ -48,7 +50,7 @@ export default class Layout extends React.Component {
 
     if (!files[0]) return;
 
-    ReceiptService.upload(files)
+    this.receiptService.upload(files)
     .then((transactions) => {
       console.log(transactions);
       window.onbeforeunload = null;

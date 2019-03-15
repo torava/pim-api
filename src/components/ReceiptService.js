@@ -1,7 +1,6 @@
 import axios from "axios";
 import moment from 'moment';
 import DataStore from './DataStore';
-import jarowinkler from 'jaro-winkler';
 
 const exif_rotation = {
   1: 0,
@@ -47,7 +46,21 @@ function localeToLanguage(locale) {
   return ocr_languages[locale];
 }
 
-export default {
+class ReceiptService {
+  constructor() {
+    Promise.all([
+      DataStore.getProducts(),
+      DataStore.getManufacturers(),
+      DataStore.getCategories()
+    ])
+    .then(([products, manufacturers, categories]) => {
+      console.log(products);
+      this.products = products;
+      this.manufacturers = manufacturers;
+      this.categories = categories;
+    })
+    .catch(error => console.error(error));
+  }
   upload(files) {
     return new Promise((resolve, reject) => {
       console.time('process');
@@ -61,7 +74,7 @@ export default {
           src;
 
       img.onload = () => {
-        let original_promise = axios.post('/api/receipt/original', {src: files[0]});
+        //let original_promise = axios.post('/api/receipt/original', {src: files[0]});
 
         let process_promise = new Promise((resolve, reject) => {
           /* http://devbutze.blogspot.com/2014/02/html5-canvas-offscreen-rendering.html
@@ -93,7 +106,7 @@ export default {
             
             //this.setState({ src: img.src });
 
-            let edited_promise = axios.post('/api/receipt/picture', {imagedata});
+            //let edited_promise = axios.post('/api/receipt/picture', {imagedata});
             console.log(imagedata);
             let recognize_promise = new Promise((resolve, reject) => {
               tesseract.recognize(imagedata, {
@@ -106,44 +119,50 @@ export default {
               .then(result => {
                 console.timeLog('process');
                 console.log(result);
-                Promise.all([
-                  DataStore.getProducts(),
-                  DataStore.getManufacturers(),
-                  DataStore.getCategories()
-                ])
-                .then(([products, manufacturers, categories]) => {
-                  console.timeLog('process');
-                  let data = {
-                    products,
-                    manufacturers,
-                    categories
-                  },
-                      locale = 'fi-FI';
-                  this.getTransactionsFromReceipt(data, result.text, locale, categories);
-                  console.timeEnd('process');
-                  console.log(data, locale);
-                  resolve(data.transactions);
-                });
+                
+                let data = {
+                  products: this.products,
+                  manufacturers: this.manufacturers,
+                  categories: this.categories
+                },
+                    locale = 'fi-FI';
+                this.getTransactionsFromReceipt(data, result.text, locale);
+
+                console.timeEnd('process');
+                console.log(data, locale);
+                resolve(data.transactions);
               });
             });
-            Promise.all([edited_promise, recognize_promise])
+            Promise.all([recognize_promise])
+            .then(([recognize]) => {
+              console.log(recognize);
+              resolve(recognize);
+            });
+            /*Promise.all([edited_promise, recognize_promise])
             .then(([edited, recognize]) => {
               console.log(edited, recognize);
               resolve(recognize);
-            })
-          });
-          Promise.all([original_promise, process_promise])
-          .then(([original, process] )=> {
-            console.log(original, process);
-            saveReceipt(data.transactions).then((transactions) => {
-              resolve(transactions);
-            });
+            })*/
           });
         });
+        Promise.all([process_promise])
+        .then(([process]) => {
+          console.log(process);
+          this.saveReceipt(process).then((transactions) => {
+            resolve(transactions);
+          });
+        });
+        /*Promise.all([original_promise, process_promise])
+        .then(([original, process] )=> {
+          console.log(original, process);
+          saveReceipt(data.transactions).then((transactions) => {
+            resolve(transactions);
+          });
+        });*/
       }
       img.src = URL.createObjectURL(files[0]);
     });
-  },
+  }
   saveReceipt(transactions) {
     return new Promise((resolve, reject) => {
       axios.post('/api/transaction/', transactions)
@@ -157,7 +176,7 @@ export default {
         console.error(error);
       });
     });
-  },
+  }
   getImageOrientation(file, callback) {
     var fileReader = new FileReader();
     fileReader.onloadend = function () {
@@ -204,7 +223,7 @@ export default {
         }
     }
     fileReader.readAsArrayBuffer(file);
-  },
+  }
   getClosestCategory(toCompare, locale, categories) {
     let name,
         category,
@@ -225,8 +244,8 @@ export default {
       }
     }
     return response;
-  },
-  getTransactionsFromReceipt(result, text, locale, categories) {
+  }
+  getTransactionsFromReceipt(result, text, locale) {
     text = text
     .replace(/ﬂ|»|'|´|`|‘|“|"|”|\|/g, '')
     .replace(/(\d) *(\.,|\,|\.|_|\-|;) *(\d)/g, '$1.$3')
@@ -422,11 +441,11 @@ export default {
                 price: price
               });
   
-              category = this.getClosestCategory(name, locale, categories);
-  
+              //category = this.getClosestCategory(name, locale, categories);
+
               if (quantity) items[items.length-1].quantity = quantity;
               if (measure) items[items.length-1].measure = measure;
-              if (category) items[items.length-1].product.category = category/*{id: category.id, name: category.locales && category.locales[locale] || category.name}*/;
+              //if (category) items[items.length-1].product.category = category/*{id: category.id, name: category.locales && category.locales[locale] || category.name}*/;
   
               let found = false;
               for (i in result.products) {
@@ -684,7 +703,7 @@ export default {
     result.transactions[0].receipts[0].text = text;
   
     return result;
-  },
+  }
   getSrc(src, from_grayscale) {
     /*if (from_grayscale) {
       cv.cvtColor(src, src, cv.COLOR_GRAY2RGBA, 0);
@@ -704,7 +723,7 @@ export default {
     ctx.putImageData(imagedata, 0, 0);
 
     return canvas.toDataURL();
-  },
+  }
   cropImage(orig) {
     let M, anchor, dsize, ksize;
   
@@ -796,7 +815,7 @@ export default {
     }*/
   
     return orig;
-  },
+  }
   rotateImage(src, rotate) {
     if (rotate < 0) {
       rotate = 360+rotate;
@@ -829,7 +848,7 @@ export default {
       cv.warpAffine(src, src, rot, new cv.Size(bbox.size.width, bbox.size.height));
     }
     return src;
-  },
+  }
   processImage(img, rotate) {
     let src = cv.imread(img);
     let dst = new cv.Mat();
@@ -864,3 +883,5 @@ export default {
     return dst;
   }
 }
+
+export default ReceiptService;
