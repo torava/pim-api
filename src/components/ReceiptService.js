@@ -102,6 +102,8 @@ class ReceiptService {
             
             src = this.rotateImage(src, 0-rotate);
 
+            console.timeLog('process');
+
             imagedata = this.getSrc(src);
             
             //this.setState({ src: img.src });
@@ -860,23 +862,23 @@ class ReceiptService {
   
     src = this.cropImage(src);
   
-    let dsize = new cv.Size(1200, src.rows/src.cols*1200);
+    let dsize = new cv.Size(1000, src.rows/src.cols*1000);
     cv.resize(src, src, dsize, 0, 0, cv.INTER_AREA);
 
-    cv.bilateralFilter(src,dst,5,75,75);
+    cv.bilateralFilter(src,dst,3,75,75);
   
     // threshold
   
-    cv.adaptiveThreshold(dst,dst, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 201, 15);
+    cv.adaptiveThreshold(src,dst, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 201, 15);
 
     // dilate and erode
 
-    let ksize = new cv.Size(2,2);
+    /*let ksize = new cv.Size(2,2);
     let anchor = new cv.Point(1,1);
     let anchor2 = new cv.Point(-1,-1);
     let M = cv.getStructuringElement(cv.MORPH_ELLIPSE, ksize, anchor);
     cv.dilate(dst, dst, M, anchor2);
-    cv.erode(dst, dst, M, anchor2, 1);
+    cv.erode(dst, dst, M, anchor2);*/
   
     cv.cvtColor(dst, dst, cv.COLOR_GRAY2RGBA, 0);
 
