@@ -1,83 +1,18 @@
 import Transaction from '../models/Transaction';
 import Category from '../models/Category';
-import { NerManager } from 'node-nlp';
+import natural from 'natural';
 import moment from 'moment';
 import fs from 'fs';
 
 export default app => {
 
-const manager = new NerManager({ language: 'fi', threshold: 0.5 });
-const meta_manager = new NerManager({ language: 'fi', threshold: 0.8 });
+let details = {};
 
-meta_manager.addNamedEntityText(
-  'details',
-  'weighting',
-  ['fi'],
-  ['punnittu', 'kivineen', 'kivetön', 'kuorineen', 'kuorittu', 'keskiarvo'],
-);
-meta_manager.addNamedEntityText(
-  'details',
-  'cooking',
-  ['fi'],
-  ['keitetty', 'paistettu', 'tuore', 'kuivattu', 'suurustamaton', 'ei kastiketta'],
-);
-meta_manager.addNamedEntityText(
-  'details',
-  'spicing',
-  ['fi'],
-  ['suolattu', 'suolaton', 'tomaattinen', 'sokeroitu', 'sokeroimaton', 'maustettu', 'maustamaton'],
-);
-meta_manager.addNamedEntityText(
-  'details',
-  'type',
-  ['fi'],
-  ['luomu', 'irto', 'laktoositon', 'vähälaktoosinen'],
-);
-
-Category.query()
-.eager('[children, parent.^]')
-.then(async categories => {
-  let n = 0, name, entity_name, entities, category;
-  console.log(moment().format()+' [NerManager] Adding categories');
-  for (let i in categories) {
-    category = categories[i];
-    if (!category.children.length) {
-      name = category.name['fi-FI'];
-      entity_name = name;
-      if (name) {
-        entities = await meta_manager.findEntities(
-          name,
-          'fi',
-        ).then(result => {
-          return result;
-        });
-        entities.map(entity => {
-          entity_name = entity_name.replace(new RegExp(escapeRegExp(entity.sourceText)+",?\s?"), "")
-                                    .replace(/^,?\s*/, "")
-                                    .replace(/,?(\sja)?\s*$/, "");
-        });
-        manager.addNamedEntityText(getParentPath(category), stringToSlug(name, "_"), ['fi'], [entity_name]);
-        n++;
-      }
-    }
-  }
-  fs.writeFileSync('./ner.json', JSON.stringify(manager.save()));
-  console.log(moment().format()+' [NerManager] Added '+n+' categories');
-});
-
-function getParentPath(item) {
-  let result = "",
-      parent = item,
-      name;
-  if (parent) {
-    while (parent = parent.parent) {
-      name = getNameLocale(parent.name, 'fi-FI');
-      if (!name) continue;
-      result = stringToSlug(name, "_")+(result ? "."+result : "");
-    }
-  }
-  return result;
-}
+details.weighting = ['punnittu', 'kivineen', 'kivetön', 'kuorineen', 'kuorittu', 'keskiarvo'];
+details.cooking = ['keitetty', 'leivitetty', 'paistettu', 'grillattu', 'tuore', 'kuivattu', 'suurustamaton', 'ei kastiketta'];
+details.spicing = ['suolattu', 'suolaton', 'tomaattinen', 'sokeroitu', 'sokeroimaton', 'maustettu', 'maustamaton'];
+details.type = ['luomu', 'irto', 'ruukku', 'lakt', 'laktoositon', 'vähälakt', 'vähälaktoosinen', 'suolavedessä'];
+details.manufacturers = ['dan sukker', 'vitasia', 'pohjolanmeijeri', 'myllykivi', 'milbona', 'kanamestari', 'kultamuna', 'palmolive', 'goldensun', 'belbaka', 'freshona'];
 
 function getNameLocale(name, locale, strict) {
   if (!name) {
@@ -97,6 +32,35 @@ function getNameLocale(name, locale, strict) {
 
 function escapeRegExp(stringToGoIntoTheRegex) {
   return stringToGoIntoTheRegex.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+}
+
+function trimDetails(name) {
+  var token, distance;
+  Object.entries(details).forEach(([detail_category, d]) => {
+    d.forEach(detail => {
+      token = natural.LevenshteinDistance(detail, name, {search: true});
+      //distance = natural.JaroWinklerDistance(token.substring, detail);
+      if (token.distance/detail.length < 0.3) {
+        name = token ? name.replace(new RegExp(',?\\s?'+token.substring+'\\s?'), '') : name;
+        //console.log('detail is ' + detail + ', token is ' + JSON.stringify(token) + ', distance is ' + distance);
+      }
+    });
+  });
+  return name;
+}
+
+function getParentPath(item) {
+  let result = "",
+      parent = item,
+      name;
+  if (parent) {
+    while (parent = parent.parent) {
+      name = getNameLocale(parent.name, 'fi-FI');
+      if (!name) continue;
+      result = stringToSlug(name, "_")+(result ? "."+result : "");
+    }
+  }
+  return result;
 }
 
 function stringToSlug(str,  sep) {
@@ -190,17 +154,77 @@ app.post('/api/transaction', function(req, res) {
     return;
   }
   else {
+    let token, trimmed_token, category_name, trimmed_category_name, jarowinkler, category_names = [], type, trimmed_category_names = [], item_name, trimmed_item_name, distance, distance_rate, trimmed_distance_rate;
     transaction = req.body[0];
     console.dir(transaction, {depth:null});
-    transaction.items.forEach(item => {
-      promises.push(
-        manager.findEntities(item.text, 'fi').then(entities => {
-          console.log(entities);
-        })
-      );
-    });
-    Promise.all(promises).then(entities => {
-      res.send(entities);
+    Category.query()
+    .eager('[children, parent.^]')
+    .then(categories => {
+      categories = categories.filter((category, index) => {
+        if(!category.children.length) {
+          category_name = category.name['fi-FI'];
+          category.trimmed_category_name = trimDetails(category_name);
+        }
+        return !category.children.length;
+      });
+
+      transaction.items.forEach(item => {
+        item.categories = [];
+        categories.forEach((category, index) => {
+          category_name = category.trimmed_category_name;
+          /*item_name = item.product.name;
+          token = natural.LevenshteinDistance(category_name.toLowerCase(), item_name.toLowerCase(), {search: true});
+          distance_rate = token.substring.length/item_name.length;
+          if (distance_rate < 0.3) {
+            //distance = natural.JaroWinklerDistance(item_name, category_name);
+            //console.log('category is '+categories[index].name['fi-FI'] + ', trimmed category is '+category_name+', distance is '+(token.distance/category_name.length));
+            //console.log('item is ' + item_name+', token is '+JSON.stringify(token));
+          }*/
+          trimmed_item_name = trimDetails(item.product.name);
+          trimmed_token = natural.LevenshteinDistance(trimmed_item_name, category_name, {search: true});
+          trimmed_distance_rate = trimmed_token.distance/trimmed_item_name.length;
+          if (trimmed_token.distance < 8 /* && trimmed_distance_rate < distance_rate*/) {
+            jarowinkler = natural.JaroWinklerDistance(category_name, trimmed_item_name);
+            if (jarowinkler > 0.6) {
+              jarowinkler = natural.JaroWinklerDistance(trimmed_token.substring, trimmed_item_name);
+              if (jarowinkler > 0.75) {
+                //distance = natural.JaroWinklerDistance(trimmed_item_name, category_name);
+                //if (distance > 0.7) {
+                //console.log('trimmed item is ' + trimmed_item_name + ', token is ' + JSON.stringify(token)+', distance is '+(token.distance/category_name.length));
+                type = categories[index].parent &&
+                      categories[index].parent.parent &&
+                      categories[index].parent.parent.parent &&
+                      categories[index].parent.parent.parent.name['fi-FI'];
+                if (!item.categories[type] || !item.categories[type].length) item.categories[type] = [];
+                item.categories[type].push({
+                  original_name: categories[index].name['fi-FI'],
+                  trimmed_item_name: trimmed_item_name,
+                  name: category_name,
+                  parents: getParentPath(categories[index].parent),
+                  token: trimmed_token,
+                  distance_rate: trimmed_distance_rate,
+                  length_rate: category_name.length/trimmed_item_name.length,
+                  jarowinkler: jarowinkler
+                });
+              }
+            }
+          }
+          /*if (distance_rate > 0.4) {
+            item.categories.push({
+              original_name: categories[index].name['fi-FI'],
+              name: category_name,
+              token: token,
+              distance_rate: distance_rate,
+              length_rate: category_name.length/item_name.length,
+              jarowinkler: natural.JaroWinklerDistance(item_name, category_name)
+            });
+          }*/
+        });
+        item.categories['Ruokalaji'] && item.categories['Ruokalaji'].sort((a,b) => b.jarowinkler-a.jarowinkler);
+        item.categories['Raaka-aine'] && item.categories['Raaka-aine'].sort((a,b) => b.jarowinkler-a.jarowinkler);
+        console.dir(item, {depth: null});
+      });
+      res.send();
     });
   }
   /*
