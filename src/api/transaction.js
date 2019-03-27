@@ -26,9 +26,12 @@ details.cooking = {
   grilled: ['grillattu'],
   fresh: ['tuore'],
   dried: ['kuivattu'],
+  withegg: ['kananmunaa'],
   thickened: ['suurustettu'],
   nonthickened: ['suurustamaton'],
-  withoutsauce: ['ei kastiketta']
+  withoutsauce: ['ei kastiketta'],
+  coldsmoked: ['kylmäsavu', 'kylmäsavustettu'],
+  smoked: ['savustettu']
 }
 details.spicing = {
   salted: ['suolattu'],
@@ -44,11 +47,13 @@ details.type = {
   natural: ['luomu'],
   bulk: ['irto'],
   pott: ['ruukku'],
+  withfat: ['rasvaa'],
+  nonfat: ['rasvaton'],
   nonlactose: ['laktoositon'],
   thickened: ['puuroutuva'],
   parboiled: ['kiehautettu', 'parboiled'],
   lowlactose: ['vähälaktoosinen'],
-  insaltwater: ['suolavedessä'],
+  insaltwater: ['suolavedessä', 'suolaved'],
   frozenfood: ['pakasteateria', 'pakastettu', 'pakaste']
 }
 details.manufacturers = {
@@ -122,13 +127,19 @@ function escapeRegExp(stringToGoIntoTheRegex) {
 }
 
 function trimDetails(name) {
-  var token;
+  var token,
+      accuracy;
   for (let i in details) {
     for (let j in details[i]) {
       details[i][j].forEach(detail => {
-        token = similarSearch.getBestSubstring(name, detail);
-        if (token.accuracy > 0.5) {
-          name = name.substring(0, token.start)+name.substring(token.end+1);
+        //token = similarSearch.getBestSubstring(name, detail);
+        // Didn't work with compound words like ruukkutilli
+        token = natural.LevenshteinDistance(detail, name.toLowerCase(), {search: true});
+        accuracy = (detail.length-token.distance)/detail.length;
+        if (accuracy > 0.6) {
+          //name = name.substring(0, token.start)+name.substring(token.end+1);
+          name = name.replace(new RegExp(token.substring, 'i'), '');
+          console.log(detail, name, accuracy, token);
         }
       });
     }
@@ -245,7 +256,9 @@ app.post('/api/transaction', function(req, res) {
     let trimmed_accuracy,
         type,
         trimmed_item_name,
-        trimmed_distance;
+        trimmed_distance,
+        distance,
+        accuracy;
 
     transaction = req.body[0];
     console.dir(transaction, {depth:null});
@@ -255,9 +268,34 @@ app.post('/api/transaction', function(req, res) {
       trimmed_item_name = trimDetails(item.product.name);
       trimmed_categories.forEach((category, index) => {
         if (category.trimmed_name && category.trimmed_name['fi-FI']) {
+          distance = similarSearch.getSimilarity(item.product.name, category.name['fi-FI']);
+          accuracy = (item.product.name.length-distance)/item.product.name.length;
+
           trimmed_distance = similarSearch.getSimilarity(trimmed_item_name, category.trimmed_name['fi-FI']);
           trimmed_accuracy = (trimmed_item_name.length-trimmed_distance)/trimmed_item_name.length;
-          if (trimmed_accuracy > 0.4) {
+
+          if (trimmed_accuracy > accuracy) {
+            accuracy = trimmed_accuracy;
+            distance = trimmed_distance;
+          }
+
+          trimmed_distance = similarSearch.getSimilarity(item.product.name, category.trimmed_name['fi-FI']);
+          trimmed_accuracy = (item.product.name.length-trimmed_distance)/item.product.name.length;
+
+          if (trimmed_accuracy > accuracy) {
+            accuracy = trimmed_accuracy;
+            distance = trimmed_distance;
+          }
+
+          trimmed_distance = similarSearch.getSimilarity(trimmed_item_name, category.name['fi-FI']);
+          trimmed_accuracy = (trimmed_item_name.length-trimmed_distance)/trimmed_item_name.length;
+
+          if (trimmed_accuracy > accuracy) {
+            accuracy = trimmed_accuracy;
+            distance = trimmed_distance;
+          }
+
+          if (accuracy > 0.4) {
             type = trimmed_categories[index].parent &&
                   trimmed_categories[index].parent.parent &&
                   trimmed_categories[index].parent.parent.parent &&
@@ -269,8 +307,8 @@ app.post('/api/transaction', function(req, res) {
               trimmed_item_name: trimmed_item_name,
               name: category.trimmed_name['fi-FI'],
               parents: getParentPath(category.parent),
-              distance: trimmed_distance,
-              accuracy: trimmed_accuracy
+              distance: distance,
+              accuracy: accuracy
             });
           }
         }
