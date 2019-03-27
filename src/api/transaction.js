@@ -12,53 +12,57 @@ export default app => {
 let details = {};
 
 details.weighting = {
-  weighted: 'punnittu',
-  stone: 'kivineen',
-  stoneless: 'kivetön',
-  withpeel: 'kuorineen',
-  peeled: 'kuorittu',
-  average: 'keskiarvo'
+  weighted: ['punnittu'],
+  stone: ['kivineen'],
+  stoneless: ['kivetön'],
+  withpeel: ['kuorineen'],
+  peeled: ['kuorittu'],
+  average: ['tuotekeskiarvo', 'keskiarvo']
 }
 details.cooking = {
-  boiled: 'keitetty',
-  breaded: 'leivitetty',
-  fried: 'paistettu',
-  grilled: 'grillattu',
-  fresh: 'tuore',
-  dried: 'kuivattu',
-  nonthickened: 'suurustamaton',
-  withoutsauce: 'ei kastiketta'
+  boiled: ['keitetty'],
+  breaded: ['leivitetty'],
+  fried: ['paistettu'],
+  grilled: ['grillattu'],
+  fresh: ['tuore'],
+  dried: ['kuivattu'],
+  nonthickened: ['suurustamaton'],
+  withoutsauce: ['ei kastiketta']
 }
 details.spicing = {
-  salted: 'suolattu',
-  withoutsalt: 'suolaton',
-  withtomato: 'tomaattinen',
-  withchocolate: 'suklainen',
-  sugared: 'sokeroitu',
-  nonsugared: 'sokeroimaton',
-  flavored: 'maustettu',
-  nonflavored: 'maustamaton'
+  salted: ['suolattu'],
+  withoutsalt: ['suolaton'],
+  withtomato: ['tomaattinen'],
+  withchocolate: ['suklainen'],
+  sugared: ['sokeroitu'],
+  nonsugared: ['sokeroimaton'],
+  flavored: ['maustettu'],
+  nonflavored: ['maustamaton']
 }
 details.type = {
-  natural: 'luomu',
-  bulk: 'irto',
-  pott: 'ruukku',
-  nonlactose: 'laktoositon',
-  lowlactose: 'vähälaktoosinen',
-  insaltwater: 'suolavedessä'
+  natural: ['luomu'],
+  bulk: ['irto'],
+  pott: ['ruukku'],
+  nonlactose: ['laktoositon'],
+  lowlactose: ['vähälaktoosinen'],
+  insaltwater: ['suolavedessä'],
+  frozenfood: ['pakasteateria', 'pakastettu', 'pakaste']
 }
 details.manufacturers = {
-  'dan sukker': 'dan sukker',
-  'vitasia': 'vitasia',
-  'pohjolanmeijeri': 'pohjolanmeijeri',
-  'myllykivi': 'myllykivi',
-  'milbona': 'milbona',
-  'kanamestari': 'kanamestari',
-  'kultamuna': 'kultamuna',
-  'palmolive': 'palmolive',
-  'goldensun': 'goldensun',
-  'belbaka': 'belbaka',
-  'freshona': 'freshona'
+  'dan sukker': ['dan sukker'],
+  'vitasia': ['vitasia'],
+  'pohjolanmeijeri': ['pohjolanmeijeri'],
+  'myllykivi': ['myllykivi'],
+  'milbona': ['milbona'],
+  'kanamestari': ['kanamestari'],
+  'kultamuna': ['kultamuna'],
+  'palmolive': ['palmolive'],
+  'goldensun': ['goldensun'],
+  'belbaka': ['belbaka'],
+  'freshona': ['freshona'],
+  'coquette': ['coquette'],
+  'oceansea': ['oceansea'],
+  'culinea': ['culinea']
 }
 
 let meta_manager = new NlpManager({languages: ['fi'], threshold: 0.5});
@@ -88,14 +92,16 @@ Category.query()
     if (!category.children.length) {
       name = category.name;
       category.trimmed_name = {...name};
+      category.trimmed_name['fi-FI'] = category.trimmed_name['fi-FI']
+      .replace(/,\s/g, '');
       if (name && name['fi-FI']) {
         for (let i in details) {
           for (let j in details[i]) {
-            let detail = details[i][j];
-            category.trimmed_name['fi-FI'] = category.trimmed_name['fi-FI']
-            .replace(new RegExp(escapeRegExp(detail)+",?\s?"), "")
-            //.replace(/^,?\s*/, "")
-            //.replace(/,?(\sja)?\s*$/, "");
+            details[i][j].forEach(detail => {
+              category.trimmed_name['fi-FI'] = category.trimmed_name['fi-FI']
+              .replace(new RegExp(escapeRegExp(detail)+",?\s?"), "")
+              //.replace(/,?(\sja)?\s*$/, "");
+            });
           }
         }
         n++;
@@ -133,13 +139,14 @@ function trimDetails(name) {
   Object.entries(details).forEach(([detail_category, d]) => {
     for (let i in details) {
       for (let j in details[i]) {
-        let detail = details[i][j];
-        token = natural.LevenshteinDistance(detail, name, {search: true});
-        //distance = natural.JaroWinklerDistance(token.substring, detail);
-        if (token.distance/detail.length < 0.3) {
-          name = token ? name.replace(new RegExp(',?\\s?'+token.substring+'\\s?'), '') : name;
-          //console.log('detail is ' + detail + ', token is ' + JSON.stringify(token) + ', distance is ' + distance);
-        }
+        details[i][j].forEach(detail => {
+          token = natural.LevenshteinDistance(detail, name, {search: true});
+          //distance = natural.JaroWinklerDistance(token.substring, detail);
+          if (token.distance/detail.length < 0.3) {
+            name = token ? name.replace(new RegExp(token.substring+'\\s'), '') : name;
+            //console.log('detail is ' + detail + ', token is ' + JSON.stringify(token) + ', distance is ' + distance);
+          }
+        });
       }
     }
   });
@@ -251,17 +258,22 @@ app.post('/api/transaction', function(req, res) {
     return;
   }
   else {
-    let token, trimmed_token, category_name, trimmed_category_name, jarowinkler, category_names = [], type, trimmed_category_names = [], item_name, trimmed_item_name, distance, distance_rate, trimmed_distance;
+    let trimmed_accuracy,
+        type,
+        trimmed_item_name,
+        trimmed_distance;
+
     transaction = req.body[0];
     console.dir(transaction, {depth:null});
 
     transaction.items.forEach(item => {
       item.categories = [];
+      trimmed_item_name = trimDetails(item.product.name);
       trimmed_categories.forEach((category, index) => {
         if (category.trimmed_name && category.trimmed_name['fi-FI']) {
-          trimmed_item_name = trimDetails(item.product.name);
           trimmed_distance = similarSearch.getSimilarity(trimmed_item_name, category.trimmed_name['fi-FI']);
-          if (trimmed_distance < 8 /* && trimmed_distance_rate < distance_rate*/) {
+          trimmed_accuracy = (trimmed_item_name.length-trimmed_distance)/trimmed_item_name.length;
+          if (trimmed_accuracy > 0.4) {
             type = trimmed_categories[index].parent &&
                   trimmed_categories[index].parent.parent &&
                   trimmed_categories[index].parent.parent.parent &&
@@ -274,6 +286,7 @@ app.post('/api/transaction', function(req, res) {
               name: category.trimmed_name['fi-FI'],
               parents: getParentPath(category.parent),
               distance: trimmed_distance,
+              accuracy: trimmed_accuracy
             });
           }
         }
