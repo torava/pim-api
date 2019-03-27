@@ -5,7 +5,7 @@ import moment from 'moment';
 import fs from 'fs';
 import {NlpManager, SimilarSearch} from 'node-nlp';
 
-const similarSearch = new SimilarSearch();
+const similarSearch = new SimilarSearch({normalize: true});
 
 export default app => {
 
@@ -26,6 +26,7 @@ details.cooking = {
   grilled: ['grillattu'],
   fresh: ['tuore'],
   dried: ['kuivattu'],
+  thickened: ['suurustettu'],
   nonthickened: ['suurustamaton'],
   withoutsauce: ['ei kastiketta']
 }
@@ -44,6 +45,8 @@ details.type = {
   bulk: ['irto'],
   pott: ['ruukku'],
   nonlactose: ['laktoositon'],
+  thickened: ['puuroutuva'],
+  parboiled: ['kiehautettu', 'parboiled'],
   lowlactose: ['vähälaktoosinen'],
   insaltwater: ['suolavedessä'],
   frozenfood: ['pakasteateria', 'pakastettu', 'pakaste']
@@ -65,22 +68,6 @@ details.manufacturers = {
   'culinea': ['culinea']
 }
 
-let meta_manager = new NlpManager({languages: ['fi'], threshold: 0.5});
-
-for (let i in details) {
-  for (let j in details[i]) {
-    let detail = details[i][j];
-    meta_manager.addNamedEntityText(i, j, ['fi'], detail);
-  }
-}
-
-let manager = new NlpManager({ languages: ['fi'], threshold: 0.2 });
-/* Adds the utterances and intents for the NLP
-manager.addDocument('fi', 'marjapiirakka, muropohja, sokeriton', '1');
-manager.addDocument('fi', 'pussikeitto, tuotekeskiarvo', '2');
-manager.addDocument('fi', 'sokeri', '3');
-manager.addDocument('fi', 'taloussokeri', '4');*/
-
 let trimmed_categories;
 
 Category.query()
@@ -92,18 +79,18 @@ Category.query()
     if (!category.children.length) {
       name = category.name;
       category.trimmed_name = {...name};
-      category.trimmed_name['fi-FI'] = category.trimmed_name['fi-FI']
-      .replace(/,\s/g, '');
       if (name && name['fi-FI']) {
         for (let i in details) {
           for (let j in details[i]) {
             details[i][j].forEach(detail => {
               category.trimmed_name['fi-FI'] = category.trimmed_name['fi-FI']
-              .replace(new RegExp(escapeRegExp(detail)+",?\s?"), "")
-              //.replace(/,?(\sja)?\s*$/, "");
+              .replace(new RegExp(escapeRegExp(detail)), "")
             });
           }
         }
+        category.trimmed_name['fi-FI'] = category.trimmed_name['fi-FI']
+        .trim()
+        .replace(/,|\s{2,}|/g, '');
         n++;
       }
     }
@@ -135,21 +122,18 @@ function escapeRegExp(stringToGoIntoTheRegex) {
 }
 
 function trimDetails(name) {
-  var token, distance;
-  Object.entries(details).forEach(([detail_category, d]) => {
-    for (let i in details) {
-      for (let j in details[i]) {
-        details[i][j].forEach(detail => {
-          token = natural.LevenshteinDistance(detail, name, {search: true});
-          //distance = natural.JaroWinklerDistance(token.substring, detail);
-          if (token.distance/detail.length < 0.3) {
-            name = token ? name.replace(new RegExp(token.substring+'\\s'), '') : name;
-            //console.log('detail is ' + detail + ', token is ' + JSON.stringify(token) + ', distance is ' + distance);
-          }
-        });
-      }
+  var token;
+  for (let i in details) {
+    for (let j in details[i]) {
+      details[i][j].forEach(detail => {
+        token = similarSearch.getBestSubstring(name, detail);
+        if (token.accuracy > 0.5) {
+          name = name.substring(0, token.start)+name.substring(token.end+1);
+        }
+      });
     }
-  });
+  }
+  name = name.trim().replace(/,|\s{2,}/g, '');
   return name;
 }
 
