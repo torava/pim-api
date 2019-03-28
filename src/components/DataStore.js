@@ -21,7 +21,7 @@ export default {
   getTransactions(fetch) {
     return new Promise((resolve, reject) => {
       if (this.transactions && !fetch) {
-        resolve(this.products);
+        resolve(this.transactions);
       }
       else {
         axios.get('/api/transaction')

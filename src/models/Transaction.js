@@ -2,6 +2,7 @@ import {Model} from 'objection';
 import Party from './Party';
 import Receipt from './Receipt';
 import Item from './Item';
+import moment from 'moment';
 
 export default class Transaction extends Model {
 	static get tableName() {
@@ -16,7 +17,7 @@ export default class Transaction extends Model {
 				id: {type: 'integer'},
 				total_price: {type: 'number'},
 				total_price_read: {type: ['number', 'null']},
-				date: { type: 'datetime', default: new Date().toISOString() },
+				date: { type: 'datetime', default: moment().format('YYYY-MM-DD HH:mm:ss') },
 			}
 		}
 	}

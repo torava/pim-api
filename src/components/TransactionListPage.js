@@ -1,22 +1,8 @@
 'use strict';
 
 import React from 'react';
-import moment from 'moment';
-import {Link} from 'react-router';
-import axios from 'axios';
 import ReactTable from 'react-table';
 import DataStore from './DataStore';
-import {  VictoryChart,
-          VictoryStack,
-          VictoryArea,
-          VictoryZoomContainer,
-          VictoryTooltip,
-          VictoryGroup,
-          VictoryPie,
-          VictoryPortal,
-          VictoryBar,
-          VictoryScatter
-       } from 'victory';
 //import Timeline from 'react-visjs-timeline';
 
 function convertMeasure(measure, from_unit, to_unit) {
@@ -121,17 +107,15 @@ export default class TransactionList extends React.Component {
   constructor(props) {
     super(props);
 
-    let that = this;
-
     this.state = {
       ready: false
     };
 
     DataStore.getTransactions()
-    .then(function(result) {
-      that.setState({
-        transactions: result,
-        ready: true
+    .then(result => {
+      this.setState({
+        ready: true,
+        transactions: DataStore.transactions
       });
     })
     .catch(function(error) {
@@ -139,10 +123,6 @@ export default class TransactionList extends React.Component {
     });
   }
   render() {
-    if (!this.state.ready) {
-      return <div/>
-    }
-    else
     return (
       <div>
         <ReactTable

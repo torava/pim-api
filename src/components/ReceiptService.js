@@ -70,8 +70,7 @@ class ReceiptService {
         corePath: 'http://localhost:42808/lib/tesseract.js-core.js'
       }),
           img = new Image(),
-          imagedata,
-          src;
+          imagedata;
 
       img.onload = () => {
         //let original_promise = axios.post('/api/receipt/original', {src: files[0]});
@@ -83,25 +82,28 @@ class ReceiptService {
           canvas.height = img.height;
           var ctx = canvas.getContext('2d');
           ctx.drawImage(img, img.width, img.height);*/
-          
-          // crop
-
-          src = this.processImage(img);
-
-          console.timeLog('process');
 
           // create imagedata
 
-          imagedata = this.getSrc(src);
-
-          tesseract.detect(imagedata)
+          tesseract.detect(img)
           .then(result => {
+            console.log('detected');
+            console.timeLog('process');
+
             let rotate = result.orientation_degrees;
 
             console.log(result);
-            
-            src = this.rotateImage(src, 0-rotate);
 
+            let src = cv.imread(img);
+            
+            src = this.rotateImage(src, 360-rotate);
+
+            console.log('rotated '+rotate+' degrees');
+            console.timeLog('process');
+
+            src = this.processImage(src);
+
+            console.log('processed');
             console.timeLog('process');
 
             imagedata = this.getSrc(src);
@@ -119,6 +121,7 @@ class ReceiptService {
               .progress(message => console.log(message))
               .catch(err => console.error(err))
               .then(result => {
+                console.log('recognized');
                 console.timeLog('process');
                 console.log(result);
                 
@@ -130,6 +133,7 @@ class ReceiptService {
                     locale = 'fi-FI';
                 this.getTransactionsFromReceipt(data, result.text, locale);
 
+                console.log('extracted');
                 console.timeEnd('process');
                 console.log(data, locale);
                 resolve(data.transactions);
@@ -151,6 +155,7 @@ class ReceiptService {
         .then(([process]) => {
           console.log(process);
           this.saveReceipt(process).then((transactions) => {
+            DataStore.getTransactions(true);
             resolve(transactions);
           });
         });
@@ -317,8 +322,8 @@ class ReceiptService {
   
         if (!data.date) {
           // 1.1.12 1:12
-          line_date = line.match(/((\d{1,2})[\.|\,](\d{1,2})[\.|\,](\d{2,4}))(\s)?((\d{1,2})[:|,|.]((\d{1,2}):)?(\d{1,2})?)?/);
-          date = line_date && parseYear(line_date[4])+'-'+line_date[3]+'-'+line_date[2]+' '+line_date[6];
+          line_date = line.match(/((\d{1,2})[\.|\,](\d{1,2})[\.|\,](\d{2,4}))(\s)?((\d{1,2})[:|,|\.]?((\d{1,2})[:|,|\.]?)?(\d{1,2})?)?/);
+          date = line_date && parseYear(line_date[4])+'-'+line_date[3]+'-'+line_date[2]+' '+line_date[7]+':'+line_date[8]+':'+line_date[10];
           if (date && moment(date).isValid()) {
             console.log(line_date, date);
             data.date = date;
@@ -328,7 +333,7 @@ class ReceiptService {
   
           if (!date || !line_date[6]) {
             // 1:12 1-1-12
-            line_date = line.match(/((\d{1,2}[:|,|.|1])(\d{1,2}:)?(\d{1,2})?)?(\s)?((\d{1,2})[\-|\.](\d{1,2})[\-|\.](\d{2,4}))/);
+            line_date = line.match(/((\d{1,2}[:|,|\.|1]?)(\d{1,2}[:|,|\.]?)?(\d{1,2})?)?(\s)?((\d{1,2})[\-|\.](\d{1,2})[\-|\.](\d{2,4}))/);
             date = line_date && parseYear(line_date[9])+'-'+line_date[8]+'-'+line_date[7]+' '+line_date[1];
             if (date && moment(date).isValid()) {
               console.log(line_date, date);
@@ -353,6 +358,14 @@ class ReceiptService {
             continue;
           }
         }
+
+        // store name
+        if (line_number == 1 && line_name) {
+          data.party.name = toTitleCase(line_name[0]);
+  
+          previous_line = 'party.name';
+          continue;
+        }
   
         if (found_attribute) {
           previous_line = found_attribute;
@@ -365,14 +378,6 @@ class ReceiptService {
         quantity_re = /(\d+\s*[\.|\,|\,\.]\s*\d{3})(\s?kg)?\sx\s((\d+\s*[\.|\,|\,\.]\s*\d{2})\s?)(\s?EUR\/kg)?/;
         line_item_re = '('+id_re+')?('+name_re+')('+price_re+'){1,2}[\s|T|1|A|B]?$';
         line_id_re = '('+id_re+')('+quantity_re+')?';*/
-  
-        // store name
-        if (line_number == 1 && line_name) {
-          data.party.name = toTitleCase(line_name[0]);
-  
-          previous_line = 'party.name';
-          continue;
-        }
   
         // general attributes
   
@@ -706,10 +711,15 @@ class ReceiptService {
   
     return result;
   }
-  getSrc(src, from_grayscale) {
-    /*if (from_grayscale) {
-      cv.cvtColor(src, src, cv.COLOR_GRAY2RGBA, 0);
-    }*/
+  getSrc(orig, from_grayscale) {
+    let src;
+    if (from_grayscale) {
+      src = new cv.Mat(); 
+      cv.cvtColor(orig, src, cv.COLOR_GRAY2RGBA, 0);
+    }
+    else {
+      src = orig;
+    }
 
     // https://stackoverflow.com/questions/13626465/how-to-create-a-new-imagedata-object-independently
     var canvas = document.createElement('canvas');
@@ -851,8 +861,7 @@ class ReceiptService {
     }
     return src;
   }
-  processImage(img, rotate) {
-    let src = cv.imread(img);
+  processImage(src, rotate) {
     let dst = new cv.Mat();
 
     cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
@@ -862,7 +871,7 @@ class ReceiptService {
   
     src = this.cropImage(src);
   
-    let dsize = new cv.Size(1000, src.rows/src.cols*1000);
+    let dsize = new cv.Size(800, src.rows/src.cols*800);
     cv.resize(src, src, dsize, 0, 0, cv.INTER_AREA);
 
     cv.bilateralFilter(src,dst,3,75,75);

@@ -136,10 +136,10 @@ function trimDetails(name) {
         // Didn't work with compound words like ruukkutilli
         token = natural.LevenshteinDistance(detail, name.toLowerCase(), {search: true});
         accuracy = (detail.length-token.distance)/detail.length;
-        if (accuracy > 0.6) {
+        if (accuracy > 0.7) {
           //name = name.substring(0, token.start)+name.substring(token.end+1);
           name = name.replace(new RegExp(token.substring, 'i'), '');
-          console.log(detail, name, accuracy, token);
+          //console.log(detail, name, accuracy, token);
         }
       });
     }
@@ -191,7 +191,12 @@ app.delete('/api/transaction/:id', function(req, res) {
     .delete()
     .where('id', req.params.id)
     .then(transaction => {
-      res.send(transaction);
+      console.log(transaction);
+      res.send(String(transaction));
+    })
+    .catch(error => {
+      console.error(error);
+      throw new Error();
     });
 });
 
@@ -261,47 +266,22 @@ app.post('/api/transaction', function(req, res) {
         accuracy;
 
     transaction = req.body[0];
-    console.dir(transaction, {depth:null});
 
     transaction.items.forEach(item => {
       item.categories = [];
       trimmed_item_name = trimDetails(item.product.name);
       trimmed_categories.forEach((category, index) => {
         if (category.trimmed_name && category.trimmed_name['fi-FI']) {
-          distance = similarSearch.getSimilarity(item.product.name, category.name['fi-FI']);
-          accuracy = (item.product.name.length-distance)/item.product.name.length;
-
-          trimmed_distance = similarSearch.getSimilarity(trimmed_item_name, category.trimmed_name['fi-FI']);
-          trimmed_accuracy = (trimmed_item_name.length-trimmed_distance)/trimmed_item_name.length;
-
-          if (trimmed_accuracy > accuracy) {
-            accuracy = trimmed_accuracy;
-            distance = trimmed_distance;
-          }
-
-          trimmed_distance = similarSearch.getSimilarity(item.product.name, category.trimmed_name['fi-FI']);
-          trimmed_accuracy = (item.product.name.length-trimmed_distance)/item.product.name.length;
-
-          if (trimmed_accuracy > accuracy) {
-            accuracy = trimmed_accuracy;
-            distance = trimmed_distance;
-          }
-
-          trimmed_distance = similarSearch.getSimilarity(trimmed_item_name, category.name['fi-FI']);
-          trimmed_accuracy = (trimmed_item_name.length-trimmed_distance)/trimmed_item_name.length;
-
-          if (trimmed_accuracy > accuracy) {
-            accuracy = trimmed_accuracy;
-            distance = trimmed_distance;
-          }
+          distance = similarSearch.getSimilarity(trimmed_item_name, category.trimmed_name['fi-FI']);
+          accuracy = (trimmed_item_name.length-distance)/trimmed_item_name.length;
 
           if (accuracy > 0.4) {
             type = trimmed_categories[index].parent &&
                   trimmed_categories[index].parent.parent &&
                   trimmed_categories[index].parent.parent.parent &&
                   trimmed_categories[index].parent.parent.parent.name['fi-FI'];
-            if (!item.categories[type] || !item.categories[type].length) item.categories[type] = [];
-            item.categories[type].push({
+            item.categories.push({
+              id: category.id,
               original_name: category.name['fi-FI'],
               item_name: item.product.name,
               trimmed_item_name: trimmed_item_name,
@@ -313,22 +293,29 @@ app.post('/api/transaction', function(req, res) {
           }
         }
       });
-      item.categories['Ruokalaji'] && item.categories['Ruokalaji'].sort((a,b) => a.distance-b.distance);
-      item.categories['Raaka-aine'] && item.categories['Raaka-aine'].sort((a,b) => a.distance-b.distance);
-      console.dir(item, {depth: null});
+      
+      console.log(item.categories);
+      
+      if (item.categories.length) {
+        item.categories.sort((a, b) => b.accuracy-a.accuracy);
+
+        item.product.category = {id: item.categories[0].id};
+      }
+
+      delete item.categories;
     });
-    res.send();
   }
-  /*
+  console.dir(transaction, {depth:null});
   Transaction.query()
     .upsertGraph(req.body, {relate: true})
     .then(transaction => {
       res.send(transaction);
     })
     .catch(error => {
+      console.dir(transaction, {depth:null});
       console.error(error);
       throw new Error();
-    });*/
+    });
 });
 
 app.get('/api/transaction', function(req, res) {
