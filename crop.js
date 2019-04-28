@@ -1,13 +1,13 @@
-/* presets w bilateral */
+/* new stuff preset */
 
 let presets = {
 stuff: {
-blur: 0,
+blur: 3,
 threshold_area: 99,
-threshold: -5,
+threshold: -7,
 post_threshold_erode_dilate: 1,
-close: 40,
-post_canny_erode_dilate: 15
+close: 30,
+post_canny_erode_dilate: 5
 },
 clean: {
 blur: 0,
@@ -26,7 +26,7 @@ post_canny_erode_dilate: 25
 }
 };
 
-let preset = presets.clean;
+let preset = presets.stuff;
 
 
 let src = cv.imread('canvasInput');
