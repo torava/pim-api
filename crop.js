@@ -16,6 +16,14 @@ post_threshold_erode_dilate: 1,
 close: 30,
 post_canny_erode_dilate: 5
 },
+stuffclose: {
+blur: 0,
+threshold_area: 99,
+threshold: -10,
+post_threshold_erode_dilate: 5,
+close: 40,
+post_canny_erode_dilate: 0
+},
 clean: {
 blur: 0,
 threshold_area: 99,
@@ -42,7 +50,7 @@ post_canny_erode_dilate: 25
 }
 };
 
-let preset = presets.somestuff;
+let preset = presets.halfmessy;
 
 let src = cv.imread('canvasInput');
 let eq = new cv.Mat();
@@ -132,7 +140,7 @@ let cropped = src.roi(rect);
 //cropped = rotateImage(cropped, Math.round(rotatedRect.angle/90)*90-90);
 
 
-cv.imshow('canvasOutput', cropped);
+cv.imshow('canvasOutput', dst);
 
 let srcVec = new cv.MatVector();
 srcVec.push_back(cropped);
