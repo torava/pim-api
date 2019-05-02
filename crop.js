@@ -47,6 +47,15 @@ threshold_area: 999,
 threshold: -30,
 post_threshold_erode_dilate: 15,
 post_canny_erode_dilate: 25
+},
+messybg: {
+blur: 0,
+threshold_area: 999,
+threshold: -50,
+post_threshold_erode_dilate: 10,
+canny: 3,
+close: 30,
+post_canny_erode_dilate: 0
 }
 };
 
@@ -133,14 +142,20 @@ let contours = new cv.MatVector();
     cv.rectangle(dst, point1, point2, rectangleColor, 2, cv.LINE_AA, 0);
 
 scale = 1;
-    rect = new cv.Rect(Math.max(rect.x-0, 0)*scale, Math.max(rect.y-0, 0)*scale, Math.min(rect.width+0, src.cols)*scale, Math.min(rect.height+0, src.rows)*scale);
+let margin = 20,
+x = Math.max(rect.x-margin, 0)*scale,
+y = Math.max(rect.y-margin, 0)*scale,
+w = Math.min(rect.width+margin*2, src.cols-x)*scale,
+h = Math.min(rect.height+margin*2, src.rows-y)*scale;
+
+    rect = new cv.Rect(x, y, w, h);
     
 let cropped = src.roi(rect);
 
 //cropped = rotateImage(cropped, Math.round(rotatedRect.angle/90)*90-90);
 
 
-cv.imshow('canvasOutput', dst);
+cv.imshow('canvasOutput', cropped);
 
 let srcVec = new cv.MatVector();
 srcVec.push_back(cropped);
