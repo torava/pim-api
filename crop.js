@@ -59,12 +59,20 @@ post_canny_erode_dilate: 0
 }
 };
 
-let preset = presets.halfmessy;
+//let preset = presets.halfmessy;
+
+let best = new cv.Mat(),
+best_high_rate = false,
+best_low_rate = false;
+
+for (preset_name in presets) {
+let preset = presets[preset_name];
 
 let src = cv.imread('canvasInput');
 let eq = new cv.Mat();
 let bl = new cv.Mat();
 let dst = new cv.Mat();
+
 cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
 cv.equalizeHist(src, eq);
 
@@ -155,8 +163,6 @@ let cropped = src.roi(rect);
 //cropped = rotateImage(cropped, Math.round(rotatedRect.angle/90)*90-90);
 
 
-cv.imshow('canvasOutput', cropped);
-
 let srcVec = new cv.MatVector();
 srcVec.push_back(cropped);
 let accumulate = false;
@@ -172,21 +178,39 @@ cv.calcHist(srcVec, channels, mask, hist, histSize, ranges, accumulate);
 let result = cv.minMaxLoc(hist, mask);
 let max = result.maxVal;
 
-let lowVal = 0, highVal = 0;
+let mid_val = 0, low_val = 0, high_val = 0;
 
 // draw histogram
-for (let i = 0; i < histSize[0]/2; i++) {
-    lowVal+= hist.data32F[i] * src.rows / max;
+for (let i = 0; i < histSize[0]*(1/3); i++) {
+    low_val+= hist.data32F[i] * src.rows / max;
 }
-// draw histogram
-for (let i = histSize[0]/2; i < histSize[0]; i++) {
-    highVal+= hist.data32F[i] * src.rows / max;
+for (let i = Math.round(histSize[0]*(1/3)); i < histSize[0]*(2/3); i++) {
+    mid_val+= hist.data32F[i] * src.rows / max;
+}
+for (let i = Math.round(histSize[0]*(2/3)); i < histSize[0]; i++) {
+    high_val+= hist.data32F[i] * src.rows / max;
 }
 
-console.log(lowVal, highVal, lowVal/(cropped.cols*cropped.rows), highVal/(cropped.cols*cropped.rows), cropped.cols*cropped.rows);
+
+let low_rate = low_val/(cropped.cols*cropped.rows);
+let high_rate = high_val/(cropped.cols*cropped.rows);
+
+if (best_low_rate === false || (high_rate > best_high_rate)) {
+console.log(preset_name, ' is the best');
+best_low_rate = low_rate;
+best_high_rate = high_rate;
+cropped.copyTo(best);
+
+cv.imshow('canvasOutput', best);
+
+}
+
+console.log(preset_name, low_val, mid_val, high_val, best_low_rate, best_high_rate, low_rate, high_rate, cropped.cols, cropped.rows, cropped.cols*cropped.rows);
 
 src.delete();
 dst.delete();
+
+}
 
 function rotateImage(src, rotate) {
 
