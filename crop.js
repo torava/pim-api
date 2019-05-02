@@ -20,9 +20,18 @@ clean: {
 blur: 0,
 threshold_area: 99,
 threshold: -5,
-post_threshold_erode_dilate: 0,
-close: 60,
-post_canny_erode_dilate: 15
+post_threshold_erode_dilate: 5,
+close: 30,
+post_canny_erode_dilate: 0
+},
+halfmessy: {
+blur: 9,
+threshold_area: 9,
+threshold: 10,
+post_threshold_erode_dilate: 5,
+canny: 3,
+close: 30,
+post_canny_erode_dilate: 10
 },
 messy: {
 blur: 0,
@@ -120,11 +129,10 @@ scale = 1;
     
 let cropped = src.roi(rect);
 
-cropped = rotateImage(cropped, rotatedRect.angle);
+//cropped = rotateImage(cropped, Math.round(rotatedRect.angle/90)*90-90);
 
 
 cv.imshow('canvasOutput', cropped);
-
 
 let srcVec = new cv.MatVector();
 srcVec.push_back(cropped);
@@ -205,5 +213,5 @@ cv.copyMakeBorder(dst, dst, Math.max(roth-src.rows,0), 0, Math.max(rotw-src.cols
         cv.warpAffine(dst, dst, rot, size);
 return dst;
     }
-    return dst;
+    return src;
     }
