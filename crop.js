@@ -1,5 +1,3 @@
-/* new stuff preset */
-
 let presets = {
 somestuff: {
 blur: 9,
@@ -35,8 +33,7 @@ post_canny_erode_dilate: 25
 }
 };
 
-let preset = presets.somestuff;
-
+let preset = presets.messy;
 
 let src = cv.imread('canvasInput');
 let eq = new cv.Mat();
@@ -125,7 +122,7 @@ scale = 1;
     
 let cropped = src.roi(rect);
 
-cv.imshow('canvasOutput', cropped);
+cv.imshow('canvasOutput', dst);
 
 
 let srcVec = new cv.MatVector();
@@ -188,7 +185,64 @@ function rotateImage(src, rotate) {
         //rot.at<double>(0,2) += bbox.width/2.0 - src.cols/2.0;
         //rot.at<double>(1,2) += bbox.height/2.0 - src.rows/2.0;
 
-        cv.warpAffine(src, src, rot, new cv.Size(bbox.size.width, bbox.size.height));
+        size = new cv.Size(bbox.size.width, bbox.size.height);
+
+        let dst = new cv.Mat(size);
+
+        cv.warpAffine(src, dst, rot, new cv.Size(bbox.size.width, bbox.size.height));
+
+        return dst;
     }
     return src;
     }
+
+
+/* cropping */
+
+let presets = {
+somestuff: {
+blur: 9,
+threshold_area: 99,
+threshold: 15,
+post_threshold_erode_dilate: 25,
+canny: 3,
+close: 50,
+post_canny_erode_dilate: 5
+},
+morestuff: {
+blur: 3,
+threshold_area: 99,
+threshold: -7,
+post_threshold_erode_dilate: 1,
+close: 30,
+post_canny_erode_dilate: 5
+},
+clean: {
+blur: 0,
+threshold_area: 99,
+threshold: -5,
+post_threshold_erode_dilate: 0,
+close: 60,
+post_canny_erode_dilate: 15
+},
+messy: {
+blur: 0,
+threshold_area: 999,
+threshold: -30,
+post_threshold_erode_dilate: 15,
+post_canny_erode_dilate: 25
+}
+};
+
+let preset = presets.somestuff;
+
+let src = cv.imread('canvasInput');
+let eq = new cv.Mat();
+let bl = new cv.Mat();
+let dst = new cv.Mat();
+cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
+cv.equalizeHist(src, eq);
+
+cv.bilateralFilter(eq, bl,3,75,75);
+
+if (preset.blur) cv.medianBlur(bl, bl, preset.blur);
