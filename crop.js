@@ -32,6 +32,15 @@ post_threshold_erode_dilate: 5,
 close: 30,
 post_canny_erode_dilate: 0
 },
+bigstuff: {
+blur: 9,
+threshold_area: 99,
+threshold: 10,
+post_threshold_erode_dilate: 5,
+canny: 3,
+close: 40,
+post_canny_erode_dilate: 10
+},
 halfmessy: {
 blur: 9,
 threshold_area: 9,
@@ -59,11 +68,13 @@ post_canny_erode_dilate: 0
 }
 };
 
-//let preset = presets.halfmessy;
+//let preset = presets.bigstuff;
 
 let best = new cv.Mat(),
-best_high_rate = false,
-best_low_rate = false;
+best_difference = false,
+best_size = false,
+
+prototype_histogram = [0.0034814432392302505, 0.01108275247025388, 0.01663937251240755, 0.01665350584342571, 0.013283514014510086, 0.017685239007751326, 0.04627272765818175, 0.050334646992800686, 0.040643623818377814, 0.059487594064889356, 0.0870788847832684, 0.10157221193293291, 0.1318122907888438, 0.1812246369803452, 0.2136289326245939, 0.009116806125627949];
 
 for (preset_name in presets) {
 let preset = presets[preset_name];
@@ -72,6 +83,9 @@ let src = cv.imread('canvasInput');
 let eq = new cv.Mat();
 let bl = new cv.Mat();
 let dst = new cv.Mat();
+
+dsize = new cv.Size(800, src.rows/src.cols*800);
+cv.resize(src, src, dsize, 0, 0, cv.INTER_AREA);
 
 cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
 cv.equalizeHist(src, eq);
@@ -167,7 +181,7 @@ let srcVec = new cv.MatVector();
 srcVec.push_back(cropped);
 let accumulate = false;
 let channels = [0];
-let histSize = [256];
+let histSize = [16];
 let ranges = [0, 255];
 let hist = new cv.Mat();
 let mask = new cv.Mat();
@@ -178,38 +192,36 @@ cv.calcHist(srcVec, channels, mask, hist, histSize, ranges, accumulate);
 let result = cv.minMaxLoc(hist, mask);
 let max = result.maxVal;
 
-let mid_val = 0, low_val = 0, high_val = 0;
+let difference = 0;
+let relative_histogram = [];
+
+console.log(hist.data32F);
 
 // draw histogram
-for (let i = 0; i < histSize[0]*(1/3); i++) {
-    low_val+= hist.data32F[i] * src.rows / max;
-}
-for (let i = Math.round(histSize[0]*(1/3)); i < histSize[0]*(2/3); i++) {
-    mid_val+= hist.data32F[i] * src.rows / max;
-}
-for (let i = Math.round(histSize[0]*(2/3)); i < histSize[0]; i++) {
-    high_val+= hist.data32F[i] * src.rows / max;
+for (let i = 0; i < histSize[0]; i++) {
+relative_histogram.push(hist.data32F[i]/(src.rows*src.cols));
+    difference+= Math.abs(hist.data32F[i]/(src.rows*src.cols)-prototype_histogram[i]);
 }
 
+console.log(prototype_histogram, relative_histogram);
 
-let low_rate = low_val/(cropped.cols*cropped.rows);
-let high_rate = high_val/(cropped.cols*cropped.rows);
-
-if (best_low_rate === false || (high_rate > best_high_rate)) {
-console.log(preset_name, ' is the best');
-best_low_rate = low_rate;
-best_high_rate = high_rate;
+if (best_difference === false || (difference < best_difference && cropped.cols*cropped.rows > best_size)) {
+console.log(preset_name, 'is the best');
+best_difference = difference;
+best_size = cropped.cols*cropped.rows;
 cropped.copyTo(best);
 
-cv.imshow('canvasOutput', best);
+cv.imshow('canvasOutput', cropped);
 
 }
 
-console.log(preset_name, low_val, mid_val, high_val, best_low_rate, best_high_rate, low_rate, high_rate, cropped.cols, cropped.rows, cropped.cols*cropped.rows);
+console.log(preset_name, difference, best_difference, best_size, cropped.cols, cropped.rows, cropped.cols*cropped.rows);
 
 src.delete();
 dst.delete();
+hist.delete();
 
+//endfor
 }
 
 function rotateImage(src, rotate) {
