@@ -4,7 +4,7 @@ blur: 9,
 threshold_area: 99,
 threshold: 15,
 post_threshold_erode_dilate: 25,
-canny: 3,
+canny: true,
 close: 50,
 post_canny_erode_dilate: 5
 },
@@ -37,7 +37,7 @@ blur: 9,
 threshold_area: 99,
 threshold: 10,
 post_threshold_erode_dilate: 5,
-canny: 3,
+canny: true,
 close: 40,
 post_canny_erode_dilate: 10
 },
@@ -46,7 +46,7 @@ blur: 9,
 threshold_area: 9,
 threshold: 10,
 post_threshold_erode_dilate: 5,
-canny: 3,
+canny: true,
 close: 30,
 post_canny_erode_dilate: 10
 },
@@ -62,13 +62,32 @@ blur: 0,
 threshold_area: 999,
 threshold: -50,
 post_threshold_erode_dilate: 10,
-canny: 3,
+canny: true,
 close: 30,
 post_canny_erode_dilate: 0
+},
+somestuffcannyonly: {
+blur: 9,
+canny: {
+aperture: 3,
+first_threshold: 0,
+second_threshold: 500,
+},
+close: 30
+},
+morestuffcannyonly: {
+blur: 9,
+canny: {
+aperture: 3,
+first_threshold: 0,
+second_threshold: 100,
+},
+close: 30
 }
 };
 
-//let preset = presets.bigstuff;
+//let preset_name = 'halfmessy';
+//let preset = presets[preset_name];
 
 let best = new cv.Mat(),
 best_difference = false,
@@ -88,16 +107,16 @@ dsize = new cv.Size(800, src.rows/src.cols*800);
 cv.resize(src, src, dsize, 0, 0, cv.INTER_AREA);
 
 cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
-cv.equalizeHist(src, eq);
+cv.equalizeHist(src, src);
 
-cv.bilateralFilter(eq, bl,3,75,75);
+cv.bilateralFilter(src, dst,3,75,75);
 
-if (preset.blur) cv.medianBlur(bl, bl, preset.blur);
+if (preset.blur) cv.medianBlur(dst, dst, preset.blur);
 
 
-//cv.threshold(bl, dst, 10, 255, cv.THRESH_BINARY_INV);
+//cv.threshold(dst, dst, 10, 255, cv.THRESH_BINARY_INV);
 
-cv.adaptiveThreshold(bl, dst, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, preset.threshold_area, preset.threshold);
+if (preset.threshold) cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, preset.threshold_area, preset.threshold);
 
 eq.delete();
 bl.delete();
@@ -109,7 +128,7 @@ M = cv.Mat.ones(2, 2, cv.CV_8U);
     cv.dilate(dst, dst, M, anchor, preset.post_threshold_erode_dilate);
 }
 
-if (preset.canny) cv.Canny(dst, dst, 0, 1, preset.canny, false);
+if (preset.canny) cv.Canny(dst, dst, preset.canny.first_threshold || 0, preset.canny.second_threshold || 1, preset.canny.aperture || 3, true);
 
 if (preset.close) {
 M = new cv.Mat();
@@ -205,14 +224,13 @@ relative_histogram.push(hist.data32F[i]/(src.rows*src.cols));
 
 console.log(prototype_histogram, relative_histogram);
 
-if (best_difference === false || (difference < best_difference && cropped.cols*cropped.rows > best_size)) {
+if (best_difference === false || (difference < best_difference/* && cropped.cols*cropped.rows > best_size*/)) {
 console.log(preset_name, 'is the best');
 best_difference = difference;
 best_size = cropped.cols*cropped.rows;
 cropped.copyTo(best);
 
 cv.imshow('canvasOutput', cropped);
-
 }
 
 console.log(preset_name, difference, best_difference, best_size, cropped.cols, cropped.rows, cropped.cols*cropped.rows);
