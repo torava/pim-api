@@ -76,13 +76,21 @@ second_threshold: 500,
 close: 30
 },
 morestuffcannyonly: {
-blur: 9,
+blur: 3,
 canny: {
 aperture: 3,
 first_threshold: 0,
 second_threshold: 100,
 },
 close: 30
+},
+test: {
+blur: 9,
+canny: {
+aperture: 5,
+first_threshold: 75,
+second_threshold: 200
+}
 }
 };
 
@@ -109,10 +117,13 @@ cv.resize(src, src, dsize, 0, 0, cv.INTER_AREA);
 cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
 cv.equalizeHist(src, src);
 
-cv.bilateralFilter(src, dst,3,75,75);
+cv.bilateralFilter(src, dst,5,75,75);
 
-if (preset.blur) cv.medianBlur(dst, dst, preset.blur);
 
+if (preset.blur) {
+let ksize = new cv.Size(preset.blur, preset.blur);
+cv.GaussianBlur(dst, dst, ksize, 0, 0, cv.BORDER_DEFAULT);
+}
 
 //cv.threshold(dst, dst, 10, 255, cv.THRESH_BINARY_INV);
 
@@ -230,7 +241,7 @@ best_difference = difference;
 best_size = cropped.cols*cropped.rows;
 cropped.copyTo(best);
 
-cv.imshow('canvasOutput', cropped);
+cv.imshow('canvasOutput', dst);
 }
 
 console.log(preset_name, difference, best_difference, best_size, cropped.cols, cropped.rows, cropped.cols*cropped.rows);
