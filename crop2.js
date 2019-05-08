@@ -1,7 +1,11 @@
-let src = cv.imread('canvasInput');
-cv.cvtColor(src, src, cv.COLOR_RGB2GRAY, 0);
+let orig = cv.imread('canvasInput');
+cv.cvtColor(orig, orig, cv.COLOR_RGB2GRAY, 0);
 
-let ksize = new cv.Size(5, 5);
+let src = new cv.Mat();
+
+cv.bilateralFilter(orig,src,5,75,75);
+
+let ksize = new cv.Size(15, 15);
 cv.GaussianBlur(src,src, ksize, 0, 0, cv.BORDER_DEFAULT);
 
 let prev = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
@@ -11,25 +15,72 @@ let old_diff;
 let best_diff;
 let best_size;
 
+let width = 0;
+let height = 0;
+
 let difference;
 
-for (let first = 100; first < 120; first+= 20) {
+presets = [
+{
+first: 0,
+range: 10,
+close: 30,
+erode: 60
+}, // clean vignette touching
+{
+first: 0,
+range: 100,
+close: 100,
+erode: 5
+}, // clean
+{
+first: 100,
+range: 50,
+close: 50
+}, // messy
+{
+first: 50,
+range: 5,
+close: 50,
+erode: 40
+}, // half messy vignette
+{
+first: 0,
+range: 100,
+close: 25,
+erode: 5
+} // half messy
+];
+
+for (let i in presets) {
+let preset = presets[0];
+
+let first = preset.first || 0;
+let range = preset.range || 0;
+let close = preset.close || 0;
+let erode = preset.erode || 0;
+/*
+for (let first = 0; first < 600; first+= 10) {
 
 //let first = 300;
 let range = 1;
 let close = 50;
 let erode = 40;
+*/
 cv.Canny(src, dst, first, first+range, 3, false);
 
+if (close) {
 M = new cv.Mat();
     ksize = new cv.Size(close, close);
     M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
     cv.morphologyEx(dst, dst, cv.MORPH_CLOSE, M);
-
+}
+if (erode) {
 M= cv.Mat.ones(2, 2, cv.CV_8U);
     anchor = new cv.Point(-1, -1);
     cv.erode(dst, dst, M, anchor, erode);
     cv.dilate(dst, dst, M, anchor, erode);
+}
 
 let contours = new cv.MatVector();
     let hierarchy = new cv.Mat();
@@ -67,15 +118,16 @@ let contours = new cv.MatVector();
     cv.rectangle(dst, point1, point2, rectangleColor, 2, cv.LINE_AA, 0);
 
 scale = 1;
-let margin = 20,
+let margin = 10,
 x = Math.max(rect.x-margin-erode, 0)*scale,
 y = Math.max(rect.y-margin-erode, 0)*scale,
 w = Math.min(rect.width+margin*2-erode, src.cols-x)*scale,
 h = Math.min(rect.height+margin*2-erode, src.rows-y)*scale;
 
     rect = new cv.Rect(x, y, w, h);
-    
-let cropped = src.roi(rect);
+
+if (!rect.width) continue;
+let cropped = orig.roi(rect);
 
 let equalized = new cv.Mat();
 
@@ -93,7 +145,9 @@ cv.equalizeHist(cropped, equalized);
 
 //let prototype_histogram = [0.030093642941985497, 0.0305123585583896, 0.03184825972118029, 0.03180352353713428, 0.030898336302825707, 0.02761353150787697, 0.030074781976744187, 0.0316042448112028, 0.03505803638409603, 0.02842235871467867, 0.030390256157789446, 0.03365540838334584, 0.03307166869842461, 0.03354811749812453, 0.027114391097774443, 0.031689870123780946] // clean+bg cropped equalized avg
 
-let prototype_histogram = [0.015113011724038672, 0.01531592623327165, 0.015989148604732602, 0.015960337213740523, 0.015520044440072647, 0.013867684216918804, 0.015101823978062815, 0.015866555395292123, 0.017581736092704057, 0.014280298382643927, 0.015195128078894723, 0.01682770419167292, 0.016673486645369755, 0.016774058749062265, 0.013714177741951888, 0.01593455549300575]; // clean+bg+messy cropped equalized avg
+//let prototype_histogram = [0.015113011724038672, 0.01531592623327165, 0.015989148604732602, 0.015960337213740523, 0.015520044440072647, 0.013867684216918804, 0.015101823978062815, 0.015866555395292123, 0.017581736092704057, 0.014280298382643927, 0.015195128078894723, 0.01682770419167292, 0.016673486645369755, 0.016774058749062265, 0.013714177741951888, 0.01593455549300575]; // clean+bg+messy cropped equalized avg
+
+let prototype_histogram = [0.02159589070823089, 0.02255668779780612, 0.023596599808742895, 0.022124204615872514, 0.022859046976225372, 0.021460473766373882, 0.022753462626690823, 0.024306496002222205, 0.023577439689262757, 0.02037383261217718, 0.02436988211896724, 0.021968240692985745, 0.023846870854567846, 0.022352895841147788, 0.023736683769700628, 0.022780856141101525]; // clean+bg+messy+vignette cropped equalized avg
 
 let srcVec = new cv.MatVector();
 srcVec.push_back(equalized);
@@ -124,16 +178,23 @@ average_histogram.push((relative_histogram[i]+prototype_histogram[i])/2);
 }
 //console.log(relative_histogram, prototype_histogram, average_histogram);
 
-console.log(first, rect.width, rect.height, rect.width*rect.height, difference, difference-old_diff);
+console.log(i, first, rect.width, rect.height, rect.width*rect.height, difference, difference-old_diff);
 
-if (difference < 0.5 && (!best_diff || (difference < best_diff && src.rows*src.cols > best_size))) {
+width+= src.cols;
+height+= src.rows;
+
+if (difference < 0.5 && (!best_diff || (difference < best_diff /*&& src.rows*src.cols > best_size*/))) {
 console.log(difference, best_diff, src.rows*src.cols, best_size);
 best_diff = difference;
 best_size = src.rows*src.cols;
+
+
 cv.imshow('canvasOutput', cropped);
 }
+
+//console.log('average', width/(first/10), height/(first/10));
 
 //endfor
 }
 
-src.delete(); dst.delete(); prev.delete();
+orig.delete(); src.delete(); dst.delete(); prev.delete();
