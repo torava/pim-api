@@ -43,6 +43,18 @@ close: 50,
 erode: 30
 }, // half messy vignette
 {
+first: 50,
+range: 5,
+close: 50,
+erode: 60
+}, // half messy touching
+{
+first: 50,
+range: 5,
+close: 40,
+erode: 5
+}, // half messy touching thin
+{
 first: 0,
 range: 100,
 close: 25,
@@ -51,7 +63,7 @@ erode: 5
 ];
 
 for (let i in presets) {
-let preset = presets[3];
+let preset = presets[i];
 
 let first = preset.first || 0;
 let range = preset.range || 0;
@@ -121,7 +133,7 @@ let contours = new cv.MatVector();
     cv.rectangle(dst, point1, point2, rectangleColor, 2, cv.LINE_AA, 0);
 
 scale = 1;
-let margin = 10,
+let margin = erode,
 x = Math.max(rect.x-margin, 0)*scale,
 y = Math.max(rect.y-margin, 0)*scale,
 w = Math.min(rect.width+margin*2, src.cols-x)*scale,
@@ -193,6 +205,7 @@ best_size = src.rows*src.cols;
 
 
 cv.imshow('canvasOutput', cropped);
+
 }
 
 //console.log('average', width/(first/10), height/(first/10));
