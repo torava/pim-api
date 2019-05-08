@@ -5,9 +5,6 @@ let src = new cv.Mat();
 
 cv.bilateralFilter(orig,src,5,75,75);
 
-let ksize = new cv.Size(15, 15);
-cv.GaussianBlur(src,src, ksize, 0, 0, cv.BORDER_DEFAULT);
-
 let prev = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
 
 let dst = new cv.Mat();
@@ -22,6 +19,7 @@ let difference;
 
 presets = [
 {
+blur: 15,
 first: 0,
 range: 10,
 close: 30,
@@ -42,7 +40,7 @@ close: 50
 first: 50,
 range: 5,
 close: 50,
-erode: 40
+erode: 30
 }, // half messy vignette
 {
 first: 0,
@@ -53,12 +51,13 @@ erode: 5
 ];
 
 for (let i in presets) {
-let preset = presets[0];
+let preset = presets[3];
 
 let first = preset.first || 0;
 let range = preset.range || 0;
 let close = preset.close || 0;
 let erode = preset.erode || 0;
+let blur = preset.blur || 5;
 /*
 for (let first = 0; first < 600; first+= 10) {
 
@@ -67,7 +66,11 @@ let range = 1;
 let close = 50;
 let erode = 40;
 */
-cv.Canny(src, dst, first, first+range, 3, false);
+
+let ksize = new cv.Size(blur, blur);
+cv.GaussianBlur(src,dst, ksize, 0, 0, cv.BORDER_DEFAULT);
+
+cv.Canny(dst, dst, first, first+range, 3, false);
 
 if (close) {
 M = new cv.Mat();
@@ -76,10 +79,10 @@ M = new cv.Mat();
     cv.morphologyEx(dst, dst, cv.MORPH_CLOSE, M);
 }
 if (erode) {
-M= cv.Mat.ones(2, 2, cv.CV_8U);
+M= cv.Mat.ones(erode, erode, cv.CV_8U);
     anchor = new cv.Point(-1, -1);
-    cv.erode(dst, dst, M, anchor, erode);
-    cv.dilate(dst, dst, M, anchor, erode);
+    cv.erode(dst, dst, M, anchor);
+    cv.dilate(dst, dst, M, anchor);
 }
 
 let contours = new cv.MatVector();
@@ -119,10 +122,10 @@ let contours = new cv.MatVector();
 
 scale = 1;
 let margin = 10,
-x = Math.max(rect.x-margin-erode, 0)*scale,
-y = Math.max(rect.y-margin-erode, 0)*scale,
-w = Math.min(rect.width+margin*2-erode, src.cols-x)*scale,
-h = Math.min(rect.height+margin*2-erode, src.rows-y)*scale;
+x = Math.max(rect.x-margin, 0)*scale,
+y = Math.max(rect.y-margin, 0)*scale,
+w = Math.min(rect.width+margin*2, src.cols-x)*scale,
+h = Math.min(rect.height+margin*2, src.rows-y)*scale;
 
     rect = new cv.Rect(x, y, w, h);
 
