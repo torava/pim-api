@@ -4,6 +4,8 @@ import natural from 'natural';
 import moment from 'moment';
 import fs from 'fs';
 import {NlpManager, SimilarSearch} from 'node-nlp';
+import { stringSimilarity } from "string-similarity-js";
+import Item from '../models/Item';
 
 const similarSearch = new SimilarSearch({normalize: true});
 
@@ -31,10 +33,10 @@ details.cooking = {
   nonthickened: ['suurustamaton'],
   withoutsauce: ['ei kastiketta'],
   coldsmoked: ['kylmäsavu', 'kylmäsavustettu'],
-  smoked: ['savustettu']
+  smoked: ['savustettu', 'savu']
 }
 details.spicing = {
-  salted: ['suolattu'],
+  salted: ['suolattu', 'suolaa'],
   withoutsalt: ['suolaton'],
   withtomato: ['tomaattinen'],
   withchocolate: ['suklainen'],
@@ -49,6 +51,7 @@ details.type = {
   pott: ['ruukku'],
   withfat: ['rasvaa'],
   nonfat: ['rasvaton'],
+  sliced: ['paloiteltu', 'pala', 'palat'],
   nonlactose: ['laktoositon'],
   thickened: ['puuroutuva'],
   parboiled: ['kiehautettu', 'parboiled'],
@@ -70,10 +73,22 @@ details.manufacturers = {
   'freshona': ['freshona'],
   'coquette': ['coquette'],
   'oceansea': ['oceansea'],
-  'culinea': ['culinea']
+  'culinea': ['culinea'],
+  'kalaneuvos': ['kalaneuvos'],
+  'snellman': ['snellman'],
+  'isokari': ['isokari'],
+  'pirkka': ['pirkka'],
+  'k-menu': ['k-menu']
 }
 
-let trimmed_categories;
+let trimmed_categories,
+    items;
+
+Item.query()
+.eager('[product.[category]]')
+.then(i => {
+  items = i;
+});
 
 Category.query()
 .eager('[children, parent.^]')
@@ -263,46 +278,59 @@ app.post('/api/transaction', function(req, res) {
         trimmed_item_name,
         trimmed_distance,
         distance,
+        item_categories,
         accuracy;
 
     transaction = req.body[0];
 
     transaction.items.forEach(item => {
-      item.categories = [];
+      item_categories = [];
       trimmed_item_name = trimDetails(item.product.name);
+
+      items.forEach(comparable_item => {
+        if (comparable_item.product && comparable_item.product.category) {
+          distance = stringSimilarity(item.product.name.toLowerCase(), comparable_item.text.toLowerCase());
+          
+          if (distance > 0.8) {
+            console.log(item.product.name, comparable_item.text, distance);
+            item_categories.push({
+              id: comparable_item.product.category.id,
+              original_name: comparable_item.product.category.name['fi-FI'],
+              item_name: item.product.name,
+              trimmed_item_name: trimmed_item_name,
+              parents: getParentPath(comparable_item.product.category.parent),
+              distance: distance
+            });
+          }
+        }
+      });
+
       trimmed_categories.forEach((category, index) => {
         if (category.trimmed_name && category.trimmed_name['fi-FI']) {
-          distance = similarSearch.getSimilarity(trimmed_item_name, category.trimmed_name['fi-FI']);
-          accuracy = (trimmed_item_name.length-distance)/trimmed_item_name.length;
+          distance = stringSimilarity(trimmed_item_name.toLowerCase(), category.trimmed_name['fi-FI'].toLowerCase());
+          //accuracy = (trimmed_item_name.length-distance)/trimmed_item_name.length;
 
-          if (accuracy > 0.4) {
-            type = trimmed_categories[index].parent &&
-                  trimmed_categories[index].parent.parent &&
-                  trimmed_categories[index].parent.parent.parent &&
-                  trimmed_categories[index].parent.parent.parent.name['fi-FI'];
-            item.categories.push({
+          if (distance > 0.4) {
+            item_categories.push({
               id: category.id,
               original_name: category.name['fi-FI'],
               item_name: item.product.name,
               trimmed_item_name: trimmed_item_name,
               name: category.trimmed_name['fi-FI'],
               parents: getParentPath(category.parent),
-              distance: distance,
-              accuracy: accuracy
+              distance: distance
             });
           }
         }
       });
       
-      console.log(item.categories);
+      console.log(item_categories);
       
-      if (item.categories.length) {
-        item.categories.sort((a, b) => b.accuracy-a.accuracy);
+      if (item_categories.length) {
+        item_categories.sort((a, b) => b.distance-a.distance);
 
-        item.product.category = {id: item.categories[0].id};
+        item.product.category = {id: item_categories[0].id};
       }
-
-      delete item.categories;
     });
   }
   console.dir(transaction, {depth:null});
@@ -314,7 +342,7 @@ app.post('/api/transaction', function(req, res) {
     .catch(error => {
       console.dir(transaction, {depth:null});
       console.error(error);
-      throw new Error();
+      res.status(500).send(error);
     });
 });
 
