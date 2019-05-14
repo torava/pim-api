@@ -530,7 +530,7 @@ export default class ReceiptEditor extends React.Component {
             <button onClick={this.deleteTransaction}>Delete</button>
           </div>
           <div className="receipt-picture" style={{float:'left'}}>
-            <img src={"/api/receipt/picture/"+this.state.transactions[0].receipts[0].file+"?"+this.state.version} style={{width:300}}/>
+            <img src={"/api/receipt/picture/"+this.state.transactions[0].receipts[0].id+"?"+this.state.version} style={{width:300}}/>
           </div>
           <div className="receipt-text" style={{float:'left'}}>
             <pre>{this.state.transactions[0].receipts[0].text}</pre>

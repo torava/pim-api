@@ -2,6 +2,8 @@ import axios from "axios";
 import moment from 'moment';
 import DataStore from './DataStore';
 
+const WAITING = -1;
+
 const exif_rotation = {
   1: 0,
   3: 180,
@@ -48,6 +50,7 @@ function localeToLanguage(locale) {
 
 class ReceiptService {
   constructor() {
+    this.pipeline = {};
     Promise.all([
       DataStore.getProducts(),
       DataStore.getManufacturers(),
@@ -61,103 +64,132 @@ class ReceiptService {
     })
     .catch(error => console.error(error));
   }
-  upload(files) {
+  prepareReceiptPipeline() {
     return new Promise((resolve, reject) => {
-      console.time('process');
-      let tesseract = window.Tesseract.create({
-        //langPath: 'http://localhost:42808/lib/',
-        workerPath: 'http://localhost:42808/lib/worker.js',
-        corePath: 'http://localhost:42808/lib/tesseract.js-core.js'
-      }),
-          img = new Image(),
-          imagedata;
+      axios.post('/api/receipt')
+      .then(receipt => {
+        this.pipeline.receipt = receipt.data;
+        Promise.all([
+          this.saveEditedPipeline(),
+          this.saveOriginalPipeline()
+        ])
+        .then(([edited, original]) => {
+          resolve([receipt, edited, original]);
+        })
+      })
+      .catch(error => reject(error));
+    });
+  }
+  saveOriginalPipeline() {
+    return new Promise((resolve, reject) => {
+      let reader = new FileReader();
+
+      reader.addEventListener('load', () => {
+        axios.post('/api/receipt/original', {
+          src: reader.result,
+          id: this.pipeline.receipt.id
+        })
+        .then(original => resolve(original))
+        .catch(error => reject(error));
+      });
+
+      reader.readAsDataURL(this.pipeline.files[0]);
+    });
+  }
+  saveEditedPipeline() {
+    return new Promise((resolve, reject) => {
+      if (this.pipeline.receipt && this.pipeline.imagedata) {
+        axios.post('/api/receipt/picture', {
+          src: this.pipeline.imagedata,
+          id: this.pipeline.receipt.id
+        })
+        .then(edited => resolve(edited))
+        .catch(error => reject(error));
+      }
+      else resolve(WAITING);
+    });
+  }
+  recognizePipeline() {
+    return new Promise((resolve, reject) => {
+      this.pipeline.tesseract.recognize(this.pipeline.imagedata, {
+        lang: 'fin',
+        //tessedit_pageseg_mode: '3',
+        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVVXYZÄÖÅabcdefghijklmnopqrstuvwxyzäöå1234567890-.,'
+      })
+      //.progress(message => console.log(message))
+      .catch(err => console.error(err))
+      .then(result => {
+        console.log('recognized');
+        console.timeLog('process');
+        console.log(result);
+        
+        let data = {
+          products: this.products,
+          manufacturers: this.manufacturers,
+          categories: this.categories
+        },
+            locale = 'fi-FI';
+        this.getTransactionsFromReceipt(data, result.text, locale);
+
+        console.log('extracted');
+        console.timeLog('process');
+        console.log(data, locale);
+        this.pipeline.transactions = data.transactions;
+        resolve(data.transactions);
+      });
+    });
+  }
+  processPipeline() {
+    return new Promise((resolve, reject) => {
+      let img = this.pipeline.img;
 
       img.onload = () => {
-        //let original_promise = axios.post('/api/receipt/original', {src: files[0]});
+        /* http://devbutze.blogspot.com/2014/02/html5-canvas-offscreen-rendering.html
+        var canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, img.width, img.height);*/
 
-        let process_promise = new Promise((resolve, reject) => {
-          /* http://devbutze.blogspot.com/2014/02/html5-canvas-offscreen-rendering.html
-          var canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          var ctx = canvas.getContext('2d');
-          ctx.drawImage(img, img.width, img.height);*/
+        // create imagedata
 
-          // create imagedata
+        console.log(img.src);
 
-          tesseract.detect(img)
-          .then(result => {
-            console.log('detected');
-            console.timeLog('process');
+        this.pipeline.tesseract.detect(img)
+        .then(result => {
+          console.log('detected');
+          console.timeLog('process');
 
-            let rotate = result.orientation_degrees;
+          let rotate = result.orientation_degrees;
 
-            console.log(result);
+          console.log(result);
 
-            let src = cv.imread(img);
-            
-            src = this.rotateImage(src, 360-rotate);
+          let src = cv.imread(img);
+          
+          src = this.rotateImage(src, 360-rotate);
 
-            console.log('rotated '+rotate+' degrees');
-            console.timeLog('process');
+          console.log('rotated '+rotate+' degrees');
+          console.timeLog('process');
 
-            src = this.processImage(src);
+          src = this.processImage(src);
 
-            console.log('processed');
-            console.timeLog('process');
+          console.log('processed');
+          console.timeLog('process');
 
-            imagedata = this.getSrc(src);
-            
-            //this.setState({ src: img.src });
+          this.pipeline.imagedata = this.getSrc(src);
+          
+          //this.setState({ src: img.src });
 
-            //let edited_promise = axios.post('/api/receipt/picture', {imagedata});
-            console.log(imagedata);
-            let recognize_promise = new Promise((resolve, reject) => {
-              tesseract.recognize(imagedata, {
-                lang: 'fin',
-                //tessedit_pageseg_mode: '3',
-                tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVVXYZÄÖÅabcdefghijklmnopqrstuvwxyzäöå1234567890-.,'
-              })
-              .progress(message => console.log(message))
-              .catch(err => console.error(err))
-              .then(result => {
-                console.log('recognized');
-                console.timeLog('process');
-                console.log(result);
-                
-                let data = {
-                  products: this.products,
-                  manufacturers: this.manufacturers,
-                  categories: this.categories
-                },
-                    locale = 'fi-FI';
-                this.getTransactionsFromReceipt(data, result.text, locale);
-
-                console.log('extracted');
-                console.timeEnd('process');
-                console.log(data, locale);
-                resolve(data.transactions);
-              });
-            });
-            Promise.all([recognize_promise])
-            .then(([recognize]) => {
-              console.log(recognize);
-              resolve(recognize);
-            });
-            /*Promise.all([edited_promise, recognize_promise])
-            .then(([edited, recognize]) => {
-              console.log(edited, recognize);
-              resolve(recognize);
-            })*/
+          Promise.all([this.saveEditedPipeline(), this.recognizePipeline()])
+          .then(([edited, recognize]) => {
+            console.log(edited, recognize);
+            resolve([edited, recognize]);
           });
-        });
-        Promise.all([process_promise])
-        .then(([process]) => {
-          console.log(process);
-          this.saveReceipt(process).then((transactions) => {
-            DataStore.getTransactions(true);
-            resolve(transactions);
-          });
+          /*Promise.all([edited_promise, recognize_promise])
+          .then(([edited, recognize]) => {
+            console.log(edited, recognize);
+            resolve(recognize);
+          })*/
         });
         /*Promise.all([original_promise, process_promise])
         .then(([original, process] )=> {
@@ -167,7 +199,55 @@ class ReceiptService {
           });
         });*/
       }
-      img.src = URL.createObjectURL(files[0]);
+      img.src = URL.createObjectURL(this.pipeline.files[0]);
+    });
+  }
+  saveTransactionPipeline() {
+    return new Promise((resolve, reject) => {
+      console.log(this.pipeline.transactions);
+      this.saveReceipt(this.pipeline.transactions).then((transactions) => {
+        console.log('saved');
+        console.timeEnd('process');
+        DataStore.getTransactions(true);
+        resolve(transactions);
+      })
+      .catch(error => reject(error));
+    });
+  }
+  upload(files) {
+    return new Promise((resolve, reject) => {
+      this.pipeline = {files};
+
+      console.time('process');
+
+      this.pipeline.tesseract = window.Tesseract.create({
+        //langPath: 'http://localhost:42808/lib/',
+        workerPath: 'http://localhost:42808/lib/worker.js',
+        corePath: 'http://localhost:42808/lib/tesseract.js-core.js'
+      });
+      this.pipeline.img = new Image();
+
+      /*
+        1) image   -> 2) recognize
+        1) receipt ->               -> 3) edited
+                      2) original
+                                                  -> 4) save
+      */
+
+      Promise.all([this.processPipeline(), this.prepareReceiptPipeline()])
+      .then(() => {
+        this.saveTransactionPipeline()
+        .then(() => {
+          console.log(this.pipeline);
+          resolve(this.pipeline);
+        })
+        .catch(error => {
+          reject(error);
+        });
+      })
+      .catch(error => {
+        reject(error);
+      });
     });
   }
   saveReceipt(transactions) {
@@ -706,9 +786,11 @@ class ReceiptService {
     };*/
   
     result.transactions = [data];
-    result.transactions[0].receipts = [{}];
-    result.transactions[0].receipts[0].text = text;
-  
+    result.transactions[0].receipts = [{
+      text,
+      id: this.pipeline.receipt.id
+    }];
+    
     return result;
   }
   getSrc(orig, from_grayscale) {
@@ -736,7 +818,8 @@ class ReceiptService {
 
     return canvas.toDataURL();
   }
-  cropImage(orig) {
+
+  oldCropImage(orig) {
     let M, anchor, dsize, ksize;
   
     let src = new cv.Mat(); // src from orig
@@ -752,8 +835,8 @@ class ReceiptService {
   
     M = cv.Mat.ones(2, 2, cv.CV_8U);
     anchor = new cv.Point(-1, -1);
-    cv.dilate(src, src, M, anchor, 1);
-    cv.erode(src, src, M, anchor);
+    cv.erode(src, src, M, anchor, 6);
+    cv.dilate(src, src, M, anchor, 12);
   
     cv.Canny(src, src, 1, 0, 5, false);
 
@@ -766,9 +849,12 @@ class ReceiptService {
     M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
     cv.morphologyEx(src, src, cv.MORPH_CLOSE, M);
   
-    M = cv.Mat.ones(5, 5, cv.CV_8U);
+    M = cv.Mat.ones(10, 10, cv.CV_8U);
     anchor = new cv.Point(-1, -1);
-    cv.erode(src, src, M, anchor);
+    cv.erode(src, src, M, anchor, 5);
+    cv.dilate(src, src, M, anchor, 5);
+
+    console.log('contours', this.getSrc(src, true));
   
     let contours = new cv.MatVector();
     let hierarchy = new cv.Mat();
@@ -828,6 +914,226 @@ class ReceiptService {
   
     return orig;
   }
+
+  cropImage(orig) {
+    let M, rect, anchor, scale, best, best_dst;
+
+    let src = new cv.Mat(); // src from orig
+    let resized = new cv.Mat();
+    let dsize = new cv.Size(800, orig.rows/orig.cols*800);
+    cv.resize(orig, resized, dsize, 0, 0, cv.INTER_AREA);
+    
+    cv.bilateralFilter(resized,src,5,75,75);
+
+    let prev = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
+
+    let dst = new cv.Mat();
+    let old_diff;
+    let best_diff;
+    let best_size;
+
+    let width = 0;
+    let height = 0;
+
+    let difference;
+
+    let presets = [
+    {
+    blur: 15,
+    first: 0,
+    range: 10,
+    close: 30,
+    erode: 60
+    }, // clean vignette touching
+    {
+    first: 0,
+    range: 100,
+    close: 100,
+    erode: 5
+    }, // clean
+    {
+    first: 100,
+    range: 50,
+    close: 50
+    }, // messy
+    {
+    first: 50,
+    range: 5,
+    close: 50,
+    erode: 30
+    }, // half messy vignette
+    {
+    first: 50,
+    range: 5,
+    close: 50,
+    erode: 60
+    }, // half messy touching
+    {
+    first: 50,
+    range: 5,
+    close: 40,
+    erode: 5
+    }, // half messy touching thin
+    {
+    first: 0,
+    range: 100,
+    close: 50, //25,
+    erode: 5
+    } // half messy
+    ];
+
+    for (let i in presets) {
+    let preset = presets[i];
+
+    let first = preset.first || 0;
+    let range = preset.range || 0;
+    let close = preset.close || 0;
+    let erode = preset.erode || 0;
+    let blur = preset.blur || 5;
+    /*
+    for (let first = 0; first < 600; first+= 10) {
+
+    //let first = 300;
+    let range = 1;
+    let close = 50;
+    let erode = 40;
+    */
+
+    let ksize = new cv.Size(blur, blur);
+    cv.GaussianBlur(src,dst, ksize, 0, 0, cv.BORDER_DEFAULT);
+
+    cv.Canny(dst, dst, first, first+range, 3, false);
+
+    if (close) {
+    M = new cv.Mat();
+        ksize = new cv.Size(close, close);
+        M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
+        cv.morphologyEx(dst, dst, cv.MORPH_CLOSE, M);
+    }
+    if (erode) {
+    M= cv.Mat.ones(erode, erode, cv.CV_8U);
+        anchor = new cv.Point(-1, -1);
+        cv.erode(dst, dst, M, anchor);
+        cv.dilate(dst, dst, M, anchor);
+    }
+
+    let contours = new cv.MatVector();
+        let hierarchy = new cv.Mat();
+        cv.findContours(dst, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+
+        let cnt, current, area, biggest = 0;
+        
+        for (let n = 0; n < contours.size(); n++) {
+            current = contours.get(n);
+            area = cv.contourArea(current, false);
+            if (area > biggest) {
+            biggest = area;
+            cnt = current;
+            }
+        }
+
+
+        let contoursColor = new cv.Scalar(255, 255, 255);
+
+        cv.drawContours(prev, contours, -1, contoursColor, 1, 8, hierarchy, 100);
+
+        let rotatedRect = cv.minAreaRect(cnt);
+        let vertices = cv.RotatedRect.points(rotatedRect);
+        let rectangleColor = new cv.Scalar(0, 255, 0);
+        // draw rotatedRect
+        for (let i = 0; i < 4; i++) {
+            cv.line(prev, vertices[i], vertices[(i + 1) % 4], rectangleColor, 2, cv.LINE_AA, 0);
+        }
+
+        rect = cv.boundingRect(cnt);
+        rectangleColor = new cv.Scalar(255, 0, 0);
+        
+        let point1 = new cv.Point(rect.x, rect.y);
+        let point2 = new cv.Point(rect.x + rect.width, rect.y + rect.height);
+        cv.rectangle(dst, point1, point2, rectangleColor, 2, cv.LINE_AA, 0);
+
+    scale = orig.cols/src.cols;
+    let margin = erode,
+    x = parseInt(Math.max((rect.x-margin)*scale, 0)),
+    y = parseInt(Math.max((rect.y-margin)*scale, 0)),
+    w = parseInt(Math.min((rect.width+margin*2)*scale, orig.cols-x)),
+    h = parseInt(Math.min((rect.height+margin*2)*scale, orig.rows-y));
+
+    console.log(rect);
+
+        rect = new cv.Rect(x, y, w, h);
+
+        console.log(rect, scale, orig, src);
+
+    if (!rect.width) continue;
+    let cropped = orig.roi(rect);
+
+    let equalized = new cv.Mat();
+
+    cv.equalizeHist(cropped, equalized);
+
+    let prototype_histogram = [0.02159589070823089, 0.02255668779780612, 0.023596599808742895, 0.022124204615872514, 0.022859046976225372, 0.021460473766373882, 0.022753462626690823, 0.024306496002222205, 0.023577439689262757, 0.02037383261217718, 0.02436988211896724, 0.021968240692985745, 0.023846870854567846, 0.022352895841147788, 0.023736683769700628, 0.022780856141101525]; // clean+bg+messy+vignette cropped equalized avg
+
+    let srcVec = new cv.MatVector();
+    srcVec.push_back(equalized);
+    let accumulate = false;
+    let channels = [0];
+    let histSize = [16];
+    let ranges = [0, 255];
+    let hist = new cv.Mat();
+    let mask = new cv.Mat();
+    let color = new cv.Scalar(255, 255, 255);
+    scale = 2;
+    // You can try more different parameters
+    cv.calcHist(srcVec, channels, mask, hist, histSize, ranges, accumulate);
+    let result = cv.minMaxLoc(hist, mask);
+    let max = result.maxVal;
+
+    old_diff = difference;
+
+    difference = 0;
+    let relative_histogram = [];
+    let average_histogram = [];
+
+    // draw histogram
+    for (let i = 0; i < histSize[0]; i++) {
+    relative_histogram.push(hist.data32F[i]/(src.rows*src.cols));
+    average_histogram.push((relative_histogram[i]+prototype_histogram[i])/2);
+        difference+= Math.abs(hist.data32F[i]/(src.rows*src.cols)-prototype_histogram[i]);
+    }
+    //console.log(relative_histogram, prototype_histogram, average_histogram);
+
+    console.log(i, first, rect.width, rect.height, rect.width*rect.height, difference, difference-old_diff);
+
+    width+= src.cols;
+    height+= src.rows;
+
+    if (difference < 50 && (!best_diff || (difference < best_diff /*&& src.rows*src.cols > best_size*/))) {
+    console.log(i, difference, best_diff, src.rows*src.cols, best_size);
+    best_diff = difference;
+    best_size = src.rows*src.cols;
+    best_dst = dst;
+    best = cropped;
+    }
+
+   // console.log('dst', this.getSrc(dst, true));
+    //console.log('cropped', this.getSrc(cropped, true));
+
+    //console.log('average', width/(first/10), height/(first/10));
+
+    //endfor
+    }
+
+    console.log('orig', this.getSrc(orig, true));
+    console.log('src', this.getSrc(src, true));
+    console.log('alpha dst', this.getSrc(best_dst, true));
+    console.log('alpha cropped', this.getSrc(best, true));
+
+    //orig.delete(); src.delete(); dst.delete(); prev.delete(); resized.delete();
+
+    return best;
+  }
+  
   rotateImage(src, rotate) {
     if (rotate < 0) {
       rotate = 360+rotate;
@@ -874,7 +1180,7 @@ class ReceiptService {
     let dsize = new cv.Size(800, src.rows/src.cols*800);
     cv.resize(src, src, dsize, 0, 0, cv.INTER_AREA);
 
-    cv.bilateralFilter(src,dst,3,75,75);
+    cv.bilateralFilter(src,dst,7,75,75);
   
     // threshold
   

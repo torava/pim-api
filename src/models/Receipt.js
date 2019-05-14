@@ -12,7 +12,7 @@ export default class Receipt extends Model {
 
 			properties: {
 				id: {type: 'integer'},
-				file: {type: 'string', minLength: 1, maxLength: 255},
+				file: {type: ['string', 'null']},
 				locale: {type: 'string'},
 				text: {type: 'string'}
 			}
