@@ -11,6 +11,7 @@ import {JSDOM} from 'jsdom';
 import sizeOf from 'image-size';
 import moment from 'moment';
 import crypto from 'crypto';
+import Receipt from '../models/Receipt';
 
 export default app => {
 
@@ -871,93 +872,74 @@ app.post('/api/receipt/data/:id', function(req, res) {
   });
 });
 
+app.post('/api/receipt', (req, res) => {
+  Receipt
+  .query()
+  .insert({})
+  .then(receipt => {
+    res.send(receipt);
+  })
+  .catch(error => {
+    console.error(error);
+    throw new Error();
+  });
+});
+
 app.post('/api/receipt/original', (req, res) => {
   try {
-      // Regular expression for image type:
-      // This regular image extracts the "jpeg" from "image/jpeg"
-      var imageTypeRegularExpression = /\/(.*?)$/;      
-
-      // Generate random string
-      var seed = crypto.randomBytes(20);
-      var uniqueSHA1String = crypto
-      .createHash('sha1')
-      .update(seed)
-        .digest('hex');
-
       var base64Data = req.body.src;
 
       var imageBuffer = decodeBase64Image(base64Data);
 
-      var name = uniqueSHA1String+'_original';
-      // This variable is actually an array which has 5 values,
-      // The [1] value is the real image extension
-      var type = imageBuffer
-      .type
-      .match(imageTypeRegularExpression);
+      var name = req.body.id+'_original';
 
-      var image_path = upload_path+'/'+name+'.'+type[1];
+      var image_path = upload_path+'/'+name;
 
       // Save decoded binary image to disk
       try {
         require('fs').writeFile(image_path, imageBuffer.data, () => {
           console.log('Uploaded '+image_path);
-          res.sendStatus(200);
+          res.send(name);
         });
       }
       catch(error) {
-          console.log('ERROR:', error);
+          res.status(500).send(error);
       }
   }
   catch(error) {
-      console.log('ERROR:', error);
+    res.status(500).send(error);
   }
 });
 
 app.post('/api/receipt/picture', (req, res) => {
   try {
-      // Regular expression for image type:
-      // This regular image extracts the "jpeg" from "image/jpeg"
-      var imageTypeRegularExpression = /\/(.*?)$/;      
-
-      // Generate random string
-      var seed = crypto.randomBytes(20);
-      var uniqueSHA1String = crypto
-      .createHash('sha1')
-      .update(seed)
-        .digest('hex');
-
       var base64Data = req.body.src;
 
       var imageBuffer = decodeBase64Image(base64Data);
 
-      var name = uniqueSHA1String+'_picture';
-      // This variable is actually an array which has 5 values,
-      // The [1] value is the real image extension
-      var type = imageBuffer
-      .type
-      .match(imageTypeRegularExpression);
+      var name = req.body.id+'_edited';
 
-      var image_path = upload_path+'/'+name+'.'+type[1];
+      var image_path = upload_path+'/'+name;
 
       // Save decoded binary image to disk
       try {
         require('fs').writeFile(image_path, imageBuffer.data, () => {
           console.log('Uploaded '+image_path);
-          res.sendStatus(200);
+          res.send(name);
         });
       }
       catch(error) {
-          console.log('ERROR:', error);
+        res.status(500).send(error);
       }
   }
   catch(error) {
-      console.log('ERROR:', error);
+    res.status(500).send(error);
   }
 });
 
 
 app.get('/api/receipt/original/:id', function (req, res) {
-	var file_path = upload_path+"/"+req.params.id;
+	var file_path = upload_path+"/"+req.params.id+'_original';
 	fs.access(file_path, fs.R_OK, function(err) {
 		if (err) {
 			console.error(err);
