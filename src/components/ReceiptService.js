@@ -221,7 +221,7 @@ class ReceiptService {
       console.time('process');
 
       this.pipeline.tesseract = window.Tesseract.create({
-        //langPath: 'http://localhost:42808/lib/',
+        langPath: 'http://localhost:42808/lib/tessdata/fast',
         workerPath: 'http://localhost:42808/lib/worker.js',
         corePath: 'http://localhost:42808/lib/tesseract.js-core.js'
       });
@@ -426,13 +426,13 @@ class ReceiptService {
   
         if (!data.party.street_name) {
           // Hämeenkatu 123-123 33100 Tampere
-          line_address = line.match(/^([\u00C0-\u017F-a-z\/]+)\s?(\d+)[,|.|-]((\d[0-3])?[,|.|-]?\s?(\d{5}))[,|.]?\s?([\u00C0-\u017F-a-z\/]+)$/i);
+          line_address = line.match(/^([\u00C0-\u017F-a-z\/]+)\s?((\d{1,4})([,|.|-]\d{1,4})?)[,|.|-]?\s?(\d{5})?[,|.]?\s?([\u00C0-\u017F-a-z\/]+)?$/i);
           if (line_address) {
             console.log(line_address);
             data.party.street_name = toTitleCase(line_address[1]);
             data.party.street_number = line_address[2];
-            data.party.postal_code = line_address[3];
-            data.party.city = toTitleCase(line_address[4]);
+            data.party.postal_code = line_address[5];
+            data.party.city = toTitleCase(line_address[6]);
   
             found_attribute = 'party.street_name';
             continue;
@@ -965,13 +965,13 @@ class ReceiptService {
     {
     first: 50,
     range: 5,
-    close: 50,
+    close: 70,//50,
     erode: 60
     }, // half messy touching
     {
     first: 50,
     range: 5,
-    close: 40,
+    close: 70,//40,
     erode: 5
     }, // half messy touching thin
     {
@@ -1072,7 +1072,9 @@ class ReceiptService {
 
     cv.equalizeHist(cropped, equalized);
 
-    let prototype_histogram = [0.02159589070823089, 0.02255668779780612, 0.023596599808742895, 0.022124204615872514, 0.022859046976225372, 0.021460473766373882, 0.022753462626690823, 0.024306496002222205, 0.023577439689262757, 0.02037383261217718, 0.02436988211896724, 0.021968240692985745, 0.023846870854567846, 0.022352895841147788, 0.023736683769700628, 0.022780856141101525]; // clean+bg+messy+vignette cropped equalized avg
+    //let prototype_histogram = [0.02159589070823089, 0.02255668779780612, 0.023596599808742895, 0.022124204615872514, 0.022859046976225372, 0.021460473766373882, 0.022753462626690823, 0.024306496002222205, 0.023577439689262757, 0.02037383261217718, 0.02436988211896724, 0.021968240692985745, 0.023846870854567846, 0.022352895841147788, 0.023736683769700628, 0.022780856141101525]; // clean+bg+messy+vignette cropped equalized avg
+    //let prototype_histogram = [0.24754923522278335, 0.2428637097525616, 0.24122606725896809, 0.26792303101337717, 0.22039997376953857, 0.2609284076148942, 0.1492302725891428, 0.30208406413619554, 0.3018708023962261, 0.15113262456124807, 0.28343669997130355, 0.2700108558061552, 0.2494017421815053, 0.3167744779393356, 0.22624803231637, 0.26650475733884343] // clean+bg+messy+vignette+clean cropped equalized avg
+    let prototype_histogram = [0.31773568702977817, 0.3163691203547048, 0.31826488634993433, 0.30006904364927767, 0.31170033866713326, 0.3285235377661713, 0.18438178732646632, 0.4039190255014936, 0.29448078112306614, 0.35715695486974225, 0.2665729466085411, 0.3457523791225898, 0.3575948673384074, 0.38008693409161903, 0.2940720696291043, 0.349653645085932] // clean+bg+messy+vignette+clean+touchinglong cropped equalized avg
 
     let srcVec = new cv.MatVector();
     srcVec.push_back(equalized);
@@ -1103,17 +1105,17 @@ class ReceiptService {
     }
     //console.log(relative_histogram, prototype_histogram, average_histogram);
 
-    console.log(i, first, rect.width, rect.height, rect.width*rect.height, difference, difference-old_diff);
+    console.log(i, first, rect.width, rect.height, rect.width*rect.height, difference, difference-old_diff, average_histogram, this.getSrc(dst, true));
 
     width+= src.cols;
     height+= src.rows;
 
     if (difference < 50 && (!best_diff || (difference < best_diff /*&& src.rows*src.cols > best_size*/))) {
-    console.log(i, difference, best_diff, src.rows*src.cols, best_size);
+    console.log('best', i, difference, best_diff, src.rows*src.cols, best_size);
     best_diff = difference;
     best_size = src.rows*src.cols;
-    best_dst = dst;
-    best = cropped;
+    best_dst = dst.clone();
+    best = cropped.clone();
     }
 
    // console.log('dst', this.getSrc(dst, true));
@@ -1176,15 +1178,15 @@ class ReceiptService {
     //this.rotateImage(src, rotate);
   
     src = this.cropImage(src);
-  
-    let dsize = new cv.Size(800, src.rows/src.cols*800);
-    cv.resize(src, src, dsize, 0, 0, cv.INTER_AREA);
 
-    cv.bilateralFilter(src,dst,7,75,75);
+    cv.bilateralFilter(src,dst,5,75,75);
   
     // threshold
   
-    cv.adaptiveThreshold(src,dst, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 201, 15);
+    cv.adaptiveThreshold(src,dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 201, 15);
+
+    let dsize = new cv.Size(1000, src.rows/src.cols*1000);
+    cv.resize(dst, dst, dsize, 0, 0, cv.INTER_AREA);
 
     // dilate and erode
 

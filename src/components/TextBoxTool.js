@@ -68,6 +68,8 @@ export default class TextBoxTool extends Component {
       src = cv.imread(canvas);
       dst = new cv.Mat();
 
+      //dst = new cv.Mat();
+
       cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
 
       /*let angle = computeSkew(src);
@@ -76,31 +78,46 @@ export default class TextBoxTool extends Component {
 
       src = deskew(src, angle, 0, true);*/
 
-      cv.bilateralFilter(src,dst,7,200,200);
-      cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 201, 15);
+      //cv.bilateralFilter(src,dst,5,10,10);
+
+      //let ksize = new cv.Size(5,5);
+      //cv.GaussianBlur(dst,dst, ksize, 0, 0, cv.BORDER_DEFAULT);
+
+      cv.adaptiveThreshold(src, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 55, 30);//, 201, 30);
+
+      
+      let M= cv.Mat.ones(2, 2, cv.CV_8U);
+        let anchor = new cv.Point(-1, -1);
+        cv.dilate(dst, dst, M, anchor, 1);
+        cv.erode(dst, dst, M, anchor, 2);
+
+        let dsize = new cv.Size(3000, src.rows/src.cols*3000);
+        cv.resize(dst,dst, dsize, 0, 0, cv.INTER_AREA);
+        
 
       let imagedata = this.getSrc(dst, true);
 
-      var Tesseract = window.Tesseract;
+      var tesseract = window.Tesseract.create({
+        langPath: 'http://localhost:42808/lib/tessdata/fast',
+        workerPath: 'http://localhost:42808/lib/worker.js',
+        corePath: 'http://localhost:42808/lib/tesseract.js-core.js'
+      });
 
-      Tesseract.detect(imagedata)
+      tesseract.detect(imagedata)
       .then(result => {
-        let dsize = new cv.Size(500, dst.rows/dst.cols*500);
-        cv.resize(dst, dst, dsize, 0, 0, cv.INTER_AREA);
-
         let rotate = result.orientation_degrees;
         console.log(rotate);
         dst = this.rotateImage(dst, 360-rotate);
 
-        cv.imshow('canvas', dst);
+        cv.imshow('canvas', dst, true);
 
         imagedata = this.getSrc(dst, true);
   
-        Tesseract.recognize(imagedata, {
+        tesseract.recognize(imagedata, {
           lang: 'fin',
-          tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.- ',
-          textord_max_noise_size: 50,
-          textord_noise_sizelimit: 1
+          tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890',
+          //textord_max_noise_size: 50,
+          //textord_noise_sizelimit: 1
         })
         //.progress(message => console.log(message))
         .catch(err => console.error(err))
@@ -108,17 +125,19 @@ export default class TextBoxTool extends Component {
           let words = result.words,
               word,
               coords, distances = [],
-              origwidth = img.naturalWidth,
-              factor = img.width/origwidth,
+              origwidth = src.cols,
+              factor = 1,//dst.cols/origwidth,
               wrapper = document.getElementById('canvas-wrapper'),
               boxes = [],
               left, top, right, bottom, width, height,
               x_sum = 0,
               x_gravity,
               text,
-              boundaries = {};
+              boundaries = {},
+              rec = cv.Mat.zeros(dst.rows/dst.cols*400, 400, cv.CV_8U),
+              factor_rec = rec.cols/dst.cols;
 
-          console.log(img.width, origwidth);
+          console.log(dst.cols, dst.rows);
 
           for (let i in words) {
             word = words[i];
@@ -130,12 +149,14 @@ export default class TextBoxTool extends Component {
 
           for (let i in words) {
             word = words[i];
-            if (!word.text || !word.text.trim() || word.confidence < 60) continue;
-            console.log(word);
+
             left = word.bbox.x0;
             top = word.bbox.y0;
             right = word.bbox.x1;
             bottom = word.bbox.y1;
+
+            if (!word.text || !word.text.trim() || right-left < 10 || bottom-top < 10 || word.confidence < 60 || word.text.length < 2) continue;
+            console.log(word);
 
             if (boundaries.hasOwnProperty('left')) {
               boundaries.left = Math.min(left, boundaries.left);
@@ -159,6 +180,11 @@ export default class TextBoxTool extends Component {
             height = bottom-top;
 
             text = word.text;
+
+            let point1 = new cv.Point(left*factor_rec, top*factor_rec);
+            let point2 = new cv.Point(right*factor_rec, bottom*factor_rec);
+            let rectangleColor = new cv.Scalar(255, 255, 255);
+            cv.rectangle(rec, point1, point2, rectangleColor, 1, cv.LINE_AA, 0);
 
             boxes.push((
               <div title={text+' conf '+word.confidence+' dist '+(left-x_gravity*factor)} style={{
@@ -211,13 +237,100 @@ export default class TextBoxTool extends Component {
               position: 'absolute'
             }}/>
           );
-          that.setState({
-            boxes,
-            distances
+
+          let M = new cv.Mat();
+          let ksize = new cv.Size(30, 70);
+          M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
+          cv.morphologyEx(rec, rec, cv.MORPH_CLOSE, M);
+
+          M = cv.Mat.ones(10, 10, cv.CV_8U);
+          let anchor = new cv.Point(-1, -1);
+          cv.erode(rec, rec, M, anchor);
+          cv.dilate(rec, rec, M, anchor);
+
+          console.log('contours', this.getSrc(rec, true));
+        
+          let contours = new cv.MatVector();
+          let hierarchy = new cv.Mat();
+          cv.findContours(rec, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+
+          let cnt, current, area, biggest = 0;
+        
+          for (let n = 0; n < contours.size(); n++) {
+            current = contours.get(n);
+            area = cv.contourArea(current, false);
+            if (area > biggest) {
+              biggest = area;
+              cnt = current;
+            }
+          }
+
+          let con = cv.Mat.zeros(rec.rows, rec.cols, cv.CV_8UC3);
+
+          let contoursColor = new cv.Scalar(255, 255, 255);
+
+          cv.drawContours(con, contours, -1, contoursColor, 1, 8, hierarchy, 100);
+
+          let rotatedRect = cv.minAreaRect(cnt);
+          let vertices = cv.RotatedRect.points(rotatedRect);
+          let rectangleColor = new cv.Scalar(0, 255, 0);
+          // draw rotatedRect
+          for (let i = 0; i < 4; i++) {
+              cv.line(con, vertices[i], vertices[(i + 1) % 4], rectangleColor, 2, cv.LINE_AA, 0);
+          }
+
+          let rect = cv.boundingRect(cnt);
+          rectangleColor = new cv.Scalar(255, 0, 0);
+
+          console.log(rotatedRect, vertices);
+        
+          let point1 = new cv.Point(rect.x, rect.y);
+          let point2 = new cv.Point(rect.x + rect.width, rect.y + rect.height);
+          cv.rectangle(con, point1, point2, rectangleColor, 2, cv.LINE_AA, 0);
+
+          let scale = dst.cols/rec.cols;
+          let margin = 10,
+          x = parseInt(Math.max((rect.x-margin)*scale, 0)),
+          y = parseInt(Math.max((rect.y-margin)*scale, 0)),
+          w = parseInt(Math.min((rect.width+margin*2)*scale, dst.cols-x)),
+          h = parseInt(Math.min((rect.height+margin*2)*scale, dst.rows-y));
+
+          console.log(rect);
+
+              rect = new cv.Rect(x, y, w, h);
+
+              console.log(rect, scale, src);
+
+          let cropped = dst.roi(rect);
+          
+          cv.imshow('rectangles', rec);
+
+          let dsize = new cv.Size(800, cropped.rows/cropped.cols*800);
+          cv.resize(cropped, cropped, dsize, 0, 0, cv.INTER_AREA);
+
+          cv.imshow('cropped', cropped);
+
+          let imagedata = this.getSrc(cropped, true);
+
+          tesseract.recognize(imagedata, {
+            lang: 'fin',
+            tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890.,',
+            //textord_max_noise_size: 50,
+            //textord_noise_sizelimit: 1
+          })
+          .then(result => {
+            console.log(result);
+            that.setState({
+              boxes,
+              distances
+            });
           });
 
           src.delete();
           dst.delete();
+          cropped.delete();
+          rec.delete();
+          con.delete();
         })
         .catch(function(error) {
           console.error(error);
@@ -293,6 +406,8 @@ export default class TextBoxTool extends Component {
       <div>
         <input type="file" name="file" id="file" multiple draggable onChange={this.onChange} style={{display:"block"}}/>
         <div id="result" style={{display:'none'}}/>
+        <canvas id="rectangles"/>
+        <canvas id="cropped" style={{border:'1px solid gray'}}/>
         <div id="canvas-wrapper" style={{position:"relative"}}>
           <canvas id="canvas"/>
           <img id="img" style={{width:'500px'}}/>
