@@ -3,50 +3,8 @@
 import React from 'react';
 import ReactTable from 'react-table';
 import DataStore from './DataStore';
+import {locale} from './locale';
 //import Timeline from 'react-visjs-timeline';
-
-function convertMeasure(measure, from_unit, to_unit) {
-  const factors = {
-    y: -24,
-    z: -21,
-    a: -16,
-    f: -15,
-    p: -12,
-    n: -9,
-    µ: -6,
-    m: -3,
-    c: -2,
-    d: -1,
-    '': 0,
-    da: 1,
-    h: 2,
-    k: 3,
-    M: 6,
-    G: 9,
-    T: 12,
-    P: 15,
-    E: 18,
-    Z: 21,
-    Y: 24
-  }
-  if (from_unit && from_unit.length > 1) {
-    from_unit = from_unit.substring(0,1);
-    from_unit = from_unit.toLowerCase();
-  }
-  else {
-    from_unit = '';
-  }
-  if (to_unit && to_unit.length > 1) {
-    to_unit = to_unit.substring(0,1);
-    to_unit = to_unit.toLowerCase();
-  }
-  else {
-    to_unit = '';
-  }
-  let conversion = factors[from_unit]-factors[to_unit];
-  console.log(conversion, from_unit, to_unit);
-  return measure*Math.pow(10, conversion);
-}
 
 const transaction_columns = [
   {
@@ -73,11 +31,18 @@ const item_columns = [
   },
   {
     Header: 'Quantity',
-    id: 'quantity'
+    id: 'quantity',
+    accessor: d => d.product.quantity || d.quantity
   },
   {
     Header: 'Measure',
-    id: 'measure'
+    id: 'measure',
+    accessor: d => d.product.measure || d.measure
+  },
+  {
+    Header: 'Unit',
+    id: 'unit',
+    accessor: d => d.product.unit || d.unit
   },
   {
     Header: 'Category',
@@ -98,7 +63,7 @@ const item_columns = [
     Header: 'Price/Measure',
     id: 'pricepermeasure',
     accessor: d => {
-      return d.measure ? d.price/convertMeasure(d.measure, d.unit, 'kg') : null;
+      return d.product.measure || d.measure ? (d.price/locale.convertMeasure(d.product.measure || d.measure, d.product.unit || d.unit, 'kg')).toLocaleString() : null;
     }
   }
 ]
@@ -114,8 +79,7 @@ export default class TransactionList extends React.Component {
     DataStore.getTransactions()
     .then(result => {
       this.setState({
-        ready: true,
-        transactions: DataStore.transactions
+        ready: true
       });
     })
     .catch(function(error) {
@@ -126,15 +90,15 @@ export default class TransactionList extends React.Component {
     return (
       <div>
         <ReactTable
-          data={this.state.transactions}
+          data={DataStore.transactions}
           columns={transaction_columns}
-          pageSize={this.state.transactions ? this.state.transactions.length : 1}
+          pageSize={DataStore.transactions ? DataStore.transactions.length : 1}
           showPagination={false}
           SubComponent={row => {
             return (
               <ReactTable
-                data={this.state.transactions[row.index].items}
-                pageSize={this.state.transactions[row.index].items ? this.state.transactions[row.index].items.length : 1}
+                data={DataStore.transactions[row.index].items}
+                pageSize={DataStore.transactions[row.index].items ? DataStore.transactions[row.index].items.length : 1}
                 showPagination={false}
                 columns={item_columns}
                 />
