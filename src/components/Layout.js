@@ -20,6 +20,7 @@ export default class Layout extends React.Component {
 
     this.onCurrencyChange = this.onCurrencyChange.bind(this);
     this.onLocaleChange = this.onLocaleChange.bind(this);
+    this.onEnergyUnitChange = this.onEnergyUnitChange.bind(this);
     this.onUpload = this.onUpload.bind(this);
 
     this.receiptService = new ReceiptService();
@@ -35,6 +36,9 @@ export default class Layout extends React.Component {
     this.setState({
       locale: locale.getLocale()
     });
+  }
+  onEnergyUnitChange(event) {
+    locale.setAttributeUnit('energy,calculated', event.target.value);
   }
   onUpload(event) {
     event.preventDefault();
@@ -82,6 +86,13 @@ export default class Layout extends React.Component {
                 <option value="sv-SV">sv-SV</option>
                 <option value="en-US">en-US</option>
                 <option value="es-AR">es-AR</option>
+              </select>
+              <select id="energy"
+                      value={locale.getAttributeUnit('energy,calculated')}
+                      onChange={this.onEnergyUnitChange.bind(this)}
+              >
+                <option value="kJ">kJ</option>
+                <option value="kcal">kcal</option>
               </select>
               <Link to="/" className="button"><i className="fas fa-user"></i></Link>
             </div>
