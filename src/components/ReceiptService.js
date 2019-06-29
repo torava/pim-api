@@ -1,6 +1,7 @@
 import axios from "axios";
 import moment from 'moment';
 import DataStore from './DataStore';
+const { TesseractWorker, PSM } = Tesseract;
 
 const WAITING = -1;
 
@@ -111,11 +112,12 @@ class ReceiptService {
   }
   recognizePipeline() {
     return new Promise((resolve, reject) => {
-      this.pipeline.tesseract.recognize(this.pipeline.imagedata, {
-        lang: 'fin',
+      this.pipeline.tesseract.recognize(
+        this.pipeline.imagedata,
+        'fin',
         //tessedit_pageseg_mode: '3',
-        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVVXYZÄÖÅabcdefghijklmnopqrstuvwxyzäöå1234567890-.,'
-      })
+        //tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVVXYZÄÖÅabcdefghijklmnopqrstuvwxyzäöå1234567890-.,'
+      )
       //.progress(message => console.log(message))
       .catch(err => console.error(err))
       .then(result => {
@@ -140,6 +142,196 @@ class ReceiptService {
     });
   }
   processPipeline() {
+    return new Promise((resolve, reject) => {
+      let img = this.pipeline.img;
+      img.onload = (e) => {
+        console.log('loaded');
+        console.timeLog('process');
+        let src = cv.imread(img);
+        let dst = new cv.Mat();
+
+        cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
+
+        cv.adaptiveThreshold(src, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 15, 25);//, 201, 30);
+
+        let M= cv.Mat.ones(2, 2, cv.CV_8U);
+          let anchor = new cv.Point(-1, -1);
+          cv.dilate(dst, dst, M, anchor, 1);
+          cv.erode(dst, dst, M, anchor, 2);
+
+          let dsize = new cv.Size(3000, src.rows/src.cols*3000);
+          cv.resize(dst,dst, dsize, 0, 0, cv.INTER_AREA);
+
+        let imagedata = this.getSrc(dst, true);
+
+        console.log('processed');
+        console.timeLog('process');
+
+        this.pipeline.tesseract.detect(
+          imagedata/*,
+          'eng',
+          {
+            'tessedit_pageseg_mode': PSM.OSD_ONLY,
+          }*/
+        )
+        .then(result => {
+          let rotate = result.orientation_degrees;
+          dst = this.rotateImage(dst, 360-rotate);
+
+          console.log('rotated '+rotate+' degrees');
+          console.timeLog('process');
+
+          console.log(result);
+
+          imagedata = this.getSrc(dst, true);
+    
+          this.pipeline.tesseract.recognize(
+            imagedata,
+            /*'fin',
+            {
+              tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890',
+              //textord_max_noise_size: 50,
+              //textord_noise_sizelimit: 1
+            }*/
+          )
+          //.progress(message => console.log(message))
+          .catch(err => console.error(err))
+          .then(result => {
+            console.log('recognized for cropping');
+            console.timeLog('process');
+
+            console.log(result);
+
+            console.log('processed', this.getSrc(dst, true));
+
+            let words = result.words,
+                word,
+                factor = 1,//dst.cols/origwidth,
+                left, top, right, bottom,
+                rec = cv.Mat.zeros(dst.rows/dst.cols*400, 400, cv.CV_8U),
+                factor_rec = rec.cols/dst.cols;
+
+            console.log(dst.cols, dst.rows);
+
+            for (let i in words) {
+              word = words[i];
+
+              left = word.bbox.x0;
+              top = word.bbox.y0;
+              right = word.bbox.x1;
+              bottom = word.bbox.y1;
+
+              if (!word.text || !word.text.trim() || right-left < 10 || bottom-top < 10 || word.confidence < 60 || word.text.length < 2) continue;
+              console.log(word);
+
+              left*= factor;
+              top*= factor;
+              right*= factor;
+              bottom*= factor;
+
+              let point1 = new cv.Point(left*factor_rec, top*factor_rec);
+              let point2 = new cv.Point(right*factor_rec, bottom*factor_rec);
+              let rectangleColor = new cv.Scalar(255, 255, 255);
+              cv.rectangle(rec, point1, point2, rectangleColor, 1, cv.LINE_AA, 0);
+            }
+
+            let M = new cv.Mat();
+            let ksize = new cv.Size(30, 80);
+            M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
+            cv.morphologyEx(rec, rec, cv.MORPH_CLOSE, M);
+
+            M = cv.Mat.ones(10, 10, cv.CV_8U);
+            let anchor = new cv.Point(-1, -1);
+            cv.erode(rec, rec, M, anchor);
+            cv.dilate(rec, rec, M, anchor);
+
+            console.log('contours', this.getSrc(rec, true));
+          
+            let contours = new cv.MatVector();
+            let hierarchy = new cv.Mat();
+            cv.findContours(rec, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+
+            let cnt, current, area, biggest = 0;
+          
+            for (let n = 0; n < contours.size(); n++) {
+              current = contours.get(n);
+              area = cv.contourArea(current, false);
+              if (area > biggest) {
+                biggest = area;
+                cnt = current;
+              }
+            }
+
+            let con = cv.Mat.zeros(rec.rows, rec.cols, cv.CV_8UC3);
+
+            let contoursColor = new cv.Scalar(255, 255, 255);
+
+            cv.drawContours(con, contours, -1, contoursColor, 1, 8, hierarchy, 100);
+
+            let rotatedRect = cv.minAreaRect(cnt);
+            let vertices = cv.RotatedRect.points(rotatedRect);
+            let rectangleColor = new cv.Scalar(0, 255, 0);
+            // draw rotatedRect
+            for (let i = 0; i < 4; i++) {
+                cv.line(con, vertices[i], vertices[(i + 1) % 4], rectangleColor, 2, cv.LINE_AA, 0);
+            }
+
+            let rect = cv.boundingRect(cnt);
+            rectangleColor = new cv.Scalar(255, 0, 0);
+
+            console.log(rotatedRect, vertices);
+          
+            let point1 = new cv.Point(rect.x, rect.y);
+            let point2 = new cv.Point(rect.x + rect.width, rect.y + rect.height);
+            cv.rectangle(con, point1, point2, rectangleColor, 2, cv.LINE_AA, 0);
+
+            let scale = dst.cols/rec.cols;
+            let margin = 10,
+            x = parseInt(Math.max((rect.x-margin)*scale, 0)),
+            y = parseInt(Math.max((rect.y-margin)*scale, 0)),
+            w = parseInt(Math.min((rect.width+margin*2)*scale, dst.cols-x)),
+            h = parseInt(Math.min((rect.height+margin*2)*scale, dst.rows-y));
+
+            console.log(rect);
+
+                rect = new cv.Rect(x, y, w, h);
+
+                console.log(rect, scale, src);
+
+            let cropped = dst.roi(rect);
+            
+            let dsize = new cv.Size(800, cropped.rows/cropped.cols*800);
+            cv.resize(cropped, cropped, dsize, 0, 0, cv.INTER_AREA);
+
+            this.pipeline.imagedata = this.getSrc(cropped, true);
+
+            console.log('cropped');
+            console.timeLog('process');
+
+            Promise.all([this.saveEditedPipeline(), this.recognizePipeline()])
+            .then(([edited, recognize]) => {
+              console.log(edited, recognize);
+              resolve([edited, recognize]);
+            });
+
+            src.delete();
+            dst.delete();
+            cropped.delete();
+            rec.delete();
+            con.delete();
+          })
+          .catch(function(error) {
+            console.error(error);
+          });
+        })
+        .catch(function(error) {
+          console.error(error);
+        });
+      }
+      img.src = URL.createObjectURL(this.pipeline.files[0]);
+    });
+  }
+  processPipelineOld() {
     return new Promise((resolve, reject) => {
       let img = this.pipeline.img;
 
@@ -220,11 +412,11 @@ class ReceiptService {
 
       console.time('process');
 
-      this.pipeline.tesseract = window.Tesseract.create({
+      this.pipeline.tesseract = new TesseractWorker()/*({
         langPath: 'http://localhost:42808/lib/tessdata/fast',
         workerPath: 'http://localhost:42808/lib/worker.js',
         corePath: 'http://localhost:42808/lib/tesseract.js-core.js'
-      });
+      })*/;
       this.pipeline.img = new Image();
 
       /*
@@ -343,6 +535,7 @@ class ReceiptService {
     let line, line_name, line_product_name, line_price, line_prices, item_number, line_text,
       line_total, line_date, line_address, line_vat, line_item_details, quantity, measure,
       line_number_format, total_price_computed = 0, name, date, line_item, line_phone_number,
+      line_measure,
       total_price, price, has_discount, previous_line, found_attribute, category,
       items = [], line_number = 0, data = {party:{}},
       lines = text.split("\n");
@@ -402,7 +595,7 @@ class ReceiptService {
   
         if (!data.date) {
           // 1.1.12 1:12
-          line_date = line.match(/((\d{1,2})[\.|\,](\d{1,2})[\.|\,](\d{2,4}))(\s)?((\d{1,2})[:|,|\.]?((\d{1,2})[:|,|\.]?)?(\d{1,2})?)?/);
+          line_date = line.match(/((\d{1,2})[\.|\,](\d{1,2})[\.|\,](\d{2,4}))(\s)?((\d{1,2})[:|,|\.|\s|z]?((\d{1,2})[:|,|\.|\s|z]?)?(\d{1,2})?)?/);
           date = line_date && parseYear(line_date[4])+'-'+line_date[3]+'-'+line_date[2]+' '+line_date[7]+':'+line_date[8]+':'+line_date[10];
           if (date && moment(date).isValid()) {
             console.log(line_date, date);
@@ -494,12 +687,13 @@ class ReceiptService {
         line_item_details = null;
         if (previous_line === 'item') {
           // 1234 1,000 x 1,00
-          line_item_details = line_number_format.match(/^((\d+)\s)?((((\d+)|((\d+\.\d{2,3})(\s?kg)?))\s?x\s?)?((\d+\.\d{2})\s?)(\s?EUR\/kg)?)$/i);
+          line_item_details = line_number_format.replace(/-/g, '').match(/^((\d+)\s)?((((\d+)|((\d+\.\d{2,3})(\s?kg)?))\s?x\s?)?((\d+\.\d{2})\s?)(\s?EUR\/kg)?)$/i);
   
           if (line_item_details) {
             items[items.length-1].item_number = line_item_details[2];
             items[items.length-1].quantity = parseFloat(line_item_details[6]);
             items[items.length-1].measure = parseFloat(line_item_details[8]);
+            items[items.length-1].unit = 'kg';
             previous_line = 'details';
             continue;
           }
@@ -509,6 +703,7 @@ class ReceiptService {
         if (!has_discount && !data.total_price_read && !line.match(/käteinen|kateinen|käte1nen|kate1nen|taka1s1n|takaisin/i)) {
           line_price = line_number_format.match(/\s((\d+\.\d{2})(\-)?){1,2}\s*.{0,3}$/i);
           if (line_price) {
+            line_measure = line.substring(0, line_price.index).match(/([0-9]+)((kg|k9)|(g|9)|(l|1))/);
             line_item = line.substring(0, line_price.index).match(/^((\d+)\s)?([\u00C0-\u017F-a-z0-9\s\-\.\,\+\&\%\=\/\(\)\{\}\[\]]+)$/i);
             if (line_item) {
               price = parseFloat(line_price[1]);
@@ -527,11 +722,24 @@ class ReceiptService {
                 },
                 price: price
               });
+
+              if (line_measure) {
+                items[items.length-1].product.measure = line_measure[1];
+                if (line_measure[3]) {
+                  items[items.length-1].product.unit = 'kg';
+                }
+                else if (line_measure[4]) {
+                  items[items.length-1].product.unit = 'g';
+                }
+                else if (line_measure[5]) {
+                  items[items.length-1].product.unit = 'l';
+                }
+              }
   
               //category = this.getClosestCategory(name, locale, categories);
 
-              if (quantity) items[items.length-1].quantity = quantity;
-              if (measure) items[items.length-1].measure = measure;
+              //if (quantity) items[items.length-1].quantity = quantity;
+              //if (measure) items[items.length-1].measure = measure;
               //if (category) items[items.length-1].product.category = category/*{id: category.id, name: category.locales && category.locales[locale] || category.name}*/;
   
               let found = false;
