@@ -52,9 +52,26 @@ export default {
       }
     });
   },
-  getCategories() {
+  getAttributes(fetch) {
     return new Promise((resolve, reject) => {
-      if (this.categories) {
+      if (this.attributes && !fetch) {
+        resolve(this.attributes);
+      }
+      else {
+        axios.get('/api/attribute?parent')
+        .then(response => {
+          this.attributes = response.data;
+          resolve(this.attributes);
+        })
+        .catch(error => {
+          reject(error);
+        });
+      }
+    });
+  },
+  getCategories(fetch) {
+    return new Promise((resolve, reject) => {
+      if (this.categories && !fetch) {
         resolve(this.categories);
       }
       else {
@@ -62,6 +79,23 @@ export default {
         .then(response => {
           this.categories = response.data;
           resolve(this.categories);
+        })
+        .catch(error => {
+          reject(error);
+        });
+      }
+    });
+  },
+  getCategoriesWithAttributes(fetch) {
+    return new Promise((resolve, reject) => {
+      if (this.categories_attributes && !fetch) {
+        resolve(this.categories_attributes);
+      }
+      else {
+        axios.get('/api/category?attributes&parent&locale=fi-FI')
+        .then(response => {
+          this.categories_attributes = response.data;
+          resolve(this.categories_attributes);
         })
         .catch(error => {
           reject(error);
