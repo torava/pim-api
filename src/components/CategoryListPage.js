@@ -3,46 +3,127 @@
 import axios from 'axios';
 import React, {Component} from 'react';
 import EditableTable from './EditableTable';
+import { locale } from './locale';
+import config from '../config/default.json';
+import DataStore from './DataStore';
 
 export default class CategoryList extends Component {
   constructor(props) {
     super(props);
 
-    let that = this;
+    this.state = {
+      selected_attributes: {}
+    };
 
-    this.state = {};
-
-    axios.get('/api/attribute/?parent')
-    .then(function(attributes) {
-      that.setState({attributes: attributes.data});
-      
-      axios.get('/api/category/?attributes&parent&locale=fi-FI')
-      .then(function(categories) {
-        that.setState({
-          categories: categories.data,
-          columns: that.getColumns()
+    Promise.all([
+      DataStore.getAttributes(),
+      DataStore.getCategoriesWithAttributes()
+    ])
+    .then(([attributes, categories]) => {
+      this.setState({
+        categories: categories,
+        attributes: attributes
+      }, () => {
+        this.setState({
+          columns: this.getColumns(),
+          attribute_selector_columns: this.getAttributeSelectorColumns()
         });
-
-        document.title = "Categories";
       });
+
+      document.title = "Categories";
+    })
+    .catch(error => {
+      console.error(error);
+    });
+
+    this.setAttributeVisibility = this.setAttributeVisibility.bind(this);
+    this.selectCategory = this.selectCategory.bind(this);
+    this.copyAttributes = this.copyAttributes.bind(this);
+  }
+  setAttributeVisibility(attribute, visible) {
+    function set(attribute, visible, selected_attributes) {
+      attribute.children.forEach(child => {
+        set(child, visible, selected_attributes);
+      });
+      if (visible) selected_attributes[attribute.id] = attribute;
+      else delete selected_attributes[attribute.id];
+    }
+    let selected_attributes = {...this.state.selected_attributes};
+    if (attribute) {
+      set(attribute, visible, selected_attributes);
+    }
+    else {
+      this.state.attributes.forEach(a => {
+        set(a, visible, selected_attributes);
+      });
+    }
+
+    this.setState({selected_attributes},
+    () => {
+      this.setState({columns: this.getColumns()});
     });
   }
-  getAttributeColumn(attributes) {
-    let that = this;
-    return attributes.map((value, key) => {
+  getAttributeColumns(attributes) {
+    let columns = [];
+    let value;
+    for (let key in attributes) {
+      value = attributes[key];
       let column = {
-        id: key,
-        label: value.name['fi-FI']+(value.unit ? " "+value.unit.toLowerCase() : ""),
+        id: value.id,
+        label: value.name['fi-FI']+(value.unit ? " "+value.unit : ""),
         property: 'attributes['+value.id+'].value'
       }
-      if (value.children) {
-        column.columns = that.getAttributeColumn(value.children);
+      let target_unit = locale.getAttributeUnit(value.name['en-US']);
+      if (target_unit) {
+        let rate = config.unit_conversions[value.unit][target_unit];
+        if (rate) {
+          column.label = value.name['fi-FI']+" "+target_unit;
+          column.formatter = (v, i) => {
+            let result = rate*v;
+            return result ? result.toFixed(2) : '';
+          }
+        }
       }
-      return column;
-    });
+      if (value.children) {
+        column.columns = this.getAttributeColumns(value.children);
+      }
+      columns.push(column);
+    }
+    return columns;
+  }
+  getAttributeSelectorColumns() {
+    return [
+      {
+        id: 'checkbox',
+        label: <input type="checkbox"
+                      id={"toggle-attribute-all"}
+                      onChange={event => this.setAttributeVisibility(null, event.target.checked)}/>,
+        formatter: (value, attribute) => <input type="checkbox"
+                                                id={"toggle-attribute-"+attribute.id}
+                                                checked={this.state.selected_attributes[attribute.id]}
+                                                onChange={event => this.setAttributeVisibility(attribute, event.target.checked)}/>
+      },
+      {
+        id: 'name',
+        label: 'Name',
+        property: attribute => locale.getNameLocale(attribute.name),
+        formatter: (value, attribute) => <label htmlFor={"toggle-attribute-"+attribute.id}>{locale.getNameLocale(value)}</label>
+      },
+      {
+        id: 'unit',
+        label: 'Unit'
+      }
+    ];
   }
   getColumns() {
     return [
+      {
+        label: <input type="checkbox"
+                      onClick={event => this.selectCategory(null, event.target.checked)}/>,
+        formatter: (value, item) => <input type="checkbox"
+                                           onClick={event => this.selectCategory(item, event.target.checked)}/>,
+        class: 'nowrap'
+      },
       {
         id: 'name',
         label: 'Name',
@@ -54,15 +135,49 @@ export default class CategoryList extends Component {
         id: 'price',
         label: 'Price'
       },
-    ].concat(this.getAttributeColumn(this.state.attributes));
+    ].concat(this.getAttributeColumns(this.state.selected_attributes));
+  }
+  selectCategory(category, selected) {
+    let selected_categories = {...this.state.selected_categories};
+    if (selected) {
+      selected_categories[category.id] = true;
+    }
+    else {
+      delete selected_categories[category.id];
+    }
+    this.setState({selected_categories});
+  }
+  copyAttributes() {
+    axios.post('/api/category/attribute/copy', {
+      attributes: Object.keys(this.state.selected_attributes),
+      categories: Object.keys(this.state.selected_categories)
+    })
+    .then(result => {
+      console.log(result);
+      DataStore.getCategoriesWithAttributes(true)
+      .then(categories => {
+        this.setState({categories});
+      });
+    })
+    .catch(error => {
+      console.error(error);
+    });
   }
   render() {
     if (!this.state || !this.state.columns || !this.state.attributes) return null;
     return (
-      <EditableTable
-        columns={this.state.columns}
-        items={this.state.categories}
-      />
+      <div>
+        <button onClick={this.copyAttributes}>Copy Selected Attributes</button>
+        <EditableTable
+          columns={this.state.attribute_selector_columns}
+          items={this.state.attributes}
+        />
+        <br/>
+        <EditableTable
+          columns={this.state.columns}
+          items={this.state.categories}
+        />
+      </div>
     );
   }
 }

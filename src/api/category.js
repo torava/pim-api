@@ -150,7 +150,7 @@ export default app => {
         }
         else if (['nimi', 'name'].indexOf(column_name.toLowerCase()) !== -1) {
           for (let i in categories) {
-            if (categories[i].name['fi-FI'] == columns[n]) {
+            if (categories[i].name && categories[i].name['fi-FI'] == columns[n]) {
               item.id = categories[i].id;
               break;
             }
@@ -171,7 +171,7 @@ export default app => {
         else if (['isä', 'parent'].indexOf(column_name.toLowerCase()) !== -1) {
           if (!columns[n]) continue;
           for (let i in categories) {
-            if (categories[i].name['fi-FI'] == columns[n]) {
+            if (categories[i].name && categories[i].name['fi-FI'] == columns[n]) {
               item.parent = {
                 id: categories[i].id
               }
@@ -467,6 +467,68 @@ app.post('/api/category', async function(req, res) {
       console.error(error);
       throw new Error();
     });
+});
+
+app.post('/api/category/attribute/copy', (req, res) => {
+  let selected_categories = req.body.categories,
+      selected_attributes = req.body.attributes,
+      copyable_attributes = {},
+      updateable_categories = {};
+  Category.query()
+  .findByIds(selected_categories)
+  .eager('[attributes.sources]')
+  .then(categories => {
+    categories.forEach(c => {
+      c.attributes.forEach(a => {
+        if (selected_attributes.indexOf(String(a.attributeId)) !== -1 && (!copyable_attributes.hasOwnProperty(a.attributeId) || copyable_attributes[a.attributeId].sources.reference_date < a.sources.reference_date)) {
+          copyable_attributes[a.attributeId] = {
+            value: a.value,
+            unit: a.unit,
+            attributeId: a.attributeId,
+            sources: a.sources
+          };
+          categories.forEach(uc => {
+            if (uc.id != c.id) {
+              if (updateable_categories.hasOwnProperty(uc.id)) {
+                updateable_categories[uc.id].attributes = updateable_categories[uc.id].attributes.filter(ua => ua.attributeId !== a.attributeId);
+              }
+              else {
+                updateable_categories[uc.id] = {
+                  id: uc.id,
+                  attributes: []
+                };
+              }
+              updateable_categories[uc.id].attributes.push(copyable_attributes[a.attributeId]);
+            }
+          });
+        }
+      });
+    });
+    console.log('body', req.body);
+    console.log('categories');
+    console.dir(categories, {depth:null});
+    console.log('copyable attributes');
+    console.dir(copyable_attributes, {depth:null});
+    console.log('updateable categories');
+    console.dir(updateable_categories, {depth:null});
+    Category.query()
+    .upsertGraph(Object.values(updateable_categories), {
+      relate: true,
+      noDelete: true
+    })
+    .then(result => {
+      console.log(result);
+      res.send();
+    })
+    .catch(error => {
+      console.error(error);
+      throw new Error();
+    });
+  })
+  .catch(error => {
+    console.error(error);
+    throw new Error();
+  });
 });
 
 }
