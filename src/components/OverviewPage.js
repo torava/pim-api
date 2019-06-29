@@ -17,26 +17,12 @@ import {  VictoryChart,
   VictoryScatter
 } from 'victory';
 import {locale} from './locale';
+import config from '../config/default.json';
 
 function first(list) {
   for (let i in list) {
     return list[i];
   }
-}
-function getNameLocale(name, strict) {
-  if (!name) {
-    return name;
-  }
-  if (typeof name === 'string') {
-    return name;
-  }
-  else if (name.hasOwnProperty(locale.getLocale())) {
-    return name[locale.getLocale()];
-  }
-  else if (!strict) {
-    return first(name);
-  }
-  else return '';
 }
 
 export default class OverviewPage extends Component {
@@ -57,6 +43,8 @@ export default class OverviewPage extends Component {
       resolved_timeline_items: [],
       resolved_timeline_categories: []
     };
+
+    this.setAttributeAggregateVisibility = this.setAttributeAggregateVisibility.bind(this);
 
     axios.get('/api/attribute/?parent')
     .then(function(attributes) {
@@ -256,7 +244,7 @@ export default class OverviewPage extends Component {
       if (!found) {
         resolved_items.push({
           id: id,
-          name: getNameLocale(name),
+          name: locale.getNameLocale(name),
           price: item.price,
           item_names: [item.product.name]
         });
@@ -290,7 +278,7 @@ export default class OverviewPage extends Component {
           resolved_item.data.map(data => {
             if (data.transaction_id === item.transaction.id) {
               data.price+= item.price;
-              data.name = getNamelocale(name);
+              data.name = locale.getNamelocale(name);
               data.item_names.push(item.product.name);
               found = true;
               return;
@@ -299,7 +287,7 @@ export default class OverviewPage extends Component {
           if (!found) {
             resolved_item.data.push({
               transaction_id: item.transaction.id,
-              name: getNameLocale(name),
+              name: locale.getNameLocale(name),
               date: item.transaction.date,
               price: item.price,
               item_names: [item.product.name]
@@ -321,7 +309,7 @@ export default class OverviewPage extends Component {
           data: [{
             transaction_id: item.transaction.id,
             date: item.transaction.date,
-            name: getNameLocale(name),
+            name: locale.getNameLocale(name),
             price: item.price,
             item_names: [item.product.name]
           }]
@@ -337,19 +325,44 @@ export default class OverviewPage extends Component {
     let categories = [...this.state.categories];
     categories.reduce(function resolver(sum, category) {
       if (category.hasOwnProperty('products') && category.products.length) {
-        let item_prices = 0;
+        let item_prices = 0,
+            item_weights = 0,
+            item_volumes = 0;
         category.products.map(product => {
           product.items.map(item => {
             item_prices+= item.price;
+            if (item.unit == 'l' || product.unit == 'l') {
+              item_volumes+= (product.quantity || item.quantity || 1)*(product.unit || item.unit);
+            }
+            else {
+              item_weights+= (product.quantity || item.quantity || 1)*locale.convertMeasure(product.measure || item.measure, product.unit || item.unit, 'kg');
+            }
           });
         });
         category.price_sum = item_prices; 
+        category.weight_sum = item_weights;
+        category.volume_sum = item_volumes;
       }
       if (category.hasOwnProperty('children') && category.children.length) {
-        category.price_sum = category.children.reduce(resolver, 0);
+        let sum = category.children.reduce(resolver, {
+          price_sum: 0,
+          volume_sum: 0,
+          weight_sum: 0
+        });
+        category.price_sum = sum.price_sum;
+        category.weight_sum = sum.weight_sum;
+        category.volume_sum = sum.volume_sum;
       }
-      return sum+(category.price_sum || 0);
-    }, 0);
+      return {
+        price_sum: sum.price_sum+(category.price_sum || 0),
+        weight_sum: sum.weight_sum+(category.weight_sum || 0),
+        volume_sum: sum.volume_sum+(category.volume_sum || 0)
+      };
+    }, {
+      price_sum: 0,
+      volume_sum: 0,
+      weight_sum: 0
+    });
     console.log(categories);
     this.setState({
       resolved_categories: categories
@@ -364,7 +377,7 @@ export default class OverviewPage extends Component {
         if (category.hasOwnProperty('products') && category.products.length) {
           category.products.map(product => {
             product.items.map(item => {
-              item_measure+= (item.quantity || 1)*(item.measure/100);
+              item_measure+= (product.quantity || item.quantity || 1)*locale.convertMeasure(product.measure || item.measure, product.unit || item.unit, 'kg');
             });
           });
         }
@@ -372,7 +385,14 @@ export default class OverviewPage extends Component {
           if (!category.hasOwnProperty('attribute_sum')) {
             category.attribute_sum = {};
           }
-          category.attribute_sum[attribute_id] = category.attributes[attribute_id].value*item_measure; 
+          category.attribute_sum[attribute_id] = category.attributes[attribute_id].value*item_measure;
+          let target_unit = locale.getAttributeUnit(attribute_aggregates[attribute_id].name['en-US']);
+          if (target_unit) {
+            let rate = config.unit_conversions[attribute_aggregates[attribute_id].unit][target_unit];
+            if (rate) {
+              category.attribute_sum[attribute_id]*= rate;
+            }
+          } 
         }
         if (category.hasOwnProperty('children') && category.children.length) {
           if (!category.hasOwnProperty('attribute_sum')) {
@@ -393,53 +413,91 @@ export default class OverviewPage extends Component {
         aggregate;
     for (let id in attribute_aggregates) {
       aggregate = attribute_aggregates[id];
-      console.log(aggregate);
-      aggregate && attribute_aggregate_columns.push({
-        id: aggregate.name[locale.getLocale()]+'_sum',
-        formatter: (value, item) => {
-          console.log(id);
-          return item.attribute_sum && item.attribute_sum[id] && item.attribute_sum[id].toLocaleString(locale.getLocale(), {minimumFractionDigits: 2,maximumFractionDigits:2});
-        },
-        label: getNameLocale(aggregate.name)+(aggregate.unit && " ("+aggregate.unit+")")
-      });
+      if (aggregate && !aggregate.children.length) {
+        let label = locale.getNameLocale(aggregate.name)+(aggregate.unit ? " ("+aggregate.unit+")" : '');
+        let target_unit = locale.getAttributeUnit(aggregate.name['en-US']);
+        if (target_unit) {
+          label = locale.getNameLocale(aggregate.name)+" ("+target_unit+")";
+        }
+        attribute_aggregate_columns.push({
+          id: aggregate.name[locale.getLocale()]+'_sum',
+          property: 'attribute_sum['+id+']',
+          formatter: (value, item) => {
+            return item.attribute_sum && 
+                   item.attribute_sum[id] &&
+                   item.attribute_sum[id].toLocaleString(locale.getLocale(), {minimumFractionDigits: 2,maximumFractionDigits:2});
+          },
+          label
+        });
+      }
     }
     return [
       {
         id: 'name',
         label: 'Name',
-        property: 'name',
-        formatter: (value, item) => <a href={"/category/"+item.id}>{getNameLocale(value)}</a>,
+        property: item => locale.getNameLocale(item.name),
+        formatter: (value, item) => <a href={"/category/"+item.id}>{locale.getNameLocale(value)}</a>,
         width: '700'
       },
       {
         id: 'price_sum',
         formatter: value => value && value.toFixed(2),
         label: 'Price'
+      },
+      {
+        id: 'weight_sum',
+        formatter: value => value && value.toFixed(2),
+        label: 'Weight'
+      },
+      {
+        id: 'volume_sum',
+        formatter: value => value && value.toFixed(2),
+        label: 'Volume'
       }
     ].concat(attribute_aggregate_columns);
   }
   getAttributeColumns() {
     return [
       {
-        formatter: (value, attribute) => <input type="checkbox" name={attribute.id} onChange={this.setAttributeAggregateVisibility.bind(this, attribute)}/>
+        id: 'checkbox',
+        label: <input type="checkbox"
+                      id={"toggle-attribute-all"}
+                      onChange={event => this.setAttributeAggregateVisibility(null, event.target.checked)}/>,
+        formatter: (value, attribute) => <input type="checkbox"
+                                                id={"toggle-attribute-"+attribute.id}
+                                                checked={this.state.attribute_aggregates.hasOwnProperty(attribute.id)}
+                                                onChange={event => this.setAttributeAggregateVisibility(attribute, event.target.checked)}/>
       },
       {
         id: 'name',
         label: 'Name',
-        formatter: (value, attribute) => <label for={"toggle-attribute-"+attribute.id}>{getNameLocale(value)}</label>
+        property: attribute => locale.getNameLocale(attribute.name),
+        formatter: (value, attribute) => <label htmlFor={"toggle-attribute-"+attribute.id}>{locale.getNameLocale(value)}</label>
       }
     ]
   }
-  setAttributeAggregateVisibility(attribute, event) {
-    let attribute_aggregates = Object.assign({}, this.state.attribute_aggregates),
+  setAttributeAggregateVisibility(attribute, visible) {
+    function set(attribute, visible, attribute_aggregates) {
+      attribute.children.forEach(child => {
+        set(child, visible, attribute_aggregates);
+      });
+      if (visible) attribute_aggregates[attribute.id] = attribute;
+      else delete attribute_aggregates[attribute.id];
+    }
+    let attribute_aggregates = {...this.state.attribute_aggregates},
         that = this;
-    if (event.target.value === 'on') {
-      attribute_aggregates[attribute.id] = attribute;
+
+    if (attribute) {
+      set(attribute, visible, attribute_aggregates);
     }
     else {
-      delete attribute_aggregates[attribute.id];
+      this.state.attributes.forEach(a => {
+        set(a, visible, attribute_aggregates);
+      });
     }
+    
     console.log(attribute_aggregates);
+  
     this.setState({
       attribute_aggregates
     }, () => {
