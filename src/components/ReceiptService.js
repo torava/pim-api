@@ -1,7 +1,7 @@
 import axios from "axios";
 import moment from 'moment';
 import DataStore from './DataStore';
-const { TesseractWorker, PSM } = Tesseract;
+const { TesseractWorker, PSM, OEM } = Tesseract;
 
 const WAITING = -1;
 
@@ -52,6 +52,13 @@ function localeToLanguage(locale) {
 class ReceiptService {
   constructor() {
     this.pipeline = {};
+
+    this.pipeline.tesseract = new TesseractWorker({
+      langPath: 'http://localhost:42808/lib/tessdata/fast',
+      //workerPath: 'http://localhost:42808/lib/worker.js',
+      //corePath: 'http://localhost:42808/lib/tesseract.js-core.js'
+    });
+
     Promise.all([
       DataStore.getProducts(),
       DataStore.getManufacturers(),
@@ -112,7 +119,29 @@ class ReceiptService {
   }
   recognizePipeline() {
     return new Promise((resolve, reject) => {
-      this.pipeline.tesseract.recognize(
+      let cropped_words = [],
+          cropped_lines = [],
+          cropped_text,
+          x = this.pipeline.rect.x,
+          y = this.pipeline.rect.y,
+          w = this.pipeline.rect.w,
+          h = this.pipeline.rect.h;
+
+      this.pipeline.lines.forEach(line => {
+        cropped_words = [];
+        line.words.forEach(word => {
+          if (word.bbox.x0 > x && word.bbox.y0 > y && word.bbox.x1 < x+w && word.bbox.y1 < y+h) {
+            cropped_words.push(word.text);
+          }
+        });
+        if (cropped_words.length) {
+          cropped_lines.push(cropped_words.join(' '));
+        }
+      });
+
+      cropped_text = cropped_lines.join("\n");
+      
+      /*this.pipeline.tesseract.recognize(
         this.pipeline.imagedata,
         'fin',
         //tessedit_pageseg_mode: '3',
@@ -123,7 +152,7 @@ class ReceiptService {
       .then(result => {
         console.log('recognized');
         console.timeLog('process');
-        console.log(result);
+        console.log(result);*/
         
         let data = {
           products: this.products,
@@ -131,14 +160,14 @@ class ReceiptService {
           categories: this.categories
         },
             locale = 'fi-FI';
-        this.getTransactionsFromReceipt(data, result.text, locale);
+        this.getTransactionsFromReceipt(data, cropped_text, locale);
 
         console.log('extracted');
         console.timeLog('process');
         console.log(data, locale);
         this.pipeline.transactions = data.transactions;
         resolve(data.transactions);
-      });
+      //});
     });
   }
   processPipeline() {
@@ -149,17 +178,23 @@ class ReceiptService {
         console.timeLog('process');
         let src = cv.imread(img);
         let dst = new cv.Mat();
+        let bil = new cv.Mat();
 
         cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
 
-        cv.adaptiveThreshold(src, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 15, 25);//, 201, 30);
+        cv.bilateralFilter(src,bil,5,10,10);
+
+        let ksize = new cv.Size(9,9);
+        cv.GaussianBlur(bil, bil, ksize, 0, 0, cv.BORDER_DEFAULT);
+
+        cv.adaptiveThreshold(bil, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 15, 15);//, 201, 30);
 
         let M= cv.Mat.ones(2, 2, cv.CV_8U);
           let anchor = new cv.Point(-1, -1);
           cv.dilate(dst, dst, M, anchor, 1);
-          cv.erode(dst, dst, M, anchor, 2);
+          cv.erode(dst, dst, M, anchor, 1);
 
-          let dsize = new cv.Size(3000, src.rows/src.cols*3000);
+          let dsize = new cv.Size(2400, src.rows/src.cols*2400);
           cv.resize(dst,dst, dsize, 0, 0, cv.INTER_AREA);
 
         let imagedata = this.getSrc(dst, true);
@@ -167,12 +202,8 @@ class ReceiptService {
         console.log('processed');
         console.timeLog('process');
 
-        this.pipeline.tesseract.detect(
-          imagedata/*,
-          'eng',
-          {
-            'tessedit_pageseg_mode': PSM.OSD_ONLY,
-          }*/
+        return this.pipeline.tesseract.detect(
+          imagedata
         )
         .then(result => {
           let rotate = result.orientation_degrees;
@@ -185,18 +216,23 @@ class ReceiptService {
 
           imagedata = this.getSrc(dst, true);
     
-          this.pipeline.tesseract.recognize(
+          return this.pipeline.tesseract.recognize(
             imagedata,
-            /*'fin',
+            'fin',
             {
+              //'tessedit_pageseg_mode': PSM.AUTO_OSD,
+              tessedit_ocr_engine_mode: OEM.TESSERACT_ONLY,
               tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890',
               //textord_max_noise_size: 50,
               //textord_noise_sizelimit: 1
-            }*/
+              tessedit_create_osd: '1',
+            }
           )
           //.progress(message => console.log(message))
           .catch(err => console.error(err))
           .then(result => {
+            this.pipeline.lines = result.lines;
+
             console.log('recognized for cropping');
             console.timeLog('process');
 
@@ -305,6 +341,8 @@ class ReceiptService {
 
             this.pipeline.imagedata = this.getSrc(cropped, true);
 
+            this.pipeline.rect = {x,y,w,h};
+
             console.log('cropped');
             console.timeLog('process');
 
@@ -319,13 +357,11 @@ class ReceiptService {
             cropped.delete();
             rec.delete();
             con.delete();
-          })
-          .catch(function(error) {
-            console.error(error);
           });
         })
         .catch(function(error) {
           console.error(error);
+          reject();
         });
       }
       img.src = URL.createObjectURL(this.pipeline.files[0]);
@@ -407,47 +443,48 @@ class ReceiptService {
     });
   }
   upload(files) {
-    return new Promise((resolve, reject) => {
-      this.pipeline = {files};
+    return new Promise(async (resolve, reject) => {
+      console.log(files);
+      let file;
+      for (let i in files) {
+        file = files[i];
 
-      console.time('process');
+        this.pipeline.files = [file];
 
-      this.pipeline.tesseract = new TesseractWorker()/*({
-        langPath: 'http://localhost:42808/lib/tessdata/fast',
-        workerPath: 'http://localhost:42808/lib/worker.js',
-        corePath: 'http://localhost:42808/lib/tesseract.js-core.js'
-      })*/;
-      this.pipeline.img = new Image();
+        console.time('process');
 
-      /*
-        1) image   -> 2) recognize
-        1) receipt ->               -> 3) edited
-                      2) original
-                                                  -> 4) save
-      */
+        this.pipeline.img = new Image();
 
-      Promise.all([this.processPipeline(), this.prepareReceiptPipeline()])
-      .then(() => {
-        this.saveTransactionPipeline()
+        /*
+          1) image   -> 2) recognize
+          1) receipt ->               -> 3) edited
+                        2) original
+                                                    -> 4) save
+        */
+
+        await Promise.all([this.processPipeline(), this.prepareReceiptPipeline()])
         .then(() => {
-          console.log(this.pipeline);
-          resolve(this.pipeline);
+          this.saveTransactionPipeline()
+          .then(() => {
+            console.log(this.pipeline);
+          })
+          .catch(error => {
+            reject(error);
+          });
         })
         .catch(error => {
           reject(error);
         });
-      })
-      .catch(error => {
-        reject(error);
-      });
+      }
+      resolve();
     });
   }
   saveReceipt(transactions) {
     return new Promise((resolve, reject) => {
-      axios.post('/api/transaction/', transactions)
+      return axios.post('/api/transaction/', transactions)
       .then(function(response) {
         console.log(response);
-        DataStore.getTransactions(true).then((transactions) => {
+        return DataStore.getTransactions(true).then((transactions) => {
           resolve(transactions);
         });
       })
@@ -707,6 +744,7 @@ class ReceiptService {
             line_item = line.substring(0, line_price.index).match(/^((\d+)\s)?([\u00C0-\u017F-a-z0-9\s\-\.\,\+\&\%\=\/\(\)\{\}\[\]]+)$/i);
             if (line_item) {
               price = parseFloat(line_price[1]);
+              measure = line_measure && parseFloat(line_measure[1]);
               name = toTitleCase(line_item[3]);
   
               if (line_price[3] === '-') {
@@ -723,8 +761,8 @@ class ReceiptService {
                 price: price
               });
 
-              if (line_measure) {
-                items[items.length-1].product.measure = line_measure[1];
+              if (measure && !isNaN(measure)) {
+                items[items.length-1].product.measure = measure;
                 if (line_measure[3]) {
                   items[items.length-1].product.unit = 'kg';
                 }

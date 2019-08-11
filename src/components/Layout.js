@@ -4,6 +4,7 @@ import React from 'react';
 import {Link} from 'react-router-dom';
 import {locale} from './locale';
 import ReceiptService from './ReceiptService';
+import DataStore from './DataStore';
 
 function confirmExit() {
   return "You have attempted to leave this page. Are you sure?";
