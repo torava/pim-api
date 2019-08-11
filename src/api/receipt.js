@@ -10,6 +10,8 @@ import _ from 'lodash';
 import {JSDOM} from 'jsdom';
 import sizeOf from 'image-size';
 import moment from 'moment';
+import crypto from 'crypto';
+import Receipt from '../models/Receipt';
 
 export default app => {
 
@@ -19,6 +21,24 @@ const upload = multer({
   dest: upload_path,
   limits: {fileSize: 10000000}
 }).single('file');
+
+// Decoding base-64 image
+// Source: http://stackoverflow.com/questions/20267939/nodejs-write-base64-image-file
+function decodeBase64Image(dataString) 
+{
+  var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+  var response = {};
+
+  if (matches.length !== 3) 
+  {
+    return new Error('Invalid input string');
+  }
+
+  response.type = matches[1];
+  response.data = new Buffer(matches[2], 'base64');
+
+  return response;
+}
 
 function getClosestCategory(toCompare, locale) {
   return new Promise((resolve, reject) => {
@@ -609,76 +629,6 @@ function extractTextFromFile(filepath, locale) {
   });
 }
 
-app.post('/api/receipt/picture', function(req, res) {
-  upload(req, res, function(err) {
-    if (err) {
-      console.error(error);
-      throw new Error();
-    }
-
-    let file = req.file;
-
-    processReceiptImage(file.path, {}, '800x').then((response) => {
-      child_process.execFile('tesseract', [
-        '-l', 'fin',
-        file.path+'_edited',
-        'stdout',
-        'hocr',
-      ], function(error, stdout, stderr) {
-        if (error) console.error(error);
-        process.stdout.write(stdout);
-        process.stderr.write(stderr);
-
-        let dimensions = sizeOf(file.path);
-
-        const { document } = (new JSDOM(stdout)).window;
-
-        let words = document.querySelectorAll('.ocrx_word'),
-            boundaries = {},
-            coords,
-            left, top, right, bottom,
-            factor = dimensions.width/800;
-
-        for (let i in words) {
-          if (!words[i] || !words[i].textContent || !words[i].textContent.trim()) continue;
-          coords = words[i].title.split(';')[0].substring(5).split(' ');
-          left = coords[0];
-          top = coords[1];
-          right = coords[2];
-          bottom = coords[3];
-
-          if (boundaries.hasOwnProperty('left')) {
-            boundaries.left = Math.min(left, boundaries.left);
-            boundaries.top = Math.min(top, boundaries.top);
-            boundaries.right = Math.max(right, boundaries.right);
-            boundaries.bottom = Math.max(bottom, boundaries.bottom);
-          }
-          else {
-            boundaries.left = left;
-            boundaries.top = top;
-            boundaries.right = right;
-            boundaries.bottom = bottom;
-          }
-        }
-        let data = {
-            x: (boundaries.left-15)*factor,
-            y: (boundaries.top-15)*factor,
-            width: (boundaries.right-boundaries.left+30)*factor,
-            height: (boundaries.bottom-boundaries.top+30)*factor
-        };
-
-        processReceipt(data, 'fi-FI', file.filename).then((response) => {
-          res.send(response);
-        });
-      });
-    })
-    .catch(error => {
-      console.error(error);
-      throw new Error();
-    });
-  });
-});
-
 app.get('/api/receipt/data/:id', function(req, res) {
   let data = req.body,
       language = data.language,
@@ -922,8 +872,74 @@ app.post('/api/receipt/data/:id', function(req, res) {
   });
 });
 
+app.post('/api/receipt', (req, res) => {
+  Receipt
+  .query()
+  .insert({})
+  .then(receipt => {
+    res.send(receipt);
+  })
+  .catch(error => {
+    console.error(error);
+    throw new Error();
+  });
+});
+
+app.post('/api/receipt/original', (req, res) => {
+  try {
+      var base64Data = req.body.src;
+
+      var imageBuffer = decodeBase64Image(base64Data);
+
+      var name = req.body.id+'_original';
+
+      var image_path = upload_path+'/'+name;
+
+      // Save decoded binary image to disk
+      try {
+        require('fs').writeFile(image_path, imageBuffer.data, () => {
+          console.log('Uploaded '+image_path);
+          res.send(name);
+        });
+      }
+      catch(error) {
+          res.status(500).send(error);
+      }
+  }
+  catch(error) {
+    res.status(500).send(error);
+  }
+});
+
+app.post('/api/receipt/picture', (req, res) => {
+  try {
+      var base64Data = req.body.src;
+
+      var imageBuffer = decodeBase64Image(base64Data);
+
+      var name = req.body.id+'_edited';
+
+      var image_path = upload_path+'/'+name;
+
+      // Save decoded binary image to disk
+      try {
+        require('fs').writeFile(image_path, imageBuffer.data, () => {
+          console.log('Uploaded '+image_path);
+          res.send(name);
+        });
+      }
+      catch(error) {
+        res.status(500).send(error);
+      }
+  }
+  catch(error) {
+    res.status(500).send(error);
+  }
+});
+
+
 app.get('/api/receipt/original/:id', function (req, res) {
-	var file_path = upload_path+"/"+req.params.id;
+	var file_path = upload_path+"/"+req.params.id+'_original';
 	fs.access(file_path, fs.R_OK, function(err) {
 		if (err) {
 			console.error(err);

@@ -11,28 +11,41 @@ class EditableTable extends Component {
     this.state = {
       columns: props.columns,
       childView: props.childView,
-      items: props.items,
       resolved_items: props.items,
       filter: props.filter,
       column_orders: {},
+      expanded_items: {},
       ready: false
     }
 
     this.toggleChildren = this.toggleChildren.bind(this);
     this.onColumnTitleClick = this.onColumnTitleClick.bind(this);
+    this.getContent = this.getContent.bind(this);
   }
   componentWillReceiveProps(props) {
     this.setState({
       columns: props.columns,
       childView: props.childView,
-      items: props.items,
+      resolved_items: this.resolveItems(this.props.items),
       ready: false
     });
   }
-  toggleChildren(event) {
-    event.preventDefault();
+  toggleChildren(event, id) {
+    event && event.preventDefault();
 
-    const indexes = event.target.parentNode.parentNode.id.split('-'),
+    let expanded_items = {...this.state.expanded_items};
+    if (expanded_items[id]) {
+      delete expanded_items[id];
+    }
+    else {
+      expanded_items[id] = true;
+    }
+    this.setState({
+      expanded_items
+    });
+
+
+    /*const indexes = event.target.parentNode.parentNode.id.split('-'),
           items = [...this.state.items];
 
     let item = items[indexes.shift()];
@@ -45,10 +58,10 @@ class EditableTable extends Component {
 
     this.setState({
       items
-    });
+    });*/
   }
   onColumnTitleClick(column, event) {
-    let column_orders = Object.assign({}, this.state.column_orders),
+    let column_orders = {...this.state.column_orders},
         that = this;
     if (column.sortable !== false) {
       if (column_orders[column.id] == 'ASC') {
@@ -66,7 +79,7 @@ class EditableTable extends Component {
       column_orders
     }, () => {
       this.setState({
-        resolved_items: that.resolveItems(that.state.items),
+        resolved_items: that.resolveItems(that.props.items),
         ready: true
       })
     });
@@ -81,43 +94,70 @@ class EditableTable extends Component {
     else return column;
   }
   resolveItems(items) {
-    console.log(this);
     if (!items) return [];
 
     let resolved_items = [...items],
         column_orders = this.state.column_orders,
         column_order,
-        order;
-    resolved_items.sort((a,b) => {
+        order,
+        a,
+        b,
+        column;
+    resolved_items.sort((a_item, b_item) => {
       for (let id in column_orders) {
-        if (!a.hasOwnProperty(id) || !b.hasOwnProperty(id)) return;
-        if (typeof a == 'string' && typeof b == 'string') {
-          order = a[id].localeCompare(b[id], undefined, {numeric: true, sensitivity: 'base'});
+        column = this.state.columns.find(c => c.id === id);
+        a = this.getValue(a_item, column);
+        b = this.getValue(b_item, column);
+        console.log(a, b, a_item, b_item, column);
+        if (!a && !b) {
+          return 1;
         }
-        else {
-          order = a < b;
+        else if (!a) {
+          return 1;
         }
+        else if (!b) {
+          return 1;
+        }
+        else if (typeof a == 'string' && typeof b == 'string') {
+          order = a.localeCompare(b, undefined, {numeric: true, sensitivity: 'base'});
+        }
+        else if (a === b) {
+          order = 0;
+        }
+        else if (a < b) {
+          order = -1;
+        }
+        else if (a > b) {
+          order = 1;
+        }
+
         column_order = column_orders[id];
-        console.log(order, column_orders[id], id);
         if (column_order === 'ASC') {
           return order;
         }
         else if (column_order === 'DESC') {
-          return !order;
+          if (order == 1) {
+            return -1;
+          }
+          else if (order === -1) {
+            return 1;
+          }
+          else {
+            return 0;
+          }
         }
       }
     });
-    console.log(column_orders);
     return resolved_items;
   }
-  renderColumns(column, indexes, content, total, depth, cols) {
+  renderColumns(columns, indexes, content, total, depth, cols) {
     let count,
         that = this,
         count2 = 0,
         rowspan,
         key;
     depth++;
-    column && column.map((column, i) => {
+    columns && columns.visible !== false && columns.map((column, i) => {
       key = "column-"+indexes.join('-')+"-"+i;
       count = 0;
       rowspan = 1;
@@ -135,12 +175,33 @@ class EditableTable extends Component {
             data-depth={depth}
             key={key}
             onClick={this.onColumnTitleClick.bind(this, column)}>
-          {column.label} {{'ASC': '\u25B4', 'DESC': '\u25BE'}[this.state.column_orders[column.id]] || ''}
+          {column.label} {{'ASC': '\u25B4', 'DESC': '\u25BE' || '&nbsp;'}[this.state.column_orders[column.id]] || ''}
         </th>
       );
       count2+= count;
     });
     return count2;
+  }
+  getValue(item, column) {
+    if (!item || !column) {
+      return;
+    }
+    let value;
+    if (typeof column.property == 'function') {
+      value = column.property(item);
+    }
+    else if (typeof column.property == 'string') {
+      value = _.get(item, column.property);
+    }
+    else {
+      value = _.get(item, column.id);
+    }
+    return value;
+  }
+  getContent(item, column) {
+    let value = this.getValue(item, column);
+    let content = column.formatter && column.formatter(value, item, item.id) || value;
+    return content;
   }
   render() {
     let that = this,
@@ -163,16 +224,18 @@ class EditableTable extends Component {
         </colgroup>
         {thead}
         <tbody>
-          {that.state.resolved_items && that.state.resolved_items.map((item, i) => {
+          {that.state.resolved_items && that.state.resolved_items.map((item, index) => {
             if (that.state.filter && !that.state.filter(item)) return true;
 
             return <EditableTableItem
-                    key={i}
-                    rowIndex={i}
+                    key={item.id}
+                    index={index}
                     item={item}
                     filter={that.state.filter}
                     columns={that.state.columns}
+                    expanded_items={this.state.expanded_items}
                     resolveItems={that.resolveItems.bind(that)}
+                    getContent={this.getContent}
                     depth={0}
                     toggleChildren={that.toggleChildren}
                     childView={that.state.childView}

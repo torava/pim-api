@@ -3,6 +3,12 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
 import {locale} from './locale';
+import ReceiptService from './ReceiptService';
+import DataStore from './DataStore';
+
+function confirmExit() {
+  return "You have attempted to leave this page. Are you sure?";
+}
 
 export default class Layout extends React.Component {
   constructor(props) {
@@ -15,6 +21,10 @@ export default class Layout extends React.Component {
 
     this.onCurrencyChange = this.onCurrencyChange.bind(this);
     this.onLocaleChange = this.onLocaleChange.bind(this);
+    this.onEnergyUnitChange = this.onEnergyUnitChange.bind(this);
+    this.onUpload = this.onUpload.bind(this);
+
+    this.receiptService = new ReceiptService();
   }
   onCurrencyChange(event) {
     locale.setCurrency(event.target.value);
@@ -27,6 +37,29 @@ export default class Layout extends React.Component {
     this.setState({
       locale: locale.getLocale()
     });
+  }
+  onEnergyUnitChange(event) {
+    locale.setAttributeUnit('energy,calculated', event.target.value);
+  }
+  onUpload(event) {
+    event.preventDefault();
+
+    //window.onbeforeunload = confirmExit;
+
+    let files;
+    if (event.dataTransfer) {
+      files = event.dataTransfer.files;
+    } else if (event.target) {
+      files = event.target.files;
+    }
+
+    if (!files[0]) return;
+
+    this.receiptService.upload(files)
+    .then((transactions) => {
+      console.log(transactions);
+      window.onbeforeunload = null;
+    })
   }
   render() {
     return (
@@ -55,6 +88,13 @@ export default class Layout extends React.Component {
                 <option value="en-US">en-US</option>
                 <option value="es-AR">es-AR</option>
               </select>
+              <select id="energy"
+                      value={locale.getAttributeUnit('energy,calculated')}
+                      onChange={this.onEnergyUnitChange.bind(this)}
+              >
+                <option value="kJ">kJ</option>
+                <option value="kcal">kcal</option>
+              </select>
               <Link to="/" className="button"><i className="fas fa-user"></i></Link>
             </div>
             <div style={{clear:'both'}}/>
@@ -68,7 +108,10 @@ export default class Layout extends React.Component {
             <nav>
               <Link to="/" className="button"><i className="fas fa-chart-area"></i></Link>&nbsp;
               <Link to="/categories" className="button"><i className="fas fa-search"></i></Link>&nbsp;
-              <Link to="/add" className="button"><i className="fas fa-plus"></i></Link>
+              <div className="button file-upload-wrapper">
+                <i className="fas fa-plus"></i>
+                <input type="file" name="upload-file" id="upload-file" multiple draggable onChange={this.onUpload}/>
+              </div>
               <Link to="/transactions" className="button"><i className="fas fa-shopping-cart"></i></Link>&nbsp;
               <Link to="/items" className="button"><i className="fas fa-box-open"></i></Link>&nbsp;
             </nav>

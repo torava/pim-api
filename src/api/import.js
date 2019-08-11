@@ -1,3 +1,5 @@
+'use strict';
+
 import Category from '../models/Category';
 import Attribute from '../models/Attribute';
 import CategoryContribution from '../models/CategoryContribution';
@@ -8,7 +10,15 @@ import moment from 'moment';
 
 export default app => {
 
+function convertFirstLetterCapital(text) {
+  return text ? text.substring(0,1).toUpperCase()+text.substring(1).toLowerCase() : text;
+}
+
 app.get('/api/import/getexternalcategoriesfineli', async function(req, res) {
+  let directory = req.query.dir || 'fineli';
+  let encoding = 'latin1';
+
+  console.log('dir', directory);
   console.log('files '+moment().format());
 
   /* food: 0 = FOODID food id, number
@@ -20,40 +30,40 @@ app.get('/api/import/getexternalcategoriesfineli', async function(req, res) {
            6 = IGCLASSP ingredient class parent, text
            7 = FUCLASS food use class, text
            8 = FUCLASSP food use class parent, text*/
-  let food_rows = fs.readFileSync(__dirname+'/../../fineli/food.csv', 'utf8').split('\n'),
+  let food_rows = fs.readFileSync(__dirname+'/../../'+directory+'/food.csv', encoding).split('\n'),
   /* food use class in Finnish */
-      fuclass_rows = fs.readFileSync(__dirname+'/../../fineli/fuclass_FI.csv', 'utf8').split('\n'),
+      fuclass_rows = fs.readFileSync(__dirname+'/../../'+directory+'/fuclass_FI.csv', encoding).split('\n'),
   /* ingredient class */
-      igclass_rows = fs.readFileSync(__dirname+'/../../fineli/igclass_FI.csv', 'utf8').split('\n'),
+      igclass_rows = fs.readFileSync(__dirname+'/../../'+directory+'/igclass_FI.csv', encoding).split('\n'),
   /* in English */
-      fuclass_en_rows = fs.readFileSync(__dirname+'/../../fineli/fuclass_EN.csv', 'utf8').split('\n'),
-      igclass_en_rows = fs.readFileSync(__dirname+'/../../fineli/igclass_EN.csv', 'utf8').split('\n'),
+      fuclass_en_rows = fs.readFileSync(__dirname+'/../../'+directory+'/fuclass_EN.csv', encoding).split('\n'),
+      igclass_en_rows = fs.readFileSync(__dirname+'/../../'+directory+'/igclass_EN.csv', encoding).split('\n'),
   /* och samma på svenska */
-      fuclass_sv_rows = fs.readFileSync(__dirname+'/../../fineli/fuclass_SV.csv', 'utf8').split('\n'),
-      igclass_sv_rows = fs.readFileSync(__dirname+'/../../fineli/igclass_SV.csv', 'utf8').split('\n'),
+      fuclass_sv_rows = fs.readFileSync(__dirname+'/../../'+directory+'/fuclass_SV.csv', encoding).split('\n'),
+      igclass_sv_rows = fs.readFileSync(__dirname+'/../../'+directory+'/igclass_SV.csv', encoding).split('\n'),
   /* component value: 0 = FOODID food id, number
                       1 = EUFDNAME component id, number
                       2 = BESTLOC component value, number
                       3 = ACQTYPE acquisition type code, text
                       4 = METHTYPE method type code, text*/
-      component_value_rows = fs.readFileSync(__dirname+'/../../fineli/component_value.csv', 'utf8').split('\n'),
+      component_value_rows = fs.readFileSync(__dirname+'/../../'+directory+'/component_value.csv', encoding).split('\n'),
   /* component: 0 = EUFDNAME component id, text
                 1 = COMPUNIT unit code, text
                 2 = CMPCLASS component group code, text
                 3 = CMPCLASSP component group parent code, text*/
-      component_rows = fs.readFileSync(__dirname+'/../../fineli/component.csv', 'utf8').split('\n'),
+      component_rows = fs.readFileSync(__dirname+'/../../'+directory+'/component.csv', encoding).split('\n'),
   /* component group */
-      cmpclass_rows = fs.readFileSync(__dirname+'/../../fineli/cmpclass_FI.csv', 'utf8').split('\n'),
+      cmpclass_rows = fs.readFileSync(__dirname+'/../../'+directory+'/cmpclass_FI.csv', encoding).split('\n'),
   /* component names */
-      eufdname_rows = fs.readFileSync(__dirname+'/../../fineli/eufdname_FI.csv', 'utf8').split('\n'),
-      cmpclass_en_rows = fs.readFileSync(__dirname+'/../../fineli/cmpclass_EN.csv', 'utf8').split('\n'),
-      eufdname_en_rows = fs.readFileSync(__dirname+'/../../fineli/eufdname_EN.csv', 'utf8').split('\n'),
-      cmpclass_sv_rows = fs.readFileSync(__dirname+'/../../fineli/cmpclass_SV.csv', 'utf8').split('\n'),
-      eufdname_sv_rows = fs.readFileSync(__dirname+'/../../fineli/eufdname_SV.csv', 'utf8').split('\n'),
+      eufdname_rows = fs.readFileSync(__dirname+'/../../'+directory+'/eufdname_FI.csv', encoding).split('\n'),
+      cmpclass_en_rows = fs.readFileSync(__dirname+'/../../'+directory+'/cmpclass_EN.csv', encoding).split('\n'),
+      eufdname_en_rows = fs.readFileSync(__dirname+'/../../'+directory+'/eufdname_EN.csv', encoding).split('\n'),
+      cmpclass_sv_rows = fs.readFileSync(__dirname+'/../../'+directory+'/cmpclass_SV.csv', encoding).split('\n'),
+      eufdname_sv_rows = fs.readFileSync(__dirname+'/../../'+directory+'/eufdname_SV.csv', encoding).split('\n'),
   /* food names */
-      foodname_fi_rows = fs.readFileSync(__dirname+'/../../fineli/foodname_FI.csv', 'utf8').split('\n'),
-      foodname_en_rows = fs.readFileSync(__dirname+'/../../fineli/foodname_EN.csv', 'utf8').split('\n'),
-      foodname_sv_rows = fs.readFileSync(__dirname+'/../../fineli/foodname_SV.csv', 'utf8').split('\n'),
+      foodname_fi_rows = fs.readFileSync(__dirname+'/../../'+directory+'/foodname_FI.csv', encoding).split('\n'),
+      foodname_en_rows = fs.readFileSync(__dirname+'/../../'+directory+'/foodname_EN.csv', encoding).split('\n'),
+      foodname_sv_rows = fs.readFileSync(__dirname+'/../../'+directory+'/foodname_SV.csv', encoding).split('\n'),
   /* recipe foods
       0 = FOODID food id, number
       1 = CONFDID recipe row food id, number
@@ -62,7 +72,7 @@ app.get('/api/import/getexternalcategoriesfineli', async function(req, res) {
       4 = MASS mass, number
       5 = EVREMAIN remained after evaporation, percentage
       6 = RECYEAR recipe year, text*/
-      contribfood_rows = fs.readFileSync(__dirname+'/../../fineli/contribfood.csv', 'utf8').split('\n'),
+      contribfood_rows = fs.readFileSync(__dirname+'/../../'+directory+'/contribfood.csv', encoding).split('\n'),
       parent_ref, parent_name, second_parent_name, second_parent_ref, third_parent_ref,
       attr_ref,
       attr_refs = {},
@@ -151,33 +161,33 @@ app.get('/api/import/getexternalcategoriesfineli', async function(req, res) {
       for (let i in foodname_fi_rows) {
         value = {};
         row = foodname_fi_rows[i].trim().split(';');
-        value['fi-FI'] = row[1];
+        value['fi-FI'] = convertFirstLetterCapital(row[1]);
         row = foodname_en_rows[i].trim().split(';');
-        value['en-US'] = row[1];
+        value['en-US'] = convertFirstLetterCapital(row[1]);
         row = foodname_sv_rows[i].trim().split(';');
-        value['sv-SV'] = row[1];
+        value['sv-SV'] = convertFirstLetterCapital(row[1]);
         foodname[row[0]] = value;
       }
 
       for (let i in fuclass_rows) {
         value = {};
         row = fuclass_rows[i].trim().split(';');
-        value['fi-FI'] = row[1];
+        value['fi-FI'] = convertFirstLetterCapital(row[1]);
         row = fuclass_en_rows[i].trim().split(';');
-        value['en-US'] = row[1];
+        value['en-US'] = convertFirstLetterCapital(row[1]);
         row = fuclass_sv_rows[i].trim().split(';');
-        value['sv-SV'] = row[1];
+        value['sv-SV'] = convertFirstLetterCapital(row[1]);
         fuclass[row[0]] = value;
       }
 
       for (let i in igclass_rows) {
         value = {};
         row = igclass_rows[i].trim().split(';');
-        value['fi-FI'] = row[1];
+        value['fi-FI'] = convertFirstLetterCapital(row[1]);
         row = igclass_en_rows[i].trim().split(';');
-        value['en-US'] = row[1];
+        value['en-US'] = convertFirstLetterCapital(row[1]);
         row = igclass_sv_rows[i].trim().split(';');
-        value['sv-SV'] = row[1];
+        value['sv-SV'] = convertFirstLetterCapital(row[1]);
         igclass[row[0]] = value;
       }
 
@@ -189,22 +199,22 @@ app.get('/api/import/getexternalcategoriesfineli', async function(req, res) {
       for (let i in cmpclass_rows) {
         value = {};
         row = cmpclass_rows[i].trim().split(';');
-        value['fi-FI'] = row[1];
+        value['fi-FI'] = convertFirstLetterCapital(row[1]);
         row = cmpclass_en_rows[i].trim().split(';');
-        value['en-US'] = row[1];
+        value['en-US'] = convertFirstLetterCapital(row[1]);
         row = cmpclass_sv_rows[i].trim().split(';');
-        value['sv-SV'] = row[1];
+        value['sv-SV'] = convertFirstLetterCapital(row[1]);
         cmpclass[row[0]] = value;
       }
 
       for (let i in eufdname_rows) {
         value = {};
         row = eufdname_rows[i].trim().split(';');
-        value['fi-FI'] = row[1];
+        value['fi-FI'] = convertFirstLetterCapital(row[1]);
         row = eufdname_en_rows[i].trim().split(';');
-        value['en-US'] = row[1];
+        value['en-US'] = convertFirstLetterCapital(row[1]);
         row = eufdname_sv_rows[i].trim().split(';');
-        value['sv-SV'] = row[1];
+        value['sv-SV'] = convertFirstLetterCapital(row[1]);
         eufdname[row[0]] = value;
       }
 

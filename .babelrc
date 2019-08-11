@@ -1,6 +1,10 @@
 {
   "ignore": ["src/static"],
-  "plugins": ["@babel/plugin-proposal-class-properties"],
+  "plugins": [
+    "@babel/plugin-proposal-class-properties",
+    "react-hot-loader/babel",
+    "@babel/transform-runtime"
+  ],
   "presets": [  "@babel/preset-react",
     [
       "@babel/preset-env",

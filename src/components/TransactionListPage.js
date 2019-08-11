@@ -1,159 +1,271 @@
 'use strict';
 
 import React from 'react';
-import moment from 'moment';
-import {Link} from 'react-router';
+//import ReactTable from 'react-table';
+import EditableTable from './EditableTable';
+import DataStore from './DataStore';
+import {locale} from './locale';
 import axios from 'axios';
-import ReactTable from 'react-table';
-import {  VictoryChart,
-          VictoryStack,
-          VictoryArea,
-          VictoryZoomContainer,
-          VictoryTooltip,
-          VictoryGroup,
-          VictoryPie,
-          VictoryPortal,
-          VictoryBar,
-          VictoryScatter
-       } from 'victory';
 //import Timeline from 'react-visjs-timeline';
-
-function convertMeasure(measure, from_unit, to_unit) {
-  const factors = {
-    y: -24,
-    z: -21,
-    a: -16,
-    f: -15,
-    p: -12,
-    n: -9,
-    µ: -6,
-    m: -3,
-    c: -2,
-    d: -1,
-    '': 0,
-    da: 1,
-    h: 2,
-    k: 3,
-    M: 6,
-    G: 9,
-    T: 12,
-    P: 15,
-    E: 18,
-    Z: 21,
-    Y: 24
-  }
-  if (from_unit && from_unit.length > 1) {
-    from_unit = from_unit.substring(0,1);
-    from_unit = from_unit.toLowerCase();
-  }
-  else {
-    from_unit = '';
-  }
-  if (to_unit && to_unit.length > 1) {
-    to_unit = to_unit.substring(0,1);
-    to_unit = to_unit.toLowerCase();
-  }
-  else {
-    to_unit = '';
-  }
-  let conversion = factors[from_unit]-factors[to_unit];
-  console.log(conversion, from_unit, to_unit);
-  return measure*Math.pow(10, conversion);
-}
-
-const transaction_columns = [
-  {
-    Header: 'Date',
-    accessor: 'date',
-    Cell: props => <span><a href={"/edit/"+props.original.id}>{new Date(props.value).toLocaleString()}</a></span>
-  },
-  {
-    Header: 'Store',
-    id: 'party_name',
-    accessor: d => d.party.name
-  },
-  {
-    Header: 'Total Price',
-    accessor: 'total_price'
-  }
-]
-
-const item_columns = [
-  {
-    Header: 'Name',
-    accessor: d => d.product.name,
-    id: 'product_name'
-  },
-  {
-    Header: 'Quantity',
-    id: 'quantity'
-  },
-  {
-    Header: 'Measure',
-    id: 'measure'
-  },
-  {
-    Header: 'Category',
-    accessor: d => d.product.category && d.product.category.name['fi-FI'],
-    id: 'category_name',
-    Cell: props => props.value ? <span><a href={"/category/"+props.original.product.category.id}>{props.value}</a></span> : <span></span>
-  },
-  {
-    Header: 'Price',
-    id: 'price',
-    accessor: d => {
-      let currency = localStorage.getItem('currency');
-      console.log(currency, d);
-      return d.price;
-    }
-  },
-  {
-    Header: 'Price/Measure',
-    id: 'pricepermeasure',
-    accessor: d => {
-      return d.measure ? d.price/convertMeasure(d.measure, d.unit, 'kg') : null;
-    }
-  }
-]
+import _ from 'lodash';
 
 export default class TransactionList extends React.Component {
   constructor(props) {
     super(props);
 
-    let that = this;
-
     this.state = {
-      ready: false
+      selected_transactions: {},
+      editable_item: {}
     };
 
-      axios.get('/api/transaction/')
-      .then(function(response) {
-        that.setState({
-          transactions: response.data,
-          ready: true
-        });
-      })
-      .catch(function(error) {
-        console.error(error);
+    DataStore.getTransactions()
+    .then(transactions => {
+      this.setState({transactions});
+    })
+    .catch(function(error) {
+      console.error(error);
+    });
+
+    this.editable_item = {};
+
+    this.selectTransaction = this.selectTransaction.bind(this);
+    this.removeSelectedTransactions = this.removeSelectedTransactions.bind(this);
+    this.itemEdited = this.itemEdited.bind(this);
+    this.itemSaved = this.itemSaved.bind(this);
+    this.handleEdit = this.handleEdit.bind(this);
+    this.handleCancel = this.handleCancel.bind(this);
+    this.handleItemCategoryChange = this.handleItemCategoryChange.bind(this);
+  }
+  handleEdit() {
+    this.setState({
+        editable_item: {
+        id: parseInt(event.target.parentNode.dataset.id),
+        field: event.target.parentNode.dataset.field
+      }
+    });
+  }
+  handleCancel() {
+    if (event.key == 'Escape') {
+      event.target.innerHTML = event.target.dataset.value;
+      this.setState({editable_item: {}});
+    }
+  }
+  handleItemCategoryChange() {
+    let value = event.target.value,
+        item_id = parseInt(event.target.parentNode.dataset.id),
+        product_id = parseInt(event.target.parentNode.dataset.productid),
+        category_id;
+
+    let option = document.querySelector('#'+event.target.getAttribute('list')+' option[value="'+value+'"]');
+
+    if (option) category_id = parseInt(option.dataset.id);
+
+    let item = {
+      id: item_id,
+      product: {
+        id: product_id,
+        category: {}
+      }
+    };
+
+    if (category_id) item.product.category.id = category_id;
+    else if (value) item.product.category.name = value;
+    else return;
+
+    return axios.post('/api/item/', item)
+    .then(response => {
+      console.log(response);
+      this.setState({editable_item: {}});
+      return DataStore.getTransactions(true);
+    })
+    .catch(error => {
+      console.error(error);
+    });
+  }
+  itemEdited(event) {
+    if (event.key == 'Escape') {
+      event.target.innerHTML = event.target.dataset.value;
+      event.target.blur();
+    }
+  }
+  itemSaved(event) {
+    let id = parseInt(event.target.dataset.id),
+        productid = parseInt(event.target.dataset.productid),
+        field = event.target.dataset.field,
+        value = event.target.innerHTML,
+        item = {};
+
+    item.id = id;
+    item.product = {id: productid};
+    _.set(item, field, value);
+
+    return axios.post('/api/item/', item)
+    .then(function(response) {
+      console.log(response);
+      return DataStore.getTransactions(true);
+    })
+    .catch(function(error) {
+      console.error(error);
+    });
+  }
+  removeSelectedTransactions() {
+    let queue = [];
+    for (let id in this.state.selected_transactions) {
+      if (this.state.selected_transactions[id]) {
+        queue.push(axios.delete('/api/transaction/'+id));
+      }
+    }
+    Promise.all(queue).then(() => {
+      return DataStore.getTransactions()
+      .then(transactions => {
+        this.setState({transactions});
       });
+    })
+    .catch(function(error) {
+      console.error(error);
+    });
+  }
+  selectTransaction(transaction, selected) {
+    let selected_transactions = {...this.state.selected_transactions};
+    if (selected) {
+      selected_transactions[transaction.id] = true;
+    }
+    else {
+      delete selected_transactions[transaction.id];
+    }
+    this.setState({selected_transactions});
+  }
+  getTransactionColumns() {
+    return [
+      {
+        label: <input type="checkbox"
+                      onClick={event => this.selectTransaction(null, event.target.checked)}/>,
+        formatter: (value, item) => <input type="checkbox"
+                                           onClick={event => this.selectTransaction(item, event.target.checked)}/>,
+        class: 'nowrap'
+      },
+      {
+        id: 'date',
+        label: 'Date',
+        formatter: (value, item) => <span><a href={"/edit/"+item.id}>{new Date(value).toLocaleString()}</a></span>
+      },
+      {
+        label: 'Store',
+        property: item => item.party.name
+      },
+      {
+        id: 'total_price',
+        label: 'Total Price'
+      }
+    ];
+  }
+  getItemColumns() {
+    return [
+      {
+        id: 'name',
+        label: 'Name',
+        property: item => item.product.name,
+        formatter: (value, item) => <span contentEditable
+                                          onKeyUp={this.itemEdited}
+                                          onBlur={this.itemSaved}
+                                          data-value={value}
+                                          data-field="product.name"
+                                          data-id={item.id}
+                                          data-productid={item.product.id}
+                                          suppressContentEditableWarning={true}>
+                                          {value}
+                                    </span>
+      },
+      {
+        id: 'quantity',
+        label: 'Quantity',
+        property: item => item.product.quantity || item.quantity,
+        formatter: value => <span contentEditable suppressContentEditableWarning={true}>{value}</span>
+      },
+      {
+        id: 'measure',
+        label: 'Measure',
+        property: item => item.product.measure || item.measure,
+        formatter: value => <span contentEditable suppressContentEditableWarning={true}>{value}</span>
+      },
+      {
+        id: 'unit',
+        label: 'Unit',
+        property: item => item.product.unit || item.unit,
+        formatter: value => <span contentEditable suppressContentEditableWarning={true}>{value}</span>
+      },
+      {
+        id: 'category',
+        label: 'Category',
+        property: item => item.product.category && item.product.category.name['fi-FI'],
+        formatter: (value, item) => <div data-field="category"
+                                         data-id={item.id}
+                                         data-productid={item.product.id}>
+                                      {this.state.editable_item.id !== item.id || this.state.editable_item.field !== 'category' ?
+                                        <div onClick={this.handleEdit}>
+                                                {value && <a href={"/category/"+item.product.category.id}>
+                                                  {value}
+                                                </a>}
+                                        </div> :
+                                        <input type="search"
+                                              list="categories"
+                                              defaultValue={value}
+                                              onKeyUp={this.handleCancel}
+                                              onBlur={this.handleItemCategoryChange}/>}
+                                    </div>
+      },
+      {
+        id: 'price',
+        label: 'Price',
+        property: item => {
+          let currency = localStorage.getItem('currency');
+          return item.price;
+        },
+        formatter: value => <span contentEditable suppressContentEditableWarning={true}>{value}</span>
+      },
+      {
+        id: 'pricemeasure',
+        label: 'Price/Measure',
+        property: item => {
+          return item.product.measure || item.measure ? (item.price/locale.convertMeasure(item.product.measure || item.measure, item.product.unit || item.unit, 'kg')).toLocaleString() : null;
+        }
+      }
+    ];
   }
   render() {
-    if (!this.state.ready) {
-      return <div/>
-    }
-    else
+    if (!DataStore.transactions || !DataStore.categories) return null;
     return (
       <div>
+        <datalist id="categories">
+          {DataStore.categories.map(function(item, i) {
+            if (item.parentId !== null) return <option data-id={item.id} value={item.name['fi-FI']}/>
+          })}
+        </datalist>
+        <button onClick={this.removeSelectedTransactions}>Remove Selected</button>
+        <EditableTable
+          columns={this.getTransactionColumns()}
+          items={DataStore.transactions}
+          childView={(transaction) => {
+            return <EditableTable
+              columns={this.getItemColumns()}
+              items={transaction.items}
+            />
+          }}
+        />
+      </div>
+    );
+    /*return (
+      <div>
         <ReactTable
-          data={this.state.transactions}
+          data={DataStore.transactions}
           columns={transaction_columns}
-          pageSize={this.state.transactions ? this.state.transactions.length : 1}
+          pageSize={DataStore.transactions ? DataStore.transactions.length : 1}
           showPagination={false}
           SubComponent={row => {
             return (
               <ReactTable
-                data={this.state.transactions[row.index].items}
-                pageSize={this.state.transactions[row.index].items ? this.state.transactions[row.index].items.length : 1}
+                data={DataStore.transactions[row.index].items}
+                pageSize={DataStore.transactions[row.index].items ? DataStore.transactions[row.index].items.length : 1}
                 showPagination={false}
                 columns={item_columns}
                 />
@@ -161,6 +273,6 @@ export default class TransactionList extends React.Component {
           }}
         />
       </div>
-    );
+    );*/
   }
 }

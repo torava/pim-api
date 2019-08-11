@@ -1,69 +1,8 @@
 import Category from '../models/Category';
 import Attribute from '../models/Attribute';
 import _ from 'lodash';
-import {NerManager} from 'node-nlp';
-import moment from 'moment';
-import fs from 'fs';
 
 export default app => {
-  const manager = new NerManager({ language: 'fi', threshold: 0.5 });
-  const meta_manager = new NerManager({ language: 'fi', threshold: 0.8 });
-
-  meta_manager.addNamedEntityText(
-    'details',
-    'weighting',
-    ['fi'],
-    ['punnittu', 'kivineen', 'kivetön', 'kuorineen', 'kuorittu', 'keskiarvo'],
-  );
-  meta_manager.addNamedEntityText(
-    'details',
-    'cooking',
-    ['fi'],
-    ['keitetty', 'paistettu', 'tuore', 'kuivattu', 'suurustamaton', 'ei kastiketta'],
-  );
-  meta_manager.addNamedEntityText(
-    'details',
-    'spicing',
-    ['fi'],
-    ['suolattu', 'suolaton', 'tomaattinen', 'sokeroitu', 'sokeroimaton', 'maustettu', 'maustamaton'],
-  );
-  meta_manager.addNamedEntityText(
-    'details',
-    'type',
-    ['fi'],
-    ['luomu', 'irto', 'laktoositon', 'vähälaktoosinen'],
-  );
-
-  Category.query()
-  .eager('[children, parent.^]')
-  .then(async categories => {
-    let n = 0, name, entity_name, entities, category;
-    console.log(moment().format()+' [NerManager] Adding categories');
-    for (let i in categories) {
-      category = categories[i];
-      if (!category.children.length) {
-        name = category.name['fi-FI'];
-        entity_name = name;
-        if (name) {
-          entities = await meta_manager.findEntities(
-            name,
-            'fi',
-          ).then(result => {
-            return result;
-          });
-          entities.map(entity => {
-            entity_name = entity_name.replace(new RegExp(escapeRegExp(entity.sourceText)+",?\s?"), "")
-                                     .replace(/^,?\s*/, "")
-                                     .replace(/,?(\sja)?\s*$/, "");
-          });
-          manager.addNamedEntityText(getParentPath(category), stringToSlug(name, "_"), ['fi'], [entity_name]);
-          n++;
-        }
-      }
-    }
-    fs.writeFileSync('./ner.json', JSON.stringify(manager.save()));
-    console.log(moment().format()+' [NerManager] Added '+n+' categories');
-  });
 
   function first(list) {
     for (let i in list) {
@@ -211,7 +150,7 @@ export default app => {
         }
         else if (['nimi', 'name'].indexOf(column_name.toLowerCase()) !== -1) {
           for (let i in categories) {
-            if (categories[i].name['fi-FI'] == columns[n]) {
+            if (categories[i].name && categories[i].name['fi-FI'] == columns[n]) {
               item.id = categories[i].id;
               break;
             }
@@ -232,7 +171,7 @@ export default app => {
         else if (['isä', 'parent'].indexOf(column_name.toLowerCase()) !== -1) {
           if (!columns[n]) continue;
           for (let i in categories) {
-            if (categories[i].name['fi-FI'] == columns[n]) {
+            if (categories[i].name && categories[i].name['fi-FI'] == columns[n]) {
               item.parent = {
                 id: categories[i].id
               }
@@ -261,20 +200,6 @@ export default app => {
       items.push(item);
     }
     return items;
-  }
-
-  function getParentPath(item) {
-    let result = "",
-        parent = item,
-        name;
-    if (parent) {
-      while (parent = parent.parent) {
-        name = getNameLocale(parent.name, 'fi-FI');
-        if (!name) continue;
-        result = stringToSlug(name, "_")+(result ? "."+result : "");
-      }
-    }
-    return result;
   }
 
   function escapeRegExp(stringToGoIntoTheRegex) {
@@ -542,6 +467,68 @@ app.post('/api/category', async function(req, res) {
       console.error(error);
       throw new Error();
     });
+});
+
+app.post('/api/category/attribute/copy', (req, res) => {
+  let selected_categories = req.body.categories,
+      selected_attributes = req.body.attributes,
+      copyable_attributes = {},
+      updateable_categories = {};
+  Category.query()
+  .findByIds(selected_categories)
+  .eager('[attributes.sources]')
+  .then(categories => {
+    categories.forEach(c => {
+      c.attributes.forEach(a => {
+        if (selected_attributes.indexOf(String(a.attributeId)) !== -1 && (!copyable_attributes.hasOwnProperty(a.attributeId) || copyable_attributes[a.attributeId].sources.reference_date < a.sources.reference_date)) {
+          copyable_attributes[a.attributeId] = {
+            value: a.value,
+            unit: a.unit,
+            attributeId: a.attributeId,
+            sources: a.sources
+          };
+          categories.forEach(uc => {
+            if (uc.id != c.id) {
+              if (updateable_categories.hasOwnProperty(uc.id)) {
+                updateable_categories[uc.id].attributes = updateable_categories[uc.id].attributes.filter(ua => ua.attributeId !== a.attributeId);
+              }
+              else {
+                updateable_categories[uc.id] = {
+                  id: uc.id,
+                  attributes: []
+                };
+              }
+              updateable_categories[uc.id].attributes.push(copyable_attributes[a.attributeId]);
+            }
+          });
+        }
+      });
+    });
+    console.log('body', req.body);
+    console.log('categories');
+    console.dir(categories, {depth:null});
+    console.log('copyable attributes');
+    console.dir(copyable_attributes, {depth:null});
+    console.log('updateable categories');
+    console.dir(updateable_categories, {depth:null});
+    Category.query()
+    .upsertGraph(Object.values(updateable_categories), {
+      relate: true,
+      noDelete: true
+    })
+    .then(result => {
+      console.log(result);
+      res.send();
+    })
+    .catch(error => {
+      console.error(error);
+      throw new Error();
+    });
+  })
+  .catch(error => {
+    console.error(error);
+    throw new Error();
+  });
 });
 
 }

@@ -5,7 +5,8 @@ import ReactDOM from 'react-dom';
 import {Link} from 'react-router';
 import axios from 'axios';
 import Cropper from 'react-cropper';
-import moment from 'moment';
+import DataStore from './DataStore';
+import ReceiptService from './ReceiptService';
 import ReceiptEditor from './ReceiptEditor';
 
 function confirmExit() {
@@ -46,13 +47,28 @@ export default class AddReceiptPage extends React.Component {
       version: 0
     };
   }
+  
+  getSrc(src) {
+    // https://stackoverflow.com/questions/13626465/how-to-create-a-new-imagedata-object-independently
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+
+    canvas.width = src.cols;
+    canvas.height = src.rows;
+
+    let imagedata = ctx.createImageData(src.cols, src.rows);
+    imagedata.data.set(src.data);
+    ctx.putImageData(imagedata, 0, 0);
+
+    return canvas.toDataURL();
+  }
   onChange(event) {
     let that = this;
     event.preventDefault();
 
     that.setState({});
 
-    window.onbeforeunload = confirmExit;
+    //window.onbeforeunload = confirmExit;
 
     let files;
     if (event.dataTransfer) {
@@ -63,7 +79,67 @@ export default class AddReceiptPage extends React.Component {
 
     if (!files[0]) return;
 
-    var formData = new FormData();
+    ReceiptService.getImageOrientation(files[0], (base64img, rotate) => {
+      var img = new Image;
+      img.onload = () => {
+        /* http://devbutze.blogspot.com/2014/02/html5-canvas-offscreen-rendering.html
+        var canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, img.width, img.height);*/
+        
+        // crop
+
+        let src = ReceiptService.processImage(img, rotate);
+
+        // create imagedata
+
+        src = this.getSrc(src);
+        this.setState({ src });
+
+        //this.setState({ src: img.src });
+
+        that.showAdjustments();
+
+        var Tesseract = window.Tesseract;
+
+        Tesseract.recognize(src, {
+          lang: 'fin',
+          tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVVXYZÄÖÅabcdefghijklmnopqrstuvwxyzäöå1234567890-.,'
+        })
+        .progress(message => console.log(message))
+        .catch(err => console.error(err))
+        .then(result => {
+          console.log(result);
+          Promise.all([
+            DataStore.getProducts(),
+            DataStore.getManufacturers(),
+            DataStore.getCategories()
+          ])
+          .then(async ([products, manufacturers, categories]) => {
+            let data = {
+              products,
+              manufacturers,
+              categories
+            },
+                locale = document.getElementById('language').value;
+            await ReceiptService.getTransactionsFromReceipt(data, result.text, locale);
+            console.log(data, locale);
+            that.setState({
+              products,
+              manufacturers,
+              categories,
+              transactions: data.transactions
+            });
+            that.showEditor();
+          });
+        });
+      }
+      img.src = URL.createObjectURL(files[0]);
+    });
+
+    /*var formData = new FormData();
       formData.append('file', files[0]);
       axios.post('/api/receipt/prepare', formData)
       .then(function(response) {
@@ -85,7 +161,7 @@ export default class AddReceiptPage extends React.Component {
     reader.onload = () => {
       this.setState({ src: reader.result });
     };
-    reader.readAsDataURL(files[0]);
+    reader.readAsDataURL(files[0]);*/
   }
   showUploader(event) {
     event.preventDefault();
@@ -99,7 +175,9 @@ export default class AddReceiptPage extends React.Component {
     state.mode = 'adjustments';
     this.setState(state);
   }
-  showEditor(state) {
+  showEditor() {
+    let state = {...this.state};
+    
     state.mode = 'editor';
     
     // Update version
@@ -169,7 +247,6 @@ export default class AddReceiptPage extends React.Component {
   render() {
     return (
       <div className="add-receipt">
-        {this.state.mode == 'uploader' || this.state.mode == 'adjustments' ? 
         <div>
           <div id="uploader">
             <a href="#" className="next" onClick={this.onUpload} style={{float:"right"}}>
@@ -192,55 +269,8 @@ export default class AddReceiptPage extends React.Component {
               </fieldset>
             </form>
           </div>
-          {this.state.mode == 'adjustments' ?
           <div id="receipt-adjustments">
             <div style={{clear:"both"}}/>
-            <fieldset>
-              <legend>Adjust</legend>
-              <button onClick={this.onFlipLeft}><i className="fa fa-undo"/></button>
-              <input type="range"
-                     min="-45"
-                     max="45"
-                     value={this.state.rotate_adjust}
-                     step="any"
-                     onChange={this.onRotate}
-                     style={{width:'75%'}}
-              />
-              <button onClick={this.onFlipRight}><i className="fa fa-redo"/></button><br/>
-              Details
-              <i className="fa fa-minus"/>
-              <input type="range"
-                    min="1"
-                    max="30"
-                    value={this.state.data.threshold}
-                    step="1"
-                    onChange={this.setData.bind(this, 'threshold')}
-                    style={{width:100, transform: 'rotate(-180deg)'}}
-              />
-              <i className="fa fa-plus"/>&nbsp;
-              Soften
-              <i className="fa fa-minus"/>
-              <input type="range"
-                     min="0"
-                     max="5"
-                     value={this.state.data.blur}
-                     step="1"
-                     onChange={this.setData.bind(this, 'blur')}
-                     style={{width:50}}
-              />
-              <i className="fa fa-plus"/>&nbsp;
-              Sharpen
-              <i className="fa fa-minus"/>
-              <input type="range"
-                     min="0"
-                     max="5"
-                     value={this.state.data.sharpen}
-                     step="1"
-                     onChange={this.setData.bind(this, 'sharpen')}
-                     style={{width:50}}
-              />
-              <i className="fa fa-plus"/>&nbsp;
-            </fieldset>
             {this.state.src && <div>Crop</div>}
             <Cropper id="cropper"
                     src={this.state.src}
@@ -255,10 +285,10 @@ export default class AddReceiptPage extends React.Component {
                     cropend={this.onCrop.bind(this)}
                     zoom={this.onCrop.bind(this)}
             />
-          </div> :
-          ''}
+          </div>
+          <img src={this.state.src}/>
+          <canvas id="preview"/>
         </div>
-        : ''}
         {this.state.mode == 'editor' ?
         <div id="receipt-editor">
           <a href="#" className="previous" onClick={this.showAdjustments} style={{float:"left"}}>Previous</a>
@@ -275,3 +305,43 @@ export default class AddReceiptPage extends React.Component {
     );
   }
 };
+
+function processReceipt(data, language, id) {
+  return new Promise((resolve, reject) => {
+    let filepath = upload_path+"/"+id;
+
+    Category.query()
+    .then(category => {
+      data.categories = category;
+      Product.query()
+      .then(product => {
+        data.products = product;
+
+        Manufacturer.query()
+        .then(manufacturer => {
+          data.manufacturers = manufacturer;
+          return processReceiptImage(filepath, data, true).then(response => {
+            return extractTextFromFile(filepath, language).then(async (text) => {
+              if (text) {
+                data = await getDataFromReceipt(data, text, language);
+                //data.transactions[0].receipts = [{}];
+                //data.transactions[0].receipts[0].text = text;
+                data.transactions[0].receipts[0].file = id;
+              }
+              else {
+                data = {
+                  file: id
+                }
+              }
+              resolve(data);
+            })
+          })
+        })
+      })
+    })
+  })
+  .catch(error => {
+    console.error(error);
+    throw new Error();
+  });
+}

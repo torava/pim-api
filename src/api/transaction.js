@@ -1,13 +1,217 @@
 import Transaction from '../models/Transaction';
+import Category from '../models/Category';
+import natural from 'natural';
+import moment from 'moment';
+import fs from 'fs';
+import {NlpManager, SimilarSearch} from 'node-nlp';
+import { stringSimilarity } from "string-similarity-js";
+import Item from '../models/Item';
+
+const similarSearch = new SimilarSearch({normalize: true});
 
 export default app => {
+
+let details = {};
+
+details.weighting = {
+  weighted: ['punnittu'],
+  stone: ['kivineen'],
+  stoneless: ['kivetön'],
+  withpeel: ['kuorineen'],
+  peeled: ['kuorittu'],
+  average: ['tuotekeskiarvo', 'keskiarvo']
+}
+details.cooking = {
+  boiled: ['keitetty'],
+  breaded: ['leivitetty'],
+  fried: ['paistettu'],
+  grilled: ['grillattu'],
+  fresh: ['tuore'],
+  dried: ['kuivattu'],
+  withegg: ['kananmunaa'],
+  thickened: ['suurustettu'],
+  nonthickened: ['suurustamaton'],
+  withoutsauce: ['ei kastiketta'],
+  coldsmoked: ['kylmäsavu', 'kylmäsavustettu'],
+  smoked: ['savustettu', 'savu']
+}
+details.spicing = {
+  salted: ['suolattu', 'suolaa'],
+  withoutsalt: ['suolaton'],
+  withtomato: ['tomaattinen'],
+  withchocolate: ['suklainen'],
+  sugared: ['sokeroitu'],
+  nonsugared: ['sokeroimaton'],
+  flavored: ['maustettu'],
+  nonflavored: ['maustamaton']
+}
+details.type = {
+  natural: ['luomu'],
+  bulk: ['irto'],
+  pott: ['ruukku'],
+  withfat: ['rasvaa'],
+  nonfat: ['rasvaton'],
+  sliced: ['paloiteltu', 'pala', 'palat'],
+  nonlactose: ['laktoositon'],
+  thickened: ['puuroutuva'],
+  parboiled: ['kiehautettu', 'parboiled'],
+  lowlactose: ['vähälaktoosinen'],
+  insaltwater: ['suolavedessä', 'suolaved'],
+  frozenfood: ['pakasteateria', 'pakastettu', 'pakaste']
+}
+details.manufacturers = {
+  'dan sukker': ['dan sukker'],
+  'vitasia': ['vitasia'],
+  'pohjolanmeijeri': ['pohjolanmeijeri'],
+  'myllykivi': ['myllykivi'],
+  'milbona': ['milbona'],
+  'kanamestari': ['kanamestari'],
+  'kultamuna': ['kultamuna'],
+  'palmolive': ['palmolive'],
+  'goldensun': ['goldensun'],
+  'belbaka': ['belbaka'],
+  'freshona': ['freshona'],
+  'coquette': ['coquette'],
+  'oceansea': ['oceansea'],
+  'culinea': ['culinea'],
+  'kalaneuvos': ['kalaneuvos'],
+  'snellman': ['snellman'],
+  'isokari': ['isokari'],
+  'pirkka': ['pirkka'],
+  'k-menu': ['k-menu']
+}
+
+let trimmed_categories,
+    items;
+
+Item.query()
+.eager('[product.[category]]')
+.then(i => {
+  items = i;
+});
+
+Category.query()
+.eager('[children, parent.^]')
+.then(categories => {
+  let n = 0, name, entity_name, entities, category;
+  console.log(moment().format()+' [NerManager] Adding categories');
+  categories.filter(async category => {
+    if (!category.children.length) {
+      name = category.name;
+      category.trimmed_name = {...name};
+      if (name && name['fi-FI']) {
+        for (let i in details) {
+          for (let j in details[i]) {
+            details[i][j].forEach(detail => {
+              category.trimmed_name['fi-FI'] = category.trimmed_name['fi-FI']
+              .replace(new RegExp(escapeRegExp(detail)), "")
+            });
+          }
+        }
+        category.trimmed_name['fi-FI'] = category.trimmed_name['fi-FI']
+        .trim()
+        .replace(/,|\s{2,}|/g, '');
+        n++;
+      }
+    }
+    return !category.children.length;
+  });
+  //fs.writeFileSync('./ner.json', JSON.stringify(manager.save()));
+  console.log(moment().format()+' [NerManager] Added '+n+' categories');
+  trimmed_categories = categories;
+});
+
+function getNameLocale(name, locale, strict) {
+  if (!name) {
+    return name;
+  }
+  if (typeof name === 'string') {
+    return name;
+  } 
+  else if (name.hasOwnProperty(locale)) {
+    return name[locale];
+  }
+  else if (!strict) {
+    return first(name);
+  }
+  else return '';
+}
+
+function escapeRegExp(stringToGoIntoTheRegex) {
+  return stringToGoIntoTheRegex.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+}
+
+function trimDetails(name) {
+  var token,
+      accuracy;
+  for (let i in details) {
+    for (let j in details[i]) {
+      details[i][j].forEach(detail => {
+        //token = similarSearch.getBestSubstring(name, detail);
+        // Didn't work with compound words like ruukkutilli
+        token = natural.LevenshteinDistance(detail, name.toLowerCase(), {search: true});
+        accuracy = (detail.length-token.distance)/detail.length;
+        if (accuracy > 0.7) {
+          //name = name.substring(0, token.start)+name.substring(token.end+1);
+          name = name.replace(new RegExp(token.substring, 'i'), '');
+          //console.log(detail, name, accuracy, token);
+        }
+      });
+    }
+  }
+  name = name.trim().replace(/,|\s{2,}/g, '');
+  return name;
+}
+
+function getParentPath(item) {
+  let result = "",
+      parent = item,
+      name;
+  if (parent) {
+    while (parent = parent.parent) {
+      name = getNameLocale(parent.name, 'fi-FI');
+      if (!name) continue;
+      result = stringToSlug(name, "_")+(result ? "."+result : "");
+    }
+  }
+  return result;
+}
+
+function stringToSlug(str,  sep) {
+  let sep_regexp = escapeRegExp(sep);
+
+  str = str.replace(/^\s+|\s+$/g, ""); // trim
+  str = str.toLowerCase();
+
+  // remove accents, swap ñ for n, etc
+  var from = "åàáãäâèéëêìíïîòóöôùúüûñç·/_,:;";
+  var to = "aaaaaaeeeeiiiioooouuuunc------";
+
+  for (var i = 0, l = from.length; i < l; i++) {
+    str = str.replace(new RegExp(from.charAt(i), "g"), to.charAt(i));
+  }
+
+  str = str
+    .replace(/[^a-z0-9 -]/g, "") // remove invalid chars
+    .replace(/\s+/g, "-") // collapse whitespace and replace by -
+    .replace(new RegExp("-+", "g"), sep) // collapse dashes
+    .replace(new RegExp(sep_regexp+"+"), "") // trim - from start of text
+    .replace(new RegExp(sep_regexp+"+$"), ""); // trim - from end of text
+
+  return str;
+}
 
 app.delete('/api/transaction/:id', function(req, res) {
   Transaction.query()
     .delete()
     .where('id', req.params.id)
     .then(transaction => {
-      res.send(transaction);
+      console.log(transaction);
+      res.send(String(transaction));
+    })
+    .catch(error => {
+      console.error(error);
+      throw new Error();
     });
 });
 
@@ -46,7 +250,8 @@ const TRANSACTION_CSV_COLUMN_NAMES = [
 const CSV_SEPARATOR = ";";
 
 app.post('/api/transaction', function(req, res) {
-  let transaction = {};
+  let transaction = {},
+      promises = [];
   if ('fromcsv' in req.query) {
     let columns,
         item_index = 0,
@@ -68,17 +273,76 @@ app.post('/api/transaction', function(req, res) {
     return;
   }
   else {
-    transaction = req.body;
+    let trimmed_accuracy,
+        type,
+        trimmed_item_name,
+        trimmed_distance,
+        distance,
+        item_categories,
+        accuracy;
+
+    transaction = req.body[0];
+
+    transaction.items.forEach(item => {
+      item_categories = [];
+      trimmed_item_name = trimDetails(item.product.name);
+
+      items.forEach(comparable_item => {
+        if (comparable_item.product && comparable_item.product.category) {
+          distance = stringSimilarity(item.product.name.toLowerCase(), comparable_item.text.toLowerCase());
+          
+          if (distance > 0.8) {
+            console.log(item.product.name, comparable_item.text, distance);
+            item_categories.push({
+              id: comparable_item.product.category.id,
+              original_name: comparable_item.product.category.name['fi-FI'],
+              item_name: item.product.name,
+              trimmed_item_name: trimmed_item_name,
+              parents: getParentPath(comparable_item.product.category.parent),
+              distance: distance
+            });
+          }
+        }
+      });
+
+      trimmed_categories.forEach((category, index) => {
+        if (category.trimmed_name && category.trimmed_name['fi-FI']) {
+          distance = stringSimilarity(trimmed_item_name.toLowerCase(), category.trimmed_name['fi-FI'].toLowerCase());
+          //accuracy = (trimmed_item_name.length-distance)/trimmed_item_name.length;
+
+          if (distance > 0.4) {
+            item_categories.push({
+              id: category.id,
+              original_name: category.name['fi-FI'],
+              item_name: item.product.name,
+              trimmed_item_name: trimmed_item_name,
+              name: category.trimmed_name['fi-FI'],
+              parents: getParentPath(category.parent),
+              distance: distance
+            });
+          }
+        }
+      });
+      
+      console.log(item_categories);
+      
+      if (item_categories.length) {
+        item_categories.sort((a, b) => b.distance-a.distance);
+
+        item.product.category = {id: item_categories[0].id};
+      }
+    });
   }
-  console.dir(req.body, {depth:null});
+  console.dir(transaction, {depth:null});
   Transaction.query()
     .upsertGraph(req.body, {relate: true})
     .then(transaction => {
       res.send(transaction);
     })
     .catch(error => {
+      console.dir(transaction, {depth:null});
       console.error(error);
-      throw new Error();
+      res.status(500).send(error);
     });
 });
 

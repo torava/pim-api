@@ -1,0 +1,305 @@
+let presets = {
+somestuff: {
+blur: 9,
+threshold_area: 99,
+threshold: 15,
+post_threshold_erode_dilate: 25,
+canny: true,
+close: 50,
+post_canny_erode_dilate: 5
+},
+morestuff: {
+blur: 3,
+threshold_area: 99,
+threshold: -7,
+post_threshold_erode_dilate: 1,
+close: 30,
+post_canny_erode_dilate: 5
+},
+stuffclose: {
+blur: 0,
+threshold_area: 99,
+threshold: -10,
+post_threshold_erode_dilate: 5,
+close: 40,
+post_canny_erode_dilate: 0
+},
+clean: {
+blur: 0,
+threshold_area: 99,
+threshold: -5,
+post_threshold_erode_dilate: 5,
+close: 30,
+post_canny_erode_dilate: 0
+},
+bigstuff: {
+blur: 9,
+threshold_area: 99,
+threshold: 10,
+post_threshold_erode_dilate: 5,
+canny: true,
+close: 40,
+post_canny_erode_dilate: 10
+},
+halfmessy: {
+blur: 9,
+threshold_area: 9,
+threshold: 10,
+post_threshold_erode_dilate: 5,
+canny: true,
+close: 30,
+post_canny_erode_dilate: 10
+},
+messy: {
+blur: 0,
+threshold_area: 999,
+threshold: -30,
+post_threshold_erode_dilate: 15,
+post_canny_erode_dilate: 25
+},
+messybg: {
+blur: 0,
+threshold_area: 999,
+threshold: -50,
+post_threshold_erode_dilate: 10,
+canny: true,
+close: 30,
+post_canny_erode_dilate: 0
+},
+somestuffcannyonly: {
+blur: 9,
+canny: {
+aperture: 3,
+first_threshold: 0,
+second_threshold: 500,
+},
+close: 30
+},
+morestuffcannyonly: {
+blur: 3,
+canny: {
+aperture: 3,
+first_threshold: 0,
+second_threshold: 100,
+},
+close: 30
+},
+test: {
+blur: 9,
+canny: {
+aperture: 5,
+first_threshold: 75,
+second_threshold: 200
+}
+}
+};
+
+//let preset_name = 'halfmessy';
+//let preset = presets[preset_name];
+
+let best = new cv.Mat(),
+best_difference = false,
+best_size = false,
+
+prototype_histogram = [0.0034814432392302505, 0.01108275247025388, 0.01663937251240755, 0.01665350584342571, 0.013283514014510086, 0.017685239007751326, 0.04627272765818175, 0.050334646992800686, 0.040643623818377814, 0.059487594064889356, 0.0870788847832684, 0.10157221193293291, 0.1318122907888438, 0.1812246369803452, 0.2136289326245939, 0.009116806125627949];
+
+for (preset_name in presets) {
+let preset = presets[preset_name];
+
+let src = cv.imread('canvasInput');
+let eq = new cv.Mat();
+let bl = new cv.Mat();
+let dst = new cv.Mat();
+
+dsize = new cv.Size(800, src.rows/src.cols*800);
+cv.resize(src, src, dsize, 0, 0, cv.INTER_AREA);
+
+cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
+cv.equalizeHist(src, src);
+
+cv.bilateralFilter(src, dst,5,75,75);
+
+
+if (preset.blur) {
+let ksize = new cv.Size(preset.blur, preset.blur);
+cv.GaussianBlur(dst, dst, ksize, 0, 0, cv.BORDER_DEFAULT);
+}
+
+//cv.threshold(dst, dst, 10, 255, cv.THRESH_BINARY_INV);
+
+if (preset.threshold) cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, preset.threshold_area, preset.threshold);
+
+eq.delete();
+bl.delete();
+
+if (preset.post_threshold_erode_dilate) {
+M = cv.Mat.ones(2, 2, cv.CV_8U);
+    anchor = new cv.Point(-1, -1);
+    cv.erode(dst, dst, M, anchor, preset.post_threshold_erode_dilate);
+    cv.dilate(dst, dst, M, anchor, preset.post_threshold_erode_dilate);
+}
+
+if (preset.canny) cv.Canny(dst, dst, preset.canny.first_threshold || 0, preset.canny.second_threshold || 1, preset.canny.aperture || 3, true);
+
+if (preset.close) {
+M = new cv.Mat();
+    ksize = new cv.Size(preset.close, preset.close);
+    M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
+    cv.morphologyEx(dst, dst, cv.MORPH_CLOSE, M);
+}
+
+if (preset.post_canny_erode_dilate) {
+M= cv.Mat.ones(2, 2, cv.CV_8U);
+    anchor = new cv.Point(-1, -1);
+    cv.erode(dst, dst, M, anchor, preset.post_canny_erode_dilate);
+    cv.dilate(dst, dst, M, anchor, preset.post_canny_erode_dilate);
+}
+
+let contours = new cv.MatVector();
+    let hierarchy = new cv.Mat();
+    cv.findContours(dst, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+
+    let cnt, current, area, biggest = 0;
+    
+    for (let n = 0; n < contours.size(); n++) {
+        current = contours.get(n);
+        area = cv.contourArea(current, false);
+        if (area > biggest) {
+        biggest = area;
+        cnt = current;
+        }
+    }
+
+    let prev = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
+
+    let contoursColor = new cv.Scalar(255, 255, 255);
+
+    cv.drawContours(prev, contours, -1, contoursColor, 1, 8, hierarchy, 100);
+
+    let rotatedRect = cv.minAreaRect(cnt);
+    let vertices = cv.RotatedRect.points(rotatedRect);
+    let rectangleColor = new cv.Scalar(0, 255, 0);
+    // draw rotatedRect
+    for (let i = 0; i < 4; i++) {
+        cv.line(prev, vertices[i], vertices[(i + 1) % 4], rectangleColor, 2, cv.LINE_AA, 0);
+    }
+
+    let rect = cv.boundingRect(cnt);
+    rectangleColor = new cv.Scalar(255, 0, 0);
+
+    console.log(rotatedRect, vertices);
+    
+    let point1 = new cv.Point(rect.x, rect.y);
+    let point2 = new cv.Point(rect.x + rect.width, rect.y + rect.height);
+    cv.rectangle(dst, point1, point2, rectangleColor, 2, cv.LINE_AA, 0);
+
+scale = 1;
+let margin = 20,
+x = Math.max(rect.x-margin, 0)*scale,
+y = Math.max(rect.y-margin, 0)*scale,
+w = Math.min(rect.width+margin*2, src.cols-x)*scale,
+h = Math.min(rect.height+margin*2, src.rows-y)*scale;
+
+    rect = new cv.Rect(x, y, w, h);
+    
+let cropped = src.roi(rect);
+
+//cropped = rotateImage(cropped, Math.round(rotatedRect.angle/90)*90-90);
+
+
+let srcVec = new cv.MatVector();
+srcVec.push_back(cropped);
+let accumulate = false;
+let channels = [0];
+let histSize = [16];
+let ranges = [0, 255];
+let hist = new cv.Mat();
+let mask = new cv.Mat();
+let color = new cv.Scalar(255, 255, 255);
+scale = 2;
+// You can try more different parameters
+cv.calcHist(srcVec, channels, mask, hist, histSize, ranges, accumulate);
+let result = cv.minMaxLoc(hist, mask);
+let max = result.maxVal;
+
+let difference = 0;
+let relative_histogram = [];
+
+console.log(hist.data32F);
+
+// draw histogram
+for (let i = 0; i < histSize[0]; i++) {
+relative_histogram.push(hist.data32F[i]/(src.rows*src.cols));
+    difference+= Math.abs(hist.data32F[i]/(src.rows*src.cols)-prototype_histogram[i]);
+}
+
+console.log(prototype_histogram, relative_histogram);
+
+if (best_difference === false || (difference < best_difference/* && cropped.cols*cropped.rows > best_size*/)) {
+console.log(preset_name, 'is the best');
+best_difference = difference;
+best_size = cropped.cols*cropped.rows;
+cropped.copyTo(best);
+
+cv.imshow('canvasOutput', dst);
+}
+
+console.log(preset_name, difference, best_difference, best_size, cropped.cols, cropped.rows, cropped.cols*cropped.rows);
+
+src.delete();
+dst.delete();
+hist.delete();
+
+//endfor
+}
+
+function rotateImage(src, rotate) {
+
+    if (rotate < 0) {
+        rotate = 360+rotate;
+    }
+    if (rotate == 270){
+        cv.transpose(src, src); 
+        cv.flip(src, src, 1);
+    }
+    else if (rotate == 90) {
+        cv.transpose(src, src);  
+        cv.flip(src, src, 0);
+    }
+    else if (rotate == 180){
+        cv.flip(src, src, -1);
+    }
+    else if (!rotate) {}
+    else {
+rotate = 45;
+let rotw = Math.abs(src.cols*Math.sin((90-rotate)*Math.PI/180))+Math.abs(src.rows*Math.sin(rotate*Math.PI/180));
+let roth = Math.abs(src.rows*Math.sin((90-rotate)*Math.PI/180))+Math.abs(src.cols*Math.sin(rotate*Math.PI/180));
+let s = new cv.Scalar(0, 0, 0, 255);
+let size = new cv.Size(src.cols, src.rows);
+
+        let dst = new cv.Mat(size, src.type());
+
+console.log(src.cols, src.rows, rotw, roth, rotw-src.cols, roth-src.rows);
+src.copyTo(dst);
+cv.copyMakeBorder(dst, dst, Math.max(roth-src.rows,0), 0, Math.max(rotw-src.cols), 0, cv.BORDER_CONSTANT, s);
+    console.log(src.cols, src.rows);
+        // get rotation matrix for rotating the image around its center in pixel coordinates
+        let center = new cv.Point((dst.cols-1)/2.0, (dst.rows-1)/2.0);
+        let rot = cv.getRotationMatrix2D(center, rotate, 1.0);
+        // determine bounding rectangle, center not relevant
+        let bbox = new cv.RotatedRect(new cv.Point(), dst.size(), rotate);
+
+        console.log(src, bbox);
+        // adjust transformation matrix
+        //rot.data[3]+= bbox.size.width/2.0 - src.cols/2.0;
+        //rot.data[9]+= bbox.size.height/2.0 - src.rows/2.0;
+        //rot.at<double>(0,2) += bbox.width/2.0 - src.cols/2.0;
+        //rot.at<double>(1,2) += bbox.height/2.0 - src.rows/2.0;
+
+        
+
+        cv.warpAffine(dst, dst, rot, size);
+return dst;
+    }
+    return src;
+    }

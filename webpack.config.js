@@ -29,6 +29,7 @@ const client = {
           loader: 'babel-loader',
           options: {
             cacheDirectory: '.babel_cache',
+            plugins: ['react-hot-loader/babel'],
             presets: ['@babel/preset-env']
           }
         },

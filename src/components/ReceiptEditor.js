@@ -8,6 +8,7 @@ import Cropper from 'react-cropper';
 import moment from 'moment';
 import Autosuggest from 'react-autosuggest';
 import DatePicker from 'react-datepicker';
+import {locale} from './locale';
 
 function toNumber(n) {
   let f = parseFloat(n);
@@ -42,6 +43,23 @@ class ReceiptItem extends React.Component {
                                     onChange={this.props.onItemNumberChange.bind(this, this.props.i)}
                                     style={{width:'10em'}}
                                     placeholder="#"/><br/>
+                
+                Fixed: 
+                <input type="number" value={this.props.item.product && this.props.item.product.quantity || ''}
+                                  onChange={this.props.onProductQuantityChange.bind(this, this.props.i)}
+                                  style={{width:'2em'}}
+                                  placeholder="Quantity"/>x
+                <input type="number" value={this.props.item.product && this.props.item.product.measure || ''}
+                                    onChange={this.props.onProductMeasureChange.bind(this, this.props.i)}
+                                    style={{width:'2em'}}
+                                    placeholder="Measure"/>
+                <select onChange={this.props.onProductUnitChange.bind(this, this.props.i)}>
+                  <option value="g">g</option>
+                  <option value="kg">kg</option>
+                  <option value="l">l</option>
+                </select><br/>
+
+                Weighted: 
                 <input type="number" value={this.props.item.quantity || ''}
                                   onChange={this.props.onItemQuantityChange.bind(this, this.props.i)}
                                   style={{width:'2em'}}
@@ -55,6 +73,7 @@ class ReceiptItem extends React.Component {
                   <option value="kg">kg</option>
                   <option value="l">l</option>
                 </select><br/>
+
                 Manufacturer <input type="search" list="manufacturers"
                                     value={this.props.item.product && this.props.item.product.manufacturer && this.props.item.product.manufacturer.name || ''}
                                     onChange={this.props.onItemManufacturerChange.bind(this, this.props.i)}/><br/>
@@ -84,7 +103,7 @@ class ReceiptItem extends React.Component {
   }
 }
 
-export default class addReceiptPage extends React.Component {
+export default class ReceiptEditor extends React.Component {
   constructor(props) {
     super(props);
 
@@ -95,6 +114,9 @@ export default class addReceiptPage extends React.Component {
     this.onFieldChange = this.onFieldChange.bind(this);
     this.onItemQuantityChange = this.onItemQuantityChange.bind(this);
     this.onItemMeasureChange = this.onItemMeasureChange.bind(this);
+    this.onProductMeasureChange = this.onProductMeasureChange.bind(this);
+    this.onProductQuantityChange = this.onProductQuantityChange.bind(this);
+    this.onProductUnitChange = this.onProductUnitChange.bind(this);
     this.onItemManufacturerChange = this.onItemManufacturerChange.bind(this);
     this.onItemUnitChange = this.onItemUnitChange.bind(this);
     this.onItemPriceChange = this.onItemPriceChange.bind(this);
@@ -231,6 +253,44 @@ export default class addReceiptPage extends React.Component {
   onItemUnitChange(key, event) {
     let transactions = this.state.transactions;
     transactions[0].items[key].unit = event.target.value;
+
+    this.setState({
+      transactions: transactions
+    });
+  }
+  onProductQuantityChange(key, event) {
+    let transactions = this.state.transactions,
+        value = toNumber(event.target.value);
+
+    if (value === false)
+      return;
+    if (value > 0)
+      transactions[0].items[key].product.quantity = value;
+    else
+      delete transactions[0].items[key].product.quantity;
+
+    this.setState({
+      transactions: transactions
+    });
+  }
+  onProductMeasureChange(key, event) {
+    let transactions = this.state.transactions,
+        value = toNumber(event.target.value);
+
+    if (value === false)
+      return;
+    if (value)
+      transactions[0].items[key].product.measure = value;
+    else
+      delete transactions[0].items[key].product.measure;
+
+    this.setState({
+      transactions: transactions
+    });
+  }
+  onProductUnitChange(key, event) {
+    let transactions = this.state.transactions;
+    transactions[0].items[key].product.unit = event.target.value;
 
     this.setState({
       transactions: transactions
@@ -393,6 +453,8 @@ export default class addReceiptPage extends React.Component {
     );
 
     if (receiptIsRead) {
+      let receipt_locale = that.state.transactions[0].receipts[0].locale || locale.getLocale();
+      console.log(receipt_locale);
       return (
         <div id="receipt-content" className="receipt-content">
           <a href="#" className="next" onClick={this.saveReceipt} style={{float:"right"}}>Submit</a>
@@ -478,23 +540,22 @@ export default class addReceiptPage extends React.Component {
               <DatePicker
                      placeholderText="Date"
                      showTimeSelect
-                     locale={window.navigator.userLanguage || window.navigator.language}
                      timeFormat="HH:mm"
-                     dateFormat="L HH:mm:ss"
+                     dateFormat="Pp"
                      key={"date-"+this.state.version} 
-                     selected={this.state.transactions[0].date && moment(this.state.transactions[0].date) || null}
+                     selected={this.state.transactions[0].date && new Date(this.state.transactions[0].date) || null}
                      onChange={this.onDateChange.bind(this)}
               />
             </div>
             <div>
-              <select placeholder="Locale" id="locale" onChange={this.onLocaleChange.bind(this)}>
+              <select placeholder="Locale" id="locale" value={receipt_locale} onChange={this.onLocaleChange.bind(this)}>
               {['fi-FI', 'en-US', 'es-AR'].map(function(item, i) {
-                return <option {...that.state.transactions[0].receipts[0].locale === item && ' selected'}>{item}</option>
+                return <option>{item}</option>
               })}
               </select>
             </div>
             <div className="receipt-items">
-              {this.state.transactions[0].items.map(function(item, i){
+              {this.state.transactions[0].items.map((item, i) => {
                 let inputProps = {
                   placeholder: 'Category',
                   value: item.product && item.product.category && item.product.category.name['fi-FI'] || '',
@@ -516,6 +577,9 @@ export default class addReceiptPage extends React.Component {
                                     onItemMeasureChange={that.onItemMeasureChange}
                                     onItemQuantityChange={that.onItemQuantityChange}
                                     onItemUnitChange={that.onItemUnitChange}
+                                    onProductMeasureChange={this.onProductMeasureChange}
+                                    onProductQuantityChange={this.onProductQuantityChange}
+                                    onProductUnitChange={this.onProductUnitChange}
                                     toggle={that.toggle}
                                     categorySuggestions={that.state.categorySuggestions}
                                     onSuggestionsFetchRequested={that.onCategorySuggestionsFetchRequested}
@@ -530,7 +594,7 @@ export default class addReceiptPage extends React.Component {
             <button onClick={this.deleteTransaction}>Delete</button>
           </div>
           <div className="receipt-picture" style={{float:'left'}}>
-            <img src={"/api/receipt/picture/"+this.state.transactions[0].receipts[0].file+"?"+this.state.version} style={{width:300}}/>
+            <img src={"/api/receipt/picture/"+this.state.transactions[0].receipts[0].id+"?"+this.state.version} style={{width:300}}/>
           </div>
           <div className="receipt-text" style={{float:'left'}}>
             <pre>{this.state.transactions[0].receipts[0].text}</pre>
