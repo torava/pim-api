@@ -224,11 +224,12 @@ class EditableTable extends Component {
         </colgroup>
         {thead}
         <tbody>
-          {that.state.resolved_items && that.state.resolved_items.map((item, i) => {
+          {that.state.resolved_items && that.state.resolved_items.map((item, index) => {
             if (that.state.filter && !that.state.filter(item)) return true;
 
             return <EditableTableItem
                     key={item.id}
+                    index={index}
                     item={item}
                     filter={that.state.filter}
                     columns={that.state.columns}
