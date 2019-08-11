@@ -10,7 +10,7 @@
     "start": "npm run build && node src/server.js",
     "client": "webpack-dev-server --mode development --devtool inline-source-map --hot",
     "server": "nodemon --watch ./src/api --max-old-space-size=8192 src/server.js --exec babel-node",
-    "dev": "export NODE_ENV=development && concurrently 'npm run server' 'npm run client'"
+    "dev": "export NODE_ENV=development && concurrently 'npm:server' 'npm:client'"
   },
   "author": "Teemu Orava",
   "license": "ISC",
@@ -65,7 +65,7 @@
     "string-similarity-js": "^2.1.2",
     "style-loader": "^0.23.1",
     "table-resolver": "^4.1.1",
-    "tesseract.js": "^1.0.19",
+    "tesseract.js": "https://registry.npmjs.org/tesseract.js/-/tesseract.js-1.0.19.tgz",
     "tesseract.ts": "^1.0.3",
     "treetabular": "^3.5.1",
     "victory": "^30.6.0",
