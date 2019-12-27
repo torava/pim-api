@@ -3,9 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const nodeExternals = require('webpack-node-externals');
 
 const client = {
-  entry: {
-    js: './src/app-client.js',
-  },
+  entry: ['webpack/hot/dev-server', './src/app-client.js'],
   output: {
     path: path.join(__dirname, 'src', 'static', 'js'),
     filename: 'bundle.js',
@@ -19,6 +17,9 @@ const client = {
     historyApiFallback: true,
     proxy: {
       "/api": "http://localhost:42809"
+    },
+    watchOptions: {
+      ignored: /node_modules/
     }
   },
   module: {

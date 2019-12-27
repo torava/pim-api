@@ -1,7 +1,7 @@
 import axios from "axios";
 import moment from 'moment';
 import DataStore from './DataStore';
-const { TesseractWorker, PSM, OEM } = Tesseract;
+const {createWorker, PSM} = Tesseract;
 
 const WAITING = -1;
 
@@ -52,12 +52,6 @@ function localeToLanguage(locale) {
 class ReceiptService {
   constructor() {
     this.pipeline = {};
-
-    this.pipeline.tesseract = new TesseractWorker({
-      langPath: 'http://localhost:42808/lib/tessdata/fast',
-      //workerPath: 'http://localhost:42808/lib/worker.js',
-      //corePath: 'http://localhost:42808/lib/tesseract.js-core.js'
-    });
 
     Promise.all([
       DataStore.getProducts(),
@@ -202,11 +196,9 @@ class ReceiptService {
         console.log('processed');
         console.timeLog('process');
 
-        return this.pipeline.tesseract.detect(
-          imagedata
-        )
+        return this.pipeline.tesseract_worker.detect(imagedata)
         .then(result => {
-          let rotate = result.orientation_degrees;
+          let rotate = result.data.orientation_degrees;
           dst = this.rotateImage(dst, 360-rotate);
 
           console.log('rotated '+rotate+' degrees');
@@ -216,22 +208,10 @@ class ReceiptService {
 
           imagedata = this.getSrc(dst, true);
     
-          return this.pipeline.tesseract.recognize(
-            imagedata,
-            'fin',
-            {
-              //'tessedit_pageseg_mode': PSM.AUTO_OSD,
-              tessedit_ocr_engine_mode: OEM.TESSERACT_ONLY,
-              tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890',
-              //textord_max_noise_size: 50,
-              //textord_noise_sizelimit: 1
-              tessedit_create_osd: '1',
-            }
-          )
+          return this.pipeline.tesseract_worker.recognize(imagedata)
           //.progress(message => console.log(message))
-          .catch(err => console.error(err))
           .then(result => {
-            this.pipeline.lines = result.lines;
+            this.pipeline.lines = result.data.lines;
 
             console.log('recognized for cropping');
             console.timeLog('process');
@@ -240,7 +220,7 @@ class ReceiptService {
 
             console.log('processed', this.getSrc(dst, true));
 
-            let words = result.words,
+            let words = result.data.words,
                 word,
                 factor = 1,//dst.cols/origwidth,
                 left, top, right, bottom,
@@ -257,7 +237,14 @@ class ReceiptService {
               right = word.bbox.x1;
               bottom = word.bbox.y1;
 
-              if (!word.text || !word.text.trim() || right-left < 10 || bottom-top < 10 || word.confidence < 60 || word.text.length < 2) continue;
+              if (!word.text ||
+                  !word.text.trim() ||
+                  right-left < 10 ||
+                  bottom-top < 10 ||
+                  word.confidence < 60 ||
+                  word.text.length < 2)
+                continue;
+
               console.log(word);
 
               left*= factor;
@@ -271,6 +258,8 @@ class ReceiptService {
               cv.rectangle(rec, point1, point2, rectangleColor, 1, cv.LINE_AA, 0);
             }
 
+            console.log('contours', this.getSrc(rec, true));
+
             let M = new cv.Mat();
             let ksize = new cv.Size(30, 80);
             M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
@@ -281,7 +270,7 @@ class ReceiptService {
             cv.erode(rec, rec, M, anchor);
             cv.dilate(rec, rec, M, anchor);
 
-            console.log('contours', this.getSrc(rec, true));
+            
           
             let contours = new cv.MatVector();
             let hierarchy = new cv.Mat();
@@ -357,9 +346,9 @@ class ReceiptService {
             cropped.delete();
             rec.delete();
             con.delete();
-          });
+          })
         })
-        .catch(function(error) {
+        .catch(error => {
           console.error(error);
           reject();
         });
@@ -446,6 +435,27 @@ class ReceiptService {
     return new Promise(async (resolve, reject) => {
       console.log(files);
       let file;
+
+      if(!this.pipeline.tesseract_worker) {
+        const worker = createWorker({
+          //langPath: 'http://localhost:42808/lib/tessdata/fast',
+          //gzip: false,
+          //logger: m => console.log(m)
+        });
+        await worker.load();
+        await worker.loadLanguage('fin');
+        await worker.initialize('fin');
+        await worker.setParameters({
+          //tessedit_pageseg_mode: PSM.AUTO_OSD,
+          //tessedit_ocr_engine_mode: OEM.TESSERACT_ONLY,
+          tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890.-',
+          //textord_max_noise_size: 50,
+          //textord_noise_sizelimit: 1
+          tessjs_create_osd: '1'
+        });
+        this.pipeline.tesseract_worker = worker;
+      }
+
       for (let i in files) {
         file = files[i];
 
@@ -463,15 +473,12 @@ class ReceiptService {
         */
 
         await Promise.all([this.processPipeline(), this.prepareReceiptPipeline()])
-        .then(() => {
+        .then(() =>
           this.saveTransactionPipeline()
           .then(() => {
             console.log(this.pipeline);
           })
-          .catch(error => {
-            reject(error);
-          });
-        })
+        )
         .catch(error => {
           reject(error);
         });
@@ -1150,7 +1157,10 @@ class ReceiptService {
     dst.delete(); contours.delete(); hierarchy.delete(); cnt.delete();
 
     let scale = orig.cols/src.cols;
-    rect = new cv.Rect(Math.max(rect.x-10, 0)*scale, Math.max(rect.y-10, 0)*scale, Math.min(rect.width+10, src.cols)*scale, Math.min(rect.height+10, src.rows)*scale);
+    rect = new cv.Rect(Math.max(rect.x-10, 0)*scale,
+                       Math.max(rect.y-10, 0)*scale,
+                       Math.min(rect.width+10, src.cols)*scale,
+                       Math.min(rect.height+10, src.rows)*scale);
   
     orig = orig.roi(rect);
 

@@ -15,7 +15,7 @@ function resolveAttributes(attributes) {
 
 app.get('/api/attribute', function(req, res) {
   if (req.query.hasOwnProperty('parent')) {
-    Attribute.query()
+    return Attribute.query()
     .where('parentId', req.query.parent || null)
     .eager('[children.^]')
     .then(attributes => {
@@ -30,7 +30,7 @@ app.get('/api/attribute', function(req, res) {
     });
   }
   else {
-    Attribute.query()
+    return Attribute.query()
     .then(attributes => {
       res.send(attributes);
     })

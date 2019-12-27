@@ -1,12 +1,12 @@
 module.exports = {
 
   development: {
-    client: 'mysql',
+    client: 'postgresql',
     useNullAsDefault: true,
     connection: {
       host: 'localhost',
-      user: 'root',
-      password: '',
+      user: 'postgres',
+      password: 'postgres',
       database: 'bookkeepr',
       //filename: './example.db'
     }
