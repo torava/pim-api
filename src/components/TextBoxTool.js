@@ -2,7 +2,7 @@
 
 import axios from 'axios';
 import React, {Component} from 'react';
-const { TesseractWorker } = Tesseract;
+const {createWorker, PSM} = Tesseract;
 
 function deskew( mat, angle, reqid = '0', drawGrid = false ) {
   angle = angle || computeSkew( mat.cvtColor(cv.COLOR_BGR2GRAY).bitwiseNot() );
@@ -63,7 +63,7 @@ export default class TextBoxTool extends Component {
 
     reader.readAsDataURL(files[0]);
     
-    img.onload = (e) => {
+    img.onload = async event => {
       target_canvas.width = canvas.width = img.width;
       target_canvas.height = canvas.height = img.height;
       context.drawImage(img, 0, 0, img.width, img.height);
@@ -81,17 +81,22 @@ export default class TextBoxTool extends Component {
 
       src = deskew(src, angle, 0, true);*/
 
-      cv.bilateralFilter(src,bil,5,5,5);
+      //cv.bilateralFilter(src,bil,5,5,5);
 
       let ksize = new cv.Size(9,9);
-      cv.GaussianBlur(bil, bil, ksize, 0, 0, cv.BORDER_DEFAULT);
+      //cv.GaussianBlur(bil, bil, ksize, 0, 0, cv.BORDER_DEFAULT);
 
-      cv.adaptiveThreshold(bil, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 15, 15);//, 201, 30);
+      cv.adaptiveThreshold(src, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 15, 15);//, 201, 30);
 
       /*let M= cv.Mat.ones(2, 2, cv.CV_8U);
         let anchor = new cv.Point(-1, -1);
         cv.dilate(dst, dst, M, anchor, 1);
         cv.erode(dst, dst, M, anchor, 2);*/
+
+        /*let M = new cv.Mat();
+        ksize = new cv.Size(3, 3);
+        M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
+        cv.morphologyEx(dst, dst, cv.MORPH_CLOSE, M);*/
 
         let dsize = new cv.Size(2400, src.rows/src.cols*2400);
         cv.resize(dst,dst, dsize, 0, 0, cv.INTER_AREA);
@@ -102,18 +107,29 @@ export default class TextBoxTool extends Component {
       console.log('edited');
       console.timeLog('process');
 
-      var tesseract = new TesseractWorker({
+      const tesseract_worker = createWorker({
         langPath: 'http://localhost:42808/lib/tessdata/fast',
-        //workerPath: 'http://localhost:42808/lib/worker.js',
-        //corePath: 'http://localhost:42808/lib/tesseract.js-core.js'
+        gzip: false,
+        //logger: m => console.log(m)
+      });
+      await tesseract_worker.load();
+      await tesseract_worker.loadLanguage('fin');
+      await tesseract_worker.initialize('fin');
+      await tesseract_worker.setParameters({
+        //tessedit_pageseg_mode: PSM.AUTO_OSD,
+        //tessedit_ocr_engine_mode: OEM.TESSERACT_ONLY,
+        tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890.-',
+        textord_max_noise_size: 50,
+        //textord_noise_sizelimit: 1
+        tessjs_create_osd: '1'
       });
 
-      tesseract.detect(imagedata)
+      tesseract_worker.detect(imagedata)
       .then(result => {
         console.log('detected');
         console.timeLog('process');
 
-        let rotate = result.orientation_degrees;
+        let rotate = result.data.orientation_degrees;
         console.log(rotate);
         dst = this.rotateImage(dst, 360-rotate);
 
@@ -121,7 +137,7 @@ export default class TextBoxTool extends Component {
 
         imagedata = this.getSrc(dst, true);
   
-        tesseract.recognize(imagedata,
+        tesseract_worker.recognize(imagedata,
           'fin'
           //tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890',
           //textord_max_noise_size: 50,
@@ -133,7 +149,7 @@ export default class TextBoxTool extends Component {
           console.log('recognized');
           console.timeLog('process');
 
-          let words = result.words,
+          let words = result.data.words,
               word,
               coords, distances = [],
               origwidth = src.cols,
@@ -250,7 +266,7 @@ export default class TextBoxTool extends Component {
           );
 
           let M = new cv.Mat();
-          let ksize = new cv.Size(30, 70);
+          let ksize = new cv.Size(30, 30);
           M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
           cv.morphologyEx(rec, rec, cv.MORPH_CLOSE, M);
 
@@ -329,7 +345,7 @@ export default class TextBoxTool extends Component {
           let cropped_words = [],
               cropped_lines = [];
 
-          result.lines.forEach(line => {
+          result.data.lines.forEach(line => {
             cropped_words = [];
             line.words.forEach(word => {
               console.log(word.text, word.bbox.x0, x, word.bbox.y0, y, word.bbox.x1, x+w, word.bbox.y1, y+h, word.bbox.x0 > x && word.bbox.y0 > y && word.bbox.x1 < x+w && word.bbox.y1 < y+h);
@@ -346,7 +362,7 @@ export default class TextBoxTool extends Component {
           console.log(cropped_lines);
           console.timeLog('process');
 
-          tesseract.recognize(imagedata,
+          tesseract_worker.recognize(imagedata,
             'fin',
             //tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890.,-',
             //textord_max_noise_size: 50,

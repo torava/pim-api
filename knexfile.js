@@ -6,9 +6,13 @@ module.exports = {
     connection: {
       host: 'localhost',
       user: 'postgres',
-      password: 'postgres',
+      password: 'password',
       database: 'bookkeepr',
       //filename: './example.db'
+    },
+    pool: {
+      min: 0,
+      max: 1
     }
   },
 

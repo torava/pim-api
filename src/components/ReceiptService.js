@@ -113,7 +113,7 @@ class ReceiptService {
   }
   recognizePipeline() {
     return new Promise((resolve, reject) => {
-      let cropped_words = [],
+      /*let cropped_words = [],
           cropped_lines = [],
           cropped_text,
           x = this.pipeline.rect.x,
@@ -133,7 +133,7 @@ class ReceiptService {
         }
       });
 
-      cropped_text = cropped_lines.join("\n");
+      cropped_text = cropped_lines.join("\n");*/
       
       let data = {
         products: this.products,
@@ -141,7 +141,7 @@ class ReceiptService {
         categories: this.categories
       },
           locale = 'fi-FI';
-      this.getTransactionsFromReceipt(data, cropped_text, locale);
+      /*this.getTransactionsFromReceipt(data, cropped_text, locale);
 
 
       let transaction = data.transactions[0],
@@ -150,23 +150,33 @@ class ReceiptService {
 
       console.log('extracted', 'cropped_words', cropped_words, 'total_price', total_price, 'total_price_read', total_price_read);
       console.timeLog('process');
-      console.log(data, locale);
+      console.log(data, locale);*/
 
-      this.pipeline.tesseract_worker.detect(this.pipeline.imagedata)
+      return this.pipeline.tesseract_worker.detect(this.pipeline.imagedata)
       .then(result => {
-        let rotate = result.data.orientation_degrees;
+        const rotate = result.data.orientation_degrees;
         this.pipeline.dst = this.rotateImage(this.pipeline.dst, 360-rotate);
 
         console.log('rotated '+rotate+' degrees');
         console.timeLog('process');
 
+        let resized = this.pipeline.dst;
+              
+        const dsize = new cv.Size(800, resized.rows/resized.cols*800);
+        cv.resize(resized, resized, dsize, 0, 0, cv.INTER_AREA);
+
+        this.pipeline.imagedata = this.getSrc(resized, true);
+
+        console.log('resized', this.pipeline.imagedata);
+        console.timeLog('process');
+
         console.log(result);
 
-        let imagedata = this.getSrc(this.pipeline.dst, true);
-  
-        return this.pipeline.tesseract_worker.recognize(imagedata)
+        return Promise.all([this.saveEditedPipeline(), this.pipeline.tesseract_worker.recognize(this.pipeline.imagedata)])
         //.progress(message => console.log(message))
-        .then(result => {
+        .then(results => {
+          const result = results[1];
+
           console.log('recognized transformed', result);
           console.timeLog('process');
 
@@ -255,6 +265,50 @@ class ReceiptService {
     }
     else return false;
   }
+
+  cropMinAreaRect(src, cnt) {
+    // inspired by https://jdhao.github.io/2019/02/23/crop_rotated_rectangle_opencv/
+
+    const rotatedRect = cv.minAreaRect(cnt);
+    const vertices = cv.RotatedRect.points(rotatedRect);
+
+    /*const bl = vertices[0];
+    const tl = vertices[1];
+    const tr = vertices[2];
+    const br = vertices[3];*/
+
+    //Sort by Y position (to get top-down)
+    vertices.sort((a, b) => a.y < b.y ? -1 : (a.y > b.y ? 1 : 0)).slice(0, 5);
+
+    //Determine left/right based on x position of top and bottom 2
+    let tl = vertices[0].x < vertices[1].x ? vertices[0] : vertices[1];
+    let tr = vertices[0].x > vertices[1].x ? vertices[0] : vertices[1];
+    let bl = vertices[2].x < vertices[3].x ? vertices[2] : vertices[3];
+    let br = vertices[2].x > vertices[3].x ? vertices[2] : vertices[3];
+
+    const height = Math.hypot(bl.x-tl.x, bl.y-tl.y);
+    const width = Math.hypot(tl.x-tr.x, tl.y-tr.y);
+    const dst_coords = cv.matFromArray(4, 1,cv.CV_32FC2, [0, 0, width-1, 0, width-1, height-1, 0, height-1]);
+    const src_coords = cv.matFromArray(4, 1, cv.CV_32FC2, [tl.x, tl.y, tr.x, tr.y, br.x, br.y, bl.x, bl.y]);
+
+    console.log(tl, tr, bl, br, 'width', width, 'height', height, 'rotatedRect', rotatedRect, 'vertices', vertices);
+
+    const M = cv.getPerspectiveTransform(src_coords, dst_coords);
+
+    const dsize = new cv.Size(width, height);
+    let warped = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
+    cv.warpPerspective(src, warped, M, dsize);
+
+    return warped;
+  }
+  /**
+   * Crop mat to bounding rectangle of given contour
+   * 
+   * @param {cv.Mat} dst
+   * @param {cv.Mat} rec 
+   * @param {cv.Mat} con 
+   * @param {cv.Mat} cnt 
+   */
   cropImage(dst, rec, con, cnt) {
     let rotatedRect = cv.minAreaRect(cnt);
     let vertices = cv.RotatedRect.points(rotatedRect);
@@ -289,8 +343,12 @@ class ReceiptService {
     this.pipeline.rect = {x,y,w,h};
 
     console.log(rect, scale);
+  
+    let rotated = this.rotateImage(dst, rotatedRect.angle+90);
 
-    let cropped = dst.roi(rect);
+    console.log('rotated', this.getSrc(rotated, true));
+
+    let cropped = rotated.roi(rect);
 
     console.log('cropped', this.getSrc(cropped, true));
 
@@ -305,13 +363,13 @@ class ReceiptService {
           console.log('loaded');
           console.timeLog('process');
 
-          const PROCESSING_WIDTH = 3000;
+          const PROCESSING_WIDTH = 2500;
 
           let src = cv.imread(img);
           let dst = new cv.Mat();
           let bil = new cv.Mat();
 
-          let anchor;
+          let anchor, M, ksize;
 
           cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
 
@@ -327,10 +385,10 @@ class ReceiptService {
           cv.dilate(dst, dst, M, anchor, 1);
           cv.erode(dst, dst, M, anchor, 1);*/
 
-          let M = new cv.Mat();
+          /*let M = new cv.Mat();
           let ksize = new cv.Size(3, 3);
           M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
-          cv.morphologyEx(dst, dst, cv.MORPH_CLOSE, M);
+          cv.morphologyEx(dst, dst, cv.MORPH_CLOSE, M);*/
 
           let dsize = new cv.Size(PROCESSING_WIDTH, src.rows/src.cols*PROCESSING_WIDTH);
           cv.resize(dst, dst, dsize, 0, 0, cv.INTER_AREA);
@@ -405,7 +463,7 @@ class ReceiptService {
               }
 
               let rec_bordered = new cv.Mat();
-              let close = 1300*factor;
+              let close = 800*factor;
               let s = new cv.Scalar(0, 0, 0, 255);
               cv.copyMakeBorder(rec, rec_bordered, close, close, close, close, cv.BORDER_CONSTANT, s);
 
@@ -416,11 +474,11 @@ class ReceiptService {
               M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
               cv.morphologyEx(rec_bordered, rec_bordered, cv.MORPH_CLOSE, M);
 
-              M = cv.Mat.ones(75*factor, 75*factor, cv.CV_8U);
+              M = cv.Mat.ones(150*factor, 150*factor, cv.CV_8U);
               anchor = new cv.Point(-1, -1);
               cv.erode(rec_bordered, rec_bordered, M, anchor);
 
-              M = cv.Mat.ones(150*factor, 150*factor, cv.CV_8U);
+              M = cv.Mat.ones(250*factor, 250*factor, cv.CV_8U);
               anchor = new cv.Point(-1, -1);
               cv.dilate(rec_bordered, rec_bordered, M, anchor);
 
@@ -453,23 +511,24 @@ class ReceiptService {
 
               let contoursColor = new cv.Scalar(255, 255, 255);
 
-              cv.drawContours(con, contours, -1, contoursColor, 1, 8, hierarchy, 100);
+              for (let i = 0; i < contours.size()*0.5; i++) {
+                cv.drawContours(con, contours, i, contoursColor, 1, cv.LINE_8, hierarchy, 0);
+              }
 
-              this.pipeline.transformed = this.transformImage(dst, rec_resized);
-              this.pipeline.cropped = this.cropImage(dst, rec_resized, con, cnt);
+              console.log('con', this.getSrc(con));
 
-              let cropped = this.pipeline.transformed || this.pipeline.cropped;
+              //this.pipeline.transformed = this.transformImage(dst, rec_resized);
+              this.pipeline.cropped = this.cropMinAreaRect(dst, cnt);
+
+              let cropped = /*this.pipeline.transformed ||*/ this.pipeline.cropped;
               
-              dsize = new cv.Size(800, cropped.rows/cropped.cols*800);
-              cv.resize(cropped, cropped, dsize, 0, 0, cv.INTER_AREA);
-
               this.pipeline.imagedata = this.getSrc(cropped, true);
               this.pipeline.dst = cropped;
 
-              console.log('cropped');
+              console.log('cropped', this.pipeline.imagedata);
               console.timeLog('process');
 
-              Promise.all([this.saveEditedPipeline(), this.recognizePipeline()])
+              this.recognizePipeline()
               .then(([edited, recognize]) => {
                 src.delete();
                 dst.delete();
@@ -524,7 +583,7 @@ class ReceiptService {
         await worker.setParameters({
           //tessedit_pageseg_mode: PSM.AUTO_OSD,
           //tessedit_ocr_engine_mode: OEM.TESSERACT_ONLY,
-          tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890.-',
+          tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890.- ',
           //textord_max_noise_size: 50,
           //textord_noise_sizelimit: 1
           tessjs_create_osd: '1'
@@ -771,7 +830,7 @@ class ReceiptService {
         // general attributes
   
         // total line
-        line_total = line_number_format.match(/^(total|summa|yhteensä|yhteensa).*[^0-9]((\d+\.\d{2})(\-)?\s)?((\d+\.\d{2})(\-)?)$/i);
+        line_total = line_number_format.match(/^(total|grand total|summa|yhteensä|yhteensa).*[^0-9]((\d+\.\d{2})(\-)?\s)?((\d+\.\d{2})(\-)?)$/i);
         if (line_total) {
           if (line_total[2]) continue;
   
@@ -1137,9 +1196,11 @@ class ReceiptService {
 
     console.log(src);
 
-    let imagedata = ctx.createImageData(src.cols, src.rows);
+    /*let imagedata = ctx.createImageData(src.cols, src.rows);
     imagedata.data.set(src.data);
-    ctx.putImageData(imagedata, 0, 0);
+    ctx.putImageData(imagedata, 0, 0);*/
+
+    cv.imshow(canvas, src);
 
     return canvas.toDataURL();
   }

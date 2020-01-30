@@ -289,14 +289,6 @@ async function getClosestCategory(toCompare, locale) {
   });
 }
 
-function getAttributes(builder) {
-  builder.eager('[products.[items], contributions.[contribution], attributes, children(getAttributes)]', {getAttributes});
-}
-
-function getTransactions(builder) {
-  builder.eager('[products.items.transaction, attributes, children(getTransactions)]', {getTransactions});
-}
-
 function resolveCategories(items, locale) {
   if (!locale) return;
   let item_attributes,
@@ -358,7 +350,7 @@ app.get('/api/category', function(req, res) {
   else */
   if (req.query.match) {
     getClosestCategory(req.query.match, req.query.locale).then(category => {
-      res.send(category ? category.id.toString() : "");
+      return res.send(category ? category.id.toString() : "");
     });
     /*
     Category.query()
@@ -381,67 +373,70 @@ app.get('/api/category', function(req, res) {
     });*/
   }
   else if ('parent' in req.query) {
-    Category.query()
+    return Category.query()
     .where('parentId', req.query.parent || null)
-    .eager('[products.[items], contributions.[contribution], attributes, children(getAttributes)]', {getAttributes})
+    .modify('getAttributes')
+    .withGraphFetched('[products.[items], contributions.[contribution], attributes, children(getAttributes)]')
     .then(categories => {
       resolveCategories(categories, req.query.locale);
-      res.send(categories);
+      return res.send(categories);
     })
     .catch(error => {
       console.error(error);
-      throw new Error();
+      return res.sendStatus(500);
     });
   }
   else if (req.query.hasOwnProperty('transactions')) {
-    Category.query()
+    return Category.query()
     .where('parentId', null)
-    .eager('[attributes, children(getTransactions)]', {getTransactions})
+    .modify('getTransactions')
+    .withGraphFetched('[attributes, children(getTransactions)]')
     .then(categories => {
       resolveCategoryPrices(categories);
       resolveCategories(categories, req.query.locale);
-      res.send(categories);
+      return res.send(categories);
     })
     .catch(error => {
       console.error(error);
-      throw new Error();
+      return res.sendStatus(500);
     });
   }
   else if (req.query.hasOwnProperty('attributes')) {
-    Category.query()
+    return Category.query()
     //.limit(200)
-    .eager('[attributes]')
+    .withGraphFetched('[attributes]')
     .then(categories => {
       resolveCategories(categories, req.query.locale);
-      res.send(categories);
+      return res.send(categories);
     })
     .catch(error => {
       console.error(error);
-      throw new Error();
+      return res.sendStatus(500);
     });
   }
   else if ('id' in req.query) {
-    Category.query()
+    return Category.query()
     .where('id', req.query.id)
-    .eager('[products.[items], contributions.[contribution], attributes.[attribute.[parent.^], sources.[source]], parent.^, children(getAttributes)]', {getAttributes})
+    .modify('getAttributes')
+    .withGraphFetched('[products.[items], contributions.[contribution], attributes.[attribute.[parent.^], sources.[source]], parent.^, children(getAttributes)]')
     .then(categories => {
       resolveCategories(categories, req.query.locale);
-      res.send(categories);
+      return res.send(categories);
     })
     .catch(error => {
       console.error(error);
-      throw new Error();
+      return res.sendStatus(500);
     });
   }
   else {
-    Category.query()
+    return Category.query()
     .then(categories => {
       resolveCategories(categories, req.query.locale);
-      res.send(categories);
+      return res.send(categories);
     })
     .catch(error => {
       console.error(error);
-      throw new Error();
+      return res.sendStatus(500);
     });
   }
 });

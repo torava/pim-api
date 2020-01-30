@@ -60,7 +60,7 @@ export default class OverviewPage extends Component {
           axios.get('/api/item/')
           .then(response => {
             that.setState({items: response.data});
-            axios.get('/api/category/?transactions&locale='+locale.getLocale())
+            axios.get('/api/category/?locale='+locale.getLocale())
             .then(function(response) {
               that.setState({
                 categories: [...response.data],

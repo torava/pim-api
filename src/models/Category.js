@@ -4,7 +4,6 @@ import CategoryAttribute from './CategoryAttribute';
 import CategoryContribution from './CategoryContribution';
 
 export default class Category extends Model {
-
 	static get tableName() {
 		return 'Category';
 	}
@@ -19,6 +18,17 @@ export default class Category extends Model {
 				aliases: {type: ['object', null]}
 			}
 		}
+	}
+
+	static get modifiers() {
+		return {
+			getAttributes(builder) {
+				builder.withGraphFetched('[products.[items], contributions.[contribution], attributes, children(getAttributes)]');
+			},
+			getTransactions(builder) {
+				builder.withGraphFetched('[products.items.transaction, attributes, children(getTransactions)]');
+			}
+		};
 	}
 
 	static get relationMappings() {

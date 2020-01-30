@@ -17,7 +17,7 @@ export default class CategoryList extends Component {
 
     Promise.all([
       DataStore.getAttributes(),
-      DataStore.getCategoriesWithAttributes()
+      DataStore.getCategories()
     ])
     .then(([attributes, categories]) => {
       this.setState({
