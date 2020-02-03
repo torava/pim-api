@@ -8,6 +8,7 @@ import fs from 'fs';
 import child_process from 'child_process';
 import _ from 'lodash';
 import {JSDOM} from 'jsdom';
+import xmlParser from 'fast-xml-parser';
 import sizeOf from 'image-size';
 import moment from 'moment';
 import crypto from 'crypto';
@@ -757,44 +758,89 @@ app.post('/api/receipt/prepare/', function(req, res) {
 });
 
 app.post('/api/receipt/hocr/', function(req, res) {
-  upload(req, res, function(err) {
-    if (err) {
-      console.error(error);
-      throw new Error();
-    }
+  const id = req.id;
+  const path = upload_path+'/'+id+'_pre';
 
-    let file = req.file;
+  child_process.execFile('tesseract', [
+    '-l', 'fin',
+    '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.- ',
+    //'-c', 'textord_max_noise_size=30',
+    //'-c', 'textord_noise_sizelimit=1',
+    path,
+    'stdout',
+    'output',
+    'hocr',
+  ], function(error, stdout, stderr) {
+    if (error) console.error(error);
+    process.stdout.write(stdout);
+    process.stderr.write(stderr);
 
-    console.log(file);
+    const json = xmlParser.parse(stdout);
 
-    processReceiptImage(file.path, {
-      sharpen: false,
-      blur: false
-    }, false).then((response) => {
-      child_process.execFile('tesseract', [
-        '-l', 'fin',
-        '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.- ',
-        '-c', 'textord_max_noise_size=30',
-        '-c', 'textord_noise_sizelimit=1',
-        file.path+'_edited',
-        'stdout',
-        'output',
-        'hocr',
-      ], function(error, stdout, stderr) {
-        if (error) console.error(error);
-        process.stdout.write(stdout);
-        process.stderr.write(stderr);
-
-        res.send({
-          hocr: stdout,
-          id: file.filename
-        });
-      });
-    })
-    .catch(error => {
-      console.error(error);
-      throw new Error();
+    res.send({
+      result: json,
+      id
     });
+  })
+  .catch(error => {
+    console.error(error);
+    throw new Error();
+  });
+});
+
+app.post('/api/receipt/osd/', function(req, res) {
+  const id = req.id;
+  const path = upload_path+'/'+id+'_pre';
+
+  child_process.execFile('tesseract', [
+    '-l', 'fin',
+    '--psm', '0',
+    '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.- ',
+    //'-c', 'textord_max_noise_size=30',
+    //'-c', 'textord_noise_sizelimit=1',
+    path,
+    'stdout',
+  ], function(error, stdout, stderr) {
+    if (error) console.error(error);
+    process.stdout.write(stdout);
+    process.stderr.write(stderr);
+
+    res.send({
+      result: stdout,
+      id
+    });
+  })
+  .catch(error => {
+    console.error(error);
+    throw new Error();
+  });
+});
+
+app.post('/api/receipt/recognize/', function(req, res) {
+  const id = req.id;
+  const path = upload_path+'/'+id+'_pre';
+
+  child_process.execFile('tesseract', [
+    '-l', 'fin',
+    '--psm', '1',
+    '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.- ',
+    //'-c', 'textord_max_noise_size=30',
+    //'-c', 'textord_noise_sizelimit=1',
+    path,
+    'stdout',
+  ], function(error, stdout, stderr) {
+    if (error) console.error(error);
+    process.stdout.write(stdout);
+    process.stderr.write(stderr);
+
+    res.send({
+      result: stdout,
+      id
+    });
+  })
+  .catch(error => {
+    console.error(error);
+    throw new Error();
   });
 });
 
@@ -802,14 +848,14 @@ function processReceipt(data, language, id) {
   return new Promise((resolve, reject) => {
     let filepath = upload_path+"/"+id;
 
-    Category.query()
+    return Category.query()
     .then(category => {
       data.categories = category;
-      Product.query()
+      return Product.query()
       .then(product => {
         data.products = product;
 
-        Manufacturer.query()
+        return Manufacturer.query()
         .then(manufacturer => {
           data.manufacturers = manufacturer;
           return processReceiptImage(filepath, data, true).then(response => {
@@ -827,35 +873,15 @@ function processReceipt(data, language, id) {
               }
               resolve(data);
             })
-            .catch(error => {
-              console.error(error);
-              throw new Error();
-            });
           })
-          .catch(error => {
-            console.error(error);
-            throw new Error();
-          });
         })
-        .catch(error => {
-          console.error(error);
-          throw new Error();
-        });
       })
-      .catch(error => {
-        console.error(error);
-        throw new Error();
-      });
     })
     .catch(error => {
       console.error(error);
-      throw new Error();
+      reject(error);
     });
   })
-  .catch(error => {
-    console.error(error);
-    throw new Error();
-  });
 }
 
 app.post('/api/receipt/data/:id', function(req, res) {
@@ -885,58 +911,43 @@ app.post('/api/receipt', (req, res) => {
   });
 });
 
-app.post('/api/receipt/original', (req, res) => {
+function uploadReceipt(res, name, base64Data) {
   try {
-      var base64Data = req.body.src;
+    var imageBuffer = decodeBase64Image(base64Data);
+    var image_path = upload_path+'/'+name;
 
-      var imageBuffer = decodeBase64Image(base64Data);
-
-      var name = req.body.id+'_original';
-
-      var image_path = upload_path+'/'+name;
-
-      // Save decoded binary image to disk
-      try {
-        require('fs').writeFile(image_path, imageBuffer.data, () => {
-          console.log('Uploaded '+image_path);
-          res.send(name);
-        });
-      }
-      catch(error) {
-          res.status(500).send(error);
-      }
+    // Save decoded binary image to disk
+    require('fs').writeFile(image_path, imageBuffer.data, () => {
+      console.log('Uploaded '+image_path);
+      res.send(name);
+    });
   }
   catch(error) {
-    res.status(500).send(error);
+    console.error(error);
+    res.sendStatus(500);
   }
+}
+
+app.post('/api/receipt/original', (req, res) => {
+  var base64Data = req.body.src;
+  var name = req.body.id+'_original';
+
+  uploadReceipt(res, name, base64Data);
 });
 
 app.post('/api/receipt/picture', (req, res) => {
-  try {
-      var base64Data = req.body.src;
+  var base64Data = req.body.src;
+  var name = req.body.id+'_edited';
 
-      var imageBuffer = decodeBase64Image(base64Data);
-
-      var name = req.body.id+'_edited';
-
-      var image_path = upload_path+'/'+name;
-
-      // Save decoded binary image to disk
-      try {
-        require('fs').writeFile(image_path, imageBuffer.data, () => {
-          console.log('Uploaded '+image_path);
-          res.send(name);
-        });
-      }
-      catch(error) {
-        res.status(500).send(error);
-      }
-  }
-  catch(error) {
-    res.status(500).send(error);
-  }
+  uploadReceipt(res, name, base64Data);
 });
 
+app.post('/api/receipt/pre', (req, res) => {
+  var base64Data = req.body.src;
+  var name = req.body.id+'_pre';
+
+  uploadReceipt(res, name, base64Data);
+});
 
 app.get('/api/receipt/original/:id', function (req, res) {
 	var file_path = upload_path+"/"+req.params.id+'_original';

@@ -150,13 +150,13 @@ app.get('/api/import/getexternalcategoriesfineli', async function(req, res) {
   console.log('meta '+moment().format());
 
   await Source.query()
-    .insertGraph(base_sources)
+    .insertGraph(base_sources, {allowRefs: true})
     .then(result => {
       base_sources = result;
     });
 
-  Category.query()
-    .insertGraph(base_categories)
+  return Category.query()
+    .insertGraph(base_categories, {allowRefs: true})
     .then(async base_categories => {
       for (let i in foodname_fi_rows) {
         value = {};
@@ -294,7 +294,7 @@ app.get('/api/import/getexternalcategoriesfineli', async function(req, res) {
 
       // add to database
       await Category.query()
-        .upsertGraph(category_values, {relate: true})
+        .upsertGraph(category_values, {relate: true, allowRefs: true})
         .then(async category => {
           console.log('written '+moment().format());
 

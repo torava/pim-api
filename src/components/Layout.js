@@ -42,7 +42,7 @@ export default class Layout extends React.Component {
     locale.setAttributeUnit('energy,calculated', event.target.value);
   }
   onUpload(event) {
-    event.preventDefault();
+    //event.preventDefault();
 
     //window.onbeforeunload = confirmExit;
 
@@ -59,7 +59,12 @@ export default class Layout extends React.Component {
     .then((transactions) => {
       console.log(transactions);
       window.onbeforeunload = null;
+      event.target.value = null;
     })
+    .catch(error => {
+      console.error(error);
+      event.target.value = null;
+    });
   }
   render() {
     return (

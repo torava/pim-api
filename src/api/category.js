@@ -193,7 +193,7 @@ export default app => {
             }
           }      
         }
-        else {
+        else if (column_name !== '') {
           _.set(item, column_name.replace('[i]', '['+(i-1)+']'), columns[n]);
         }
       }
@@ -450,17 +450,18 @@ app.post('/api/category', async function(req, res) {
     category = req.body;
   }
   console.dir(category, {depth:null});
-  Category.query()
+  return Category.query()
     .upsertGraph(category, {
       noDelete: true,
-      relate: true
+      relate: true,
+      allowRefs: true
     })
     .then(category => {
-      res.send(category);
+      return res.send(category);
     })
     .catch(error => {
       console.error(error);
-      throw new Error();
+      return res.sendStatus(500);
     });
 });
 

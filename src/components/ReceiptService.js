@@ -68,10 +68,10 @@ class ReceiptService {
   }
   prepareReceiptPipeline() {
     return new Promise((resolve, reject) => {
-      axios.post('/api/receipt')
+      return axios.post('/api/receipt')
       .then(receipt => {
         this.pipeline.receipt = receipt.data;
-        Promise.all([
+        return Promise.all([
           this.saveEditedPipeline(),
           this.saveOriginalPipeline()
         ])
@@ -378,7 +378,7 @@ class ReceiptService {
           let ksize = new cv.Size(9,9);
           cv.GaussianBlur(bil, bil, ksize, 0, 0, cv.BORDER_DEFAULT);*/
 
-          cv.adaptiveThreshold(src, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 15, 15);//, 201, 30);
+          cv.adaptiveThreshold(src, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 31, 21);//, 201, 30);
 
           /*let M = cv.Mat.ones(2, 2, cv.CV_8U);
           let anchor = new cv.Point(-1, -1);
@@ -417,10 +417,8 @@ class ReceiptService {
             .then(result => {
               this.pipeline.lines = result.data.lines;
 
-              console.log('recognized for cropping');
+              console.log('recognized for cropping', result);
               console.timeLog('process');
-
-              console.log(result);
 
               const CONTOUR_WIDTH = 400;
 
@@ -463,7 +461,7 @@ class ReceiptService {
               }
 
               let rec_bordered = new cv.Mat();
-              let close = 800*factor;
+              let close = 600*factor;
               let s = new cv.Scalar(0, 0, 0, 255);
               cv.copyMakeBorder(rec, rec_bordered, close, close, close, close, cv.BORDER_CONSTANT, s);
 
@@ -528,7 +526,7 @@ class ReceiptService {
               console.log('cropped', this.pipeline.imagedata);
               console.timeLog('process');
 
-              this.recognizePipeline()
+              return this.recognizePipeline()
               .then(([edited, recognize]) => {
                 src.delete();
                 dst.delete();
@@ -569,19 +567,18 @@ class ReceiptService {
   upload(files) {
     return new Promise(async (resolve, reject) => {
       console.log(files);
-      let file;
-
+ 
       if(!this.pipeline.tesseract_worker) {
         const worker = createWorker({
-          langPath: 'http://localhost:42808/lib/tessdata/fast',
-          gzip: false,
+          //langPath: 'http://localhost:42808/lib/tessdata/fast',
+          //gzip: false,
           //logger: m => console.log(m)
         });
         await worker.load();
         await worker.loadLanguage('fin');
         await worker.initialize('fin');
         await worker.setParameters({
-          //tessedit_pageseg_mode: PSM.AUTO_OSD,
+          tessedit_pageseg_mode: PSM.AUTO_OSD,
           //tessedit_ocr_engine_mode: OEM.TESSERACT_ONLY,
           tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890.- ',
           //textord_max_noise_size: 50,
@@ -591,7 +588,11 @@ class ReceiptService {
         this.pipeline.tesseract_worker = worker;
       }
 
-      Array.from(files).forEach(async file => {
+      let result = [];
+
+      for (const file of Array.from(files)) {
+        console.log('file', file);
+
         this.pipeline.file = file;
 
         console.time('process');
@@ -603,18 +604,22 @@ class ReceiptService {
                                                     -> 4) save
         */
 
-        await Promise.all([this.processPipeline(), this.prepareReceiptPipeline()])
+        const transactions = await Promise.all([this.processPipeline(), this.prepareReceiptPipeline()])
         .then(() =>
           this.saveTransactionPipeline()
-          .then(() => {
+          .then(transactions => {
+            console.log(transactions);
             console.log(this.pipeline);
+            return transactions;
           })
         )
         .catch(error => {
           reject(error);
         });
-      });
-      resolve();
+
+        result.push(transactions);
+      }
+      resolve(result);
     });
   }
   saveReceipt(transactions) {
