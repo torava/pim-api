@@ -8,11 +8,13 @@ import fs from 'fs';
 import child_process from 'child_process';
 import _ from 'lodash';
 import {JSDOM} from 'jsdom';
-import xmlParser from 'fast-xml-parser';
 import sizeOf from 'image-size';
 import moment from 'moment';
 import crypto from 'crypto';
 import Receipt from '../models/Receipt';
+import Vision from '@google-cloud/vision';
+
+const vision = new Vision.ImageAnnotatorClient();
 
 export default app => {
 
@@ -36,7 +38,7 @@ function decodeBase64Image(dataString)
   }
 
   response.type = matches[1];
-  response.data = new Buffer(matches[2], 'base64');
+  response.data = Buffer.from(matches[2], 'base64');
 
   return response;
 }
@@ -775,10 +777,10 @@ app.post('/api/receipt/hocr/', function(req, res) {
     process.stdout.write(stdout);
     process.stderr.write(stderr);
 
-    const json = xmlParser.parse(stdout);
+    //const json = xmlParser.parse(stdout);
 
     res.send({
-      result: json,
+      result: stdout,
       id
     });
   })
@@ -816,32 +818,34 @@ app.post('/api/receipt/osd/', function(req, res) {
   });
 });
 
-app.post('/api/receipt/recognize/', function(req, res) {
-  const id = req.id;
-  const path = upload_path+'/'+id+'_pre';
+app.post('/api/receipt/recognize/', async (req, res) => {
+  try {
+    const content = decodeBase64Image(req.body.src).data;
+    const request = {
+      image: {
+        content
+      },
+      "features": [{
+        type: 'TEXT_DETECTION',
+        maxResults:1
+      }],
+      "imageContext": {
+        "languageHints": [
+          "fi"
+        ]
+      }
+    };
 
-  child_process.execFile('tesseract', [
-    '-l', 'fin',
-    '--psm', '1',
-    '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.- ',
-    //'-c', 'textord_max_noise_size=30',
-    //'-c', 'textord_noise_sizelimit=1',
-    path,
-    'stdout',
-  ], function(error, stdout, stderr) {
-    if (error) console.error(error);
-    process.stdout.write(stdout);
-    process.stderr.write(stderr);
+    const [detections] = await vision.annotateImage(request);
+    const annotation = detections.textAnnotations[0];
+    const text = annotation ? annotation.description : '';
+    console.log('Text:', text);
 
-    res.send({
-      result: stdout,
-      id
-    });
-  })
-  .catch(error => {
+    res.send(text);
+  } catch(error) {
     console.error(error);
-    throw new Error();
-  });
+    res.status(500).send(error);
+  }
 });
 
 function processReceipt(data, language, id) {

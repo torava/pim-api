@@ -359,11 +359,11 @@ class ReceiptService {
       let reader = new FileReader();
       reader.addEventListener('load', () => {
         let img = new Image();
-        img.addEventListener('load', () => {
+        img.addEventListener('load', async () => {
           console.log('loaded');
           console.timeLog('process');
 
-          const PROCESSING_WIDTH = 2500;
+          const PROCESSING_WIDTH = 1000;
 
           let src = cv.imread(img);
           let dst = new cv.Mat();
@@ -373,12 +373,12 @@ class ReceiptService {
 
           cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
 
-          /*cv.bilateralFilter(src,bil,5,10,10);
+          cv.bilateralFilter(src,bil,7,10,10);
 
-          let ksize = new cv.Size(9,9);
+          /*let ksize = new cv.Size(9,9);
           cv.GaussianBlur(bil, bil, ksize, 0, 0, cv.BORDER_DEFAULT);*/
 
-          cv.adaptiveThreshold(src, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 31, 21);//, 201, 30);
+          cv.adaptiveThreshold(bil, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 31, 31);//, 201, 30);
 
           /*let M = cv.Mat.ones(2, 2, cv.CV_8U);
           let anchor = new cv.Point(-1, -1);
@@ -397,155 +397,30 @@ class ReceiptService {
 
           console.log('processed');
           console.timeLog('process');
-
-          return this.pipeline.tesseract_worker.detect(imagedata)
-          .then(result => {
-            let rotate = result.data.orientation_degrees;
-            dst = this.rotateImage(dst, 360-rotate);
-
-            console.log('processed', this.getSrc(dst, true));
-
-            console.log('rotated '+rotate+' degrees');
-            console.timeLog('process');
-
-            console.log(result);
-
-            imagedata = this.getSrc(dst, true);
       
-            return this.pipeline.tesseract_worker.recognize(imagedata)
-            //.progress(message => console.log(message))
-            .then(result => {
-              this.pipeline.lines = result.data.lines;
-
-              console.log('recognized for cropping', result);
-              console.timeLog('process');
-
-              const CONTOUR_WIDTH = 400;
-
-              let words = result.data.words,
-                  word,
-                  factor = CONTOUR_WIDTH/PROCESSING_WIDTH,//dst.cols/origwidth,
-                  left, top, right, bottom,
-                  rec = cv.Mat.zeros(dst.rows/dst.cols*factor*PROCESSING_WIDTH, factor*PROCESSING_WIDTH, cv.CV_8U),
-                  factor_rec = rec.cols/dst.cols;
-
-              console.log(dst.cols, dst.rows);
-
-              for (let i in words) {
-                word = words[i];
-
-                left = word.bbox.x0;
-                top = word.bbox.y0;
-                right = word.bbox.x1;
-                bottom = word.bbox.y1;
-
-                if (!word.text ||
-                    !word.text.trim() ||
-                    right-left < 10 ||
-                    bottom-top < 10 ||
-                    word.confidence < 3 ||
-                    word.text.length < 2)
-                  continue;
-
-                console.log(word);
-
-                /*left*= factor;
-                top*= factor;
-                right*= factor;
-                bottom*= factor;*/
-
-                let point1 = new cv.Point(left*factor_rec, top*factor_rec);
-                let point2 = new cv.Point(right*factor_rec, bottom*factor_rec);
-                let rectangleColor = new cv.Scalar(255, 255, 255);
-                cv.rectangle(rec, point1, point2, rectangleColor, 1, cv.LINE_AA, 0);
-              }
-
-              let rec_bordered = new cv.Mat();
-              let close = 600*factor;
-              let s = new cv.Scalar(0, 0, 0, 255);
-              cv.copyMakeBorder(rec, rec_bordered, close, close, close, close, cv.BORDER_CONSTANT, s);
-
-              console.log('rec', this.getSrc(rec, true));
-
-              M = new cv.Mat();
-              ksize = new cv.Size(close, close);
-              M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
-              cv.morphologyEx(rec_bordered, rec_bordered, cv.MORPH_CLOSE, M);
-
-              M = cv.Mat.ones(150*factor, 150*factor, cv.CV_8U);
-              anchor = new cv.Point(-1, -1);
-              cv.erode(rec_bordered, rec_bordered, M, anchor);
-
-              M = cv.Mat.ones(250*factor, 250*factor, cv.CV_8U);
-              anchor = new cv.Point(-1, -1);
-              cv.dilate(rec_bordered, rec_bordered, M, anchor);
-
-              let rec_cropped = new cv.Mat();
-              let rect = new cv.Rect(close, close, PROCESSING_WIDTH*factor, PROCESSING_WIDTH*src.rows/src.cols*factor);
-              rec_cropped = rec_bordered.roi(rect);
-
-              let rec_resized = new cv.Mat();
-              let dsize = new cv.Size(PROCESSING_WIDTH, src.rows/src.cols*PROCESSING_WIDTH);
-              cv.resize(rec_cropped, rec_resized, dsize, 0, 0, cv.INTER_AREA);
-
-              console.log('closed rec', this.getSrc(rec_resized, true));
-            
-              let contours = new cv.MatVector();
-              let hierarchy = new cv.Mat();
-              cv.findContours(rec_resized, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
-
-              let cnt, current, area, biggest = 0;
-            
-              for (let n = 0; n < contours.size(); n++) {
-                current = contours.get(n);
-                area = cv.contourArea(current, false);
-                if (area > biggest) {
-                  biggest = area;
-                  cnt = current;
-                }
-              }
-
-              let con = cv.Mat.zeros(rec_resized.rows, rec_resized.cols, cv.CV_8UC3);
-
-              let contoursColor = new cv.Scalar(255, 255, 255);
-
-              for (let i = 0; i < contours.size()*0.5; i++) {
-                cv.drawContours(con, contours, i, contoursColor, 1, cv.LINE_8, hierarchy, 0);
-              }
-
-              console.log('con', this.getSrc(con));
-
-              //this.pipeline.transformed = this.transformImage(dst, rec_resized);
-              this.pipeline.cropped = this.cropMinAreaRect(dst, cnt);
-
-              let cropped = /*this.pipeline.transformed ||*/ this.pipeline.cropped;
-              
-              this.pipeline.imagedata = this.getSrc(cropped, true);
-              this.pipeline.dst = cropped;
-
-              console.log('cropped', this.pipeline.imagedata);
-              console.timeLog('process');
-
-              return this.recognizePipeline()
-              .then(([edited, recognize]) => {
-                src.delete();
-                dst.delete();
-                cropped.delete();
-                rec.delete();
-                rec_cropped.delete();
-                rec_bordered.delete();
-                rec_resized.delete();
-                con.delete();
-                
-                console.log(edited, recognize);
-                resolve([edited, recognize]);
-              });
+          const text = await fetch('/api/receipt/recognize', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              src: imagedata
             })
-          })
-          .catch(error => {
-            console.error(error);
-            reject();
           });
+
+          console.log('recognized', text);
+          console.timeLog('process');
+
+          const locale = 'fi-FI';
+
+          this.getTransactionsFromReceipt(data, text, locale);
+
+          console.log('extracted transformed');
+          console.timeLog('process');
+          console.log(data, locale);
+
+          this.pipeline.transactions = data.transactions;
+          resolve(data.transactions);
         });
         img.src = reader.result;
       });
