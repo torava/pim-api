@@ -12,11 +12,15 @@ import sizeOf from 'image-size';
 import moment from 'moment';
 import crypto from 'crypto';
 import Receipt from '../models/Receipt';
-import Vision from '@google-cloud/vision';
-
-const vision = new Vision.ImageAnnotatorClient();
+import AWS from 'aws-sdk';
 
 export default app => {
+
+AWS.config.update({
+  region: 'eu-west-2'
+});
+
+const textract = new AWS.Textract();
 
 const upload_path = __dirname+"/../../resources/uploads";
 
@@ -819,33 +823,76 @@ app.post('/api/receipt/osd/', function(req, res) {
 });
 
 app.post('/api/receipt/recognize/', async (req, res) => {
-  try {
-    const content = decodeBase64Image(req.body.src).data;
-    const request = {
-      image: {
-        content
-      },
-      "features": [{
-        type: 'TEXT_DETECTION',
-        maxResults:1
-      }],
-      "imageContext": {
-        "languageHints": [
-          "fi"
-        ]
-      }
-    };
+  const content = decodeBase64Image(req.body.src).data;
 
-    const [detections] = await vision.annotateImage(request);
-    const annotation = detections.textAnnotations[0];
-    const text = annotation ? annotation.description : '';
-    console.log('Text:', text);
+  const params = {
+    Document: {
+      Bytes: content
+    },
+    FeatureTypes: [
+      'TABLES'
+    ]
+  };
 
-    res.send(text);
-  } catch(error) {
-    console.error(error);
-    res.status(500).send(error);
-  }
+  textract.analyzeDocument(params, (err, data) => {
+    if (err) {
+      console.error(err, err.stack);
+      res.sendStatus(500);
+    }
+    else {
+
+      let rows = [],
+          text = '';
+      data.Blocks.filter(block => block.BlockType === 'CELL')
+      .forEach(cell_block => {
+        if (cell_block.Relationships && cell_block.Relationships.length) {
+          text = cell_block.Relationships[0].Ids.map(id =>
+            data.Blocks.find(block => {
+              if (block && block.Id === id) {
+                data.Blocks.filter(line_block => line_block.BlockType === 'LINE')
+                .find(line_block => {
+                  line_block.Relationships && line_block.Relationships[0].Ids
+                  .find(line_relation_id => {
+                    if (line_relation_id === id) {
+                      line_block.Table = cell_block.Id;
+                    }
+                  });
+                });
+
+                block.Table = cell_block.Id;
+                return true;
+              }
+            }).Text
+          ).join(' ');
+        }
+        if (!rows[cell_block.RowIndex-1]) {
+          rows[cell_block.RowIndex-1] = [];
+        }
+        rows[cell_block.RowIndex-1][cell_block.ColumnIndex-1] = text;
+      });
+      rows = rows.map(row => row.join(' ')).join('\n');
+      
+      let lines = [];
+
+      console.dir(data, {depth: null});
+
+      data.Blocks.forEach(block => {
+        if (block.Table) {
+          if (rows) {
+            lines.push(rows);
+            rows = false;
+          }
+        }
+        else if (block.BlockType === 'LINE') {
+          lines.push(block.Text);
+        }
+      });
+      text = lines.join('\n');
+
+      console.log('text: ', text);
+      res.send(text);
+    }
+  });
 });
 
 function processReceipt(data, language, id) {
