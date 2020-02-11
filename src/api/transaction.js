@@ -57,7 +57,11 @@ details.type = {
   parboiled: ['kiehautettu', 'parboiled'],
   lowlactose: ['vähälaktoosinen'],
   insaltwater: ['suolavedessä', 'suolaved'],
-  frozenfood: ['pakasteateria', 'pakastettu', 'pakaste']
+  frozenfood: ['pakasteateria', 'pakastettu', 'pakaste'],
+  bag: ['pussi']
+}
+details.origin = {
+  finnish: ['suomi', 'suomalainen']
 }
 details.manufacturers = {
   'dan sukker': ['dan sukker'],
@@ -78,7 +82,21 @@ details.manufacturers = {
   'snellman': ['snellman'],
   'isokari': ['isokari'],
   'pirkka': ['pirkka'],
-  'k-menu': ['k-menu']
+  'k-menu': ['k-menu'],
+  'reilun kaupan': ['reilun kaupan'],
+  'gold&green': ['gold&green'],
+  'sandels': ['sandels'],
+  'knorr': ['knorr'],
+  'magners': ['magners'],
+  'trattoria alfredo': ['trattoria alfredo'],
+  'arla': ['arla'],
+  'serla': ['serla'],
+  'kotkot': ['kotkot'],
+  'marlene': ['marlene'],
+  'koskikylan': ['koskikylan'],
+  'italiamo': ['italiamo'],
+  'santa maria': ['santa maria'],
+  'oululainen': ['oululainen']
 }
 
 let trimmed_categories,

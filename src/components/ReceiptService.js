@@ -363,7 +363,7 @@ class ReceiptService {
           console.log('loaded');
           console.timeLog('process');
 
-          const PROCESSING_WIDTH = 1000;
+          const PROCESSING_WIDTH = 800;
 
           let src = cv.imread(img);
           let dst = new cv.Mat();
@@ -371,14 +371,14 @@ class ReceiptService {
 
           let anchor, M, ksize;
 
-          cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
+          cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY, 0);
 
-          cv.bilateralFilter(src,bil,7,10,10);
+          //cv.bilateralFilter(src,bil,7,10,10);
 
           /*let ksize = new cv.Size(9,9);
           cv.GaussianBlur(bil, bil, ksize, 0, 0, cv.BORDER_DEFAULT);*/
 
-          cv.adaptiveThreshold(bil, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 31, 31);//, 201, 30);
+          cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 31, 25);//, 201, 30);
 
           /*let M = cv.Mat.ones(2, 2, cv.CV_8U);
           let anchor = new cv.Point(-1, -1);
@@ -406,12 +406,18 @@ class ReceiptService {
             body: JSON.stringify({
               src: imagedata
             })
-          });
+          }).then(response => response.text());
 
           console.log('recognized', text);
           console.timeLog('process');
 
           const locale = 'fi-FI';
+
+          let data = {
+            products: this.products,
+            manufacturers: this.manufacturers,
+            categories: this.categories
+          };
 
           this.getTransactionsFromReceipt(data, text, locale);
 
@@ -755,7 +761,7 @@ class ReceiptService {
         }
         
         // item line
-        if (!has_discount && !data.total_price_read && !line.match(/käteinen|kateinen|käte1nen|kate1nen|taka1s1n|takaisin/i)) {
+        if (!has_discount /*&& !data.total_price_read*/ && !line.match(/käteinen|kateinen|käte1nen|kate1nen|taka1s1n|takaisin/i)) {
           line_price = line_number_format.match(/\s((\d+\.\d{2})(\-)?){1,2}\s*.{0,3}$/i);
           if (line_price) {
             line_measure = line.substring(0, line_price.index).match(/([0-9]+)((kg|k9)|(g|9)|(l|1))/);

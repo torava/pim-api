@@ -177,6 +177,10 @@ export default class TransactionList extends React.Component {
                                     </span>
       },
       {
+        label: 'Manufacturer',
+        property: item => item.product.manufacturer && item.product.manufacturer.name
+      },
+      {
         id: 'quantity',
         label: 'Quantity',
         property: item => item.product.quantity || item.quantity,
