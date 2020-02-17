@@ -13,6 +13,9 @@ import moment from 'moment';
 import crypto from 'crypto';
 import Receipt from '../models/Receipt';
 import AWS from 'aws-sdk';
+import Vision from '@google-cloud/vision';
+
+const vision = new Vision.ImageAnnotatorClient();
 
 export default app => {
 
@@ -823,6 +826,36 @@ app.post('/api/receipt/osd/', function(req, res) {
 });
 
 app.post('/api/receipt/recognize/', async (req, res) => {
+  try {
+    const content = decodeBase64Image(req.body.src).data;
+    const request = {
+      image: {
+        content
+      },
+      "features": [{
+        type: 'TEXT_DETECTION',
+        maxResults:1
+      }],
+      "imageContext": {
+        "languageHints": [
+          "fi"
+        ]
+      }
+    };
+
+    const [detections] = await vision.annotateImage(request);
+    const annotation = detections.textAnnotations[0];
+    const text = annotation ? annotation.description : '';
+    console.log('Text:', text);
+
+    res.send(text);
+  } catch(error) {
+    console.error(error);
+    res.status(500).send(error);
+  }
+});
+
+app.post('/api/receipt/recognize/aws/', async (req, res) => {
   const content = decodeBase64Image(req.body.src).data;
 
   const params = {

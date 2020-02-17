@@ -598,6 +598,7 @@ class ReceiptService {
       line_number_format, total_price_computed = 0, name, date, line_item, line_phone_number,
       line_measure,
       total_price, price, has_discount, previous_line, found_attribute, category,
+      price_index = 0,
       items = [], line_number = 0, data = {party:{}},
       lines = text.split("\n");
   
@@ -759,65 +760,75 @@ class ReceiptService {
             continue;
           }
         }
-        
-        // item line
-        if (!has_discount /*&& !data.total_price_read*/ && !line.match(/käteinen|kateinen|käte1nen|kate1nen|taka1s1n|takaisin/i)) {
-          line_price = line_number_format.match(/\s((\d+\.\d{2})(\-)?){1,2}\s*.{0,3}$/i);
-          if (line_price) {
-            line_measure = line.substring(0, line_price.index).match(/([0-9]+)((kg|k9)|(g|9)|(l|1))/);
-            line_item = line.substring(0, line_price.index).match(/^((\d+)\s)?([\u00C0-\u017F-a-z0-9\s\-\.\,\+\&\%\=\/\(\)\{\}\[\]]+)$/i);
-            if (line_item) {
-              price = parseFloat(line_price[1]);
-              measure = line_measure && parseFloat(line_measure[1]);
-              name = toTitleCase(line_item[3]);
-  
-              if (line_price[3] === '-') {
-                has_discount = true;
-                price = 0-price;
-              }
-  
-              items.push({
-                item_number: line_item[2] || '',
-                text: line_item[0],
-                product: {
-                  name: name
-                },
-                price: price
-              });
 
-              if (measure && !isNaN(measure)) {
-                items[items.length-1].product.measure = measure;
-                if (line_measure[3]) {
-                  items[items.length-1].product.unit = 'kg';
-                }
-                else if (line_measure[4]) {
-                  items[items.length-1].product.unit = 'g';
-                }
-                else if (line_measure[5]) {
-                  items[items.length-1].product.unit = 'l';
-                }
-              }
-  
-              //category = this.getClosestCategory(name, locale, categories);
+        line_price = line_number_format.match(/^((\d+\.\d{2})(\-)?){1,2}\s*.{0,3}$/i);
 
-              //if (quantity) items[items.length-1].quantity = quantity;
-              //if (measure) items[items.length-1].measure = measure;
-              //if (category) items[items.length-1].product.category = category/*{id: category.id, name: category.locales && category.locales[locale] || category.name}*/;
-  
-              let found = false;
-              for (i in result.products) {
-                if (result.products[i].name === name) {
-                  found = true;
-                  break;
-                }
-              }
-              !found && result.products.push({label: name, name: name});
-  
-              if (price) total_price_computed+= price;
-  
-              previous_line = 'item';
-              continue;
+        if (line_price) {
+          if ((previous_line === 'item' || previous_line === 'price' || previous_line === 'details') &&
+              !has_discount /*&& !data.total_price_read*/ && !line.match(/käteinen|kateinen|käte1nen|kate1nen|taka1s1n|takaisin/i)) {
+            price = parseFloat(line_price[1]);
+
+            if (line_price[3] === '-') {
+              has_discount = true;
+              price = 0-price;
             }
+
+            if (items[price_index]) {
+              items[price_index].price = price;
+
+              previous_line = 'price';
+
+              price_index++;
+            }
+          }
+        }
+        else {
+          line_measure = line.match(/([0-9]+)((kg|k9)|(g|9)|(l|1))/);
+          line_item = line.match(/^((\d+)\s)?([\u00C0-\u017F-a-z0-9\s\-\.\,\+\&\%\=\/\(\)\{\}\[\]]+)$/i);
+          if (line_item) {
+            measure = line_measure && parseFloat(line_measure[1]);
+            name = toTitleCase(line_item[3]);
+
+            items.push({
+              item_number: line_item[2] || '',
+              text: line_item[0],
+              product: {
+                name: name
+              }
+            });
+
+            if (measure && !isNaN(measure)) {
+              items[items.length-1].product.measure = measure;
+              if (line_measure[3]) {
+                items[items.length-1].product.unit = 'kg';
+              }
+              else if (line_measure[4]) {
+                items[items.length-1].product.unit = 'g';
+              }
+              else if (line_measure[5]) {
+                items[items.length-1].product.unit = 'l';
+              }
+            }
+
+            //category = this.getClosestCategory(name, locale, categories);
+
+            //if (quantity) items[items.length-1].quantity = quantity;
+            //if (measure) items[items.length-1].measure = measure;
+            //if (category) items[items.length-1].product.category = category/*{id: category.id, name: category.locales && category.locales[locale] || category.name}*/;
+
+            let found = false;
+            for (i in result.products) {
+              if (result.products[i].name === name) {
+                found = true;
+                break;
+              }
+            }
+            !found && result.products.push({label: name, name: name});
+
+            if (price) total_price_computed+= price;
+
+            previous_line = 'item';
+            continue;
           }
         }
       }
