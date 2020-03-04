@@ -825,7 +825,41 @@ app.post('/api/receipt/osd/', function(req, res) {
   });
 });
 
-app.post('/api/receipt/recognize/', async (req, res) => {
+app.post('/api/receipt/recognize/', function(req, res) {
+  const base64Data = req.body.src;
+  const name = req.body.id+'_pre';
+  const path = upload_path+'/'+name;
+
+  uploadReceipt(res, name, base64Data)
+  .then(() => {
+    return child_process.execFile('tesseract', [
+      '-l', 'fin',
+      '--psm', '2',
+      '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.- ',
+      //'-c', 'textord_max_noise_size=30',
+      //'-c', 'textord_noise_sizelimit=1',
+      path,
+      'stdout',
+    ], function(error, stdout, stderr) {
+      if (error) console.error(error);
+      process.stdout.write(stdout);
+      process.stderr.write(stderr);
+
+      console.log(stdout);
+
+      return res.send({
+        result: stdout,
+        id
+      });
+    });
+  })
+  .catch(error => {
+    console.error(error);
+    throw new Error();
+  });
+});
+
+app.post('/api/receipt/recognize/vision/', async (req, res) => {
   try {
     const content = decodeBase64Image(req.body.src).data;
     const request = {
@@ -995,42 +1029,50 @@ app.post('/api/receipt', (req, res) => {
   });
 });
 
-function uploadReceipt(res, name, base64Data) {
-  try {
-    var imageBuffer = decodeBase64Image(base64Data);
-    var image_path = upload_path+'/'+name;
+function uploadReceipt(name, base64Data) {
+  return new Promise((resolve, reject) => {
+    try {
+      var imageBuffer = decodeBase64Image(base64Data);
+      var image_path = upload_path+'/'+name;
 
-    // Save decoded binary image to disk
-    require('fs').writeFile(image_path, imageBuffer.data, () => {
-      console.log('Uploaded '+image_path);
-      res.send(name);
-    });
-  }
-  catch(error) {
-    console.error(error);
-    res.sendStatus(500);
-  }
+      // Save decoded binary image to disk
+      require('fs').writeFile(image_path, imageBuffer.data, () => {
+        console.log('Uploaded '+image_path);
+        resolve(name);
+      });
+    }
+    catch(error) {
+      console.error(error);
+      reject(error);
+    }
+  });
 }
 
 app.post('/api/receipt/original', (req, res) => {
   var base64Data = req.body.src;
   var name = req.body.id+'_original';
 
-  uploadReceipt(res, name, base64Data);
+  return uploadReceipt(name, base64Data)
+  .then(name => res.send(name))
+  .catch(error => res.sendStatus(500));
 });
 
 app.post('/api/receipt/picture', (req, res) => {
   var base64Data = req.body.src;
   var name = req.body.id+'_edited';
 
-  uploadReceipt(res, name, base64Data);
+  return uploadReceipt(name, base64Data)
+  .then(name => res.send(name))
+  .catch(error => res.sendStatus(500));
 });
 
 app.post('/api/receipt/pre', (req, res) => {
   var base64Data = req.body.src;
   var name = req.body.id+'_pre';
 
-  uploadReceipt(res, name, base64Data);
+  return uploadReceipt(name, base64Data)
+  .then(name => res.send(name))
+  .catch(error => res.sendStatus(500));
 });
 
 app.get('/api/receipt/original/:id', function (req, res) {
