@@ -33,7 +33,7 @@ class ReceiptItem extends React.Component {
               />
               <input type="number" defaultValue={this.props.item.price ? parseFloat(this.props.item.price).toFixed(2) : ''}
                                   onChange={this.props.onItemPriceChange.bind(this, this.props.i)}
-                                  step={.01} style={{width:'3em'}}
+                                  step={.01} style={{width:'4em'}}
                                   placeholder="Price"/>
               <button onClick={this.props.onDeleteItem.bind(this, this.props.i)}>-</button>
               <button onClick={this.props.onAddItem.bind(this, this.props.i)}>+</button>
@@ -594,7 +594,7 @@ export default class ReceiptEditor extends React.Component {
             <button onClick={this.deleteTransaction}>Delete</button>
           </div>
           <div className="receipt-picture" style={{float:'left'}}>
-            <img src={"/api/receipt/picture/"+this.state.transactions[0].receipts[0].id+"?"+this.state.version} style={{width:300}}/>
+            <img src={"/api/receipt/pre/"+this.state.transactions[0].receipts[0].id+"?"+this.state.version} style={{width:300}}/>
           </div>
           <div className="receipt-text" style={{float:'left'}}>
             <pre>{this.state.transactions[0].receipts[0].text}</pre>

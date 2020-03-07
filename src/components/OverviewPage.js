@@ -18,6 +18,7 @@ import {  VictoryChart,
 } from 'victory';
 import {locale} from './locale';
 import config from '../config/default.json';
+import {Link} from 'react-router-dom';
 
 function first(list) {
   for (let i in list) {
@@ -60,7 +61,7 @@ export default class OverviewPage extends Component {
           axios.get('/api/item/')
           .then(response => {
             that.setState({items: response.data});
-            axios.get('/api/category/?locale='+locale.getLocale())
+            axios.get('/api/category/?parent&locale='+locale.getLocale())
             .then(function(response) {
               that.setState({
                 categories: [...response.data],
@@ -436,7 +437,7 @@ export default class OverviewPage extends Component {
         id: 'name',
         label: 'Name',
         property: item => locale.getNameLocale(item.name),
-        formatter: (value, item) => <a href={"/category/"+item.id}>{locale.getNameLocale(value)}</a>,
+        formatter: (value, item) => <Link to={"/category/"+item.id}>{locale.getNameLocale(value)}</Link>,
         width: '700'
       },
       {
