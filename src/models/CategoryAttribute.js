@@ -36,7 +36,8 @@ export default class CategoryAttribute extends Model {
 
 			properties: {
 				id: {type: 'integer'},
-				value: {type: 'float'}
+				value: {type: 'float'},
+				unit: {type: 'string'}
 			}
 		}
   }

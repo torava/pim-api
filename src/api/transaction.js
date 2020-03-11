@@ -233,22 +233,50 @@ app.delete('/api/transaction/:id', function(req, res) {
     });
 });
 
-const TRANSACTION_CSV_COLUMNS = i => [
-  'id',
-  'date',
-  'receipts[0].id',
-  'receipts[0].file',
-  'receipts[0].locale',
-  'party.id',
-  'party.name',
-  'items['+i+'].product.name',
-  'items['+i+'].product.category.id',
-  'items['+i+'].product.category.name[fi-FI]',
-  'items['+i+'].price',
-  'items['+i+'].quantity',
-  'items['+i+'].measure',
-  'items['+i+'].unit'
-];
+const TRANSACTION_CSV_INDEXES = {
+  sryhma: [0, 1]
+};
+
+const TRANSACTION_CSV_COLUMNS = {
+  sryhma: i => [
+    'date_fi_FI',
+    'time',
+    'party.name',
+    `items[${i}].product.category.name['fi-FI']`,
+    `items[${i}].product.name`,
+    `items[${i}].product.product_number`,
+    null,
+    `items[${i}].product.quantity_or_measure`,
+    null,
+    null,
+    `items[${i}].product.price`
+  ],
+  kesko: i => [
+    'id',
+    'date_fi_FI',
+    'party.name',
+    `items[${i}].product.name`,
+    `items[${i}].product.quantity_or_measure`,
+    `items[${i}].product.price`
+  ],
+  default: i => [
+    'id',
+    'date',
+    'receipts[0].id',
+    'receipts[0].file',
+    'receipts[0].locale',
+    'party.id',
+    'party.name',
+    'items['+i+'].product.name',
+    'items['+i+'].product.category.id',
+    'items['+i+'].product.category.name[fi-FI]',
+    'items['+i+'].price',
+    'items['+i+'].quantity',
+    'items['+i+'].measure',
+    'items['+i+'].unit'
+  ]
+};
+
 const TRANSACTION_CSV_COLUMN_NAMES = [
   'Id',
   'Date',
@@ -268,21 +296,46 @@ const TRANSACTION_CSV_COLUMN_NAMES = [
 const CSV_SEPARATOR = ";";
 
 app.post('/api/transaction', function(req, res) {
-  let transaction = {},
-      promises = [];
+  let transaction = {};
   if ('fromcsv' in req.query) {
+    const template = req.query.template || 'default';
+    const indexes = TRANSACTION_CSV_INDEXES[template] || [0];
+
     let columns,
         item_index = 0,
         rows = req.body.transaction.split('\n');
     for (let i = 2; i < rows.length; i++) {
+      let column_key = '';
       columns = rows[i].split(CSV_SEPARATOR);
-      if (!(columns[0] in transaction)) {
+      indexes.forEach(index => {
+          column_key+= columns[index];
+      });
+      if (!(column_key in transaction)) {
         item_index = 0;
-        transaction[columns[0]] = {items:[], party:{}, receipts:[]};
+        transaction[column_key] = {items:[], party:{}, receipts:[]};
       }
       for (let n in columns) {
-        console.log(i, TRANSACTION_CSV_COLUMNS(i-1)[n]);
-        _.set(transaction[columns[0]], TRANSACTION_CSV_COLUMNS(item_index)[n], columns[n]);
+        let column_name = TRANSACTION_CSV_COLUMNS[template](item_index)[n];
+        let value = columns[n];
+        if (column_name.split('.')[2] === 'quantity_or_measure') {
+          if (columns[n].match(/^\d+\.\d{3}$/)) {
+            column_name = 'measure';
+          }
+          else {
+            column_name = 'quantity';
+          }
+        }
+        if (column_name === 'date_fi_FI') {
+          let date = columns[n].split('.');
+          value = moment.format(`${date[2]}-${date[1].padStart(2, '0')}-${date[0].padStart(2, '0')}`);
+        }
+
+        if (column_name === 'time') {
+          let time = value.split(':');
+          transaction[column_key].date = moment(transaction[column_key].date).add(time[0], 'hours').add(time[1], 'minutes');
+        }
+        console.log(i, column_name, value);
+        _.set(transaction[column_key], column_name, value);
       }
       item_index++;
     }

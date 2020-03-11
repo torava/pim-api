@@ -17,11 +17,11 @@ export default class CategoryList extends Component {
 
     Promise.all([
       DataStore.getAttributes(),
-      DataStore.getCategories()
+      axios.get('/api/category/?parent&locale='+locale.getLocale())
     ])
     .then(([attributes, categories]) => {
       this.setState({
-        categories: categories,
+        categories: categories.data,
         attributes: attributes
       }, () => {
         this.setState({

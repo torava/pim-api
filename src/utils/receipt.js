@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { stringSimilarity } from "string-similarity-js";
 
 function parseYear(year) {
   if (year.length == 2) {
@@ -28,6 +29,13 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
   let line, line_name, line_product_name, line_price, line_prices, item_number, line_text,
     line_total, line_date, line_address, line_vat, line_item_details, quantity, measure,
     line_number_format, total_price_computed = 0, name, date, line_item, line_phone_number,
+    line_misc,
+    misc_words = [
+      'alv',
+      'a1v',
+      'debit/veloitus',
+      'maksukortti'
+    ],
     line_measure,
     total_price, price, has_discount, previous_line, found_attribute, category,
     items = [], line_number = 0, data = {party:{}},
@@ -89,7 +97,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
       if (!data.date) {
         // 1.1.12 1:12
         line_date = line.match(/((\d{1,2})[\.|\,](\d{1,2})[\.|\,](\d{2,4}))(\s)?((\d{1,2})[:|,|\.|\s|z]?((\d{1,2})[:|,|\.|\s|z]?)?(\d{1,2})?)?/);
-        date = line_date && parseYear(line_date[4])+'-'+line_date[3]+'-'+line_date[2]+' '+line_date[7]+':'+line_date[8]+':'+line_date[10];
+        date = line_date && parseYear(line_date[4])+'-'+line_date[3]+'-'+line_date[2]+' '+line_date[7]+':'+line_date[8];//+':'+line_date[10];
         if (date && moment(date).isValid()) {
           console.log(line_date, date);
           data.date = date;
@@ -147,6 +155,22 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
 
       // general attributes
 
+      // misc line
+      line_misc = line.match(/^([\u00C0-\u017F-a-z\/]+)\s/i);
+      if (line_misc) {
+        let found = false;
+        misc_words.forEach(word => {
+          if (stringSimilarity(line_misc[1], word) > 0.8) {
+            found = true;
+            return false;
+          }
+        });
+
+        if (found) {
+          continue;
+        }
+      }
+
       // total line
       line_total = line_number_format.match(/^(total|grand total|summa|yhteensä|yhteensa).*[^0-9]((\d+\.\d{2})(\-)?\s)?((\d+\.\d{2})(\-)?)$/i);
       if (line_total) {
@@ -196,7 +220,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
       if (!has_discount /*&& !data.total_price_read*/ && !line.match(/käteinen|kateinen|käte1nen|kate1nen|taka1s1n|takaisin/i)) {
         line_price = line_number_format.match(/\s((\d+\.\d{2})(\-)?){1,2}\s*.{0,3}$/i);
         if (line_price) {
-          line_measure = line.substring(0, line_price.index).match(/([0-9]+)((kg|k9)|(g|9)|(l|1))/);
+          line_measure = line.substring(0, line_price.index).match(/(\d{1,4})((kg|k9)|(g|9)|(l|1))/);
           line_item = line.substring(0, line_price.index).match(/^((\d+)\s)?([\u00C0-\u017F-a-z0-9\s\-\.\,\+\&\%\=\/\(\)\{\}\[\]]+)$/i);
           if (line_item) {
             price = parseFloat(line_price[1]);

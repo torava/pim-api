@@ -12,18 +12,9 @@ import sizeOf from 'image-size';
 import moment from 'moment';
 import crypto from 'crypto';
 import Receipt from '../models/Receipt';
-import AWS from 'aws-sdk';
-import Vision from '@google-cloud/vision';
-
-const vision = new Vision.ImageAnnotatorClient();
+import cv from '../static/lib/opencv';
 
 export default app => {
-
-AWS.config.update({
-  region: 'eu-west-2'
-});
-
-const textract = new AWS.Textract();
 
 const upload_path = __dirname+"/../../resources/uploads";
 
@@ -366,19 +357,97 @@ app.post('/api/receipt/osd/', function(req, res) {
   });
 });
 
-app.post('/api/receipt/recognize/', function(req, res) {
+function rotateImage(src, rotate) {
+  if (rotate < 0) {
+    rotate = 360+rotate;
+  }
+  if (rotate == 270){
+    cv.transpose(src, src); 
+    cv.flip(src, src, 1);
+  }
+  else if (rotate == 90) {
+    cv.transpose(src, src);  
+    cv.flip(src, src, 0);
+  }
+  else if (rotate == 180){
+    cv.flip(src, src, -1);
+  }
+  else if (!rotate) {}
+  else {
+    // get rotation matrix for rotating the image around its center in pixel coordinates
+    let center = new cv.Point((src.cols-1)/2.0, (src.rows-1)/2.0);
+    let rot = cv.getRotationMatrix2D(center, rotate, 1.0);
+    // determine bounding rectangle, center not relevant
+    let bbox = new cv.RotatedRect(new cv.Point(), src.size(), rotate);
+    console.log(bbox);
+    // adjust transformation matrix
+    rot.data[0+src.rows*2]+= bbox.size.width/2.0 - src.cols/2.0;
+    rot.data[1+src.rows*2]+= bbox.size.height/2.0 - src.rows/2.0;
+    //rot.at<double>(0,2) += bbox.width/2.0 - src.cols/2.0;
+    //rot.at<double>(1,2) += bbox.height/2.0 - src.rows/2.0;
+
+    cv.warpAffine(src, src, rot, new cv.Size(bbox.size.width, bbox.size.height));
+  }
+  return src;
+}
+
+app.post('/api/receipt/recognize/', async function(req, res) {
   const base64Data = req.body.src;
   const id = req.body.id;
   const name = id+'_pre';
   const path = upload_path+'/'+name;
 
-  return uploadReceipt(name, base64Data)
-  .then(() => {
+  console.log('cv', cv.getBuildInformation());
+
+  await uploadReceipt(name, base64Data);
+  
+  return child_process.execFile('tesseract', [
+    '-l', 'fin',
+    '--psm', '0',
+    '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.-/ ',
+    '-c', 'textord_max_noise_size=10',
+    //'-c', 'textord_noise_sizelimit=1',
+    path,
+    'stdout',
+  ], async function(error, stdout, stderr) {
+    if (error) console.error(error);
+    process.stdout.write(stdout);
+    process.stderr.write(stderr);
+
+    console.log(stdout);
+
+    let rotate = stdout.match(/Rotate: (\d+)/);
+    
+    console.log(rotate);
+
+    if (rotate && parseInt(rotate[1])) {
+      const splitted = base64Data.split(',');
+      const [, data] = splitted;
+
+      const jimpSrc = await Jimp.read(path); 
+
+      let src = cv.matFromImageData(jimpSrc.bitmap);
+      rotateImage(src, 360-rotate[1]);
+
+      console.log(src.cols, src.data);
+
+      let buffer = Buffer.from(src.data);
+
+      console.log(buffer);
+
+      new Jimp({
+        width: src.cols,
+        height: src.rows,
+        data: buffer
+      })
+      .write(path);
+    }
+
     return child_process.execFile('tesseract', [
-      '-l', 'fin_fast',
-      '--psm', '0',
-      '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.- ',
-      '-c', 'textord_max_noise_size=20',
+      '-l', 'fin',
+      '--psm', '4',
+      '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.-/ ',
+      '-c', 'textord_max_noise_size=10',
       //'-c', 'textord_noise_sizelimit=1',
       path,
       'stdout',
@@ -394,10 +463,6 @@ app.post('/api/receipt/recognize/', function(req, res) {
         id
       });
     });
-  })
-  .catch(error => {
-    console.error(error);
-    throw new Error();
   });
 });
 

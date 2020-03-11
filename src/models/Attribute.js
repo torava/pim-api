@@ -32,8 +32,7 @@ export default class Attribute extends Model {
 			type: 'object',
 			
 			properties: {
-				name: {type: 'object'},
-				unit: {type: 'string'}
+				name: {type: 'object'}
 			}
 		}
 	}

@@ -8,6 +8,7 @@ import {locale} from './locale';
 import axios from 'axios';
 //import Timeline from 'react-visjs-timeline';
 import _ from 'lodash';
+import {Link} from 'react-router-dom';
 
 export default class TransactionList extends React.Component {
   constructor(props) {
@@ -18,8 +19,11 @@ export default class TransactionList extends React.Component {
       editable_item: {}
     };
 
-    DataStore.getTransactions()
-    .then(transactions => {
+    Promise.all([
+      DataStore.getCategories(),
+      DataStore.getTransactions()
+    ])
+    .then(([categories, transactions]) => {
       this.setState({transactions});
     })
     .catch(function(error) {
@@ -147,7 +151,7 @@ export default class TransactionList extends React.Component {
       {
         id: 'date',
         label: 'Date',
-        formatter: (value, item) => <span><a href={"/edit/"+item.id}>{new Date(value).toLocaleString()}</a></span>
+        formatter: (value, item) => <span><Link to={"/edit/"+item.id}>{new Date(value).toLocaleString()}</Link></span>
       },
       {
         label: 'Store',
@@ -242,7 +246,7 @@ export default class TransactionList extends React.Component {
       <div>
         <datalist id="categories">
           {DataStore.categories.map(function(item, i) {
-            if (item.parentId !== null) return <option data-id={item.id} value={item.name['fi-FI']}/>
+            if (item.parentId !== null) return <option data-id={item.id} value={item.name}/>
           })}
         </datalist>
         <button onClick={this.removeSelectedTransactions}>Remove Selected</button>

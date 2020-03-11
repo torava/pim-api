@@ -14,6 +14,7 @@ export default class Manufacturer extends Model {
 			properties: {
 				id: {type: 'integer'},
 				name: {type: 'string', minLength: 1, maxLength: 255},
+				aliases: {type: ['object', null]},
         factory_location: {type: 'string', minLength: 1, maxLength: 255},
         headquarters_location: {type: 'string', minLength: 1, maxLength: 255}
 			}

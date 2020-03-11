@@ -75,7 +75,7 @@ export default {
         resolve(this.categories);
       }
       else {
-        axios.get('/api/category?parent&locale=fi-FI')
+        axios.get('/api/category?&locale=fi-FI')
         .then(response => {
           this.categories = response.data;
           resolve(this.categories);

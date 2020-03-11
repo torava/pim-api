@@ -363,8 +363,7 @@ app.get('/api/import/getexternalcategoriesfineli', async function(req, res) {
             }
             else {
               attribute = {
-                name: eufdname[attr_ref],
-                unit: component[attr_ref][1].toLowerCase()
+                name: eufdname[attr_ref]
               }
 
               parent_ref = component[row[1]][2];
@@ -419,6 +418,7 @@ app.get('/api/import/getexternalcategoriesfineli', async function(req, res) {
             attributes[row[0]].attributes.push({
               attribute,
               value: parseFloat(row[2].replace(',', '.')),
+              unit: component[attr_ref][1].toLowerCase(),
               sources: [
                 {
                   reference_url: 'https://fineli.fi/fineli/en/elintarvikkeet/'+row[0],

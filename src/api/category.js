@@ -71,7 +71,7 @@ export default app => {
           if (columns[n] !== "") {
             found = false;
             for (let m in attributes) {
-              if (attribute[1] == attributes[m].name && attribute[3] == attributes[m].unit) {
+              if (attribute[1] == attributes[m].name) {
                 attribute_object = {
                   id: attributes[m].id
                 }
@@ -80,7 +80,7 @@ export default app => {
               }
             }
             if (!found) {
-              ref = 'attribute:'+attribute[1]+','+attribute[3];
+              ref = 'attribute:'+attribute[1];
               if (ref in refs) {
                 attribute_object = {
                   '#ref': ref
@@ -92,8 +92,7 @@ export default app => {
                   '#id': ref,
                   name: {
                     'fi-FI': attribute[1]
-                  },
-                  unit: attribute[3]
+                  }
                 }
               }
             }
@@ -102,7 +101,8 @@ export default app => {
               attributes: [
                 {
                   attribute: attribute_object,
-                  value
+                  value,
+                  unit: attribute[3]
                 }
               ]
             });
@@ -449,7 +449,7 @@ app.post('/api/category', async function(req, res) {
   else {
     category = req.body;
   }
-  console.dir(category, {depth:null});
+  console.log(JSON.stringify(category, null, 2));
   return Category.query()
     .upsertGraph(category, {
       noDelete: true,
@@ -470,7 +470,7 @@ app.post('/api/category/attribute/copy', (req, res) => {
       selected_attributes = req.body.attributes,
       copyable_attributes = {},
       updateable_categories = {};
-  Category.query()
+  return Category.query()
   .findByIds(selected_categories)
   .eager('[attributes.sources]')
   .then(categories => {
@@ -507,23 +507,19 @@ app.post('/api/category/attribute/copy', (req, res) => {
     console.dir(copyable_attributes, {depth:null});
     console.log('updateable categories');
     console.dir(updateable_categories, {depth:null});
-    Category.query()
+    return Category.query()
     .upsertGraph(Object.values(updateable_categories), {
       relate: true,
       noDelete: true
     })
     .then(result => {
       console.log(result);
-      res.send();
+      return res.send();
     })
-    .catch(error => {
-      console.error(error);
-      throw new Error();
-    });
   })
   .catch(error => {
     console.error(error);
-    throw new Error();
+    return res.sendStatus(500);
   });
 });
 

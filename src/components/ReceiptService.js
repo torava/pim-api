@@ -341,7 +341,7 @@ class ReceiptService {
           console.log('loaded');
           console.timeLog('process');
 
-          const PROCESSING_WIDTH = 2500;
+          const PROCESSING_WIDTH = 4000;
 
           let src = cv.imread(img);
           let dst = new cv.Mat();
@@ -578,40 +578,6 @@ class ReceiptService {
     cv.imshow(canvas, src);
 
     return canvas.toDataURL();
-  }
-  
-  rotateImage(src, rotate) {
-    if (rotate < 0) {
-      rotate = 360+rotate;
-    }
-    if (rotate == 270){
-      cv.transpose(src, src); 
-      cv.flip(src, src, 1);
-    }
-    else if (rotate == 90) {
-      cv.transpose(src, src);  
-      cv.flip(src, src, 0);
-    }
-    else if (rotate == 180){
-      cv.flip(src, src, -1);
-    }
-    else if (!rotate) {}
-    else {
-      // get rotation matrix for rotating the image around its center in pixel coordinates
-      let center = new cv.Point((src.cols-1)/2.0, (src.rows-1)/2.0);
-      let rot = cv.getRotationMatrix2D(center, rotate, 1.0);
-      // determine bounding rectangle, center not relevant
-      let bbox = new cv.RotatedRect(new cv.Point(), src.size(), rotate);
-      console.log(bbox);
-      // adjust transformation matrix
-      rot.data[0+src.rows*2]+= bbox.size.width/2.0 - src.cols/2.0;
-      rot.data[1+src.rows*2]+= bbox.size.height/2.0 - src.rows/2.0;
-      //rot.at<double>(0,2) += bbox.width/2.0 - src.cols/2.0;
-      //rot.at<double>(1,2) += bbox.height/2.0 - src.rows/2.0;
-
-      cv.warpAffine(src, src, rot, new cv.Size(bbox.size.width, bbox.size.height));
-    }
-    return src;
   }
 }
 

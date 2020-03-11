@@ -20,6 +20,7 @@ exports.up = function(knex, Promise) {
   .createTable('Manufacturer', function(table) {
     table.increments('id').primary();
     table.string('name');
+    table.json('aliases');
     table.string('factory_location');
     table.string('manufacturer_location');
     table.integer('ownerId').unsigned().references('id').inTable('Manufacturer');
@@ -66,7 +67,6 @@ exports.up = function(knex, Promise) {
   .createTable('Attribute', function(table) {
     table.increments('id').primary();
     table.json('name');
-    table.string('unit');
     table
       .integer('parentId')
       .unsigned()

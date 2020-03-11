@@ -99,7 +99,7 @@ class Locale {
       return name[locale.getLocale()];
     }
     else if (!strict) {
-      return first(name);
+      return Object.values(name)[0];
     }
     else return '';
   }
