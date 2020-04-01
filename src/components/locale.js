@@ -48,11 +48,9 @@ class Locale {
       to_unit = '';
     }
     let conversion = factors[from_unit]-factors[to_unit];
-    console.log(conversion, from_unit, to_unit);
     return measure*Math.pow(10, conversion);
   }
   setCurrency(currency) {
-    console.log(currency);
     if (typeof window !== 'undefined') {
       window.localStorage.setItem('currency', currency);
       this.currency = currency;
