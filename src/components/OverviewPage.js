@@ -333,7 +333,7 @@ export default class OverviewPage extends Component {
           product.items.map(item => {
             item_prices+= item.price;
             if (item.unit == 'l' || product.unit == 'l') {
-              item_volumes+= (product.quantity || item.quantity || 1)*(product.unit || item.unit);
+              item_volumes+= (product.quantity || item.quantity || 1)*(product.measure || item.measure || 0);
             }
             else {
               item_weights+= (product.quantity || item.quantity || 1)*locale.convertMeasure(product.measure || item.measure, product.unit || item.unit, 'kg');
@@ -371,22 +371,29 @@ export default class OverviewPage extends Component {
   }
   aggregateCategoryAttribute() {
     let categories = [...this.state.resolved_categories],
-        attribute_aggregates = this.state.attribute_aggregates;
+        attribute_aggregates = this.state.attribute_aggregates,
+        parent_value;
     for (let attribute_id in attribute_aggregates) {
       categories.reduce(function resolver(sum, category) {
-        let item_measure = 0;
+        let measure,
+            item_measure = 0,
+            value = 0,
+            measured_value = 0;
         if (category.hasOwnProperty('products') && category.products.length) {
           category.products.map(product => {
             product.items.map(item => {
-              item_measure+= (product.quantity || item.quantity || 1)*locale.convertMeasure(product.measure || item.measure, product.unit || item.unit, 'kg');
+              measure = locale.convertMeasure(product.measure || item.measure, product.unit || item.unit, 'kg');
+              item_measure+=(product.quantity || item.quantity || 1)*measure;
             });
           });
         }
-        if (category.attributes.hasOwnProperty(attribute_id)) {
+        if (category.attributes.hasOwnProperty(attribute_id) || parent_value) {
           if (!category.hasOwnProperty('attribute_sum')) {
             category.attribute_sum = {};
           }
-          category.attribute_sum[attribute_id] = category.attributes[attribute_id].value*item_measure;
+          value = category.attributes.hasOwnProperty(attribute_id) && category.attributes[attribute_id].value || 0;
+          measured_value = value*item_measure;
+          category.attribute_sum[attribute_id] = measured_value || parent_value*item_measure || 0;
           let target_unit = locale.getAttributeUnit(attribute_aggregates[attribute_id].name['en-US']);
           if (target_unit) {
             let rate = config.unit_conversions[attribute_aggregates[attribute_id].unit][target_unit];
@@ -399,6 +406,7 @@ export default class OverviewPage extends Component {
           if (!category.hasOwnProperty('attribute_sum')) {
             category.attribute_sum = {};
           }
+          parent_value = value;
           category.attribute_sum[attribute_id] = category.children.reduce(resolver, 0);
         }
         return sum+(category.attribute_sum && category.attribute_sum[attribute_id] || 0);
@@ -548,7 +556,7 @@ export default class OverviewPage extends Component {
             x={d => moment(d.date).toDate()}
             y="total_price"
             labels={d => d.total_price}
-            style={{ data: { fill: "gray", width: 10 } }}
+            style={{ data: { fill: "seagreen", width: 10 } }}
             labelComponent={<VictoryTooltip renderInPortal/>}
           />
         </VictoryChart>  
