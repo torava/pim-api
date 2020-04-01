@@ -101,7 +101,8 @@ exports.up = function(knex, Promise) {
       .integer('attributeId')
       .unsigned()
       .references('id')
-      .inTable('Attribute');
+      .inTable('Attribute')
+      .onDelete('CASCADE');
   })
   .createTable('CategoryAttribute', function(table) {
     table.increments('id').primary();
@@ -116,7 +117,8 @@ exports.up = function(knex, Promise) {
       .integer('attributeId')
       .unsigned()
       .references('id')
-      .inTable('Attribute');
+      .inTable('Attribute')
+      .onDelete('CASCADE');
   })
   .createTable('Conversion', function(table) {
     table.increments('id').primary();
@@ -142,7 +144,8 @@ exports.up = function(knex, Promise) {
       .integer('attributeId')
       .unsigned()
       .references('id')
-      .inTable('CategoryAttribute');
+      .inTable('CategoryAttribute')
+      .onDelete('CASCADE');
     table
       .integer('sourceId')
       .unsigned()
