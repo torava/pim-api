@@ -3,6 +3,7 @@ import Category from '../models/Category';
 import natural from 'natural';
 import moment from 'moment';
 import fs from 'fs';
+import _ from 'lodash';
 import {NlpManager, SimilarSearch} from 'node-nlp';
 import { stringSimilarity } from "string-similarity-js";
 import Item from '../models/Item';
@@ -58,10 +59,11 @@ details.type = {
   lowlactose: ['vähälaktoosinen'],
   insaltwater: ['suolavedessä', 'suolaved'],
   frozenfood: ['pakasteateria', 'pakastettu', 'pakaste'],
-  bag: ['pussi']
+  bag: ['pussi'],
+  glutenfree: ['gton', 'gluteeniton']
 }
 details.origin = {
-  finnish: ['suomi', 'suomalainen']
+  finnish: ['suomi', 'suomalainen', 'suomesta']
 }
 details.manufacturers = {
   'dan sukker': ['dan sukker'],
@@ -96,7 +98,12 @@ details.manufacturers = {
   'koskikylan': ['koskikylan'],
   'italiamo': ['italiamo'],
   'santa maria': ['santa maria'],
-  'oululainen': ['oululainen']
+  'oululainen': ['oululainen'],
+  'kotimaista': ['kotimaista'],
+  'rainbow': ['rainbow'],
+  'valio': ['valio'],
+  'vaasan': ['vaasan'],
+  'hyväapaja': ['hyvä apaja']
 }
 
 let trimmed_categories,
@@ -155,6 +162,89 @@ function getNameLocale(name, locale, strict) {
   else return '';
 }
 
+function CSVToArray( strData, strDelimiter ){
+  // Check to see if the delimiter is defined. If not,
+  // then default to comma.
+  strDelimiter = (strDelimiter || ",");
+
+  // Create a regular expression to parse the CSV values.
+  var objPattern = new RegExp(
+      (
+          // Delimiters.
+          "(\\" + strDelimiter + "|\\r?\\n|\\r|^)" +
+
+          // Quoted fields.
+          "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
+
+          // Standard fields.
+          "([^\"\\" + strDelimiter + "\\r\\n]*))"
+      ),
+      "gi"
+      );
+
+
+  // Create an array to hold our data. Give the array
+  // a default empty first row.
+  var arrData = [[]];
+
+  // Create an array to hold our individual pattern
+  // matching groups.
+  var arrMatches = null;
+
+
+  // Keep looping over the regular expression matches
+  // until we can no longer find a match.
+  while (arrMatches = objPattern.exec( strData )){
+
+      // Get the delimiter that was found.
+      var strMatchedDelimiter = arrMatches[ 1 ];
+
+      // Check to see if the given delimiter has a length
+      // (is not the start of string) and if it matches
+      // field delimiter. If id does not, then we know
+      // that this delimiter is a row delimiter.
+      if (
+          strMatchedDelimiter.length &&
+          strMatchedDelimiter !== strDelimiter
+          ){
+
+          // Since we have reached a new row of data,
+          // add an empty row to our data array.
+          arrData.push( [] );
+
+      }
+
+      var strMatchedValue;
+
+      // Now that we have our delimiter out of the way,
+      // let's check to see which kind of value we
+      // captured (quoted or unquoted).
+      if (arrMatches[ 2 ]){
+
+          // We found a quoted value. When we capture
+          // this value, unescape any double quotes.
+          strMatchedValue = arrMatches[ 2 ].replace(
+              new RegExp( "\"\"", "g" ),
+              "\""
+              );
+
+      } else {
+
+          // We found a non-quoted value.
+          strMatchedValue = arrMatches[ 3 ];
+
+      }
+
+
+      // Now that we have our value string, let's add
+      // it to the data array.
+      arrData[ arrData.length - 1 ].push( strMatchedValue );
+  }
+
+  // Return the parsed data.
+  return( arrData );
+}
+
 function escapeRegExp(stringToGoIntoTheRegex) {
   return stringToGoIntoTheRegex.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
@@ -179,6 +269,12 @@ function trimDetails(name) {
   }
   name = name.trim().replace(/,|\s{2,}/g, '');
   return name;
+}
+
+function toTitleCase(str) {
+  if (!str) return str;
+
+  return  str.replace(/([^\s:\-])([^\s:\-]*)/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
 
 function getParentPath(item) {
@@ -237,27 +333,31 @@ const TRANSACTION_CSV_INDEXES = {
   sryhma: [0, 1]
 };
 
+const TRANSACTION_CSV_STARTING_ROW = {
+  sryhma: 10
+};
+
 const TRANSACTION_CSV_COLUMNS = {
   sryhma: i => [
     'date_fi_FI',
     'time',
     'party.name',
-    `items[${i}].product.category.name['fi-FI']`,
+    null,//`items[${i}].product.category.name['fi-FI']`,
     `items[${i}].product.name`,
     `items[${i}].product.product_number`,
     null,
-    `items[${i}].product.quantity_or_measure`,
+    `items[${i}].quantity_or_measure`,
     null,
     null,
-    `items[${i}].product.price`
+    `items[${i}].price`
   ],
   kesko: i => [
     'id',
     'date_fi_FI',
     'party.name',
     `items[${i}].product.name`,
-    `items[${i}].product.quantity_or_measure`,
-    `items[${i}].product.price`
+    `items[${i}].quantity_or_measure`,
+    `items[${i}].price`
   ],
   default: i => [
     'id',
@@ -293,57 +393,14 @@ const TRANSACTION_CSV_COLUMN_NAMES = [
   'Item measure',
   'Item unit'
 ];
-const CSV_SEPARATOR = ";";
+const CSV_SEPARATOR = ';';
+const CSV_COLUMN_WRAPPER = '"';
 
 app.post('/api/transaction', function(req, res) {
-  let transaction = {};
-  if ('fromcsv' in req.query) {
-    const template = req.query.template || 'default';
-    const indexes = TRANSACTION_CSV_INDEXES[template] || [0];
-
-    let columns,
-        item_index = 0,
-        rows = req.body.transaction.split('\n');
-    for (let i = 2; i < rows.length; i++) {
-      let column_key = '';
-      columns = rows[i].split(CSV_SEPARATOR);
-      indexes.forEach(index => {
-          column_key+= columns[index];
-      });
-      if (!(column_key in transaction)) {
-        item_index = 0;
-        transaction[column_key] = {items:[], party:{}, receipts:[]};
-      }
-      for (let n in columns) {
-        let column_name = TRANSACTION_CSV_COLUMNS[template](item_index)[n];
-        let value = columns[n];
-        if (column_name.split('.')[2] === 'quantity_or_measure') {
-          if (columns[n].match(/^\d+\.\d{3}$/)) {
-            column_name = 'measure';
-          }
-          else {
-            column_name = 'quantity';
-          }
-        }
-        if (column_name === 'date_fi_FI') {
-          let date = columns[n].split('.');
-          value = moment.format(`${date[2]}-${date[1].padStart(2, '0')}-${date[0].padStart(2, '0')}`);
-        }
-
-        if (column_name === 'time') {
-          let time = value.split(':');
-          transaction[column_key].date = moment(transaction[column_key].date).add(time[0], 'hours').add(time[1], 'minutes');
-        }
-        console.log(i, column_name, value);
-        _.set(transaction[column_key], column_name, value);
-      }
-      item_index++;
-    }
-    console.dir(transaction, {depth:null});
-    res.send(transaction);
-    return;
+  function getNumber(value) {
+    return parseFloat(value.replace('−', '-').replace(',', '.'));
   }
-  else {
+  function resolveCategories(transaction) {
     let trimmed_accuracy,
         type,
         trimmed_item_name,
@@ -351,15 +408,13 @@ app.post('/api/transaction', function(req, res) {
         distance,
         item_categories,
         accuracy;
-
-    transaction = req.body[0];
-
+        
     transaction.items.forEach(item => {
       item_categories = [];
       trimmed_item_name = trimDetails(item.product.name);
-
+  
       items.forEach(comparable_item => {
-        if (comparable_item.product && comparable_item.product.category) {
+        if (comparable_item.product && comparable_item.product.category && comparable_item.text) {
           distance = stringSimilarity(item.product.name.toLowerCase(), comparable_item.text.toLowerCase());
           
           if (distance > 0.8) {
@@ -375,12 +430,15 @@ app.post('/api/transaction', function(req, res) {
           }
         }
       });
-
+  
       trimmed_categories.forEach((category, index) => {
         if (category.trimmed_name && category.trimmed_name['fi-FI']) {
-          distance = stringSimilarity(trimmed_item_name.toLowerCase(), category.trimmed_name['fi-FI'].toLowerCase());
+          distance = Math.max(
+            stringSimilarity(trimmed_item_name.toLowerCase(), category.trimmed_name['fi-FI'].toLowerCase()),
+            stringSimilarity(item.product.name.toLowerCase(), category.name['fi-FI'].toLowerCase())
+          );
           //accuracy = (trimmed_item_name.length-distance)/trimmed_item_name.length;
-
+  
           if (distance > 0.4) {
             item_categories.push({
               id: category.id,
@@ -399,14 +457,106 @@ app.post('/api/transaction', function(req, res) {
       
       if (item_categories.length) {
         item_categories.sort((a, b) => b.distance-a.distance);
-
+  
         item.product.category = {id: item_categories[0].id};
       }
     });
   }
-  console.dir(transaction, {depth:null});
-  Transaction.query()
-    .upsertGraph(req.body, {relate: true})
+  let transaction = {};
+  if ('fromcsv' in req.query) {
+    const template = req.query.template || 'default';
+    const indexes = TRANSACTION_CSV_INDEXES[template] || [0];
+    const starting_row = TRANSACTION_CSV_STARTING_ROW[template] || 1;
+
+    let columns,
+        tokens,
+        measure,
+        item_index = 0,
+        rows = CSVToArray(req.body.transaction, CSV_SEPARATOR);
+    for (let i = starting_row; i < rows.length; i++) {
+      let column_key = '';
+      columns = rows[i];
+      indexes.forEach(index => {
+          column_key+= columns[index];
+      });
+      if (!(column_key in transaction)) {
+        item_index = 0;
+        transaction[column_key] = {items:[], party:{}, receipts:[], total_price: 0};
+      }
+      for (let n in columns) {
+        let column_name = TRANSACTION_CSV_COLUMNS[template](item_index)[n];
+        if (!column_name) continue;
+
+        let value = columns[n];
+
+        if (column_name.split('.').includes('name') || column_name.split('.').includes(`name['fi-FI']`)) {
+          value = toTitleCase(value);
+          tokens = value.match(/(\d{1,4})\s?((m|k)?((g|9)|(l|1)))/);
+          measure = tokens && parseFloat(tokens[1]);
+          if (measure) {
+            _.set(transaction[column_key], `items[${item_index}].measure`, measure);
+            _.set(transaction[column_key], `items[${item_index}].unit`, tokens[2]);
+          }
+        }
+        if (column_name.split('.')[1] === 'quantity_or_measure') {
+          if (value.match(/^\d+\.\d{3}$/)) {
+            column_name = column_name.replace('quantity_or_measure', 'measure');
+            value = getNumber(value);
+          }
+          else {
+            column_name = column_name.replace('quantity_or_measure', 'quantity');
+            value = parseFloat(value);
+          }
+        }
+        if (column_name === 'date_fi_FI') {
+          let date = value.split('.');
+          value = moment().format(`${date[2]}-${date[1].padStart(2, '0')}-${date[0].padStart(2, '0')}`);
+          column_name = 'date';
+        }
+
+        if (column_name === 'time') {
+          let time = value.split(':');
+          value = moment(transaction[column_key].date).add(time[0], 'hours').add(time[1], 'minutes').format();
+          column_name = 'date';
+        }
+        if (column_name.split('.')[1] === 'price') {
+          value = getNumber(value);
+          transaction[column_key].total_price += value;
+        }
+        console.log(i, column_name, value);
+        if (column_name !== 'id') {
+          _.set(transaction[column_key], column_name, value);
+        }
+      }
+      item_index++;
+    }
+    let promises = [];
+    for (let i in transaction) {
+      resolveCategories(transaction[i]);
+
+      promises.push(
+        Transaction.query()
+        .upsertGraph(transaction[i], {relate: true})
+      );
+    }
+    return Promise.all(promises)
+    .then(transaction => {
+      console.dir(transaction, {depth:null});
+      res.send(transaction);
+    })
+    .catch(error => {
+      console.dir(transaction, {depth:null});
+      console.error(error);
+      res.status(500).send(error);
+    });
+  }
+  else {
+    transaction = req.body[0];
+
+    resolveCategories(transaction);
+
+    Transaction.query()
+    .upsertGraph(transaction, {relate: true})
     .then(transaction => {
       res.send(transaction);
     })
@@ -415,6 +565,7 @@ app.post('/api/transaction', function(req, res) {
       console.error(error);
       res.status(500).send(error);
     });
+  }
 });
 
 app.get('/api/transaction', function(req, res) {

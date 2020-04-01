@@ -74,11 +74,6 @@ function parseYear(year) {
   }
   return year;
 }
-function toTitleCase(str) {
-  if (!str) return str;
-
-  return  str.replace(/([^\s:\-])([^\s:\-]*)/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
-}
 
 function localeToLanguage(locale) {
   let ocr_languages = {
