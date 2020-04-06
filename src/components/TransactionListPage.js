@@ -2,13 +2,18 @@
 
 import React from 'react';
 //import ReactTable from 'react-table';
-import EditableTable from './EditableTable';
+import AsteriskTable from 'react-asterisk-table';
+import tree from 'react-asterisk-table/lib/Tree';
+import sortable from 'react-asterisk-table/lib/Sortable';
 import DataStore from './DataStore';
 import {locale} from './locale';
 import axios from 'axios';
 //import Timeline from 'react-visjs-timeline';
 import _ from 'lodash';
 import {Link} from 'react-router-dom';
+
+const TreeTable = sortable(tree(AsteriskTable));
+const Table = sortable(AsteriskTable);
 
 export default class TransactionList extends React.Component {
   constructor(props) {
@@ -33,7 +38,8 @@ export default class TransactionList extends React.Component {
     this.editable_item = {};
 
     this.selectTransaction = this.selectTransaction.bind(this);
-    this.removeSelectedTransactions = this.removeSelectedTransactions.bind(this);
+    this.selectItem = this.selectItem.bind(this);
+    this.removeSelected = this.removeSelected.bind(this);
     this.itemEdited = this.itemEdited.bind(this);
     this.itemSaved = this.itemSaved.bind(this);
     this.handleEdit = this.handleEdit.bind(this);
@@ -112,11 +118,16 @@ export default class TransactionList extends React.Component {
       console.error(error);
     });
   }
-  removeSelectedTransactions() {
+  removeSelected() {
     let queue = [];
     for (let id in this.state.selected_transactions) {
       if (this.state.selected_transactions[id]) {
         queue.push(axios.delete('/api/transaction/'+id));
+      }
+    }
+    for (let id in this.state.selected_items) {
+      if (this.state.selected_items[id]) {
+        queue.push(axios.delete('/api/item/'+id));
       }
     }
     Promise.all(queue).then(() => {
@@ -138,6 +149,16 @@ export default class TransactionList extends React.Component {
       delete selected_transactions[transaction.id];
     }
     this.setState({selected_transactions});
+  }
+  selectItem(item, selected) {
+    let selected_items = {...this.state.selected_items};
+    if (selected) {
+      selected_items[item.id] = true;
+    }
+    else {
+      delete selected_items[item.id];
+    }
+    this.setState({selected_items});
   }
   getTransactionColumns() {
     return [
@@ -165,6 +186,11 @@ export default class TransactionList extends React.Component {
   }
   getItemColumns() {
     return [
+      {
+        formatter: (value, item) => <input type="checkbox"
+                                           onClick={event => this.selectItem(item, event.target.checked)}/>,
+        class: 'nowrap'
+      },
       {
         id: 'name',
         label: 'Name',
@@ -249,12 +275,12 @@ export default class TransactionList extends React.Component {
             if (item.parentId !== null) return <option data-id={item.id} value={item.name}/>
           })}
         </datalist>
-        <button onClick={this.removeSelectedTransactions}>Remove Selected</button>
-        <EditableTable
+        <button onClick={this.removeSelected}>Remove Selected</button>
+        <TreeTable
           columns={this.getTransactionColumns()}
           items={DataStore.transactions}
           childView={(transaction) => {
-            return <EditableTable
+            return <Table
               columns={this.getItemColumns()}
               items={transaction.items}
             />
