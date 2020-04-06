@@ -341,75 +341,83 @@ class ReceiptService {
           console.log('loaded');
           console.timeLog('process');
 
-          const PROCESSING_WIDTH = 4000;
+          const PROCESSING_WIDTH = 2500;
 
-          let src = cv.imread(img);
-          let dst = new cv.Mat();
-          let bil = new cv.Mat();
+          try {
+            let src = cv.imread(img);
+            let dst = new cv.Mat();
+            //let bil = new cv.Mat();
 
-          let anchor, M, ksize;
+            let anchor, M, ksize;
 
-          cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY, 0);
+            cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY, 0);
 
-          //cv.bilateralFilter(src,bil,7,10,10);
+            //cv.bilateralFilter(src,bil,7,10,10);
 
-          /*let ksize = new cv.Size(9,9);
-          cv.GaussianBlur(bil, bil, ksize, 0, 0, cv.BORDER_DEFAULT);*/
+            /*let ksize = new cv.Size(9,9);
+            cv.GaussianBlur(bil, bil, ksize, 0, 0, cv.BORDER_DEFAULT);*/
 
-          cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 31, 25);//, 201, 30);
+            cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 31, 25);//, 201, 30);
 
-          /*let M = cv.Mat.ones(2, 2, cv.CV_8U);
-          let anchor = new cv.Point(-1, -1);
-          cv.dilate(dst, dst, M, anchor, 1);
-          cv.erode(dst, dst, M, anchor, 1);*/
+            /*let M = cv.Mat.ones(2, 2, cv.CV_8U);
+            let anchor = new cv.Point(-1, -1);
+            cv.dilate(dst, dst, M, anchor, 1);
+            cv.erode(dst, dst, M, anchor, 1);*/
 
-          /*let M = new cv.Mat();
-          let ksize = new cv.Size(3, 3);
-          M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
-          cv.morphologyEx(dst, dst, cv.MORPH_CLOSE, M);*/
+            /*let M = new cv.Mat();
+            let ksize = new cv.Size(3, 3);
+            M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
+            cv.morphologyEx(dst, dst, cv.MORPH_CLOSE, M);*/
 
-          let dsize = new cv.Size(PROCESSING_WIDTH, src.rows/src.cols*PROCESSING_WIDTH);
-          cv.resize(dst, dst, dsize, 0, 0, cv.INTER_AREA);
+            let dsize = new cv.Size(PROCESSING_WIDTH, src.rows/src.cols*PROCESSING_WIDTH);
+            cv.resize(dst, dst, dsize, 0, 0, cv.INTER_AREA);
 
-          let imagedata = this.getSrc(dst, true);
+            let imagedata = this.getSrc(dst, true);
 
-          const id = this.pipeline.receipt.id;
+            const id = this.pipeline.receipt.id;
 
-          console.log('processed');
-          console.timeLog('process');
+            console.log('processed');
+            console.timeLog('process');
       
-          const text = await fetch('/api/receipt/recognize', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              id,
-              src: imagedata
+            const text = await fetch('/api/receipt/recognize', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                id,
+                src: imagedata
+              })
             })
-          })
-          .then(response => response.json())
-          .then(response => response.result);
+            .then(response => response.json())
+            .then(response => response.result);
 
-          console.log('recognized', text);
-          console.timeLog('process');
+            console.log('recognized', text);
+            console.timeLog('process');
 
-          const locale = 'fi-FI';
+            const locale = 'fi-FI';
 
-          let data = {
-            products: this.products,
-            manufacturers: this.manufacturers,
-            categories: this.categories
-          };
+            let data = {
+              products: this.products,
+              manufacturers: this.manufacturers,
+              categories: this.categories
+            };
 
-          getTransactionsFromReceipt(data, text, locale, id);
+            getTransactionsFromReceipt(data, text, locale, id);
 
-          console.log('extracted transformed');
-          console.timeLog('process');
-          console.log(data, locale);
+            console.log('extracted transformed');
+            console.timeLog('process');
+            console.log(data, locale);
 
-          this.pipeline.transactions = data.transactions;
-          resolve(data.transactions);
+            src.delete();
+            dst.delete();
+
+            this.pipeline.transactions = data.transactions;
+            resolve(data.transactions);
+          } catch(error) {
+            console.error(error);
+            reject();
+          }
         });
         img.src = reader.result;
       });
@@ -481,6 +489,7 @@ class ReceiptService {
       })
       .catch(function(error) {
         console.error(error);
+        reject();
       });
     });
   }
@@ -564,7 +573,7 @@ class ReceiptService {
 
     // https://stackoverflow.com/questions/13626465/how-to-create-a-new-imagedata-object-independently
     var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d');
+    //var ctx = canvas.getContext('2d');
 
     canvas.width = src.cols;
     canvas.height = src.rows;
@@ -577,7 +586,13 @@ class ReceiptService {
 
     cv.imshow(canvas, src);
 
-    return canvas.toDataURL();
+    const data_url = canvas.toDataURL();
+
+    if (from_grayscale) {
+      src.delete();
+    }
+
+    return data_url;
   }
 }
 
