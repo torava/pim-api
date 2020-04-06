@@ -1,0 +1,40 @@
+const manufacturers = [
+  { name: 'Dan Sukker' },
+  { name: 'Vitasia' },
+  { name: 'PohjolanMeijeri' },
+  { name: 'Myllykivi' },
+  { name: 'Milbona' },
+  { name: 'Kanamestari' },
+  { name: 'Kultamuna' },
+  { name: 'Palmolive' },
+  { name: 'GoldenSun' },
+  { name: 'Belbaka' },
+  { name: 'Freshona' },
+  { name: 'Coquette' },
+  { name: 'OceanSea' },
+  { name: 'Culinea' },
+  { name: 'Kalaneuvos' },
+  { name: 'Snellman' },
+  { name: 'Isokari' },
+  { name: 'Pirkka' },
+  { name: 'K-Menu' },
+  { name: 'Reilun Kaupan' },
+  { name: 'Gold&Green' },
+  { name: 'Sandels' },
+  { name: 'Knorr' },
+  { name: 'Magners' },
+  { name: 'Trattoria Alfredo' },
+  { name: 'Arla' },
+  { name: 'Serla' },
+  { name: 'Kotkot' },
+  { name: 'Marlene' },
+  { name: 'Koskikylan' },
+  { name: 'Italiamo' },
+  { name: 'Santa Maria' },
+  { name: 'Oululainen' },
+  { name: 'Halva' }
+];
+
+exports.seed = knex => (
+  knex('Manufacturer').insert(manufacturers)
+);
