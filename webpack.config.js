@@ -36,7 +36,7 @@ const client = {
         },
         include: path.join(__dirname, 'src')
       },
-      { test: /\.css$/, loader: "style-loader!css-loader" }
+      { test: /\.css$/, use: ['style-loader', 'css-loader'] }
     ],
   },
   resolve: {
@@ -87,7 +87,8 @@ const server = {
           }
         },
         include: path.join(__dirname, 'src')
-      }
+      },
+      { test: /\.css$/, use: ['style-loader', 'css-loader'] }
     ],
   },
   resolve: {

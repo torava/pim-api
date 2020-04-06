@@ -342,7 +342,7 @@ const TRANSACTION_CSV_COLUMNS = {
     'date_fi_FI',
     'time',
     'party.name',
-    null,//`items[${i}].product.category.name['fi-FI']`,
+    `items[${i}].product.category.name['fi-FI']`,
     `items[${i}].product.name`,
     `items[${i}].product.product_number`,
     null,
@@ -393,7 +393,11 @@ const TRANSACTION_CSV_COLUMN_NAMES = [
   'Item measure',
   'Item unit'
 ];
-const CSV_SEPARATOR = ';';
+const CSV_SEPARATOR = {
+  sryhma: ';',
+  kesko: ','
+};
+
 const CSV_COLUMN_WRAPPER = '"';
 
 app.post('/api/transaction', function(req, res) {
@@ -452,6 +456,24 @@ app.post('/api/transaction', function(req, res) {
           }
         }
       });
+
+      if (item.product.category && item.product.category.name) {
+        trimmed_categories.forEach((category, index) => {
+          distance = stringSimilarity(item.product.category.name['fi-FI'].toLowerCase(), category.name['fi-FI'].toLowerCase());
+          //accuracy = (trimmed_item_name.length-distance)/trimmed_item_name.length;
+  
+          if (distance > 0.4) {
+            item_categories.push({
+              id: category.id,
+              original_name: category.name['fi-FI'],
+              item_name: item.product.name,
+              trimmed_item_name: trimmed_item_name,
+              parents: getParentPath(category.parent),
+              distance: distance
+            });
+          }
+        });
+      }
       
       console.log(item_categories);
       
@@ -465,14 +487,15 @@ app.post('/api/transaction', function(req, res) {
   let transaction = {};
   if ('fromcsv' in req.query) {
     const template = req.query.template || 'default';
-    const indexes = TRANSACTION_CSV_INDEXES[template] || [0];
-    const starting_row = TRANSACTION_CSV_STARTING_ROW[template] || 1;
+    const indexes = TRANSACTION_CSV_INDEXES[template] || [0];
+    const starting_row = TRANSACTION_CSV_STARTING_ROW[template] || 1;
 
     let columns,
         tokens,
         measure,
         item_index = 0,
-        rows = CSVToArray(req.body.transaction, CSV_SEPARATOR);
+        rows = CSVToArray(req.body.transaction, CSV_SEPARATOR[template] || ';'),
+        category_refs = [];
     for (let i = starting_row; i < rows.length; i++) {
       let column_key = '';
       columns = rows[i];
@@ -491,6 +514,17 @@ app.post('/api/transaction', function(req, res) {
 
         if (column_name.split('.').includes('name') || column_name.split('.').includes(`name['fi-FI']`)) {
           value = toTitleCase(value);
+
+          if (column_name.split('.').includes('category')) {
+            if (category_refs.some(ref => ref === value)) {
+              column_name = column_name.replace(`name['fi-FI']`, '#ref');
+            }
+            else {
+              category_refs.push(value);
+              _.set(transaction[column_key], column_name.replace(`name['fi-FI']`, '#id'), value);
+            }
+          }
+
           tokens = value.match(/(\d{1,4})\s?((m|k)?((g|9)|(l|1)))/);
           measure = tokens && parseFloat(tokens[1]);
           if (measure) {
@@ -498,6 +532,7 @@ app.post('/api/transaction', function(req, res) {
             _.set(transaction[column_key], `items[${item_index}].unit`, tokens[2]);
           }
         }
+
         if (column_name.split('.')[1] === 'quantity_or_measure') {
           if (value.match(/^\d+\.\d{3}$/)) {
             column_name = column_name.replace('quantity_or_measure', 'measure');
@@ -508,18 +543,17 @@ app.post('/api/transaction', function(req, res) {
             value = parseFloat(value);
           }
         }
-        if (column_name === 'date_fi_FI') {
+        else if (column_name === 'date_fi_FI') {
           let date = value.split('.');
           value = moment().format(`${date[2]}-${date[1].padStart(2, '0')}-${date[0].padStart(2, '0')}`);
           column_name = 'date';
         }
-
-        if (column_name === 'time') {
+        else if (column_name === 'time') {
           let time = value.split(':');
           value = moment(transaction[column_key].date).add(time[0], 'hours').add(time[1], 'minutes').format();
           column_name = 'date';
         }
-        if (column_name.split('.')[1] === 'price') {
+        else if (column_name.split('.')[1] === 'price') {
           value = getNumber(value);
           transaction[column_key].total_price += value;
         }

@@ -3,14 +3,14 @@ import Manufacturer from '../models/Manufacturer';
 export default app => {
 
 app.get('/api/manufacturer', function(req, res) {
-  Manufacturer.query()
-    .then(result => {
-      res.send(result);
-    })
-    .catch(error => {
-      console.error(error);
-      throw new Error();
-    });
+  return Manufacturer.query()
+  .then(result => {
+    res.send(result);
+  })
+  .catch(error => {
+    console.error(error);
+    throw new Error();
+  });
 });
 
 }

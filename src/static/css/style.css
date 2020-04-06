@@ -189,3 +189,12 @@ fieldset {
   top: 0;
   opacity: 0;
 }
+
+#app .asterisk-table,
+#app .asterisk-table th,
+#app .asterisk-table td {
+  padding: 0.15em;
+}
+#app .asterisk-table th {
+  color: #555;
+}

@@ -299,7 +299,7 @@ app.post('/api/receipt/hocr/', function(req, res) {
 
   child_process.execFile('tesseract', [
     '-l', 'fin',
-    '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.- ',
+    '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.:-% ',
     //'-c', 'textord_max_noise_size=30',
     //'-c', 'textord_noise_sizelimit=1',
     path,
@@ -392,14 +392,14 @@ app.post('/api/receipt/recognize/', async function(req, res) {
   const name = id+'_pre';
   const path = upload_path+'/'+name;
 
-  console.log('cv', cv.getBuildInformation());
+  //console.log('cv', cv.getBuildInformation());
 
   await uploadReceipt(name, base64Data);
   
   return child_process.execFile('tesseract', [
     '-l', 'fin',
     '--psm', '0',
-    '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.-/ ',
+    '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.-/:% ',
     '-c', 'textord_max_noise_size=10',
     //'-c', 'textord_noise_sizelimit=1',
     path,
@@ -419,22 +419,9 @@ app.post('/api/receipt/recognize/', async function(req, res) {
       const splitted = base64Data.split(',');
       const [, data] = splitted;
 
-      const jimpSrc = await Jimp.read(path); 
+      const image = await Jimp.read(path);
 
-      let src = cv.matFromImageData(jimpSrc.bitmap);
-      rotateImage(src, 360-rotate[1]);
-
-      console.log(src.cols, src.data);
-
-      let buffer = Buffer.from(src.data);
-
-      console.log(buffer);
-
-      new Jimp({
-        width: src.cols,
-        height: src.rows,
-        data: buffer
-      })
+      image.rotate(360-parseInt(rotate[1]))
       .write(path);
     }
 

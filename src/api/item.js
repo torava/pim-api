@@ -33,4 +33,18 @@ app.post('/api/item', async function(req, res) {
     });
 });
 
+app.delete('/api/item/:id', function(req, res) {
+  Item.query()
+    .delete()
+    .where('id', req.params.id)
+    .then(item => {
+      console.log(item);
+      res.send(String(item));
+    })
+    .catch(error => {
+      console.error(error);
+      throw new Error();
+    });
+});
+
 }

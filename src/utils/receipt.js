@@ -97,7 +97,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
       if (!data.date) {
         // 1.1.12 1:12
         line_date = line.match(/((\d{1,2})[\.|\,](\d{1,2})[\.|\,](\d{2,4}))(\s)?((\d{1,2})[:|,|\.|\s|z]?((\d{1,2})[:|,|\.|\s|z]?)?(\d{1,2})?)?/);
-        date = line_date && parseYear(line_date[4])+'-'+line_date[3]+'-'+line_date[2]+' '+line_date[7]+':'+line_date[8];//+':'+line_date[10];
+        date = line_date && parseYear(line_date[4])+'-'+line_date[3]+'-'+line_date[2]+' '+line_date[7]+':'+line_date[9];//+':'+line_date[10];
         if (date && moment(date).isValid()) {
           console.log(line_date, date);
           data.date = date;
@@ -172,7 +172,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
       }
 
       // total line
-      line_total = line_number_format.match(/^(total|grand total|summa|yhteensä|yhteensa).*[^0-9]((\d+\.\d{2})(\-)?\s)?((\d+\.\d{2})(\-)?)$/i);
+      line_total = line_number_format.match(/^(hinta|total|grand total|summa|yhteensä|yhteensa).*[^0-9]((\d+\.\d{2})(\-)?\s)?((\d+\.\d{2})(\-)?)(\s?eur(oa)?)?$/i);
       if (line_total) {
         if (line_total[2]) continue;
 
@@ -217,12 +217,15 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
       }
       
       // item line
-      if (!has_discount /*&& !data.total_price_read*/ && !line.match(/käteinen|kateinen|käte1nen|kate1nen|taka1s1n|takaisin/i)) {
-        line_price = line_number_format.match(/\s((\d+\.\d{2})(\-)?){1,2}\s*.{0,3}$/i);
+      if (!has_discount) {
+        line_price = line_number_format.match(/\s((\d{1,4}\.\d{2})(\-)?){1,2}\s*.{0,3}$/i);
         if (line_price) {
           line_measure = line.substring(0, line_price.index).match(/(\d{1,4})((kg|k9)|(g|9)|(l|1))/);
           line_item = line.substring(0, line_price.index).match(/^((\d+)\s)?([\u00C0-\u017F-a-z0-9\s\-\.\,\+\&\%\=\/\(\)\{\}\[\]]+)$/i);
-          if (line_item) {
+          if (line_item &&
+             !line.match(/käteinen|kateinen|käte1nen|kate1nen|taka1s1n|takaisin|yhteensä|total|summa|yhteensa|kaikki yht|maksu|avoinna/i) &&
+             !line.match(/^eur|ruokaostokset|käyttötavaraostokset|plussaa kerryttävät ostot|credit\/veloitus|debit\/veloitus|pankki\/velotus|bonusostoihin kirjattu|mastercard|visa|pankkikortti|alv|kassaversio|veloitus$/i) &&
+             !line.match(/^(\d|\.|\s|%|A|B|ma|la|su|pe|x|-)+$/)) {
             price = parseFloat(line_price[1]);
             measure = line_measure && parseFloat(line_measure[1]);
             name = toTitleCase(line_item[3]);
@@ -498,7 +501,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
   }
   else return;
 
-  data.total_price = Math.round(total_price_computed*100)/100;
+  data.total_price = Math.round((total_price_computed || data.total_price_read)*100)/100;
   data.items = items;
 
   /*return {
