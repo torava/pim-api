@@ -2,23 +2,20 @@
 
 import axios from 'axios';
 import moment from 'moment';
-import React, {Component} from 'react';
-import EditableTable from './EditableTable';
-import {  VictoryChart,
-  VictoryStack,
-  VictoryArea,
-  VictoryZoomContainer,
-  VictoryTooltip,
-  VictoryGroup,
-  VictoryPie,
-  VictoryPortal,
-  VictoryLine,
-  VictoryBar,
-  VictoryScatter
-} from 'victory';
-import {locale} from './locale';
-import config from '../config/default.json';
+import React, { Component } from 'react';
+import { locale } from './locale';
 import {Link} from 'react-router-dom';
+import {
+  VictoryChart,
+  VictoryZoomContainer,
+  VictoryBrushContainer,
+  VictoryLine,
+  VictoryTooltip,
+  VictoryBar
+} from 'victory';
+import AsteriskTable from 'react-asterisk-table';
+import sortable from 'react-asterisk-table/lib/Sortable';
+import tree from 'react-asterisk-table/lib/Tree';
 
 function first(list) {
   for (let i in list) {
@@ -26,15 +23,16 @@ function first(list) {
   }
 }
 
+const TreeTable = sortable(tree(AsteriskTable));
+
 export default class OverviewPage extends Component {
   constructor(props) {
     super(props);
 
-    let that = this;
-
     this.onDepthChange = this.onDepthChange.bind(this);
 
     this.state = {
+      filter: {}, 
       depth: 1,
       ready: false,
       attribute_aggregates: {},
@@ -46,51 +44,46 @@ export default class OverviewPage extends Component {
     };
 
     this.setAttributeAggregateVisibility = this.setAttributeAggregateVisibility.bind(this);
+    this.setFilter = this.setFilter.bind(this);
+    this.setAverageRange = this.setAverageRange.bind(this);
 
     axios.get('/api/attribute/?parent')
-    .then(function(attributes) {
-      that.setState({attributes: attributes.data});
-      axios.get('/api/transaction/')
-      .then(function(response) {
-        that.setState({
+    .then((attributes) => {
+      this.setState({attributes: attributes.data});
+      return axios.get('/api/transaction/')
+      .then((response) => {
+        this.setState({
           transactions: response.data
         }, () => {
-          that.setState({
-            transaction_aggregates: that.aggregateTransactions()
+          this.setMaximumRangeFilter();
+          this.setState({
+            transaction_aggregates: this.aggregateTransactions()
           });
-          axios.get('/api/item/')
+          return axios.get('/api/item/')
           .then(response => {
-            that.setState({items: response.data});
-            axios.get('/api/category/?parent&locale='+locale.getLocale())
-            .then(function(response) {
-              that.setState({
+            this.setState({items: response.data});
+            return axios.get('/api/category/?parent&locale='+locale.getLocale())
+            .then((response) => {
+              this.setState({
                 categories: [...response.data],
                 resolved_categories: [...response.data],
-                columns: that.getColumns(),
-                attribute_columns: that.getAttributeColumns()
+                columns: this.getColumns(),
+                attribute_columns: this.getAttributeColumns()
               }, () => {
-                that.resolvePieItems();
-                that.resolveStackItems();
-                that.aggregateCategoryPrice();
+                this.resolvePieItems();
+                this.resolveStackItems();
+                this.aggregateCategoryPrice();
+                this.aggregateCategoryAttribute();
 
                 document.title = "Categories";
 
-                that.setState({
+                this.setState({
                   ready: true
                 });
               });
-            })
-            .catch(function(error) {
-              console.error(error);
             });
-          })
-          .catch(function(error) {
-            console.error(error);
           });
         });
-      })
-      .catch(function(error) {
-        console.error(error);
       });
     })
     .catch(function(error) {
@@ -103,6 +96,71 @@ export default class OverviewPage extends Component {
 
   handleBrush(domain) {
     this.setState({zoomDomain: domain});
+  }
+  filterCategories(categories, start_date, end_date) {
+    const {transactions} = this.state;
+    return categories.forEach(category => {
+      category.products.forEach(product => {
+        product.items = product.items.filter(item => {
+          const has_items_within_limits = transactions.some(transaction => {
+            const item_found = transaction.items.some(transaction_item => transaction_item.id === item.id);
+            const is_after = (!start_date || moment(transaction.date).toDate() >= moment(start_date).toDate());
+            const is_before = (!end_date || moment(transaction.date).toDate() <= moment(end_date).toDate());
+            return item_found && is_after && is_before;
+          });
+          return has_items_within_limits;
+        })
+      });
+      this.filterCategories(category.children, start_date, end_date);
+    });
+  }
+  setMaximumRangeFilter() {
+    return new Promise((resolve) => {
+      const {transactions} = this.state;
+      let {start_date, end_date} = {...this.state.filter};
+      let minimum, maximum;
+      if (!start_date || !end_date) {
+        transactions.forEach(transaction => {
+          let transaction_date = moment(transaction.date).toDate();
+          if (!minimum || transaction_date < minimum) minimum = transaction_date;
+          if (!maximum || transaction_date > maximum) maximum = transaction_date;
+        });
+        if (!start_date) start_date = moment(minimum).format('YYYY-MM-DD');
+        if (!end_date) end_date = moment(maximum).format('YYYY-MM-DD');
+      }
+      this.setState({filter: {start_date, end_date}}, () => {
+        resolve();
+      });
+    });
+  }
+  setAverageRange(average_range) {
+    this.setState({average_range}, () => {
+      this.aggregateCategoryPrice();
+      this.aggregateCategoryAttribute();
+    });
+  }
+  setFilter(parameter, value) {
+    let resolved_categories = _.cloneDeep(this.state.categories),
+        {start_date, end_date} = {...this.state.filter};
+        
+    if (parameter === 'start_date') start_date = value;
+    if (parameter === 'end_date') end_date = value;
+
+    this.filterCategories(resolved_categories, start_date, end_date);
+
+    this.setState({
+      filter: {
+        ...this.state.filter,
+        [parameter]: value
+      },
+      resolved_categories
+    }, () => {
+      console.log(this.state);
+      this.setMaximumRangeFilter().then(() => {
+        this.aggregateCategoryPrice();
+        this.aggregateCategoryAttribute();
+      });
+    });
   }
   onDepthChange(event) {
     this.setState({
@@ -117,8 +175,14 @@ export default class OverviewPage extends Component {
         aggregates = {
       monthly: {}
     };
+    const {attribute_aggregates} = this.state;
     this.state.transactions.map(transaction => {
       date = moment(transaction.date, 'YYYY-MM-01').format();
+      Object.entries(attribute_aggregates).forEach(([id, attribute]) => {
+        transaction.items.forEach(item => {
+          const item_attribute = item.product.category.attributes.find(attribute => attribute.id === id);
+        })
+      });
       if (aggregates.monthly.hasOwnProperty(date)) {
         aggregates.monthly[date].total_price+= transaction.total_price;
       }
@@ -322,8 +386,16 @@ export default class OverviewPage extends Component {
       resolved_stack_items: resolved_items
     });
   }
+  getAverageRate() {
+    const {start_date, end_date} = this.state.filter;
+    const {average_range} = this.state;
+    const rate = average_range ? average_range/moment.duration(moment(end_date).diff(moment(start_date))).asDays() : 1;
+    console.log(rate, this.state, moment(start_date));
+    return rate;
+  }
   aggregateCategoryPrice() {
-    let categories = [...this.state.categories];
+    let categories = [...this.state.resolved_categories];
+    const average_rate = this.getAverageRate();
     categories.reduce(function resolver(sum, category) {
       if (category.hasOwnProperty('products') && category.products.length) {
         let item_prices = 0,
@@ -340,9 +412,9 @@ export default class OverviewPage extends Component {
             }
           });
         });
-        category.price_sum = item_prices; 
-        category.weight_sum = item_weights;
-        category.volume_sum = item_volumes;
+        category.price_sum = item_prices*average_rate;
+        category.weight_sum = item_weights*average_rate;
+        category.volume_sum = item_volumes*average_rate;
       }
       if (category.hasOwnProperty('children') && category.children.length) {
         let sum = category.children.reduce(resolver, {
@@ -373,6 +445,7 @@ export default class OverviewPage extends Component {
     let categories = [...this.state.resolved_categories],
         attribute_aggregates = this.state.attribute_aggregates,
         parent_value;
+    const average_rate = this.getAverageRate();
     for (let attribute_id in attribute_aggregates) {
       categories.reduce(function resolver(sum, category) {
         let measure,
@@ -394,6 +467,7 @@ export default class OverviewPage extends Component {
           value = category.attributes.hasOwnProperty(attribute_id) && category.attributes[attribute_id].value || 0;
           measured_value = value*item_measure;
           category.attribute_sum[attribute_id] = measured_value || parent_value*item_measure || 0;
+          category.attribute_sum[attribute_id]*= average_rate;
           let target_unit = locale.getAttributeUnit(attribute_aggregates[attribute_id].name['en-US']);
           if (target_unit) {
             let rate = config.unit_conversions[attribute_aggregates[attribute_id].unit][target_unit];
@@ -522,6 +596,16 @@ export default class OverviewPage extends Component {
     return (
       <div>
         <h2>Transactions</h2>
+        <input
+          type="date"
+          defaultValue={this.state.filter.start_date}
+          onChange={event => this.setFilter('start_date', event.target.value)}
+        />
+        <input
+          type="date"
+          defaultValue={this.state.filter.end_date}
+          onChange={event => this.setFilter('end_date', event.target.value)}
+        />
         <VictoryChart
           scale={{ x: "time" }}
           width={600}
@@ -540,36 +624,64 @@ export default class OverviewPage extends Component {
             x={d => moment(d.date).toDate()}
             y="goal"
             style={{ data: { stroke: "red" } }}
-            labels={d => d.goal}
+            labels={d => d.datum.goal}
             labelComponent={<VictoryTooltip renderInPortal/>}
           />
-          <VictoryBar
+          <VictoryLine
             data={this.state.transaction_aggregates.monthly}
             x={d => moment(d.date).toDate()}
             y="total_price"
-            style={{ data: { fill: "navy" } }}
-            labels={d => d.total_price}
+            interpolation="bundle"
+            style={{ data: { stroke: "navy" } }}
+            labels={d => d.datum.total_price}
             labelComponent={<VictoryTooltip renderInPortal/>}
           />
           <VictoryBar
             data={this.state.transactions}
             x={d => moment(d.date).toDate()}
             y="total_price"
-            labels={d => d.total_price}
+            labels={d => d.datum.total_price}
             style={{ data: { fill: "seagreen", width: 10 } }}
             labelComponent={<VictoryTooltip renderInPortal/>}
           />
-        </VictoryChart>  
+        </VictoryChart>
+        <VictoryChart
+          padding={{top: 0, left: 50, right: 50, bottom: 30}}
+          width={1200} height={90} scale={{x: "time"}}
+          containerComponent={
+            <VictoryBrushContainer responsive={false}
+              brushDimension="x"
+              brushDomain={this.state.selectedDomain}
+              onBrushDomainChange={this.handleBrush.bind(this)}
+            />
+          }
+        >
+          <VictoryLine
+            style={{
+              data: {stroke: "tomato"}
+            }}
+            data={this.state.transaction_aggregates.monthly}
+            x={d => moment(d.date).toDate()}
+            y="total_price"
+          />
+        </VictoryChart>
         <h2>Categories</h2>
-        <EditableTable
+        <select
+          value={this.state.average_range}
+          onChange={event => this.setAverageRange(event.target.value)}>
+          <option value="">All</option>
+          <option value="365">Yearly average</option>
+          <option value="30">Monthly average</option>
+          <option value="7">Weekly average</option>
+          <option value="1">Daily average</option>
+        </select>
+        <TreeTable
           columns={this.state.columns}
           items={this.state.resolved_categories}
-          filter={(item) => {
-            return item.price_sum > 0
-          }}
+          resolveItems={items => items.filter(item => item.price_sum > 0)}
         />
         <h2>Attributes</h2>
-        <EditableTable
+        <TreeTable
           columns={this.state.attribute_columns}
           items={this.state.attributes}
         />
