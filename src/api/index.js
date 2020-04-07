@@ -9,6 +9,7 @@ import category from './category';
 import attribute from './attribute';
 import source from './source';
 import manufacturer from './manufacturer';
+import party from './party';
 
 export default api => {
   importApi(api);
@@ -20,4 +21,5 @@ export default api => {
   attribute(api);
   source(api);
   manufacturer(api);
+  party(api);
 }

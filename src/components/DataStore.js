@@ -35,6 +35,23 @@ export default {
       }
     });
   },
+  getParties(fetch) {
+    return new Promise((resolve, reject) => {
+      if (this.parties && !fetch) {
+        resolve(this.parties);
+      }
+      else {
+        axios.get('/api/party')
+        .then(response => {
+          this.parties = response.data;
+          resolve(this.parties);
+        })
+        .catch(error => {
+          reject(error);
+        });
+      }
+    });
+  },
   getProducts() {
     return new Promise((resolve, reject) => {
       if (this.products) {

@@ -38,13 +38,15 @@ class ReceiptService {
     Promise.all([
       DataStore.getProducts(),
       DataStore.getManufacturers(),
-      DataStore.getCategories()
+      DataStore.getCategories(),
+      DataStore.getParties()
     ])
-    .then(([products, manufacturers, categories]) => {
+    .then(([products, manufacturers, categories, parties]) => {
       console.log(products);
       this.products = products;
       this.manufacturers = manufacturers;
       this.categories = categories;
+      this.parties = parties;
     })
     .catch(error => console.error(error));
   }
@@ -116,7 +118,8 @@ class ReceiptService {
       let data = {
         products: this.products,
         manufacturers: this.manufacturers,
-        categories: this.categories
+        categories: this.categories,
+        parties: this.parties
       },
           locale = 'fi-FI';
       /*this.getTransactionsFromReceipt(data, cropped_text, locale);
@@ -341,7 +344,7 @@ class ReceiptService {
           console.log('loaded');
           console.timeLog('process');
 
-          const PROCESSING_WIDTH = 2500;
+          const PROCESSING_WIDTH = 4000;
 
           try {
             let src = cv.imread(img);
@@ -350,14 +353,14 @@ class ReceiptService {
 
             let anchor, M, ksize;
 
-            cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY, 0);
+            cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
 
-            //cv.bilateralFilter(src,bil,7,10,10);
+            cv.bilateralFilter(src,dst,7,10,10);
 
             /*let ksize = new cv.Size(9,9);
             cv.GaussianBlur(bil, bil, ksize, 0, 0, cv.BORDER_DEFAULT);*/
 
-            cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 31, 25);//, 201, 30);
+            cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 61, 17);
 
             /*let M = cv.Mat.ones(2, 2, cv.CV_8U);
             let anchor = new cv.Point(-1, -1);
@@ -400,7 +403,8 @@ class ReceiptService {
             let data = {
               products: this.products,
               manufacturers: this.manufacturers,
-              categories: this.categories
+              categories: this.categories,
+              parties: this.parties
             };
 
             getTransactionsFromReceipt(data, text, locale, id);

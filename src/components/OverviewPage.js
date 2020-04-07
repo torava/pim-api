@@ -596,16 +596,22 @@ export default class OverviewPage extends Component {
     return (
       <div>
         <h2>Transactions</h2>
-        <input
-          type="date"
-          defaultValue={this.state.filter.start_date}
-          onChange={event => this.setFilter('start_date', event.target.value)}
-        />
-        <input
-          type="date"
-          defaultValue={this.state.filter.end_date}
-          onChange={event => this.setFilter('end_date', event.target.value)}
-        />
+        <label>
+          Start
+          <input
+            type="date"
+            defaultValue={this.state.filter.start_date}
+            onChange={event => this.setFilter('start_date', event.target.value)}
+          />
+        </label>
+        <label>
+          End
+          <input
+            type="date"
+            defaultValue={this.state.filter.end_date}
+            onChange={event => this.setFilter('end_date', event.target.value)}
+          />
+        </label>
         <VictoryChart
           scale={{ x: "time" }}
           width={600}
@@ -647,7 +653,7 @@ export default class OverviewPage extends Component {
         </VictoryChart>
         <VictoryChart
           padding={{top: 0, left: 50, right: 50, bottom: 30}}
-          width={1200} height={90} scale={{x: "time"}}
+          width={750} height={90} scale={{x: "time"}}
           containerComponent={
             <VictoryBrushContainer responsive={false}
               brushDimension="x"

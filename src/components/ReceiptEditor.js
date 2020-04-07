@@ -197,12 +197,15 @@ export default class ReceiptEditor extends React.Component {
       transactions
     })  
   }
-  onDateChange(date) {
-    let transactions = this.state.transactions;
-    transactions[0].date = moment(date).format('YYYY-MM-DD HH:MM:SS');
-    this.setState({
-      transactions
-    });
+  onDateChange(event) {
+    let transactions = [...this.state.transactions];
+    const date = moment(event.target.value);
+    if (date.isValid()) {
+      transactions[0].date = date.format('YYYY-MM-DD HH:MM:SS');
+      this.setState({
+        transactions
+      });
+    }
   }
   onItemNumberChange(key, event) {
     let transactions = this.state.transactions;
@@ -537,14 +540,12 @@ export default class ReceiptEditor extends React.Component {
             </div>
             <div class="input-row">
               <label for="date">Date:&nbsp;</label>
-              <DatePicker
-                     placeholderText="Date"
-                     showTimeSelect
-                     timeFormat="HH:mm"
-                     dateFormat="Pp"
-                     key={"date-"+this.state.version} 
-                     selected={this.state.transactions[0].date && new Date(this.state.transactions[0].date) || null}
-                     onChange={this.onDateChange.bind(this)}
+              <input
+                type="datetime-local"
+                placeholder="Date"
+                key={"date-"+this.state.version} 
+                defaultValue={this.state.transactions[0].date && moment(this.state.transactions[0].date).toISOString().substr(0,19) || null}
+                onChange={this.onDateChange.bind(this)}
               />
             </div>
             <div>

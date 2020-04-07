@@ -163,6 +163,7 @@ export default class TransactionList extends React.Component {
   getTransactionColumns() {
     return [
       {
+        id: 'select_transaction',
         label: <input type="checkbox"
                       onClick={event => this.selectTransaction(null, event.target.checked)}/>,
         formatter: (value, item) => <input type="checkbox"
@@ -187,6 +188,7 @@ export default class TransactionList extends React.Component {
   getItemColumns() {
     return [
       {
+        id: 'select_item',
         formatter: (value, item) => <input type="checkbox"
                                            onClick={event => this.selectItem(item, event.target.checked)}/>,
         class: 'nowrap'

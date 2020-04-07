@@ -120,7 +120,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
 
       if (!data.party.street_name) {
         // Hämeenkatu 123-123 33100 Tampere
-        line_address = line.match(/^([\u00C0-\u017F-a-z\/]+)\s?((\d{1,4})([,|.|-]\d{1,4})?)[,|.|-]?\s?(\d{5})?[,|.]?\s?([\u00C0-\u017F-a-z\/]+)?$/i);
+        line_address = line.match(/^([\u00C0-\u017F-a-z\/\s]+)((\d{1,4})([,|.|-]\d{1,4})?)[,|.|-]?\s?(\d{5})?[,|.]?\s?([\u00C0-\u017F-a-z\/]+)?$/i);
         if (line_address) {
           console.log(line_address);
           data.party.street_name = toTitleCase(line_address[1]);
@@ -134,7 +134,27 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
       }
 
       // store name
-      if (line_number == 1 && line_name) {
+      if (!data.party.id) {
+        const party = result.parties.reduce((previous_party, current_party) => {
+          if (current_party.name) {
+            current_party.similarity = stringSimilarity(line, current_party.name);
+            if (current_party.similarity > 0.6 && (!previous_party || !previous_party.similarity || previous_party.similarity < current_party.similarity)) {
+              return current_party;
+            }
+          }
+          if (previous_party) {
+            return previous_party;
+          }
+        });
+
+        if (party) {
+          data.party = {id: party.id};
+
+          previous_line = 'party_name';
+        }
+      }
+
+      if (line_number == 1 && line_name && !data.party.name && !data.party.id) {
         data.party.name = toTitleCase(line_name[0]);
 
         previous_line = 'party.name';
@@ -204,7 +224,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
       line_item_details = null;
       if (previous_line === 'item') {
         // 1234 1,000 x 1,00
-        line_item_details = line_number_format.replace(/-/g, '').match(/^((\d+)\s)?((((\d+)|((\d+\.\d{2,3})(\s?kg)?))\s?x\s?)?((\d+\.\d{2})\s?)(\s?EUR\/kg)?)$/i);
+        line_item_details = line_number_format.replace(/-/g, '').match(/((\d+)\s)?((((\d+)|((\d+\.\d{2,3})(\s?kg)?))\s?x\s?)?((\d+\.\d{2})\s?)(\s?EUR\/kg)?)/i);
 
         if (line_item_details) {
           items[items.length-1].item_number = line_item_details[2];
@@ -225,7 +245,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
           if (line_item &&
              !line.match(/käteinen|kateinen|käte1nen|kate1nen|taka1s1n|takaisin|yhteensä|total|summa|yhteensa|kaikki yht|maksu|avoinna/i) &&
              !line.match(/^eur|ruokaostokset|käyttötavaraostokset|plussaa kerryttävät ostot|credit\/veloitus|debit\/veloitus|pankki\/velotus|bonusostoihin kirjattu|mastercard|visa|pankkikortti|alv|kassaversio|veloitus$/i) &&
-             !line.match(/^(\d|\.|\s|%|A|B|ma|la|su|pe|x|-)+$/)) {
+             !line.match(/^(\d|\.|\s|%|A|B|ma|la|su|pe|X|x|-)+$/)) {
             price = parseFloat(line_price[1]);
             measure = line_measure && parseFloat(line_measure[1]);
             name = toTitleCase(line_item[3]);

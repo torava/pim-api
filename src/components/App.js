@@ -14,6 +14,7 @@ import TextBoxTool from './TextBoxTool';
 import CropTool from './CropTool';
 import NotFoundPage from './NotFoundPage';
 import { hot } from 'react-hot-loader';
+import './App.css';
 
 const App = () => <Layout>
   <Switch>
