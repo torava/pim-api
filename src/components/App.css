@@ -5,7 +5,7 @@ body {
   font-size: 16px;
   margin: 0 0 5em 0;
 }
-a {
+a, .fas {
   color: #002b61;
 }
 .nowrap {
