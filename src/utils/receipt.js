@@ -142,7 +142,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
               return current_party;
             }
           }
-          if (previous_party) {
+          if (previous_party && previous_party.similarity) {
             return previous_party;
           }
         });

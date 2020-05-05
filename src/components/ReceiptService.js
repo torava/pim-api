@@ -355,20 +355,20 @@ class ReceiptService {
 
             cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
 
-            cv.bilateralFilter(src,dst,7,10,10);
+            cv.bilateralFilter(src,dst,11,10,10);
 
-            /*let ksize = new cv.Size(9,9);
-            cv.GaussianBlur(bil, bil, ksize, 0, 0, cv.BORDER_DEFAULT);*/
+            ksize = new cv.Size(7,7);
+            cv.GaussianBlur(dst, dst, ksize, 0, 0, cv.BORDER_DEFAULT);
 
-            cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 61, 17);
+            cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 61, 15);//61, 17);
 
-            /*let M = cv.Mat.ones(2, 2, cv.CV_8U);
-            let anchor = new cv.Point(-1, -1);
+            /*M = cv.Mat.ones(2, 2, cv.CV_8U);
+            anchor = new cv.Point(-1, -1);
             cv.dilate(dst, dst, M, anchor, 1);
-            cv.erode(dst, dst, M, anchor, 1);*/
+            cv.erode(dst, dst, M, anchor, 1);
 
-            /*let M = new cv.Mat();
-            let ksize = new cv.Size(3, 3);
+            M = new cv.Mat();
+            ksize = new cv.Size(3, 3);
             M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
             cv.morphologyEx(dst, dst, cv.MORPH_CLOSE, M);*/
 

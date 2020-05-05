@@ -1,319 +1,16 @@
 import Transaction from '../models/Transaction';
 import Category from '../models/Category';
-import natural from 'natural';
 import moment from 'moment';
 import fs from 'fs';
 import _ from 'lodash';
 import {NlpManager, SimilarSearch} from 'node-nlp';
 import { stringSimilarity } from "string-similarity-js";
 import Item from '../models/Item';
+import {details, trimDetails, escapeRegExp, getParentPath, CSVToArray, toTitleCase} from '../utils/transaction';
 
 const similarSearch = new SimilarSearch({normalize: true});
 
 export default app => {
-
-let details = {};
-
-details.weighting = {
-  weighted: ['punnittu'],
-  stone: ['kivineen'],
-  stoneless: ['kivetön'],
-  withpeel: ['kuorineen'],
-  peeled: ['kuorittu'],
-  average: ['tuotekeskiarvo', 'keskiarvo']
-}
-details.cooking = {
-  boiled: ['keitetty'],
-  breaded: ['leivitetty'],
-  fried: ['paistettu'],
-  grilled: ['grillattu'],
-  fresh: ['tuore'],
-  dried: ['kuivattu'],
-  withegg: ['kananmunaa'],
-  thickened: ['suurustettu'],
-  nonthickened: ['suurustamaton'],
-  withoutsauce: ['ei kastiketta'],
-  coldsmoked: ['kylmäsavu', 'kylmäsavustettu'],
-  smoked: ['savustettu', 'savu']
-}
-details.spicing = {
-  salted: ['suolattu', 'suolaa'],
-  withoutsalt: ['suolaton'],
-  withtomato: ['tomaattinen'],
-  withchocolate: ['suklainen'],
-  sugared: ['sokeroitu'],
-  nonsugared: ['sokeroimaton'],
-  flavored: ['maustettu'],
-  nonflavored: ['maustamaton']
-}
-details.type = {
-  natural: ['luomu'],
-  bulk: ['irto'],
-  pott: ['ruukku'],
-  withfat: ['rasvaa'],
-  nonfat: ['rasvaton'],
-  sliced: ['paloiteltu', 'pala', 'palat'],
-  nonlactose: ['laktoositon'],
-  thickened: ['puuroutuva'],
-  parboiled: ['kiehautettu', 'parboiled'],
-  lowlactose: ['vähälaktoosinen'],
-  insaltwater: ['suolavedessä', 'suolaved'],
-  frozenfood: ['pakasteateria', 'pakastettu', 'pakaste'],
-  bag: ['pussi'],
-  glutenfree: ['gton', 'gluteeniton']
-}
-details.origin = {
-  finnish: ['suomi', 'suomalainen', 'suomesta']
-}
-details.manufacturers = {
-  'dan sukker': ['dan sukker'],
-  'vitasia': ['vitasia'],
-  'pohjolanmeijeri': ['pohjolanmeijeri'],
-  'myllykivi': ['myllykivi'],
-  'milbona': ['milbona'],
-  'kanamestari': ['kanamestari'],
-  'kultamuna': ['kultamuna'],
-  'palmolive': ['palmolive'],
-  'goldensun': ['goldensun'],
-  'belbaka': ['belbaka'],
-  'freshona': ['freshona'],
-  'coquette': ['coquette'],
-  'oceansea': ['oceansea'],
-  'culinea': ['culinea'],
-  'kalaneuvos': ['kalaneuvos'],
-  'snellman': ['snellman'],
-  'isokari': ['isokari'],
-  'pirkka': ['pirkka'],
-  'k-menu': ['k-menu'],
-  'reilun kaupan': ['reilun kaupan'],
-  'gold&green': ['gold&green'],
-  'sandels': ['sandels'],
-  'knorr': ['knorr'],
-  'magners': ['magners'],
-  'trattoria alfredo': ['trattoria alfredo'],
-  'arla': ['arla'],
-  'serla': ['serla'],
-  'kotkot': ['kotkot'],
-  'marlene': ['marlene'],
-  'koskikylan': ['koskikylan'],
-  'italiamo': ['italiamo'],
-  'santa maria': ['santa maria'],
-  'oululainen': ['oululainen'],
-  'kotimaista': ['kotimaista'],
-  'rainbow': ['rainbow'],
-  'valio': ['valio'],
-  'vaasan': ['vaasan'],
-  'hyväapaja': ['hyvä apaja']
-}
-
-let trimmed_categories,
-    items;
-
-Item.query()
-.eager('[product.[category]]')
-.then(i => {
-  items = i;
-});
-
-Category.query()
-.eager('[children, parent.^]')
-.then(categories => {
-  let n = 0, name, entity_name, entities, category;
-  console.log(moment().format()+' [NerManager] Adding categories');
-  categories.filter(async category => {
-    if (!category.children.length) {
-      name = category.name;
-      category.trimmed_name = {...name};
-      if (name && name['fi-FI']) {
-        for (let i in details) {
-          for (let j in details[i]) {
-            details[i][j].forEach(detail => {
-              category.trimmed_name['fi-FI'] = category.trimmed_name['fi-FI']
-              .replace(new RegExp(escapeRegExp(detail)), "")
-            });
-          }
-        }
-        category.trimmed_name['fi-FI'] = category.trimmed_name['fi-FI']
-        .trim()
-        .replace(/,|\s{2,}|/g, '');
-        n++;
-      }
-    }
-    return !category.children.length;
-  });
-  //fs.writeFileSync('./ner.json', JSON.stringify(manager.save()));
-  console.log(moment().format()+' [NerManager] Added '+n+' categories');
-  trimmed_categories = categories;
-});
-
-function getNameLocale(name, locale, strict) {
-  if (!name) {
-    return name;
-  }
-  if (typeof name === 'string') {
-    return name;
-  } 
-  else if (name.hasOwnProperty(locale)) {
-    return name[locale];
-  }
-  else if (!strict) {
-    return first(name);
-  }
-  else return '';
-}
-
-function CSVToArray( strData, strDelimiter ){
-  // Check to see if the delimiter is defined. If not,
-  // then default to comma.
-  strDelimiter = (strDelimiter || ",");
-
-  // Create a regular expression to parse the CSV values.
-  var objPattern = new RegExp(
-      (
-          // Delimiters.
-          "(\\" + strDelimiter + "|\\r?\\n|\\r|^)" +
-
-          // Quoted fields.
-          "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
-
-          // Standard fields.
-          "([^\"\\" + strDelimiter + "\\r\\n]*))"
-      ),
-      "gi"
-      );
-
-
-  // Create an array to hold our data. Give the array
-  // a default empty first row.
-  var arrData = [[]];
-
-  // Create an array to hold our individual pattern
-  // matching groups.
-  var arrMatches = null;
-
-
-  // Keep looping over the regular expression matches
-  // until we can no longer find a match.
-  while (arrMatches = objPattern.exec( strData )){
-
-      // Get the delimiter that was found.
-      var strMatchedDelimiter = arrMatches[ 1 ];
-
-      // Check to see if the given delimiter has a length
-      // (is not the start of string) and if it matches
-      // field delimiter. If id does not, then we know
-      // that this delimiter is a row delimiter.
-      if (
-          strMatchedDelimiter.length &&
-          strMatchedDelimiter !== strDelimiter
-          ){
-
-          // Since we have reached a new row of data,
-          // add an empty row to our data array.
-          arrData.push( [] );
-
-      }
-
-      var strMatchedValue;
-
-      // Now that we have our delimiter out of the way,
-      // let's check to see which kind of value we
-      // captured (quoted or unquoted).
-      if (arrMatches[ 2 ]){
-
-          // We found a quoted value. When we capture
-          // this value, unescape any double quotes.
-          strMatchedValue = arrMatches[ 2 ].replace(
-              new RegExp( "\"\"", "g" ),
-              "\""
-              );
-
-      } else {
-
-          // We found a non-quoted value.
-          strMatchedValue = arrMatches[ 3 ];
-
-      }
-
-
-      // Now that we have our value string, let's add
-      // it to the data array.
-      arrData[ arrData.length - 1 ].push( strMatchedValue );
-  }
-
-  // Return the parsed data.
-  return( arrData );
-}
-
-function escapeRegExp(stringToGoIntoTheRegex) {
-  return stringToGoIntoTheRegex.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-}
-
-function trimDetails(name) {
-  var token,
-      accuracy;
-  for (let i in details) {
-    for (let j in details[i]) {
-      details[i][j].forEach(detail => {
-        //token = similarSearch.getBestSubstring(name, detail);
-        // Didn't work with compound words like ruukkutilli
-        token = natural.LevenshteinDistance(detail, name.toLowerCase(), {search: true});
-        accuracy = (detail.length-token.distance)/detail.length;
-        if (accuracy > 0.7) {
-          //name = name.substring(0, token.start)+name.substring(token.end+1);
-          name = name.replace(new RegExp(token.substring, 'i'), '');
-          //console.log(detail, name, accuracy, token);
-        }
-      });
-    }
-  }
-  name = name.trim().replace(/,|\s{2,}/g, '');
-  return name;
-}
-
-function toTitleCase(str) {
-  if (!str) return str;
-
-  return  str.replace(/([^\s:\-])([^\s:\-]*)/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
-}
-
-function getParentPath(item) {
-  let result = "",
-      parent = item,
-      name;
-  if (parent) {
-    while (parent = parent.parent) {
-      name = getNameLocale(parent.name, 'fi-FI');
-      if (!name) continue;
-      result = stringToSlug(name, "_")+(result ? "."+result : "");
-    }
-  }
-  return result;
-}
-
-function stringToSlug(str,  sep) {
-  let sep_regexp = escapeRegExp(sep);
-
-  str = str.replace(/^\s+|\s+$/g, ""); // trim
-  str = str.toLowerCase();
-
-  // remove accents, swap ñ for n, etc
-  var from = "åàáãäâèéëêìíïîòóöôùúüûñç·/_,:;";
-  var to = "aaaaaaeeeeiiiioooouuuunc------";
-
-  for (var i = 0, l = from.length; i < l; i++) {
-    str = str.replace(new RegExp(from.charAt(i), "g"), to.charAt(i));
-  }
-
-  str = str
-    .replace(/[^a-z0-9 -]/g, "") // remove invalid chars
-    .replace(/\s+/g, "-") // collapse whitespace and replace by -
-    .replace(new RegExp("-+", "g"), sep) // collapse dashes
-    .replace(new RegExp(sep_regexp+"+"), "") // trim - from start of text
-    .replace(new RegExp(sep_regexp+"+$"), ""); // trim - from end of text
-
-  return str;
-}
 
 app.delete('/api/transaction/:id', function(req, res) {
   Transaction.query()
@@ -400,11 +97,11 @@ const CSV_SEPARATOR = {
 
 const CSV_COLUMN_WRAPPER = '"';
 
-app.post('/api/transaction', function(req, res) {
+app.post('/api/transaction', async function(req, res) {
   function getNumber(value) {
     return parseFloat(value.replace('−', '-').replace(',', '.'));
   }
-  function resolveCategories(transaction) {
+  async function resolveCategories(transaction) {
     let trimmed_accuracy,
         type,
         trimmed_item_name,
@@ -412,7 +109,42 @@ app.post('/api/transaction', function(req, res) {
         distance,
         item_categories,
         accuracy;
-        
+
+    const items = await Item.query()
+    .eager('[product.[category]]')
+    .then(items => {
+      return items;
+    });
+
+    const trimmed_categories = await Category.query()
+    .eager('[children, parent.^]')
+    .then(categories => {
+      let n = 0, name, entity_name, entities, category;
+      categories.filter(async category => {
+        if (!category.children.length) {
+          name = category.name;
+          category.trimmed_name = {...name};
+          if (name && name['fi-FI']) {
+            for (let i in details) {
+              for (let j in details[i]) {
+                details[i][j].forEach(detail => {
+                  category.trimmed_name['fi-FI'] = category.trimmed_name['fi-FI']
+                  .replace(new RegExp(escapeRegExp(detail)), "")
+                });
+              }
+            }
+            category.trimmed_name['fi-FI'] = category.trimmed_name['fi-FI']
+            .trim()
+            .replace(/,|\s{2,}|/g, '');
+            n++;
+          }
+        }
+        return !category.children.length;
+      });
+      //fs.writeFileSync('./ner.json', JSON.stringify(manager.save()));
+      return categories;
+    });
+
     transaction.items.forEach(item => {
       item_categories = [];
       trimmed_item_name = trimDetails(item.product.name);
@@ -475,13 +207,13 @@ app.post('/api/transaction', function(req, res) {
         });
       }
       
-      console.log(item_categories);
-      
       if (item_categories.length) {
         item_categories.sort((a, b) => b.distance-a.distance);
   
         item.product.category = {id: item_categories[0].id};
       }
+
+      console.log(item_categories);
     });
   }
   let transaction = {};
@@ -566,7 +298,7 @@ app.post('/api/transaction', function(req, res) {
     }
     let promises = [];
     for (let i in transaction) {
-      resolveCategories(transaction[i]);
+      await resolveCategories(transaction[i]);
 
       promises.push(
         Transaction.query()
@@ -587,9 +319,9 @@ app.post('/api/transaction', function(req, res) {
   else {
     transaction = req.body[0];
 
-    resolveCategories(transaction);
+    await resolveCategories(transaction);
 
-    Transaction.query()
+    return Transaction.query()
     .upsertGraph(transaction, {relate: true})
     .then(transaction => {
       res.send(transaction);
