@@ -193,7 +193,17 @@ export default app => {
             }
           }      
         }
-        else if (column_name !== '') {
+        else if (column_name === 'aliases' && columns[n] !== '') {
+          try {
+            let aliases = JSON.parse(columns[n]);
+            if (aliases) {
+              _.set(item, column_name.replace('[i]', '['+(i-1)+']'), aliases);
+            }
+          } catch (error) {
+            console.log('Aliases parse error', error);
+          }
+        }
+        else if (column_name !== '' && columns[n] !== '') {
           _.set(item, column_name.replace('[i]', '['+(i-1)+']'), columns[n]);
         }
       }
