@@ -247,10 +247,9 @@ class ReceiptService {
     else return false;
   }
 
-  cropMinAreaRect(src, cnt) {
+  cropMinAreaRect(src, rotatedRect, scale, offsetX, offsetY) {
     // inspired by https://jdhao.github.io/2019/02/23/crop_rotated_rectangle_opencv/
 
-    const rotatedRect = cv.minAreaRect(cnt);
     const vertices = cv.RotatedRect.points(rotatedRect);
 
     /*const bl = vertices[0];
@@ -267,6 +266,15 @@ class ReceiptService {
     let bl = vertices[2].x < vertices[3].x ? vertices[2] : vertices[3];
     let br = vertices[2].x > vertices[3].x ? vertices[2] : vertices[3];
 
+    tl.x = (tl.x+offsetX)*scale;
+    tl.y = (tl.y+offsetY)*scale;
+    tr.x = (tr.x+offsetX)*scale;
+    tr.y = (tr.y+offsetY)*scale;
+    bl.x = (bl.x+offsetX)*scale;
+    bl.y = (bl.y+offsetY)*scale;
+    br.x = (br.x+offsetX)*scale;
+    br.y = (br.y+offsetY)*scale;
+
     const height = Math.hypot(bl.x-tl.x, bl.y-tl.y);
     const width = Math.hypot(tl.x-tr.x, tl.y-tr.y);
     const dst_coords = cv.matFromArray(4, 1,cv.CV_32FC2, [0, 0, width-1, 0, width-1, height-1, 0, height-1]);
@@ -279,6 +287,10 @@ class ReceiptService {
     const dsize = new cv.Size(width, height);
     let warped = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
     cv.warpPerspective(src, warped, M, dsize);
+
+    M.delete();
+    dst_coords.delete();
+    src_coords.delete();
 
     return warped;
   }
@@ -335,6 +347,57 @@ class ReceiptService {
 
     return cropped;
   }
+  crop(src) {
+    let M, dsize, anchor, ksize;
+    let dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
+    dsize = new cv.Size(800, src.rows/src.cols*800);
+                  cv.resize(src, dst, dsize, 0, 0, cv.INTER_AREA);
+    cv.cvtColor(dst, dst, cv.COLOR_RGBA2GRAY, 0);
+    //src.convertTo(src, 0, 6, -500);
+    cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 3, -15);
+
+    M = cv.Mat.ones(2,2, cv.CV_8U);
+                anchor = new cv.Point(-1, -1);
+    cv.erode(dst, dst, M, anchor);
+                cv.dilate(dst, dst, M, anchor);
+
+    M = new cv.Mat();
+                ksize = new cv.Size(150,150);
+                M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
+                cv.morphologyEx(dst, dst, cv.MORPH_CLOSE, M);
+
+    M = cv.Mat.ones(5,5, cv.CV_8U);
+                anchor = new cv.Point(-1, -1);
+    cv.erode(dst, dst, M, anchor,30);
+                cv.dilate(dst, dst, M, anchor,30);
+
+    let contours = new cv.MatVector();
+    let hierarchy = new cv.Mat();
+    cv.findContours(dst, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+    let maxArea = 0;
+    let cnt;
+    for (let i = 0; i < contours.size(); ++i) {
+      let area = cv.contourArea(contours.get(i), false);
+      console.log(area);
+      if (area > maxArea) {
+        cnt = contours.get(i);
+        maxArea = area;
+      }
+    }
+    let rotatedRect = cv.minAreaRect(cnt);
+    let vertices = cv.RotatedRect.points(rotatedRect);
+    let contoursColor = new cv.Scalar(255, 255, 255);
+    let rectangleColor = new cv.Scalar(255, 0, 0);
+    cv.drawContours(dst, contours, 0, contoursColor, 1, 8, hierarchy, 100);
+    // draw rotatedRect
+    for (let i = 0; i < 4; i++) {
+        cv.line(dst, vertices[i], vertices[(i + 1) % 4], rectangleColor, 2, cv.LINE_AA, 0);
+    }
+    let cropped = this.cropMinAreaRect(src, rotatedRect, src.cols/dst.cols, 0, 0);
+    M.delete(); dst.delete(); contours.delete(); hierarchy.delete(); cnt.delete();
+    return cropped;
+
+  }
   processPipeline() {
     return new Promise((resolve, reject) => {
       let reader = new FileReader();
@@ -344,23 +407,32 @@ class ReceiptService {
           console.log('loaded');
           console.timeLog('process');
 
-          const PROCESSING_WIDTH = 4000;
+          const PROCESSING_WIDTH = 3200;
 
           try {
-            let src = cv.imread(img);
+            let orig = cv.imread(img);
             let dst = new cv.Mat();
             //let bil = new cv.Mat();
 
+            let src = this.crop(orig);
+
             let anchor, M, ksize;
 
-            cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
+            cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY, 0);
 
-            cv.bilateralFilter(src,dst,11,10,10);
+            //cv.bilateralFilter(src,dst,9,10,10);
 
-            ksize = new cv.Size(7,7);
-            cv.GaussianBlur(dst, dst, ksize, 0, 0, cv.BORDER_DEFAULT);
+            /*ksize = new cv.Size(7,7);
+            cv.GaussianBlur(dst, dst, ksize, 0, 0, cv.BORDER_DEFAULT);*/
 
-            cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 61, 15);//61, 17);
+            if (src.cols > PROCESSING_WIDTH) {
+              let dsize = new cv.Size(PROCESSING_WIDTH, src.rows/src.cols*PROCESSING_WIDTH);
+              cv.resize(dst, dst, dsize, 0, 0, cv.INTER_AREA);
+            }
+
+            //dst.convertTo(dst, 0, 6, -500);
+
+            cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 61, 25);//61, 17);
 
             /*M = cv.Mat.ones(2, 2, cv.CV_8U);
             anchor = new cv.Point(-1, -1);
@@ -371,9 +443,6 @@ class ReceiptService {
             ksize = new cv.Size(3, 3);
             M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
             cv.morphologyEx(dst, dst, cv.MORPH_CLOSE, M);*/
-
-            let dsize = new cv.Size(PROCESSING_WIDTH, src.rows/src.cols*PROCESSING_WIDTH);
-            cv.resize(dst, dst, dsize, 0, 0, cv.INTER_AREA);
 
             let imagedata = this.getSrc(dst, true);
 
@@ -413,6 +482,7 @@ class ReceiptService {
             console.timeLog('process');
             console.log(data, locale);
 
+            orig.delete();
             src.delete();
             dst.delete();
 
