@@ -299,7 +299,7 @@ app.post('/api/receipt/hocr/', function(req, res) {
 
   child_process.execFile('tesseract', [
     '-l', 'fin',
-    '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.:-% ',
+    '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.-% ',
     //'-c', 'textord_max_noise_size=30',
     //'-c', 'textord_noise_sizelimit=1',
     path,
@@ -331,7 +331,7 @@ app.post('/api/receipt/osd/', function(req, res) {
   child_process.execFile('tesseract', [
     '-l', 'fin',
     '--psm', '0',
-    '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.- ',
+    '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.-% ',
     //'-c', 'textord_max_noise_size=30',
     //'-c', 'textord_noise_sizelimit=1',
     path,
@@ -399,7 +399,7 @@ app.post('/api/receipt/recognize/', async function(req, res) {
   return child_process.execFile('tesseract', [
     '-l', 'fin',
     '--psm', '0',
-    '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.-/: ',
+    '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.-/% ',
     '-c', 'textord_max_noise_size=30',
     //'-c', 'textord_noise_sizelimit=1',
     path,
@@ -428,7 +428,7 @@ app.post('/api/receipt/recognize/', async function(req, res) {
     return child_process.execFile('tesseract', [
       '-l', 'fin',
       '--psm', '4',
-      '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.-/: ',
+      '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.-/% ',
       '-c', 'textord_max_noise_size=30',
       //'-c', 'textord_noise_sizelimit=1',
       path,

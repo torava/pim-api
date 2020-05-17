@@ -59,11 +59,9 @@ export default class Layout extends React.Component {
     .then((transactions) => {
       console.log(transactions);
       window.onbeforeunload = null;
-      event.target.value = null;
     })
     .catch(error => {
       console.error(error);
-      event.target.value = null;
     });
   }
   render() {

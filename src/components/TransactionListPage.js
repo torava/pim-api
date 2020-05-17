@@ -274,7 +274,7 @@ export default class TransactionList extends React.Component {
       <div>
         <datalist id="categories">
           {DataStore.categories.map(function(item, i) {
-            if (item.parentId !== null) return <option data-id={item.id} value={item.name}/>
+            if (item.parentId !== null) return <option key={'category-option-'+item.id} data-id={item.id} value={item.name}/>
           })}
         </datalist>
         <button onClick={this.removeSelected}>Remove Selected</button>
