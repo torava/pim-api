@@ -32,9 +32,31 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
     line_misc,
     misc_words = [
       'alv',
-      'a1v',
       'debit/veloitus',
-      'maksukortti'
+      'maksukortti',
+      'käteinen',
+      'takaisin',
+      'yhteensä',
+      'total',
+      'summa',
+      'yhteensa',
+      'kaikki yht',
+      'maksu',
+      'avoinna',
+      'eur',
+      'ruokaostokset',
+      'käyttötavaraostokset',
+      'plussaa kerryttävät ostot',
+      'plussa-edut yhteensä',
+      'credit/veloitus',
+      'debit/veloitus',
+      'pankki/veloitus',
+      'bonusostoihin kirjattu',
+      'mastercard',
+      'visa',
+      'pankkikortti',
+      'kassaversio',
+      'veloitus'
     ],
     line_measure,
     total_price, price, has_discount, previous_line, found_attribute, category,
@@ -120,7 +142,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
 
       if (!data.party.street_name) {
         // Hämeenkatu 123-123 33100 Tampere
-        line_address = line.match(/^([\u00C0-\u017F-a-z\/\s]+)((\d{1,4})([,|.|-]\d{1,4})?)[,|.|-]?\s?(\d{5})?[,|.]?\s?([\u00C0-\u017F-a-z\/]+)?$/i);
+        line_address = line.match(/^([\u00C0-\u017F-a-z\/\s]+)((\d{1,4})([-]\d{1,4})?)[-]?\s?(\d{5})?[,|.]?\s?([\u00C0-\u017F-a-z\/]+)?$/i);
         if (line_address) {
           console.log(line_address);
           data.party.street_name = toTitleCase(line_address[1]);
@@ -175,22 +197,6 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
 
       // general attributes
 
-      // misc line
-      line_misc = line.match(/^([\u00C0-\u017F-a-z\/]+)\s/i);
-      if (line_misc) {
-        let found = false;
-        misc_words.forEach(word => {
-          if (stringSimilarity(line_misc[1], word) > 0.8) {
-            found = true;
-            return false;
-          }
-        });
-
-        if (found) {
-          continue;
-        }
-      }
-
       // total line
       line_total = line_number_format.match(/^(hinta|total|grand total|summa|yhteensä|yhteensa).*[^0-9]((\d+\.\d{2})(\-)?\s)?((\d+\.\d{2})(\-)?)(\s?eur(oa)?)?$/i);
       if (line_total) {
@@ -206,6 +212,23 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
         data.total_price_read = price;
         previous_line = 'total_price';
         continue;
+      }
+
+      // misc line
+      line_misc = line.match(/^([\u00C0-\u017F-a-z\/]+)\s/i);
+      if (line_misc) {
+        let found = false;
+        misc_words.forEach(word => {
+          if (stringSimilarity(line_misc[1], word) > 0.8) {
+            console.log('misc', line, word);
+            found = true;
+            return false;
+          }
+        });
+
+        if (found) {
+          continue;
+        }
       }
 
       // serial number line
@@ -224,9 +247,31 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
       line_item_details = null;
       if (previous_line === 'item') {
         // 1234 1,000 x 1,00
+        /*
+            (
+              (\d+)\s
+            )?
+            (
+              (
+                (
+                  (\d+)|
+                  (
+                    (\d+\.\d{2,3})
+                    (\s?kg)?
+                  )
+                )
+                \s?x\s?
+              )?
+              (
+                (\d+\.\d{2})\s?
+              )
+              (\s?EUR\/kg)?
+            )
+        */
         line_item_details = line_number_format.replace(/-/g, '').match(/((\d+)\s)?((((\d+)|((\d+\.\d{2,3})(\s?kg)?))\s?x\s?)?((\d+\.\d{2})\s?)(\s?EUR\/kg)?)/i);
 
-        if (line_item_details) {
+        if (line_item_details && (line_item_details[6] || line_item_details[8])) {
+          console.log(line, line_item_details);
           items[items.length-1].item_number = line_item_details[2];
           items[items.length-1].quantity = parseFloat(line_item_details[6]);
           items[items.length-1].measure = parseFloat(line_item_details[8]);
@@ -239,16 +284,18 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
       // item line
       if (!has_discount) {
         line_price = line_number_format.match(/\s((\d{1,4}\.\d{2})(\-)?){1,2}\s*.{0,3}$/i);
+        console.log('!!!!', line, line_price);
         if (line_price) {
           line_measure = line.substring(0, line_price.index).match(/(\d{1,4})((kg|k9)|(g|9)|(l|1))/);
           line_item = line.substring(0, line_price.index).match(/^((\d+)\s)?([\u00C0-\u017F-a-z0-9\s\-\.\,\+\&\%\=\/\(\)\{\}\[\]]+)$/i);
+          console.log('!!!!2', line_item);
           if (line_item &&
-             !line.match(/käteinen|kateinen|käte1nen|kate1nen|taka1s1n|takaisin|yhteensä|total|summa|yhteensa|kaikki yht|maksu|avoinna/i) &&
-             !line.match(/^eur|ruokaostokset|käyttötavaraostokset|plussaa kerryttävät ostot|credit\/veloitus|debit\/veloitus|pankki\/velotus|bonusostoihin kirjattu|mastercard|visa|pankkikortti|alv|kassaversio|veloitus$/i) &&
              !line.match(/^(\d|\.|\s|%|A|B|ma|la|su|pe|X|x|-)+$/)) {
             price = parseFloat(line_price[1]);
             measure = line_measure && parseFloat(line_measure[1]);
             name = toTitleCase(line_item[3]);
+
+            console.log('!!!3', name, measure, price);
 
             if (line_price[3] === '-') {
               has_discount = true;
@@ -299,6 +346,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
           }
         }
       }
+      console.log(line, previous_line, has_discount);
     }
   }
   /* español, Argentina
