@@ -362,7 +362,7 @@ export default class ReceiptEditor extends React.Component {
     let total_price = 0;
 
     for (let i in transactions[0].items) {
-      total_price+= transactions[0].items[i].price;
+      total_price+= toNumber(totransactions[0].items[i].price);
     }
     transactions[0].total_price = total_price;
 
@@ -379,7 +379,7 @@ export default class ReceiptEditor extends React.Component {
     let total_price = 0;
 
     for (let i in transactions[0].items) {
-      total_price+= transactions[0].items[i].price;
+      total_price+= toNumber(transactions[0].items[i].price);
     }
     transactions[0].total_price = total_price;
 
@@ -538,13 +538,13 @@ export default class ReceiptEditor extends React.Component {
                      onChange={this.onFieldChange.bind(this, 'party', 'phone_number')}
               />
             </div>
-            <div class="input-row">
+            <div className="input-row">
               <label for="date">Date:&nbsp;</label>
               <input
                 type="datetime-local"
                 placeholder="Date"
                 key={"date-"+this.state.version} 
-                defaultValue={this.state.transactions[0].date && moment(this.state.transactions[0].date).toISOString().substr(0,19) || null}
+                defaultValue={this.state.transactions[0].date && moment(this.state.transactions[0].date).format(moment.HTML5_FMT.DATETIME_LOCAL) || null}
                 onChange={this.onDateChange.bind(this)}
               />
             </div>
