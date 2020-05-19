@@ -2,3 +2,5 @@ node_modules
 .DS_Store
 knexfile.js
 src/static/js/bundle.js
+resources/uploads
+.babel_cache
