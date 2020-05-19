@@ -442,6 +442,7 @@ app.get('/api/transaction', function(req, res) {
   }
   else {
     Transaction.query()
+      .orderBy('id')
       .eager('[items.[product.[category.[attributes], manufacturer, attributes]], party, receipts]')
       .modifyEager('items.product.category', builder => {
         builder.select('id', 'name');

@@ -350,26 +350,30 @@ class ReceiptService {
   crop(src) {
     let M, dsize, anchor, ksize;
     let dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
+
     dsize = new cv.Size(800, src.rows/src.cols*800);
                   cv.resize(src, dst, dsize, 0, 0, cv.INTER_AREA);
-    cv.cvtColor(dst, dst, cv.COLOR_RGBA2GRAY, 0);
-    //src.convertTo(src, 0, 6, -500);
-    cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 3, -15);
 
+    let s = new cv.Scalar(255, 255, 255, 255);
+    cv.copyMakeBorder(src, src, 200, 200, 200, 200, cv.BORDER_CONSTANT, s);
+    
+    dst.convertTo(dst, 0, 6, -500);
+    cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 3, -85);
+    /*
     M = cv.Mat.ones(2,2, cv.CV_8U);
                 anchor = new cv.Point(-1, -1);
     cv.erode(dst, dst, M, anchor);
                 cv.dilate(dst, dst, M, anchor);
-
+    */
     M = new cv.Mat();
                 ksize = new cv.Size(150,150);
                 M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
                 cv.morphologyEx(dst, dst, cv.MORPH_CLOSE, M);
 
-    M = cv.Mat.ones(5,5, cv.CV_8U);
+    M = cv.Mat.ones(50,50, cv.CV_8U);
                 anchor = new cv.Point(-1, -1);
-    cv.erode(dst, dst, M, anchor,30);
-                cv.dilate(dst, dst, M, anchor,30);
+    cv.erode(dst, dst, M, anchor);
+                cv.dilate(dst, dst, M, anchor);
 
     let contours = new cv.MatVector();
     let hierarchy = new cv.Mat();
@@ -410,29 +414,28 @@ class ReceiptService {
           const PROCESSING_WIDTH = 3200;
 
           try {
-            let orig = cv.imread(img);
-            let dst = new cv.Mat();
+            let src = cv.imread(img);
             //let bil = new cv.Mat();
 
-            let src = this.crop(orig);
+            cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
 
-            let anchor, M, ksize;
+            let dst = this.crop(src);
 
-            cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY, 0);
+            //let anchor, M, ksize;
 
             //cv.bilateralFilter(src,dst,9,10,10);
 
             /*ksize = new cv.Size(7,7);
             cv.GaussianBlur(dst, dst, ksize, 0, 0, cv.BORDER_DEFAULT);*/
 
-            if (src.cols > PROCESSING_WIDTH) {
-              let dsize = new cv.Size(PROCESSING_WIDTH, src.rows/src.cols*PROCESSING_WIDTH);
+            if (dst.cols > PROCESSING_WIDTH) {
+              let dsize = new cv.Size(PROCESSING_WIDTH, dst.rows/dst.cols*PROCESSING_WIDTH);
               cv.resize(dst, dst, dsize, 0, 0, cv.INTER_AREA);
             }
 
             //dst.convertTo(dst, 0, 6, -500);
 
-            cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 61, 25);//61, 17);
+            cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 51, 31);//61, 17);
 
             /*M = cv.Mat.ones(2, 2, cv.CV_8U);
             anchor = new cv.Point(-1, -1);
@@ -482,7 +485,6 @@ class ReceiptService {
             console.timeLog('process');
             console.log(data, locale);
 
-            orig.delete();
             src.delete();
             dst.delete();
 

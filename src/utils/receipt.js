@@ -29,7 +29,17 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
   let line, line_name, line_product_name, line_price, line_prices, item_number, line_text,
     line_total, line_date, line_address, line_vat, line_item_details, quantity, measure,
     line_number_format, total_price_computed = 0, name, date, line_item, line_phone_number,
+    line_opening,
     line_misc,
+    line_tax,
+    total_words = [
+      'hinta',
+      'total',
+      'grand total',
+      'summa',
+      'yhteensä',
+      'yhteensa'
+    ],
     misc_words = [
       'alv',
       'debit/veloitus',
@@ -56,7 +66,8 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
       'visa',
       'pankkikortti',
       'kassaversio',
-      'veloitus'
+      'veloitus',
+      'korttimaksu'
     ],
     line_measure,
     total_price, price, has_discount, previous_line, found_attribute, category,
@@ -156,7 +167,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
       }
 
       // store name
-      if (!data.party.id) {
+      if (!data.party.id && result.parties.length) {
         const party = result.parties.reduce((previous_party, current_party) => {
           if (current_party.name) {
             current_party.similarity = stringSimilarity(line, current_party.name);
@@ -176,7 +187,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
         }
       }
 
-      if (line_number == 1 && line_name && !data.party.name && !data.party.id) {
+      if (line_name && !data.party.name && !data.party.id) {
         data.party.name = toTitleCase(line_name[0]);
 
         previous_line = 'party.name';
@@ -198,28 +209,36 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
       // general attributes
 
       // total line
-      line_total = line_number_format.match(/^(hinta|total|grand total|summa|yhteensä|yhteensa).*[^0-9]((\d+\.\d{2})(\-)?\s)?((\d+\.\d{2})(\-)?)(\s?eur(oa)?)?$/i);
+      line_total = line_number_format.match(/^([\u00C0-\u017F-a-z0-9\/]+)[^0-9]((\d+\.\d{2})(\-)?\s)?((\d+\.\d{2})(\-)?)(\s?eur(oa)?)?$/i);
       if (line_total) {
         if (line_total[2]) continue;
-
-        price = parseFloat(line_total[6]);
+        let found = false;
+        total_words.forEach(word => {
+          if (stringSimilarity(line_total[1], word) > 0.6) {
+            found = true;
+            return false;
+          }
+        });
+        if (found) {
+          price = parseFloat(line_total[6]);
         
-        if (price[7] === '-') {
-          has_discount = true;
-          price = 0-price;
-        }
+          if (price[7] === '-') {
+            has_discount = true;
+            price = 0-price;
+          }
 
-        data.total_price_read = price;
-        previous_line = 'total_price';
-        continue;
+          data.total_price_read = price;
+          previous_line = 'total_price';
+          continue;
+        }
       }
 
       // misc line
-      line_misc = line.match(/^([\u00C0-\u017F-a-z\/]+)\s/i);
+      line_misc = line.replace(/[0-9\.,%]/i, '').trim().match(/^([\u00C0-\u017F-a-z\/\s]+)/i);
       if (line_misc) {
         let found = false;
         misc_words.forEach(word => {
-          if (stringSimilarity(line_misc[1], word) > 0.8) {
+          if (stringSimilarity(line_misc[1], word) > 0.6) {
             console.log('misc', line, word);
             found = true;
             return false;
@@ -229,6 +248,20 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
         if (found) {
           continue;
         }
+      }
+
+      // tax line
+      line_tax = line_number_format.match(/^[a-z]\s\d+%\s(\d+\.\d+\s?)+/i);
+      if (line_tax) {
+        console.log('tax', line_tax);
+        continue;
+      }
+
+      // opening hours
+      line_opening = line.match(/^((ma|ti|ke|to|pe|la|su)-(ma|ti|ke|to|pe|la|su)[0-9-\.:\s]+)+$/i);
+      if (line_opening) {
+        console.log('opening', line_opening);
+        continue;
       }
 
       // serial number line
