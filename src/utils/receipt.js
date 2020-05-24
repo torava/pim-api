@@ -1,5 +1,6 @@
 import moment from 'moment';
 import { stringSimilarity } from "string-similarity-js";
+import Quagga from 'quagga';
 
 function parseYear(year) {
   if (year.length == 2) {
@@ -622,4 +623,338 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
   }];
   
   return result;
+}
+
+export function getSrc(orig, from_grayscale) {
+  let src;
+  if (from_grayscale) {
+    src = new cv.Mat(); 
+    cv.cvtColor(orig, src, cv.COLOR_GRAY2RGBA, 0);
+  }
+  else {
+    src = orig;
+  }
+
+  const canvas = createCanvas(src.cols, src.rows);
+
+  console.log('src', src);
+
+  /*let imagedata = ctx.createImageData(src.cols, src.rows);
+  imagedata.data.set(src.data);
+  ctx.putImageData(imagedata, 0, 0);*/
+
+  cv.imshow(canvas, src);
+
+  const data_url = canvas.toDataURL();
+
+  if (from_grayscale) {
+    src.delete();
+  }
+
+  return data_url;
+}
+
+export function extractBarCode(orig, id) {
+  return new Promise((resolve, reject) => {
+    let src;
+    try {
+      let dst = new cv.Mat();
+      console.log('dst', dst);
+      let rect = new cv.Rect(0,orig.rows*0.92,orig.cols,orig.rows*0.08);
+      console.log('rect', rect);
+      dst = orig.roi(rect);
+      console.log('dst', dst, dst.cols, dst.rows);
+      const canvas = createCanvas(dst.cols, dst.rows);
+      cv.imshow(canvas, dst);
+      src = canvas.toDataURL();
+      const name = `${id}_yesbarcode`;
+      const buffer = canvas.toBuffer();
+      uploadReceiptFromBuffer(name, buffer);
+    } catch(error) {
+      console.error('Error while preparing bar code extraction', error);
+      reject();
+    }
+
+    return Quagga.decodeSingle({
+      decoder: {
+        readers: ['code_128_reader']
+      },
+      locate: true,
+      numOfWorkers: 0,
+      inputStream: {
+        size: 600
+      },
+      src
+    }, result => {
+      console.dir(result, {depth:null});
+      if (result) {
+        const rectangleColor = new cv.Scalar(255, 255, 255, 255);
+        const box = result.boxes[0];
+        const scale = orig.cols/600;
+        cv.rectangle(orig, new cv.Point(box[1][0]*scale, box[1][1]*scale+orig.rows*0.92), new cv.Point(box[3][0]*scale, box[3][1]*scale+orig.rows*0.92), rectangleColor, -1);
+        const canvas = createCanvas(orig.cols, orig.rows);
+        cv.imshow(canvas, orig);
+        const name = `${id}_nobarcode`;
+        const buffer = canvas.toBuffer();
+        console.log('buffer', buffer);
+        uploadReceiptFromBuffer(name, buffer);
+      }
+      resolve(orig);
+    });
+  });
+}
+
+export function crop(src) {
+  let M, dsize, anchor, ksize;
+  let dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
+
+  dsize = new cv.Size(800, src.rows/src.cols*800);
+                cv.resize(src, dst, dsize, 0, 0, cv.INTER_AREA);
+  
+  dst.convertTo(dst, 0, 1.6, -80);
+  cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 5, -41);
+
+  let s = new cv.Scalar(0, 0, 0);
+  cv.copyMakeBorder(dst, dst, 200, 200, 200, 200, cv.BORDER_CONSTANT, s);
+
+  M = new cv.Mat();
+              ksize = new cv.Size(90,90);
+              M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
+              cv.morphologyEx(dst, dst, cv.MORPH_CLOSE, M);
+
+  M = cv.Mat.ones(80,80, cv.CV_8U);
+              anchor = new cv.Point(-1, -1);
+  cv.erode(dst, dst, M, anchor);
+              cv.dilate(dst, dst, M, anchor);
+              M = cv.Mat.ones(20,20, cv.CV_8U);
+              cv.dilate(dst, dst, M, anchor);
+
+  let contours = new cv.MatVector();
+  let hierarchy = new cv.Mat();
+  cv.findContours(dst, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+  let maxArea = 0;
+  let cnt;
+  for (let i = 0; i < contours.size(); ++i) {
+    let area = cv.contourArea(contours.get(i), false);
+    console.log(area);
+    if (area > maxArea) {
+      cnt = contours.get(i);
+      maxArea = area;
+    }
+  }
+  let rotatedRect = cv.minAreaRect(cnt);
+  let vertices = cv.RotatedRect.points(rotatedRect);
+  let contoursColor = new cv.Scalar(255, 255, 255);
+  let rectangleColor = new cv.Scalar(255, 0, 0);
+  cv.drawContours(dst, contours, 0, contoursColor, 1, 8, hierarchy, 100);
+  // draw rotatedRect
+  for (let i = 0; i < 4; i++) {
+      cv.line(dst, vertices[i], vertices[(i + 1) % 4], rectangleColor, 2, cv.LINE_AA, 0);
+  }
+  let cropped = cropMinAreaRect(src, rotatedRect, src.cols/(dst.cols-400), -200, -200);
+  M.delete(); dst.delete(); contours.delete(); hierarchy.delete(); cnt.delete();
+  return cropped;
+}
+
+export function cropMinAreaRect(src, rotatedRect, scale, offsetX, offsetY) {
+  // inspired by https://jdhao.github.io/2019/02/23/crop_rotated_rectangle_opencv/
+
+  const vertices = cv.RotatedRect.points(rotatedRect);
+
+  /*const bl = vertices[0];
+  const tl = vertices[1];
+  const tr = vertices[2];
+  const br = vertices[3];*/
+
+  //Sort by Y position (to get top-down)
+  vertices.sort((a, b) => a.y < b.y ? -1 : (a.y > b.y ? 1 : 0)).slice(0, 5);
+
+  //Determine left/right based on x position of top and bottom 2
+  let tl = vertices[0].x < vertices[1].x ? vertices[0] : vertices[1];
+  let tr = vertices[0].x > vertices[1].x ? vertices[0] : vertices[1];
+  let bl = vertices[2].x < vertices[3].x ? vertices[2] : vertices[3];
+  let br = vertices[2].x > vertices[3].x ? vertices[2] : vertices[3];
+
+  tl.x = (tl.x+offsetX)*scale;
+  tl.y = (tl.y+offsetY)*scale;
+  tr.x = (tr.x+offsetX)*scale;
+  tr.y = (tr.y+offsetY)*scale;
+  bl.x = (bl.x+offsetX)*scale;
+  bl.y = (bl.y+offsetY)*scale;
+  br.x = (br.x+offsetX)*scale;
+  br.y = (br.y+offsetY)*scale;
+
+  const height = Math.hypot(bl.x-tl.x, bl.y-tl.y);
+  const width = Math.hypot(tl.x-tr.x, tl.y-tr.y);
+  const dst_coords = cv.matFromArray(4, 1,cv.CV_32FC2, [0, 0, width-1, 0, width-1, height-1, 0, height-1]);
+  const src_coords = cv.matFromArray(4, 1, cv.CV_32FC2, [tl.x, tl.y, tr.x, tr.y, br.x, br.y, bl.x, bl.y]);
+
+  console.log(tl, tr, bl, br, 'width', width, 'height', height, 'rotatedRect', rotatedRect, 'vertices', vertices);
+
+  const M = cv.getPerspectiveTransform(src_coords, dst_coords);
+
+  const dsize = new cv.Size(width, height);
+  let warped = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
+  cv.warpPerspective(src, warped, M, dsize);
+
+  M.delete();
+  dst_coords.delete();
+  src_coords.delete();
+
+  return warped;
+}
+
+export function getClosestCategory(toCompare, locale) {
+  return new Promise((resolve, reject) => {
+    Category.query()
+    .then(categories => {
+      let name, category, response = null, max_distance = 0, distance, match;
+      toCompare = toCompare.toLowerCase();
+      for (let i in categories) {
+        category = categories[i];
+        name = category.name[locale];
+        if (!name) continue;
+        match = new RegExp('\\b'+_.escapeRegExp(name)+'\\b', 'i');
+        distance = toCompare.match(match) && name.length/toCompare.length;
+        if (distance > max_distance) {
+          max_distance = distance;
+          response = category;
+        }
+      }
+      resolve(response);
+    })
+    .catch(reject);
+  });
+}
+
+export function localeToLanguage(locale) {
+  let ocr_languages = {
+    'fi-FI': 'fin',
+    'es-AR': 'spa'
+  }
+
+  return ocr_languages[locale];
+}
+
+export function processReceiptImage(filepath, data, resize) {
+  return new Promise((resolve, reject) => {
+    let script = [filepath,
+                  '-auto-orient',
+                  '-type', 'grayscale',
+                  '-background', 'white',
+                  '-bordercolor', 'white',
+                  '-border', '10',
+                  //'-normalize',
+                  //'-contrast-stretch', '0'
+                ],
+        parameters = {threshold: 10, blur: 1, sharpen: 1};
+
+    if (!data) data = {};
+
+    if ('blur' in data) {
+      parameters.blur = parseInt(data.blur || 0);
+    }
+    if ('threshold' in data) {
+      parameters.threshold = parseInt(data.threshold || 10);
+    }
+    if ('sharpen' in data) {
+      parameters.sharpen = parseInt(data.sharpen || 0);
+    }
+
+    // ./textcleaner -g -e normalize -T -f 50 -o 5 -a 0.1 -t 10 -u -s 1 -p 20 test.jpg test.png
+    if (data.rotate)
+      script = script.concat(['-gravity', 'Center', '-rotate', parseFloat(data.rotate), '+repage']);
+    if (data.width && data.height)
+      script = script.concat(['-gravity', 'NorthWest', '-crop', parseInt(data.width)+'x'+parseInt(data.height)+'+'+parseInt(data.x)+'+'+parseInt(data.y), '+repage']);
+
+    if (resize) {
+      script = script.concat(['-adaptive-resize', resize === true ? '800x' : resize,
+      ]);
+    }
+
+    if (parameters.blur)
+      script = script.concat(['-adaptive-blur', parameters.blur]);
+    if (parameters.sharpen)
+      script = script.concat(['-sharpen', '0x'+parameters.sharpen]);
+
+    script = script.concat(['-lat', '50x50-'+parameters.threshold+'%']);
+
+    script = script.concat([
+        '-set', 'option:deskew:autocrop', '1',
+        '-deskew', '40%',
+        '-fuzz', '5%',
+        '-trim',
+        '+repage',
+        '-strip',
+        'PNG:'+filepath+'_edited']);
+    
+    console.log(script.join(' '));
+    child_process.execFile('convert', script, function(error, stdout, stderr) {
+      if (error) console.error(error);
+      process.stdout.write(stdout);
+      process.stderr.write(stderr);
+      resolve();
+    });
+  });
+}
+
+export function extractTextFromFile(filepath, locale) {
+  let language = localeToLanguage(locale);
+
+  return new Promise((resolve, reject) => {
+    child_process.execFile('tesseract', [
+      '-l',
+      ['fin'].indexOf(language) !== -1 ? language : 'eng',
+      '-psm', 6,
+      filepath+'_edited',
+      'stdout'
+    ], function(error, stdout, stderr) {
+      if (error) console.error(error);
+      process.stdout.write(stdout);
+      process.stderr.write(stderr);
+
+      resolve(stdout);
+    });
+  });
+}
+
+export const RECEIPT_UPLOAD_PATH = __dirname+"/../../resources/uploads";
+
+// Decoding base-64 image
+// Source: http://stackoverflow.com/questions/20267939/nodejs-write-base64-image-file
+function decodeBase64Image(dataString) {
+  var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+  var response = {};
+
+  if (matches.length !== 3) 
+  {
+    return new Error('Invalid input string');
+  }
+
+  response.type = matches[1];
+  response.data = Buffer.from(matches[2], 'base64');
+
+  return response;
+}
+
+export function uploadReceipt(name, base64Data) {
+  return new Promise((resolve, reject) => {
+    try {
+      const buffer = decodeBase64Image(base64Data).data;
+      uploadReceiptFromBuffer(name, buffer);
+      resolve(name);
+    }
+    catch(error) {
+      console.error(error);
+      reject(error);
+    }
+  });
+}
+
+function uploadReceiptFromBuffer(name, buffer) {
+  // Save decoded binary image to disk
+  const path = RECEIPT_UPLOAD_PATH+'/'+name;
+  require('fs').writeFileSync(path, buffer);
+  console.log('Uploaded '+path);
+  return name;
 }

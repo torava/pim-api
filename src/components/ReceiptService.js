@@ -1,6 +1,6 @@
 import axios from "axios";
 import DataStore from './DataStore';
-import {getTransactionsFromReceipt} from '../utils/receipt';
+import {getTransactionsFromReceipt, getSrc, crop, cropMinAreaRect, extractBarCode} from '../utils/receipt';
 
 const WAITING = -1;
 
@@ -146,7 +146,7 @@ class ReceiptService {
         const dsize = new cv.Size(800, resized.rows/resized.cols*800);
         cv.resize(resized, resized, dsize, 0, 0, cv.INTER_AREA);
 
-        this.pipeline.imagedata = this.getSrc(resized, true);
+        this.pipeline.imagedata = getSrc(resized, true);
 
         console.log('resized', this.pipeline.imagedata);
         console.timeLog('process');
@@ -240,60 +240,13 @@ class ReceiptService {
       let finalDest = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
       cv.warpPerspective(src, finalDest, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
 
-      console.log('transformed', this.getSrc(finalDest, true));
+      console.log('transformed', getSrc(finalDest, true));
 
       return finalDest;
     }
     else return false;
   }
 
-  cropMinAreaRect(src, rotatedRect, scale, offsetX, offsetY) {
-    // inspired by https://jdhao.github.io/2019/02/23/crop_rotated_rectangle_opencv/
-
-    const vertices = cv.RotatedRect.points(rotatedRect);
-
-    /*const bl = vertices[0];
-    const tl = vertices[1];
-    const tr = vertices[2];
-    const br = vertices[3];*/
-
-    //Sort by Y position (to get top-down)
-    vertices.sort((a, b) => a.y < b.y ? -1 : (a.y > b.y ? 1 : 0)).slice(0, 5);
-
-    //Determine left/right based on x position of top and bottom 2
-    let tl = vertices[0].x < vertices[1].x ? vertices[0] : vertices[1];
-    let tr = vertices[0].x > vertices[1].x ? vertices[0] : vertices[1];
-    let bl = vertices[2].x < vertices[3].x ? vertices[2] : vertices[3];
-    let br = vertices[2].x > vertices[3].x ? vertices[2] : vertices[3];
-
-    tl.x = (tl.x+offsetX)*scale;
-    tl.y = (tl.y+offsetY)*scale;
-    tr.x = (tr.x+offsetX)*scale;
-    tr.y = (tr.y+offsetY)*scale;
-    bl.x = (bl.x+offsetX)*scale;
-    bl.y = (bl.y+offsetY)*scale;
-    br.x = (br.x+offsetX)*scale;
-    br.y = (br.y+offsetY)*scale;
-
-    const height = Math.hypot(bl.x-tl.x, bl.y-tl.y);
-    const width = Math.hypot(tl.x-tr.x, tl.y-tr.y);
-    const dst_coords = cv.matFromArray(4, 1,cv.CV_32FC2, [0, 0, width-1, 0, width-1, height-1, 0, height-1]);
-    const src_coords = cv.matFromArray(4, 1, cv.CV_32FC2, [tl.x, tl.y, tr.x, tr.y, br.x, br.y, bl.x, bl.y]);
-
-    console.log(tl, tr, bl, br, 'width', width, 'height', height, 'rotatedRect', rotatedRect, 'vertices', vertices);
-
-    const M = cv.getPerspectiveTransform(src_coords, dst_coords);
-
-    const dsize = new cv.Size(width, height);
-    let warped = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
-    cv.warpPerspective(src, warped, M, dsize);
-
-    M.delete();
-    dst_coords.delete();
-    src_coords.delete();
-
-    return warped;
-  }
   /**
    * Crop mat to bounding rectangle of given contour
    * 
@@ -327,7 +280,7 @@ class ReceiptService {
     w = parseInt(Math.min((rect.width+margin*2)*scale, dst.cols-x)),
     h = parseInt(Math.min((rect.height+margin*2)*scale, dst.rows-y));
 
-    console.log('con', this.getSrc(con));
+    console.log('con', getSrc(con));
 
     console.log(rect);
 
@@ -339,68 +292,13 @@ class ReceiptService {
   
     let rotated = this.rotateImage(dst, rotatedRect.angle+90);
 
-    console.log('rotated', this.getSrc(rotated, true));
+    console.log('rotated', getSrc(rotated, true));
 
     let cropped = rotated.roi(rect);
 
-    console.log('cropped', this.getSrc(cropped, true));
+    console.log('cropped', getSrc(cropped, true));
 
     return cropped;
-  }
-  crop(src) {
-    let M, dsize, anchor, ksize;
-    let dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
-
-    dsize = new cv.Size(800, src.rows/src.cols*800);
-                  cv.resize(src, dst, dsize, 0, 0, cv.INTER_AREA);
-
-    let s = new cv.Scalar(255, 255, 255, 255);
-    cv.copyMakeBorder(src, src, 200, 200, 200, 200, cv.BORDER_CONSTANT, s);
-    
-    dst.convertTo(dst, 0, 6, -500);
-    cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 3, -85);
-    /*
-    M = cv.Mat.ones(2,2, cv.CV_8U);
-                anchor = new cv.Point(-1, -1);
-    cv.erode(dst, dst, M, anchor);
-                cv.dilate(dst, dst, M, anchor);
-    */
-    M = new cv.Mat();
-                ksize = new cv.Size(150,150);
-                M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
-                cv.morphologyEx(dst, dst, cv.MORPH_CLOSE, M);
-
-    M = cv.Mat.ones(50,50, cv.CV_8U);
-                anchor = new cv.Point(-1, -1);
-    cv.erode(dst, dst, M, anchor);
-                cv.dilate(dst, dst, M, anchor);
-
-    let contours = new cv.MatVector();
-    let hierarchy = new cv.Mat();
-    cv.findContours(dst, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
-    let maxArea = 0;
-    let cnt;
-    for (let i = 0; i < contours.size(); ++i) {
-      let area = cv.contourArea(contours.get(i), false);
-      console.log(area);
-      if (area > maxArea) {
-        cnt = contours.get(i);
-        maxArea = area;
-      }
-    }
-    let rotatedRect = cv.minAreaRect(cnt);
-    let vertices = cv.RotatedRect.points(rotatedRect);
-    let contoursColor = new cv.Scalar(255, 255, 255);
-    let rectangleColor = new cv.Scalar(255, 0, 0);
-    cv.drawContours(dst, contours, 0, contoursColor, 1, 8, hierarchy, 100);
-    // draw rotatedRect
-    for (let i = 0; i < 4; i++) {
-        cv.line(dst, vertices[i], vertices[(i + 1) % 4], rectangleColor, 2, cv.LINE_AA, 0);
-    }
-    let cropped = this.cropMinAreaRect(src, rotatedRect, src.cols/dst.cols, 0, 0);
-    M.delete(); dst.delete(); contours.delete(); hierarchy.delete(); cnt.delete();
-    return cropped;
-
   }
   processPipeline() {
     return new Promise((resolve, reject) => {
@@ -419,7 +317,7 @@ class ReceiptService {
 
             cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
 
-            let dst = this.crop(src);
+            let dst = crop(src);
 
             //let anchor, M, ksize;
 
@@ -447,7 +345,7 @@ class ReceiptService {
             M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
             cv.morphologyEx(dst, dst, cv.MORPH_CLOSE, M);*/
 
-            let imagedata = this.getSrc(dst, true);
+            let imagedata = getSrc(dst, true);
 
             const id = this.pipeline.receipt.id;
 
@@ -636,39 +534,6 @@ class ReceiptService {
       }
     }
     return response;
-  }
-  getSrc(orig, from_grayscale) {
-    let src;
-    if (from_grayscale) {
-      src = new cv.Mat(); 
-      cv.cvtColor(orig, src, cv.COLOR_GRAY2RGBA, 0);
-    }
-    else {
-      src = orig;
-    }
-
-    // https://stackoverflow.com/questions/13626465/how-to-create-a-new-imagedata-object-independently
-    var canvas = document.createElement('canvas');
-    //var ctx = canvas.getContext('2d');
-
-    canvas.width = src.cols;
-    canvas.height = src.rows;
-
-    console.log(src);
-
-    /*let imagedata = ctx.createImageData(src.cols, src.rows);
-    imagedata.data.set(src.data);
-    ctx.putImageData(imagedata, 0, 0);*/
-
-    cv.imshow(canvas, src);
-
-    const data_url = canvas.toDataURL();
-
-    if (from_grayscale) {
-      src.delete();
-    }
-
-    return data_url;
   }
 }
 

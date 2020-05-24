@@ -7,6 +7,8 @@ import registerApi from './api';
 import Knex from 'knex';
 import knexConfig from '../knexfile';
 import {Model} from 'objection';
+import {JSDOM} from 'jsdom';
+const { Canvas, createCanvas, Image, ImageData, loadImage } = require('canvas');
 
 const app = new Express();
 const server = new Server(app);
@@ -46,6 +48,33 @@ const port = process.env.PORT || 42809;
 const env = process.env.NODE_ENV || 'production';
 
 registerApi(app);
+
+// Using jsdom and node-canvas we define some global variables to emulate HTML DOM.
+// Although a complete emulation can be archived, here we only define those globals used
+// by cv.imread() and cv.imshow().
+function installDOM() {
+  const dom = new JSDOM();
+  global.document = dom.window.document;
+  // The rest enables DOM image and canvas and is provided by node-canvas
+  global.Image = Image;
+  global.HTMLCanvasElement = Canvas;
+  global.ImageData = ImageData;
+  global.HTMLImageElement = Image;
+}
+
+function loadOpenCV() {
+  return new Promise(resolve => {
+    global.Module = {
+      onRuntimeInitialized: resolve
+    };
+    global.cv = require('./static/lib/opencv.js');
+  });
+}
+
+installDOM();
+loadOpenCV();
+
+global.createCanvas = (width, height) => createCanvas(width, height);
 
 server.listen(port, (err) => {
   if (err) {

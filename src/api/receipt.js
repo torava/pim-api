@@ -2,169 +2,20 @@ import Transaction from '../models/Transaction';
 import Product from '../models/Product';
 import Category from '../models/Category';
 import Manufacturer from '../models/Manufacturer';
-import multer from 'multer';
 import Jimp from 'jimp';
 import fs from 'fs';
 import child_process from 'child_process';
 import _ from 'lodash';
-import {JSDOM} from 'jsdom';
-import sizeOf from 'image-size';
-import moment from 'moment';
-import crypto from 'crypto';
 import Receipt from '../models/Receipt';
 import cv from '../static/lib/opencv';
+import { extractBarCode, RECEIPT_UPLOAD_PATH, uploadReceipt } from '../utils/receipt';
 
 export default app => {
 
-const upload_path = __dirname+"/../../resources/uploads";
-
-const upload = multer({
+/*const upload = multer({
   dest: upload_path,
   limits: {fileSize: 10000000}
-}).single('file');
-
-// Decoding base-64 image
-// Source: http://stackoverflow.com/questions/20267939/nodejs-write-base64-image-file
-function decodeBase64Image(dataString) {
-  var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-  var response = {};
-
-  if (matches.length !== 3) 
-  {
-    return new Error('Invalid input string');
-  }
-
-  response.type = matches[1];
-  response.data = Buffer.from(matches[2], 'base64');
-
-  return response;
-}
-
-function getClosestCategory(toCompare, locale) {
-  return new Promise((resolve, reject) => {
-    Category.query()
-    .then(categories => {
-      let name, category, response = null, max_distance = 0, distance, match;
-      toCompare = toCompare.toLowerCase();
-      for (let i in categories) {
-        category = categories[i];
-        name = category.name[locale];
-        if (!name) continue;
-        match = new RegExp('\\b'+_.escapeRegExp(name)+'\\b', 'i');
-        distance = toCompare.match(match) && name.length/toCompare.length;
-        if (distance > max_distance) {
-          max_distance = distance;
-          response = category;
-        }
-      }
-      resolve(response);
-    })
-    .catch(reject);
-  });
-}
-
-function parseYear(year) {
-  if (year.length == 2) {
-    if (year > new Date().getFullYear().toString().substr(-2)) {
-      year = '19'+year;
-    }
-    else {
-      year = '20'+year;
-    }
-  }
-  return year;
-}
-
-function localeToLanguage(locale) {
-  let ocr_languages = {
-    'fi-FI': 'fin',
-    'es-AR': 'spa'
-  }
-
-  return ocr_languages[locale];
-}
-
-function processReceiptImage(filepath, data, resize) {
-  return new Promise((resolve, reject) => {
-    let script = [filepath,
-                  '-auto-orient',
-                  '-type', 'grayscale',
-                  '-background', 'white',
-                  '-bordercolor', 'white',
-                  '-border', '10',
-                  //'-normalize',
-                  //'-contrast-stretch', '0'
-                ],
-        parameters = {threshold: 10, blur: 1, sharpen: 1};
-
-    if (!data) data = {};
-
-    if ('blur' in data) {
-      parameters.blur = parseInt(data.blur || 0);
-    }
-    if ('threshold' in data) {
-      parameters.threshold = parseInt(data.threshold || 10);
-    }
-    if ('sharpen' in data) {
-      parameters.sharpen = parseInt(data.sharpen || 0);
-    }
-
-    // ./textcleaner -g -e normalize -T -f 50 -o 5 -a 0.1 -t 10 -u -s 1 -p 20 test.jpg test.png
-    if (data.rotate)
-      script = script.concat(['-gravity', 'Center', '-rotate', parseFloat(data.rotate), '+repage']);
-    if (data.width && data.height)
-      script = script.concat(['-gravity', 'NorthWest', '-crop', parseInt(data.width)+'x'+parseInt(data.height)+'+'+parseInt(data.x)+'+'+parseInt(data.y), '+repage']);
-
-    if (resize) {
-      script = script.concat(['-adaptive-resize', resize === true ? '800x' : resize,
-      ]);
-    }
-
-    if (parameters.blur)
-      script = script.concat(['-adaptive-blur', parameters.blur]);
-    if (parameters.sharpen)
-      script = script.concat(['-sharpen', '0x'+parameters.sharpen]);
-
-    script = script.concat(['-lat', '50x50-'+parameters.threshold+'%']);
-
-    script = script.concat([
-        '-set', 'option:deskew:autocrop', '1',
-        '-deskew', '40%',
-        '-fuzz', '5%',
-        '-trim',
-        '+repage',
-        '-strip',
-        'PNG:'+filepath+'_edited']);
-    
-    console.log(script.join(' '));
-    child_process.execFile('convert', script, function(error, stdout, stderr) {
-      if (error) console.error(error);
-      process.stdout.write(stdout);
-      process.stderr.write(stderr);
-      resolve();
-    });
-  });
-}
-
-function extractTextFromFile(filepath, locale) {
-  let language = localeToLanguage(locale);
-
-  return new Promise((resolve, reject) => {
-    child_process.execFile('tesseract', [
-      '-l',
-      ['fin'].indexOf(language) !== -1 ? language : 'eng',
-      '-psm', 6,
-      filepath+'_edited',
-      'stdout'
-    ], function(error, stdout, stderr) {
-      if (error) console.error(error);
-      process.stdout.write(stdout);
-      process.stderr.write(stderr);
-
-      resolve(stdout);
-    });
-  });
-}
+}).single('file');*/
 
 app.get('/api/receipt/data/:id', function(req, res) {
   let data = req.body,
@@ -295,7 +146,7 @@ app.post('/api/receipt/prepare/', function(req, res) {
 
 app.post('/api/receipt/hocr/', function(req, res) {
   const id = req.id;
-  const path = upload_path+'/'+id+'_pre';
+  const path = RECEIPT_UPLOAD_PATH+'/'+id+'_pre';
 
   child_process.execFile('tesseract', [
     '-l', 'fin',
@@ -326,7 +177,7 @@ app.post('/api/receipt/hocr/', function(req, res) {
 
 app.post('/api/receipt/osd/', function(req, res) {
   const id = req.id;
-  const path = upload_path+'/'+id+'_pre';
+  const path = RECEIPT_UPLOAD_PATH+'/'+id+'_pre';
 
   child_process.execFile('tesseract', [
     '-l', 'fin',
@@ -390,67 +241,85 @@ app.post('/api/receipt/recognize/', async function(req, res) {
   const base64Data = req.body.src;
   const id = req.body.id;
   const name = id+'_pre';
-  const path = upload_path+'/'+name;
+  const path = RECEIPT_UPLOAD_PATH+'/'+name;
 
   //console.log('cv', cv.getBuildInformation());
 
   await uploadReceipt(name, base64Data);
+
+  let src;
   
-  return child_process.execFile('tesseract', [
-    '-l', 'fin',
-    '--psm', '0',
-    '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.-/% ',
-    '-c', 'textord_max_noise_size=30',
-    //'-c', 'textord_noise_sizelimit=1',
-    path,
-    'stdout',
-  ], async function(error, stdout, stderr) {
-    if (error) console.error(error);
-    process.stdout.write(stdout);
-    process.stderr.write(stderr);
-
-    console.log(stdout);
-
-    let rotate = stdout.match(/Rotate: (\d+)/);
-    
-    console.log(rotate);
-
-    if (rotate && parseInt(rotate[1])) {
-      const splitted = base64Data.split(',');
-      const [, data] = splitted;
-
-      const image = await Jimp.read(path);
-
-      image.rotate(360-parseInt(rotate[1]))
-      .write(path);
-    }
-
+  try {
+    const image = new Image();
+    image.src = base64Data;
+    src = cv.imread(image);
+    console.log('imread src', src, src.cols, src.rows);
+  } catch(error) {
+    console.error('Error while reading receipt for recognition', error);
+    return res.sendStatus(500);
+  }
+  return extractBarCode(src, id).then(src => {
+    return;
     return child_process.execFile('tesseract', [
       '-l', 'fin',
-      '--psm', '4',
+      '--psm', '0',
       '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.-/% ',
       '-c', 'textord_max_noise_size=30',
       //'-c', 'textord_noise_sizelimit=1',
       path,
       'stdout',
-    ], function(error, stdout, stderr) {
+    ], async function(error, stdout, stderr) {
       if (error) console.error(error);
       process.stdout.write(stdout);
       process.stderr.write(stderr);
 
-      console.log(stdout);
+      console.log('stdout', stdout);
 
-      return res.send({
-        result: stdout,
-        id
+      let rotate = stdout.match(/Rotate: (\d+)/);
+      
+      console.log('rotate', rotate);
+
+      if (rotate && parseInt(rotate[1])) {
+        const splitted = base64Data.split(',');
+        const [, data] = splitted;
+
+        const image = await Jimp.read(path);
+
+        image.rotate(360-parseInt(rotate[1]))
+        .write(path);
+      }
+
+      return child_process.execFile('tesseract', [
+        '-l', 'fin',
+        '--psm', '4',
+        '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.-/% ',
+        '-c', 'textord_max_noise_size=30',
+        //'-c', 'textord_noise_sizelimit=1',
+        path,
+        'stdout',
+      ], function(error, stdout, stderr) {
+        if (error) console.error(error);
+        process.stdout.write(stdout);
+        process.stderr.write(stderr);
+
+        console.log(stdout);
+
+        return res.send({
+          result: stdout,
+          id
+        });
       });
     });
-  });
+  })
+  .catch(error => {
+    console.error(error);
+    res.sendStatus(500);
+  })
 });
 
 function processReceipt(data, language, id) {
   return new Promise((resolve, reject) => {
-    let filepath = upload_path+"/"+id;
+    let filepath = RECEIPT_UPLOAD_PATH+"/"+id;
 
     return Category.query()
     .then(category => {
@@ -515,25 +384,6 @@ app.post('/api/receipt', (req, res) => {
   });
 });
 
-function uploadReceipt(name, base64Data) {
-  return new Promise((resolve, reject) => {
-    try {
-      var imageBuffer = decodeBase64Image(base64Data);
-      var image_path = upload_path+'/'+name;
-
-      // Save decoded binary image to disk
-      require('fs').writeFile(image_path, imageBuffer.data, () => {
-        console.log('Uploaded '+image_path);
-        resolve(name);
-      });
-    }
-    catch(error) {
-      console.error(error);
-      reject(error);
-    }
-  });
-}
-
 app.post('/api/receipt/original', (req, res) => {
   var base64Data = req.body.src;
   var name = req.body.id+'_original';
@@ -562,7 +412,7 @@ app.post('/api/receipt/pre', (req, res) => {
 });
 
 app.get('/api/receipt/original/:id', function (req, res) {
-	var file_path = upload_path+"/"+req.params.id+'_original';
+	var file_path = RECEIPT_UPLOAD_PATH+"/"+req.params.id+'_original';
 	fs.access(file_path, fs.R_OK, function(err) {
 		if (err) {
 			console.error(err);
@@ -575,7 +425,7 @@ app.get('/api/receipt/original/:id', function (req, res) {
 });
 
 app.get('/api/receipt/picture/:id', function (req, res) {
-	var file_path = upload_path+"/"+req.params.id+"_edited";
+	var file_path = RECEIPT_UPLOAD_PATH+"/"+req.params.id+"_edited";
 	fs.access(file_path, fs.R_OK, function(err) {
 		if (err) {
 			console.error(err);
@@ -588,7 +438,7 @@ app.get('/api/receipt/picture/:id', function (req, res) {
 });
 
 app.get('/api/receipt/pre/:id', function (req, res) {
-	var file_path = upload_path+"/"+req.params.id+'_pre';
+	var file_path = RECEIPT_UPLOAD_PATH+"/"+req.params.id+'_pre';
 	fs.access(file_path, fs.R_OK, function(err) {
 		if (err) {
 			console.error(err);
