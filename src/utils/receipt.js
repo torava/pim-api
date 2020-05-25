@@ -769,19 +769,19 @@ export function crop(src) {
 
   cv.subtract(absDstx, absDsty, absDst);
   cv.convertScaleAbs(absDst, absDst, 1, 0);
-  ksize = new cv.Size(5,5);
+  ksize = new cv.Size(51,51);
   cv.GaussianBlur(absDst, absDst, ksize, 0, 0, cv.BORDER_DEFAULT);
-  cv.threshold(absDst, absDst, 180, 255, cv.THRESH_BINARY);
+  cv.threshold(absDst, absDst, 85, 255, cv.THRESH_BINARY);
 
   M = new cv.Mat();
-  ksize = new cv.Size(71,71);
+  ksize = new cv.Size(101,101);
   M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
   cv.morphologyEx(absDst, absDst, cv.MORPH_CLOSE, M);
 
   M = cv.Mat.ones(5,5, cv.CV_8U);
   anchor = new cv.Point(-1, -1);
-  cv.erode(absDst, absDst, M, anchor,2);
-  cv.dilate(absDst, absDst, M, anchor,6);
+  cv.erode(absDst, absDst, M, anchor,3);
+  cv.dilate(absDst, absDst, M, anchor,4);
 
   const rotatedRect = getRotatedRectForLargestContour(absDst);
   let cropped = cropMinAreaRect(src, rotatedRect, src.cols/(dst.cols-400), -200, -200);
