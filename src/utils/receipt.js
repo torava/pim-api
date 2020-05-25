@@ -683,38 +683,57 @@ export function extractBarCode(orig, id) {
     uploadReceiptFromBuffer(name, buffer);
 
     let absDstx = new cv.Mat();
+    let absDsty = new cv.Mat();
+    let absDst = new cv.Mat();
     let dsize = new cv.Size(800, dst.rows/dst.cols*800);
     cv.resize(dst, dst, dsize, 0, 0, cv.INTER_AREA);
     cv.cvtColor(dst, dst, cv.COLOR_RGB2GRAY, 0);
     
+    let s = new cv.Scalar(0, 0, 0);
+    cv.copyMakeBorder(dst, dst, 200, 200, 200, 200, cv.BORDER_CONSTANT, s);
+
     cv.Sobel(dst, absDstx, cv.CV_64F, 1, 0, 3, 1, 0, cv.BORDER_DEFAULT);
+    cv.Sobel(dst, absDsty, cv.CV_64F, 0, 1, 3, 1, 0, cv.BORDER_DEFAULT);
 
-    cv.convertScaleAbs(absDstx, absDstx, 1, 0);
-    let ksize = new cv.Size(21,21);
-    cv.GaussianBlur(absDstx, absDstx, ksize, 0, 0, cv.BORDER_DEFAULT);
-    cv.threshold(absDstx, absDstx, 145, 255, cv.THRESH_BINARY);
+    cv.subtract(absDstx, absDsty, absDst);
+    cv.convertScaleAbs(absDst, absDst, 1, 0);
+
+    let ksize = new cv.Size(5,5);
+    cv.GaussianBlur(absDst, absDst, ksize, 0, 0, cv.BORDER_DEFAULT);
+    cv.threshold(absDst, absDst, 205, 255, cv.THRESH_BINARY);
+
+    canvas = createCanvas(absDst.cols, absDst.rows);
+    cv.imshow(canvas, absDst);
+    name = `${id}_absDst`;
+    buffer = canvas.toBuffer();
+    uploadReceiptFromBuffer(name, buffer);
+
     let M = new cv.Mat();
-    ksize = new cv.Size(50,50);
+    ksize = new cv.Size(81,81);
     M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
-    cv.morphologyEx(absDstx, absDstx, cv.MORPH_CLOSE, M);
+    cv.morphologyEx(absDst, absDst, cv.MORPH_CLOSE, M);
 
-    M = cv.Mat.ones(10,10, cv.CV_8U);
+    M = cv.Mat.ones(31,31, cv.CV_8U);
     let anchor = new cv.Point(-1, -1);
-    cv.erode(absDstx, absDstx, M, anchor);
-    cv.dilate(absDstx, absDstx, M, anchor);
+    cv.erode(absDst, absDst, M, anchor);
+    cv.dilate(absDst, absDst, M, anchor);
 
-    dsize = new cv.Size(orig.rows*0.08, orig.cols);
-    cv.resize(absDstx, absDstx, dsize, 0, 0, cv.INTER_AREA);
+    rect = new cv.Rect(200,200,absDst.cols-400,absDst.rows-400);
+    console.log('rect', rect);
+    absDst = absDst.roi(rect);
+
+    dsize = new cv.Size(orig.cols, orig.rows*0.08);
+    cv.resize(absDst, absDst, dsize, 0, 0, cv.INTER_AREA);
 
     let contours = new cv.MatVector();
     let hierarchy = new cv.Mat();
-    cv.findContours(absDstx, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+    cv.findContours(absDst, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
     const largestIndex = getLargestContourIndex(contours);
     //let cnt = contours.get(largestIndex);
 
     //let rotatedRect = cv.minAreaRect(cnt);
     //let vertices = cv.RotatedRect.points(rotatedRect);
-    let contoursColor = new cv.Scalar(255, 255, 255);
+    let contoursColor = new cv.Scalar(255, 255, 255, 255);
     //let rectangleColor = new cv.Scalar(255, 0, 0);
 
     cv.drawContours(orig, contours, largestIndex, contoursColor, -1, 8, hierarchy, 0, {x: 0, y: orig.rows*0.92});
@@ -727,6 +746,10 @@ export function extractBarCode(orig, id) {
     uploadReceiptFromBuffer(name, buffer);
 
     absDstx.delete();
+    absDsty.delete();
+    absDst.delete();
+    contours.delete();
+    hierarchy.delete();
     dst.delete();
 
     return orig;
@@ -737,33 +760,42 @@ export function extractBarCode(orig, id) {
 }
 
 export function crop(src) {
-  let M, dsize, anchor, ksize;
+  let M, s, dsize, anchor, ksize;
   let dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
+  let absDst = new cv.Mat();
+  let absDstx = new cv.Mat();
+  let absDsty = new cv.Mat();
 
   dsize = new cv.Size(800, src.rows/src.cols*800);
-                cv.resize(src, dst, dsize, 0, 0, cv.INTER_AREA);
+  cv.resize(src, dst, dsize, 0, 0, cv.INTER_AREA);
   
-  dst.convertTo(dst, 0, 1.6, -80);
-  cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 5, -41);
-
-  let s = new cv.Scalar(0, 0, 0);
+  s = new cv.Scalar(0, 0, 0);
   cv.copyMakeBorder(dst, dst, 200, 200, 200, 200, cv.BORDER_CONSTANT, s);
 
+  cv.Sobel(dst, absDstx, cv.CV_64F, 1, 0, 3, 1, 0, cv.BORDER_DEFAULT);
+  cv.Sobel(dst, absDsty, cv.CV_64F, 0, 1, 3, 1, 0, cv.BORDER_DEFAULT);
+
+  cv.subtract(absDstx, absDsty, absDst);
+  cv.convertScaleAbs(absDst, absDst, 1, 0);
+  ksize = new cv.Size(5,5);
+  cv.GaussianBlur(absDst, absDst, ksize, 0, 0, cv.BORDER_DEFAULT);
+  cv.threshold(absDst, absDst, 185, 255, cv.THRESH_BINARY);
+
   M = new cv.Mat();
-              ksize = new cv.Size(90,90);
-              M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
-              cv.morphologyEx(dst, dst, cv.MORPH_CLOSE, M);
+  ksize = new cv.Size(51,51);
+  M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
+  cv.morphologyEx(absDst, absDst, cv.MORPH_CLOSE, M);
 
-  M = cv.Mat.ones(80,80, cv.CV_8U);
-              anchor = new cv.Point(-1, -1);
-  cv.erode(dst, dst, M, anchor);
-              cv.dilate(dst, dst, M, anchor);
-              M = cv.Mat.ones(20,20, cv.CV_8U);
-              cv.dilate(dst, dst, M, anchor);
+  M = cv.Mat.ones(5,5, cv.CV_8U);
+  anchor = new cv.Point(-1, -1);
+  cv.erode(absDst, absDst, M, anchor,2);
+  cv.dilate(absDst, absDst, M, anchor,6);
 
-  const rotatedRect = getRotatedRectForLargestContour(dst);
+  const rotatedRect = getRotatedRectForLargestContour(absDst);
   let cropped = cropMinAreaRect(src, rotatedRect, src.cols/(dst.cols-400), -200, -200);
   M.delete(); dst.delete();
+  absDstx.delete(); absDsty.delete(); absDst.delete();
+
   return cropped;
 }
 

@@ -8,7 +8,7 @@ import child_process from 'child_process';
 import _ from 'lodash';
 import Receipt from '../models/Receipt';
 import cv from '../static/lib/opencv';
-import { extractBarCode, RECEIPT_UPLOAD_PATH, getCVSrcFromBase64 } from '../utils/receipt';
+import { extractBarCode, RECEIPT_UPLOAD_PATH, getCVSrcFromBase64, getSrc } from '../utils/receipt';
 import { uploadReceipt } from '../utils/filesystem';
 
 export default app => {
@@ -249,15 +249,19 @@ app.post('/api/receipt/recognize/', async function(req, res) {
   await uploadReceipt(name, base64Data);
 
   let src = getCVSrcFromBase64(base64Data);
-  src = extractBarCode(src, id);
-  return;
+  
+  extractBarCode(src, id);
+
+  const nameNoBarcode = id+'_nobarcode';
+  const pathNoBarcode = RECEIPT_UPLOAD_PATH+'/'+nameNoBarcode;
+  
   return child_process.execFile('tesseract', [
     '-l', 'fin',
     '--psm', '0',
     '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.-/% ',
     '-c', 'textord_max_noise_size=30',
     //'-c', 'textord_noise_sizelimit=1',
-    path,
+    pathNoBarcode,
     'stdout',
   ], async function(error, stdout, stderr) {
     if (error) console.error(error);
