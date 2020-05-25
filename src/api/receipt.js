@@ -254,7 +254,6 @@ app.post('/api/receipt/recognize/', async function(req, res) {
 
   const nameNoBarcode = id+'_nobarcode';
   const pathNoBarcode = RECEIPT_UPLOAD_PATH+'/'+nameNoBarcode;
-  
   return child_process.execFile('tesseract', [
     '-l', 'fin',
     '--psm', '0',
@@ -282,6 +281,11 @@ app.post('/api/receipt/recognize/', async function(req, res) {
 
       image.rotate(360-parseInt(rotate[1]))
       .write(path);
+
+      const imageNoBarcode = await Jimp.read(pathNoBarcode);
+
+      imageNoBarcode.rotate(360-parseInt(rotate[1]))
+      .write(pathNoBarcode);
     }
 
     return child_process.execFile('tesseract', [
@@ -290,7 +294,7 @@ app.post('/api/receipt/recognize/', async function(req, res) {
       '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.-/% ',
       '-c', 'textord_max_noise_size=30',
       //'-c', 'textord_noise_sizelimit=1',
-      path,
+      pathNoBarcode,
       'stdout',
     ], function(error, stdout, stderr) {
       if (error) console.error(error);

@@ -692,31 +692,23 @@ export function extractBarCode(orig, id) {
     let s = new cv.Scalar(0, 0, 0);
     cv.copyMakeBorder(dst, dst, 200, 200, 200, 200, cv.BORDER_CONSTANT, s);
 
-    cv.Sobel(dst, absDstx, cv.CV_64F, 1, 0, 3, 1, 0, cv.BORDER_DEFAULT);
-    cv.Sobel(dst, absDsty, cv.CV_64F, 0, 1, 3, 1, 0, cv.BORDER_DEFAULT);
+    let M = new cv.Mat();
+    let ksize = new cv.Size(9,9);
+    M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
+    cv.morphologyEx(dst, absDst, cv.MORPH_OPEN, M);
 
-    cv.subtract(absDstx, absDsty, absDst);
-    cv.convertScaleAbs(absDst, absDst, 1, 0);
+    M = cv.Mat.ones(70,70, cv.CV_8U);
+    let anchor = new cv.Point(-1, -1);
+    cv.dilate(absDst, absDst, M, anchor);
+    cv.erode(absDst, absDst, M, anchor);
 
-    let ksize = new cv.Size(5,5);
-    cv.GaussianBlur(absDst, absDst, ksize, 0, 0, cv.BORDER_DEFAULT);
-    cv.threshold(absDst, absDst, 205, 255, cv.THRESH_BINARY);
+    cv.threshold(absDst, absDst, 205, 255, cv.THRESH_BINARY_INV);
 
     canvas = createCanvas(absDst.cols, absDst.rows);
     cv.imshow(canvas, absDst);
     name = `${id}_absDst`;
     buffer = canvas.toBuffer();
     uploadReceiptFromBuffer(name, buffer);
-
-    let M = new cv.Mat();
-    ksize = new cv.Size(81,81);
-    M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
-    cv.morphologyEx(absDst, absDst, cv.MORPH_CLOSE, M);
-
-    M = cv.Mat.ones(31,31, cv.CV_8U);
-    let anchor = new cv.Point(-1, -1);
-    cv.erode(absDst, absDst, M, anchor);
-    cv.dilate(absDst, absDst, M, anchor);
 
     rect = new cv.Rect(200,200,absDst.cols-400,absDst.rows-400);
     console.log('rect', rect);
@@ -779,10 +771,10 @@ export function crop(src) {
   cv.convertScaleAbs(absDst, absDst, 1, 0);
   ksize = new cv.Size(5,5);
   cv.GaussianBlur(absDst, absDst, ksize, 0, 0, cv.BORDER_DEFAULT);
-  cv.threshold(absDst, absDst, 185, 255, cv.THRESH_BINARY);
+  cv.threshold(absDst, absDst, 180, 255, cv.THRESH_BINARY);
 
   M = new cv.Mat();
-  ksize = new cv.Size(51,51);
+  ksize = new cv.Size(71,71);
   M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
   cv.morphologyEx(absDst, absDst, cv.MORPH_CLOSE, M);
 
