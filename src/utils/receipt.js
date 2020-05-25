@@ -693,20 +693,21 @@ export function extractBarCode(orig, id) {
     s = new cv.Scalar(255,255,255,255);
     cv.copyMakeBorder(dst, dst, 200, 200, 200, 200, cv.BORDER_CONSTANT, s);
 
-    ksize = new cv.Size(173,173);
+    ksize = new cv.Size(35,35);
     cv.GaussianBlur(dst, dst, ksize, 0, 0, cv.BORDER_DEFAULT);
 
     M = new cv.Mat();
-    ksize = new cv.Size(135,135);
+    ksize = new cv.Size(45,45);
     M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
     cv.morphologyEx(dst, absDst, cv.MORPH_OPEN, M);
 
-    M = cv.Mat.ones(11,11, cv.CV_8U);
-    anchor = new cv.Point(-1, -1);
-    cv.dilate(absDst, absDst, M, anchor,4);
-    cv.erode(absDst, absDst, M, anchor);
 
-    cv.threshold(absDst, absDst, 205, 255, cv.THRESH_BINARY_INV);
+    M = cv.Mat.ones(5,5, cv.CV_8U);
+    anchor = new cv.Point(-1, -1);
+    cv.dilate(absDst, absDst, M, anchor,6);
+    cv.erode(absDst, absDst, M, anchor,4);
+
+    cv.threshold(absDst, absDst, 185, 255, cv.THRESH_BINARY_INV);
 
     canvas = createCanvas(absDst.cols, absDst.rows);
     cv.imshow(canvas, absDst);
