@@ -669,6 +669,7 @@ export function getCVSrcFromBase64(base64Data) {
 export function extractBarCode(orig, id) {
   let src;
   try {
+    let s, M, ksize, dsize, anchor;
     let dst = new cv.Mat();
     console.log('dst', dst);
     let rect = new cv.Rect(0,orig.rows*0.92,orig.cols,orig.rows*0.08);
@@ -685,21 +686,24 @@ export function extractBarCode(orig, id) {
     let absDstx = new cv.Mat();
     let absDsty = new cv.Mat();
     let absDst = new cv.Mat();
-    let dsize = new cv.Size(800, dst.rows/dst.cols*800);
+    dsize = new cv.Size(800, dst.rows/dst.cols*800);
     cv.resize(dst, dst, dsize, 0, 0, cv.INTER_AREA);
     cv.cvtColor(dst, dst, cv.COLOR_RGB2GRAY, 0);
     
-    let s = new cv.Scalar(0, 0, 0);
+    s = new cv.Scalar(255,255,255,255);
     cv.copyMakeBorder(dst, dst, 200, 200, 200, 200, cv.BORDER_CONSTANT, s);
 
-    let M = new cv.Mat();
-    let ksize = new cv.Size(9,9);
+    ksize = new cv.Size(173,173);
+    cv.GaussianBlur(dst, dst, ksize, 0, 0, cv.BORDER_DEFAULT);
+
+    M = new cv.Mat();
+    ksize = new cv.Size(135,135);
     M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
     cv.morphologyEx(dst, absDst, cv.MORPH_OPEN, M);
 
-    M = cv.Mat.ones(70,70, cv.CV_8U);
-    let anchor = new cv.Point(-1, -1);
-    cv.dilate(absDst, absDst, M, anchor);
+    M = cv.Mat.ones(11,11, cv.CV_8U);
+    anchor = new cv.Point(-1, -1);
+    cv.dilate(absDst, absDst, M, anchor,4);
     cv.erode(absDst, absDst, M, anchor);
 
     cv.threshold(absDst, absDst, 205, 255, cv.THRESH_BINARY_INV);
@@ -769,19 +773,19 @@ export function crop(src) {
 
   cv.subtract(absDstx, absDsty, absDst);
   cv.convertScaleAbs(absDst, absDst, 1, 0);
-  ksize = new cv.Size(31,31);
+  ksize = new cv.Size(37,37);
   cv.GaussianBlur(absDst, absDst, ksize, 0, 0, cv.BORDER_DEFAULT);
-  cv.threshold(absDst, absDst, 85, 255, cv.THRESH_BINARY);
+  cv.threshold(absDst, absDst, 80, 255, cv.THRESH_BINARY);
 
   M = new cv.Mat();
-  ksize = new cv.Size(101,101);
+  ksize = new cv.Size(117,117);
   M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
   cv.morphologyEx(absDst, absDst, cv.MORPH_CLOSE, M);
 
-  M = cv.Mat.ones(25,25, cv.CV_8U);
+  M = cv.Mat.ones(17,17, cv.CV_8U);
   anchor = new cv.Point(-1, -1);
   cv.erode(absDst, absDst, M, anchor,6);
-  cv.dilate(absDst, absDst, M, anchor,7);
+  cv.dilate(absDst, absDst, M, anchor,9);
 
   const rotatedRect = getRotatedRectForLargestContour(absDst);
   let cropped = cropMinAreaRect(src, rotatedRect, src.cols/(dst.cols-400), -200, -200);
