@@ -600,6 +600,7 @@ export default class ReceiptEditor extends React.Component {
           <div className="receipt-text" style={{float:'left'}}>
             <pre>{this.state.transactions[0].receipts[0].text}</pre>
           </div>
+          <div style={{clear:"both"}}/>
         </div>
       );
     }
