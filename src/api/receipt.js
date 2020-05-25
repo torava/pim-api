@@ -8,7 +8,8 @@ import child_process from 'child_process';
 import _ from 'lodash';
 import Receipt from '../models/Receipt';
 import cv from '../static/lib/opencv';
-import { extractBarCode, RECEIPT_UPLOAD_PATH, uploadReceipt } from '../utils/receipt';
+import { extractBarCode, RECEIPT_UPLOAD_PATH, getCVSrcFromBase64 } from '../utils/receipt';
+import { uploadReceipt } from '../utils/filesystem';
 
 export default app => {
 
@@ -247,74 +248,59 @@ app.post('/api/receipt/recognize/', async function(req, res) {
 
   await uploadReceipt(name, base64Data);
 
-  let src;
-  
-  try {
-    const image = new Image();
-    image.src = base64Data;
-    src = cv.imread(image);
-    console.log('imread src', src, src.cols, src.rows);
-  } catch(error) {
-    console.error('Error while reading receipt for recognition', error);
-    return res.sendStatus(500);
-  }
-  return extractBarCode(src, id).then(src => {
-    return;
+  let src = getCVSrcFromBase64(base64Data);
+  src = extractBarCode(src, id);
+  return;
+  return child_process.execFile('tesseract', [
+    '-l', 'fin',
+    '--psm', '0',
+    '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.-/% ',
+    '-c', 'textord_max_noise_size=30',
+    //'-c', 'textord_noise_sizelimit=1',
+    path,
+    'stdout',
+  ], async function(error, stdout, stderr) {
+    if (error) console.error(error);
+    process.stdout.write(stdout);
+    process.stderr.write(stderr);
+
+    console.log('stdout', stdout);
+
+    let rotate = stdout.match(/Rotate: (\d+)/);
+    
+    console.log('rotate', rotate);
+
+    if (rotate && parseInt(rotate[1])) {
+      const splitted = base64Data.split(',');
+      const [, data] = splitted;
+
+      const image = await Jimp.read(path);
+
+      image.rotate(360-parseInt(rotate[1]))
+      .write(path);
+    }
+
     return child_process.execFile('tesseract', [
       '-l', 'fin',
-      '--psm', '0',
+      '--psm', '4',
       '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.-/% ',
       '-c', 'textord_max_noise_size=30',
       //'-c', 'textord_noise_sizelimit=1',
       path,
       'stdout',
-    ], async function(error, stdout, stderr) {
+    ], function(error, stdout, stderr) {
       if (error) console.error(error);
       process.stdout.write(stdout);
       process.stderr.write(stderr);
 
-      console.log('stdout', stdout);
+      console.log(stdout);
 
-      let rotate = stdout.match(/Rotate: (\d+)/);
-      
-      console.log('rotate', rotate);
-
-      if (rotate && parseInt(rotate[1])) {
-        const splitted = base64Data.split(',');
-        const [, data] = splitted;
-
-        const image = await Jimp.read(path);
-
-        image.rotate(360-parseInt(rotate[1]))
-        .write(path);
-      }
-
-      return child_process.execFile('tesseract', [
-        '-l', 'fin',
-        '--psm', '4',
-        '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.-/% ',
-        '-c', 'textord_max_noise_size=30',
-        //'-c', 'textord_noise_sizelimit=1',
-        path,
-        'stdout',
-      ], function(error, stdout, stderr) {
-        if (error) console.error(error);
-        process.stdout.write(stdout);
-        process.stderr.write(stderr);
-
-        console.log(stdout);
-
-        return res.send({
-          result: stdout,
-          id
-        });
+      return res.send({
+        result: stdout,
+        id
       });
     });
-  })
-  .catch(error => {
-    console.error(error);
-    res.sendStatus(500);
-  })
+  });
 });
 
 function processReceipt(data, language, id) {

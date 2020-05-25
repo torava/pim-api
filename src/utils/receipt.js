@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { stringSimilarity } from "string-similarity-js";
-import Quagga from 'quagga';
+import { uploadReceiptFromBuffer } from './filesystem';
 
 function parseYear(year) {
   if (year.length == 2) {
@@ -654,54 +654,86 @@ export function getSrc(orig, from_grayscale) {
   return data_url;
 }
 
-export function extractBarCode(orig, id) {
-  return new Promise((resolve, reject) => {
-    let src;
-    try {
-      let dst = new cv.Mat();
-      console.log('dst', dst);
-      let rect = new cv.Rect(0,orig.rows*0.92,orig.cols,orig.rows*0.08);
-      console.log('rect', rect);
-      dst = orig.roi(rect);
-      console.log('dst', dst, dst.cols, dst.rows);
-      const canvas = createCanvas(dst.cols, dst.rows);
-      cv.imshow(canvas, dst);
-      src = canvas.toDataURL();
-      const name = `${id}_yesbarcode`;
-      const buffer = canvas.toBuffer();
-      uploadReceiptFromBuffer(name, buffer);
-    } catch(error) {
-      console.error('Error while preparing bar code extraction', error);
-      reject();
-    }
+export function getCVSrcFromBase64(base64Data) {
+  try {
+    const image = new Image();
+    image.src = base64Data;
+    let src = cv.imread(image);
+    return src;
+  } catch(error) {
+    console.error('Error while reading receipt for recognition', error);
+    return;
+  }
+}
 
-    return Quagga.decodeSingle({
-      decoder: {
-        readers: ['code_128_reader']
-      },
-      locate: true,
-      numOfWorkers: 0,
-      inputStream: {
-        size: 600
-      },
-      src
-    }, result => {
-      console.dir(result, {depth:null});
-      if (result) {
-        const rectangleColor = new cv.Scalar(255, 255, 255, 255);
-        const box = result.boxes[0];
-        const scale = orig.cols/600;
-        cv.rectangle(orig, new cv.Point(box[1][0]*scale, box[1][1]*scale+orig.rows*0.92), new cv.Point(box[3][0]*scale, box[3][1]*scale+orig.rows*0.92), rectangleColor, -1);
-        const canvas = createCanvas(orig.cols, orig.rows);
-        cv.imshow(canvas, orig);
-        const name = `${id}_nobarcode`;
-        const buffer = canvas.toBuffer();
-        console.log('buffer', buffer);
-        uploadReceiptFromBuffer(name, buffer);
-      }
-      resolve(orig);
-    });
-  });
+export function extractBarCode(orig, id) {
+  let src;
+  try {
+    let dst = new cv.Mat();
+    console.log('dst', dst);
+    let rect = new cv.Rect(0,orig.rows*0.92,orig.cols,orig.rows*0.08);
+    console.log('rect', rect);
+    dst = orig.roi(rect);
+    console.log('dst', dst, dst.cols, dst.rows);
+    let canvas = createCanvas(dst.cols, dst.rows);
+    cv.imshow(canvas, dst);
+    let src = canvas.toDataURL();
+    let name = `${id}_yesbarcode`;
+    let buffer = canvas.toBuffer();
+    uploadReceiptFromBuffer(name, buffer);
+
+    let absDstx = new cv.Mat();
+    let dsize = new cv.Size(800, dst.rows/dst.cols*800);
+    cv.resize(dst, dst, dsize, 0, 0, cv.INTER_AREA);
+    cv.cvtColor(dst, dst, cv.COLOR_RGB2GRAY, 0);
+    
+    cv.Sobel(dst, absDstx, cv.CV_64F, 1, 0, 3, 1, 0, cv.BORDER_DEFAULT);
+
+    cv.convertScaleAbs(absDstx, absDstx, 1, 0);
+    let ksize = new cv.Size(21,21);
+    cv.GaussianBlur(absDstx, absDstx, ksize, 0, 0, cv.BORDER_DEFAULT);
+    cv.threshold(absDstx, absDstx, 145, 255, cv.THRESH_BINARY);
+    let M = new cv.Mat();
+    ksize = new cv.Size(50,50);
+    M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
+    cv.morphologyEx(absDstx, absDstx, cv.MORPH_CLOSE, M);
+
+    M = cv.Mat.ones(10,10, cv.CV_8U);
+    let anchor = new cv.Point(-1, -1);
+    cv.erode(absDstx, absDstx, M, anchor);
+    cv.dilate(absDstx, absDstx, M, anchor);
+
+    dsize = new cv.Size(orig.rows*0.08, orig.cols);
+    cv.resize(absDstx, absDstx, dsize, 0, 0, cv.INTER_AREA);
+
+    let contours = new cv.MatVector();
+    let hierarchy = new cv.Mat();
+    cv.findContours(absDstx, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+    const largestIndex = getLargestContourIndex(contours);
+    //let cnt = contours.get(largestIndex);
+
+    //let rotatedRect = cv.minAreaRect(cnt);
+    //let vertices = cv.RotatedRect.points(rotatedRect);
+    let contoursColor = new cv.Scalar(255, 255, 255);
+    //let rectangleColor = new cv.Scalar(255, 0, 0);
+
+    cv.drawContours(orig, contours, largestIndex, contoursColor, -1, 8, hierarchy, 0, {x: 0, y: orig.rows*0.92});
+
+    canvas = createCanvas(orig.cols, orig.rows);
+    cv.imshow(canvas, orig);
+    name = `${id}_nobarcode`;
+    buffer = canvas.toBuffer();
+    console.log('buffer', buffer);
+    uploadReceiptFromBuffer(name, buffer);
+
+    absDstx.delete();
+    dst.delete();
+
+    return orig;
+  } catch(error) {
+    console.error('Error in barcode extraction', error);
+    return;
+  }
 }
 
 export function crop(src) {
@@ -729,31 +761,47 @@ export function crop(src) {
               M = cv.Mat.ones(20,20, cv.CV_8U);
               cv.dilate(dst, dst, M, anchor);
 
-  let contours = new cv.MatVector();
-  let hierarchy = new cv.Mat();
-  cv.findContours(dst, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+  const rotatedRect = getRotatedRectForLargestContour(dst);
+  let cropped = cropMinAreaRect(src, rotatedRect, src.cols/(dst.cols-400), -200, -200);
+  M.delete(); dst.delete();
+  return cropped;
+}
+
+export function getLargestContourIndex(contours) {
   let maxArea = 0;
   let cnt;
+  let largestIndex;
   for (let i = 0; i < contours.size(); ++i) {
     let area = cv.contourArea(contours.get(i), false);
     console.log(area);
     if (area > maxArea) {
       cnt = contours.get(i);
+      largestIndex = i;
       maxArea = area;
     }
   }
+  return largestIndex;
+}
+
+export function getRotatedRectForLargestContour(src) {
+  let contours = new cv.MatVector();
+  let hierarchy = new cv.Mat();
+  cv.findContours(src, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+  const largestIndex = getLargestContourIndex(contours);
+  const cnt = contours.get(largestIndex);
   let rotatedRect = cv.minAreaRect(cnt);
-  let vertices = cv.RotatedRect.points(rotatedRect);
+  /*let vertices = cv.RotatedRect.points(rotatedRect);
   let contoursColor = new cv.Scalar(255, 255, 255);
   let rectangleColor = new cv.Scalar(255, 0, 0);
-  cv.drawContours(dst, contours, 0, contoursColor, 1, 8, hierarchy, 100);
+  cv.drawContours(src, contours, 0, contoursColor, 1, 8, hierarchy, 100);
   // draw rotatedRect
   for (let i = 0; i < 4; i++) {
-      cv.line(dst, vertices[i], vertices[(i + 1) % 4], rectangleColor, 2, cv.LINE_AA, 0);
-  }
-  let cropped = cropMinAreaRect(src, rotatedRect, src.cols/(dst.cols-400), -200, -200);
-  M.delete(); dst.delete(); contours.delete(); hierarchy.delete(); cnt.delete();
-  return cropped;
+      cv.line(src, vertices[i], vertices[(i + 1) % 4], rectangleColor, 2, cv.LINE_AA, 0);
+  }*/
+  contours.delete();
+  hierarchy.delete();
+  cnt.delete();
+  return rotatedRect;
 }
 
 export function cropMinAreaRect(src, rotatedRect, scale, offsetX, offsetY) {
@@ -919,42 +967,3 @@ export function extractTextFromFile(filepath, locale) {
 }
 
 export const RECEIPT_UPLOAD_PATH = __dirname+"/../../resources/uploads";
-
-// Decoding base-64 image
-// Source: http://stackoverflow.com/questions/20267939/nodejs-write-base64-image-file
-function decodeBase64Image(dataString) {
-  var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-  var response = {};
-
-  if (matches.length !== 3) 
-  {
-    return new Error('Invalid input string');
-  }
-
-  response.type = matches[1];
-  response.data = Buffer.from(matches[2], 'base64');
-
-  return response;
-}
-
-export function uploadReceipt(name, base64Data) {
-  return new Promise((resolve, reject) => {
-    try {
-      const buffer = decodeBase64Image(base64Data).data;
-      uploadReceiptFromBuffer(name, buffer);
-      resolve(name);
-    }
-    catch(error) {
-      console.error(error);
-      reject(error);
-    }
-  });
-}
-
-function uploadReceiptFromBuffer(name, buffer) {
-  // Save decoded binary image to disk
-  const path = RECEIPT_UPLOAD_PATH+'/'+name;
-  require('fs').writeFileSync(path, buffer);
-  console.log('Uploaded '+path);
-  return name;
-}
