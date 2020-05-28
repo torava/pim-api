@@ -27,9 +27,9 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
   .replace(/—/g, '-')
   .replace(/ +/g, ' ');
 
-  let line, line_name, line_product_name, line_price, line_prices, item_number, line_text,
-    line_total, line_date, line_address, line_vat, line_item_details, quantity, measure,
-    line_number_format, total_price_computed = 0, name, date, line_item, line_phone_number,
+  let line, line_name, line_product_name, line_prices, item_number, line_text,
+    line_total, line_date, line_address, line_vat, line_item_details,
+    line_number_format, total_price_computed = 0, name, date, line_phone_number,
     line_opening,
     line_misc,
     line_tax,
@@ -317,66 +317,86 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
       
       // item line
       if (!has_discount) {
-        line_price = line_number_format.match(/\s((\d{1,4}\.\d{2})(\-)?){1,2}\s*.{0,3}$/i);
-        console.log('!!!!', line, line_price);
+        let line_price = line_number_format.match(/\s((\d{1,4}\.\d{2})(\-)?){1,2}\s*.{0,3}$/i);
         if (line_price) {
-          line_measure = line.substring(0, line_price.index).match(/(\d{1,4})((kg|k9)|(g|9)|(l|1))/);
-          line_item = line.substring(0, line_price.index).match(/^((\d+)\s)?([\u00C0-\u017F-a-z0-9\s\-\.\,\+\&\%\=\/\(\)\{\}\[\]]+)$/i);
-          console.log('!!!!2', line_item);
-          if (line_item &&
-             !line.match(/^(\d|\.|\s|%|A|B|ma|la|su|pe|X|x|-)+$/)) {
-            price = parseFloat(line_price[1]);
-            measure = line_measure && parseFloat(line_measure[1]);
+          // 1kg
+          const line_measure = line.substring(0, line_price.index).match(/(\d{1,4}(\.\d)?)((kg|k9)|(g|9)|(l|1))/);
+          const line_quantity = line_number_format.substring(0, line_price.index).match(/(\d{1,4}\.\d{2})\s?x\s?(\d{1,2})/i);
+          
+          let line_item = line.substring(0, line_price.index).match(/^((\d+)\s)?([\u00C0-\u017F-a-z0-9\s\-\.\,\+\&\%\=\/\(\)\{\}\[\]]+)$/i);
+
+          const measure = line_measure && parseFloat(line_measure[1]);
+          const quantity = line_quantity && parseFloat(line_quantity[2]);
+
+          let item = {
+            product: {}
+          };
+          let name;
+          if (line_item && !line.match(/^(\d|\.|\s|%|A|B|ma|la|su|pe|X|x|-)+$/)) {
             name = toTitleCase(line_item[3]);
-
-            console.log('!!!3', name, measure, price);
-
-            if (line_price[3] === '-') {
-              has_discount = true;
-              price = 0-price;
-            }
-
-            items.push({
-              item_number: line_item[2] || '',
-              text: line_item[0],
-              product: {
-                name: name
-              },
-              price: price
-            });
-
             if (measure && !isNaN(measure)) {
-              items[items.length-1].product.measure = measure;
-              if (line_measure[3]) {
-                items[items.length-1].product.unit = 'kg';
-              }
-              else if (line_measure[4]) {
-                items[items.length-1].product.unit = 'g';
+              item.product.measure = measure;
+              if (line_measure[4]) {
+                item.product.unit = 'kg';
               }
               else if (line_measure[5]) {
-                items[items.length-1].product.unit = 'l';
+                item.product.unit = 'g';
               }
+              else if (line_measure[6]) {
+                item.product.unit = 'l';
+              }
+              name =
+                name.substring(0, line_measure.index)+
+                name.substring(line_measure.index+line_measure[0].length);
+            }
+            if (quantity & !isNaN(quantity)) {
+              item.product.quantity = quantity;
+              name =
+                name.substring(0, line_quantity.index)+
+                name.substring(line_quantity.index+line_quantity[0].length);
             }
 
-            //category = this.getClosestCategory(name, locale, categories);
+            if (name) {
+              const price = parseFloat(line_price[1]);
 
-            //if (quantity) items[items.length-1].quantity = quantity;
-            //if (measure) items[items.length-1].measure = measure;
-            //if (category) items[items.length-1].product.category = category/*{id: category.id, name: category.locales && category.locales[locale] || category.name}*/;
-
-            let found = false;
-            for (i in result.products) {
-              if (result.products[i].name === name) {
-                found = true;
-                break;
+              if (line_price[3] === '-') {
+                has_discount = true;
+                price = 0-price;
               }
+
+              item = {
+                ...item,
+                item_number: line_item[2] || '',
+                text: line_item[0],
+                product: {
+                  ...item.product,
+                  name: name
+                },
+                price: price
+              };
+
+              items.push(item);
+
+              //category = this.getClosestCategory(name, locale, categories);
+
+              //if (quantity) items[items.length-1].quantity = quantity;
+              //if (measure) items[items.length-1].measure = measure;
+              //if (category) items[items.length-1].product.category = category/*{id: category.id, name: category.locales && category.locales[locale] || category.name}*/;
+
+              let found = false;
+              for (i in result.products) {
+                if (result.products[i].name === name) {
+                  found = true;
+                  break;
+                }
+              }
+              !found && result.products.push({label: name, name: name});
+
+              if (price) total_price_computed+= price;
+
+              previous_line = 'item';
+              continue;
             }
-            !found && result.products.push({label: name, name: name});
-
-            if (price) total_price_computed+= price;
-
-            previous_line = 'item';
-            continue;
           }
         }
       }
@@ -672,7 +692,7 @@ export function extractBarCode(orig, id) {
     let s, M, ksize, dsize, anchor;
     let dst = new cv.Mat();
     console.log('dst', dst);
-    let rect = new cv.Rect(0,orig.rows*0.92,orig.cols,orig.rows*0.08);
+    let rect = new cv.Rect(0,orig.rows*0.85,orig.cols,orig.rows*0.15);
     console.log('rect', rect);
     dst = orig.roi(rect);
     console.log('dst', dst, dst.cols, dst.rows);
@@ -697,17 +717,17 @@ export function extractBarCode(orig, id) {
     cv.GaussianBlur(dst, dst, ksize, 0, 0, cv.BORDER_DEFAULT);
 
     M = new cv.Mat();
-    ksize = new cv.Size(45,45);
+    ksize = new cv.Size(49,49);
     M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
     cv.morphologyEx(dst, absDst, cv.MORPH_OPEN, M);
 
 
-    M = cv.Mat.ones(5,5, cv.CV_8U);
+    M = cv.Mat.ones(7,7, cv.CV_8U);
     anchor = new cv.Point(-1, -1);
     cv.dilate(absDst, absDst, M, anchor,6);
-    cv.erode(absDst, absDst, M, anchor,4);
+    cv.erode(absDst, absDst, M, anchor,6);
 
-    cv.threshold(absDst, absDst, 185, 255, cv.THRESH_BINARY_INV);
+    cv.threshold(absDst, absDst, 150, 255, cv.THRESH_BINARY_INV);
 
     canvas = createCanvas(absDst.cols, absDst.rows);
     cv.imshow(canvas, absDst);
@@ -719,7 +739,7 @@ export function extractBarCode(orig, id) {
     console.log('rect', rect);
     absDst = absDst.roi(rect);
 
-    dsize = new cv.Size(orig.cols, orig.rows*0.08);
+    dsize = new cv.Size(orig.cols, orig.rows*0.15);
     cv.resize(absDst, absDst, dsize, 0, 0, cv.INTER_AREA);
 
     let contours = new cv.MatVector();
@@ -733,7 +753,7 @@ export function extractBarCode(orig, id) {
     let contoursColor = new cv.Scalar(255, 255, 255, 255);
     //let rectangleColor = new cv.Scalar(255, 0, 0);
 
-    cv.drawContours(orig, contours, largestIndex, contoursColor, -1, 8, hierarchy, 0, {x: 0, y: orig.rows*0.92});
+    cv.drawContours(orig, contours, largestIndex, contoursColor, -1, 8, hierarchy, 0, {x: 0, y: orig.rows*0.85});
 
     canvas = createCanvas(orig.cols, orig.rows);
     cv.imshow(canvas, orig);
