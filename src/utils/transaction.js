@@ -200,7 +200,25 @@ export function escapeRegExp(stringToGoIntoTheRegex) {
   return stringToGoIntoTheRegex.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
-export function trimDetails(name) {
+export function stripName(name) {
+  let stripped_name = {...name};
+  if (name && name['fi-FI']) {
+    for (let i in details) {
+      for (let j in details[i]) {
+        details[i][j].forEach(detail => {
+          stripped_name['fi-FI'] = stripped_name['fi-FI']
+          .replace(new RegExp(escapeRegExp(detail)), "")
+        });
+      }
+    }
+    stripped_name['fi-FI'] = stripped_name['fi-FI']
+    .trim()
+    .replace(/,|\s{2,}|/g, '');
+  }
+  return stripped_name;
+}
+
+export function stripDetails(name) {
   let token,
       accuracy,
       words;

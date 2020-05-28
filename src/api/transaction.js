@@ -6,14 +6,14 @@ import _ from 'lodash';
 import {NlpManager, SimilarSearch} from 'node-nlp';
 import { stringSimilarity } from "string-similarity-js";
 import Item from '../models/Item';
-import {details, trimDetails, escapeRegExp, getParentPath, CSVToArray, toTitleCase} from '../utils/transaction';
+import {details, stripDetails, escapeRegExp, getParentPath, CSVToArray, toTitleCase, stripName} from '../utils/transaction';
 
 const similarSearch = new SimilarSearch({normalize: true});
 
 export default app => {
 
 app.delete('/api/transaction/:id', function(req, res) {
-  Transaction.query()
+  return Transaction.query()
     .delete()
     .where('id', req.params.id)
     .then(transaction => {
@@ -123,21 +123,7 @@ app.post('/api/transaction', async function(req, res) {
       categories.filter(async category => {
         if (!category.children.length) {
           name = category.name;
-          category.trimmed_name = {...name};
-          if (name && name['fi-FI']) {
-            for (let i in details) {
-              for (let j in details[i]) {
-                details[i][j].forEach(detail => {
-                  category.trimmed_name['fi-FI'] = category.trimmed_name['fi-FI']
-                  .replace(new RegExp(escapeRegExp(detail)), "")
-                });
-              }
-            }
-            category.trimmed_name['fi-FI'] = category.trimmed_name['fi-FI']
-            .trim()
-            .replace(/,|\s{2,}|/g, '');
-            n++;
-          }
+          category.trimmed_name = stripName(name);
         }
         return !category.children.length;
       });
@@ -147,7 +133,7 @@ app.post('/api/transaction', async function(req, res) {
 
     transaction.items.forEach(item => {
       item_categories = [];
-      trimmed_item_name = trimDetails(item.product.name);
+      trimmed_item_name = stripDetails(item.product.name);
   
       items.forEach(comparable_item => {
         if (comparable_item.product && comparable_item.product.category && comparable_item.text) {
@@ -173,6 +159,9 @@ app.post('/api/transaction', async function(req, res) {
             stringSimilarity(trimmed_item_name.toLowerCase(), category.trimmed_name['fi-FI'].toLowerCase()),
             stringSimilarity(item.product.name.toLowerCase(), category.name['fi-FI'].toLowerCase())
           );
+          if (category.parent) {
+            distance+= stringSimilarity(trimmed_item_name, category.parent.name['fi-FI']);
+          }
           //accuracy = (trimmed_item_name.length-distance)/trimmed_item_name.length;
   
           if (distance > 0.4) {
