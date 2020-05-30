@@ -438,9 +438,9 @@ export default class ReceiptEditor extends React.Component {
   };
 
   render() {
-    let that = this,
-    receiptIsRead = this.state.transactions.length && this.state.transactions[0].receipts[0].text,
-    receiptContent = "";
+    const receiptIsRead = this.state.transactions.length;
+    
+    let receiptContent = "";
 
 
     // When suggestion is clicked, Autosuggest needs to populate the input
@@ -456,7 +456,8 @@ export default class ReceiptEditor extends React.Component {
     );
 
     if (receiptIsRead) {
-      let receipt_locale = that.state.transactions[0].receipts[0].locale || locale.getLocale();
+      const receipt = this.state.transactions[0].receipts[0];
+      const receipt_locale = receipt && receipt.locale || locale.getLocale();
       console.log(receipt_locale);
       return (
         <div id="receipt-content" className="receipt-content">
@@ -560,31 +561,31 @@ export default class ReceiptEditor extends React.Component {
                 let inputProps = {
                   placeholder: 'Category',
                   value: item.product && item.product.category && item.product.category.name['fi-FI'] || '',
-                  onChange: that.onItemCategoryChange.bind(this, i)
+                  onChange: this.onItemCategoryChange.bind(this, i)
                 };
 
                 return <ReceiptItem item={item}
-                                    key={'item-'+i+'-'+that.state.version}
+                                    key={'item-'+i+'-'+this.state.version}
                                     i={i}
-                                    state={that.state}
-                                    onDeleteItem={that.onDeleteItem}
-                                    onAddItem={that.onAddItem}
-                                    onItemPriceChange={that.onItemPriceChange}
-                                    onItemNameChange={that.onItemNameChange}
-                                    onItemNumberChange={that.onItemNumberChange}
-                                    onItemCategoryChange={that.onItemCategoryChange}
-                                    onItemAttributeChange={that.onItemAttributeChange}
-                                    onItemManufacturerChange={that.onItemManufacturerChange}
-                                    onItemMeasureChange={that.onItemMeasureChange}
-                                    onItemQuantityChange={that.onItemQuantityChange}
-                                    onItemUnitChange={that.onItemUnitChange}
+                                    state={this.state}
+                                    onDeleteItem={this.onDeleteItem}
+                                    onAddItem={this.onAddItem}
+                                    onItemPriceChange={this.onItemPriceChange}
+                                    onItemNameChange={this.onItemNameChange}
+                                    onItemNumberChange={this.onItemNumberChange}
+                                    onItemCategoryChange={this.onItemCategoryChange}
+                                    onItemAttributeChange={this.onItemAttributeChange}
+                                    onItemManufacturerChange={this.onItemManufacturerChange}
+                                    onItemMeasureChange={this.onItemMeasureChange}
+                                    onItemQuantityChange={this.onItemQuantityChange}
+                                    onItemUnitChange={this.onItemUnitChange}
                                     onProductMeasureChange={this.onProductMeasureChange}
                                     onProductQuantityChange={this.onProductQuantityChange}
                                     onProductUnitChange={this.onProductUnitChange}
-                                    toggle={that.toggle}
-                                    categorySuggestions={that.state.categorySuggestions}
-                                    onSuggestionsFetchRequested={that.onCategorySuggestionsFetchRequested}
-                                    onSuggestionsClearRequested={that.onCategorySuggestionsClearRequested}
+                                    toggle={this.toggle}
+                                    categorySuggestions={this.state.categorySuggestions}
+                                    onSuggestionsFetchRequested={this.onCategorySuggestionsFetchRequested}
+                                    onSuggestionsClearRequested={this.onCategorySuggestionsClearRequested}
                                     getSuggestionValue={getSuggestionValue}
                                     renderSuggestion={renderSuggestion}
                                     inputProps={inputProps}/>
@@ -595,10 +596,10 @@ export default class ReceiptEditor extends React.Component {
             <button onClick={this.deleteTransaction}>Delete</button>
           </div>
           <div className="receipt-picture" style={{float:'left'}}>
-            <img src={"/api/receipt/pre/"+this.state.transactions[0].receipts[0].id+"?"+this.state.version} style={{width:300}}/>
+            {receipt && <img src={"/api/receipt/pre/"+receipt.id+"?"+this.state.version} style={{width:300}}/>}
           </div>
           <div className="receipt-text" style={{float:'left'}}>
-            <pre>{this.state.transactions[0].receipts[0].text}</pre>
+            <pre>{receipt && receipt.text}</pre>
           </div>
           <div style={{clear:"both"}}/>
         </div>
