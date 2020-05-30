@@ -601,7 +601,7 @@ export default class OverviewPage extends Component {
           <input
             type="date"
             defaultValue={this.state.filter.start_date}
-            onChange={event => this.setFilter('start_date', event.target.value)}
+            onBlur={event => this.setFilter('start_date', event.target.value)}
           />
         </label>
         <label>
@@ -609,7 +609,7 @@ export default class OverviewPage extends Component {
           <input
             type="date"
             defaultValue={this.state.filter.end_date}
-            onChange={event => this.setFilter('end_date', event.target.value)}
+            onBlur={event => this.setFilter('end_date', event.target.value)}
           />
         </label>
         <VictoryChart

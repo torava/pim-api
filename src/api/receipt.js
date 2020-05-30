@@ -9,7 +9,7 @@ import _ from 'lodash';
 import Receipt from '../models/Receipt';
 import cv from '../static/lib/opencv';
 import { extractBarCode, RECEIPT_UPLOAD_PATH, getCVSrcFromBase64, getSrc } from '../utils/receipt';
-import { uploadReceipt } from '../utils/filesystem';
+import { uploadReceipt, uploadReceiptFromBuffer } from '../utils/filesystem';
 
 export default app => {
 
@@ -204,56 +204,36 @@ app.post('/api/receipt/osd/', function(req, res) {
   });
 });
 
-function rotateImage(src, rotate) {
-  if (rotate < 0) {
-    rotate = 360+rotate;
-  }
-  if (rotate == 270){
-    cv.transpose(src, src); 
-    cv.flip(src, src, 1);
-  }
-  else if (rotate == 90) {
-    cv.transpose(src, src);  
-    cv.flip(src, src, 0);
-  }
-  else if (rotate == 180){
-    cv.flip(src, src, -1);
-  }
-  else if (!rotate) {}
-  else {
-    // get rotation matrix for rotating the image around its center in pixel coordinates
-    let center = new cv.Point((src.cols-1)/2.0, (src.rows-1)/2.0);
-    let rot = cv.getRotationMatrix2D(center, rotate, 1.0);
-    // determine bounding rectangle, center not relevant
-    let bbox = new cv.RotatedRect(new cv.Point(), src.size(), rotate);
-    console.log(bbox);
-    // adjust transformation matrix
-    rot.data[0+src.rows*2]+= bbox.size.width/2.0 - src.cols/2.0;
-    rot.data[1+src.rows*2]+= bbox.size.height/2.0 - src.rows/2.0;
-    //rot.at<double>(0,2) += bbox.width/2.0 - src.cols/2.0;
-    //rot.at<double>(1,2) += bbox.height/2.0 - src.rows/2.0;
-
-    cv.warpAffine(src, src, rot, new cv.Size(bbox.size.width, bbox.size.height));
-  }
-  return src;
-}
-
 app.post('/api/receipt/recognize/', async function(req, res) {
   const base64Data = req.body.src;
   const id = req.body.id;
   const name = id+'_pre';
   const path = RECEIPT_UPLOAD_PATH+'/'+name;
 
+  const nameNoBarcode = `${id}_nobarcode`;
+  const pathNoBarcode = RECEIPT_UPLOAD_PATH+'/'+nameNoBarcode;
+
   //console.log('cv', cv.getBuildInformation());
 
-  await uploadReceipt(name, base64Data);
+  try {
+    await uploadReceipt(name, base64Data);
 
-  let src = getCVSrcFromBase64(base64Data);
-  
-  extractBarCode(src, id);
+    let src = getCVSrcFromBase64(base64Data);
+    
+    let orig = extractBarCode(src, id);
 
-  const nameNoBarcode = id+'_nobarcode';
-  const pathNoBarcode = RECEIPT_UPLOAD_PATH+'/'+nameNoBarcode;
+    let canvas = createCanvas(orig.cols, orig.rows);
+    cv.imshow(canvas, orig);
+    const buffer = canvas.toBuffer();
+    console.log('buffer', buffer);
+    uploadReceiptFromBuffer(nameNoBarcode, buffer);
+
+    orig.delete();
+  } catch(error) {
+    console.error(error);
+    return res.sendStatus(500);
+  }
+
   return child_process.execFile('tesseract', [
     '-l', 'fin',
     '--psm', '0',

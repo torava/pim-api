@@ -1,6 +1,5 @@
 import moment from 'moment';
 import { stringSimilarity } from "string-similarity-js";
-import { uploadReceiptFromBuffer } from './filesystem';
 
 function parseYear(year) {
   if (year.length == 2) {
@@ -320,7 +319,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
         let line_price = line_number_format.match(/\s((\d{1,4}\.\d{2})(\-)?){1,2}\s*.{0,3}$/i);
         if (line_price) {
           // 1kg
-          const line_measure = line.substring(0, line_price.index).match(/(\d{1,4}(\.\d)?)((kg|k9)|(g|9)|(l|1))/);
+          const line_measure = line.substring(0, line_price.index).match(/(\d{1,4}(\.\d)?)((kg)|(g)|(l|1))/);
           const line_quantity = line_number_format.substring(0, line_price.index).match(/(\d{1,4}\.\d{2})\s?x\s?(\d{1,2})/i);
           
           let line_item = line.substring(0, line_price.index).match(/^((\d+)\s)?([\u00C0-\u017F-a-z0-9\s\-\.\,\+\&\%\=\/\(\)\{\}\[\]]+)$/i);
@@ -696,13 +695,7 @@ export function extractBarCode(orig, id) {
     console.log('rect', rect);
     dst = orig.roi(rect);
     console.log('dst', dst, dst.cols, dst.rows);
-    let canvas = createCanvas(dst.cols, dst.rows);
-    cv.imshow(canvas, dst);
-    let src = canvas.toDataURL();
-    let name = `${id}_yesbarcode`;
-    let buffer = canvas.toBuffer();
-    uploadReceiptFromBuffer(name, buffer);
-
+    
     let absDstx = new cv.Mat();
     let absDsty = new cv.Mat();
     let absDst = new cv.Mat();
@@ -729,12 +722,6 @@ export function extractBarCode(orig, id) {
 
     cv.threshold(absDst, absDst, 150, 255, cv.THRESH_BINARY_INV);
 
-    canvas = createCanvas(absDst.cols, absDst.rows);
-    cv.imshow(canvas, absDst);
-    name = `${id}_absDst`;
-    buffer = canvas.toBuffer();
-    uploadReceiptFromBuffer(name, buffer);
-
     rect = new cv.Rect(200,200,absDst.cols-400,absDst.rows-400);
     console.log('rect', rect);
     absDst = absDst.roi(rect);
@@ -755,13 +742,6 @@ export function extractBarCode(orig, id) {
 
     cv.drawContours(orig, contours, largestIndex, contoursColor, -1, 8, hierarchy, 0, {x: 0, y: orig.rows*0.85});
 
-    canvas = createCanvas(orig.cols, orig.rows);
-    cv.imshow(canvas, orig);
-    name = `${id}_nobarcode`;
-    buffer = canvas.toBuffer();
-    console.log('buffer', buffer);
-    uploadReceiptFromBuffer(name, buffer);
-
     absDstx.delete();
     absDsty.delete();
     absDst.delete();
@@ -774,6 +754,40 @@ export function extractBarCode(orig, id) {
     console.error('Error in barcode extraction', error);
     return;
   }
+}
+
+export function rotate(src, rotate) {
+  if (rotate < 0) {
+    rotate = 360+rotate;
+  }
+  if (rotate == 270){
+    cv.transpose(src, src); 
+    cv.flip(src, src, 1);
+  }
+  else if (rotate == 90) {
+    cv.transpose(src, src);  
+    cv.flip(src, src, 0);
+  }
+  else if (rotate == 180){
+    cv.flip(src, src, -1);
+  }
+  else if (!rotate) {}
+  else {
+    // get rotation matrix for rotating the image around its center in pixel coordinates
+    let center = new cv.Point((src.cols-1)/2.0, (src.rows-1)/2.0);
+    let rot = cv.getRotationMatrix2D(center, rotate, 1.0);
+    // determine bounding rectangle, center not relevant
+    let bbox = new cv.RotatedRect(new cv.Point(), src.size(), rotate);
+    console.log(bbox);
+    // adjust transformation matrix
+    rot.data[0+src.rows*2]+= bbox.size.width/2.0 - src.cols/2.0;
+    rot.data[1+src.rows*2]+= bbox.size.height/2.0 - src.rows/2.0;
+    //rot.at<double>(0,2) += bbox.width/2.0 - src.cols/2.0;
+    //rot.at<double>(1,2) += bbox.height/2.0 - src.rows/2.0;
+
+    cv.warpAffine(src, src, rot, new cv.Size(bbox.size.width, bbox.size.height));
+  }
+  return src;
 }
 
 export function crop(src) {
