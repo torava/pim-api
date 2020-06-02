@@ -8,8 +8,7 @@ import child_process from 'child_process';
 import _ from 'lodash';
 import Receipt from '../models/Receipt';
 import cv from '../static/lib/opencv';
-import { extractBarCode, RECEIPT_UPLOAD_PATH, getCVSrcFromBase64, getSrc } from '../utils/receipt';
-import { uploadReceipt, uploadReceiptFromBuffer } from '../utils/filesystem';
+import { extractBarCode, getCVSrcFromBase64, rotate, getBufferFromCVSrc, decodeBase64Image } from '../utils/imageProcessing';
 
 export default app => {
 
@@ -17,6 +16,33 @@ export default app => {
   dest: upload_path,
   limits: {fileSize: 10000000}
 }).single('file');*/
+
+const RECEIPT_UPLOAD_PATH = __dirname+"/../../resources/uploads";
+
+function uploadReceiptFromBase64(name, base64Data) {
+  return new Promise((resolve, reject) => {
+    const buffer = decodeBase64Image(base64Data);
+    if (buffer && buffer.data) {
+      return uploadReceipt(name, buffer.data)
+      .then(path => resolve(path))
+      .catch(error => reject(error));
+    }
+    else reject('Encountered invalid file while uploading receipt');
+  });
+}
+
+function uploadReceipt(name, data) {
+  return new Promise((resolve, reject) => {
+    const path = `${RECEIPT_UPLOAD_PATH}/${name}`;
+    fs.writeFile(path, data, error => {
+      if (error) {
+        reject(error);
+      }
+      console.log('Uploaded '+path);
+      resolve(path);
+    });
+  });
+}
 
 app.get('/api/receipt/data/:id', function(req, res) {
   let data = req.body,
@@ -211,36 +237,23 @@ app.post('/api/receipt/recognize/', async function(req, res) {
   const path = RECEIPT_UPLOAD_PATH+'/'+name;
 
   const nameNoBarcode = `${id}_nobarcode`;
-  const pathNoBarcode = RECEIPT_UPLOAD_PATH+'/'+nameNoBarcode;
+  let pathNoBarcode = RECEIPT_UPLOAD_PATH+'/'+nameNoBarcode;
 
   //console.log('cv', cv.getBuildInformation());
 
-  try {
-    await uploadReceipt(name, base64Data);
-
-    let src = getCVSrcFromBase64(base64Data);
-    
-    let orig = extractBarCode(src, id);
-
-    let canvas = createCanvas(orig.cols, orig.rows);
-    cv.imshow(canvas, orig);
-    const buffer = canvas.toBuffer();
-    console.log('buffer', buffer);
-    uploadReceiptFromBuffer(nameNoBarcode, buffer);
-
-    orig.delete();
-  } catch(error) {
+  await uploadReceiptFromBase64(name, base64Data)
+  .catch(error => {
     console.error(error);
     return res.sendStatus(500);
-  }
+  });
 
   return child_process.execFile('tesseract', [
     '-l', 'fin',
     '--psm', '0',
     '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.-/% ',
-    '-c', 'textord_max_noise_size=30',
+    '-c', 'textord_max_noise_size=15',
     //'-c', 'textord_noise_sizelimit=1',
-    pathNoBarcode,
+    path,
     'stdout',
   ], async function(error, stdout, stderr) {
     if (error) console.error(error);
@@ -249,30 +262,34 @@ app.post('/api/receipt/recognize/', async function(req, res) {
 
     console.log('stdout', stdout);
 
-    let rotate = stdout.match(/Rotate: (\d+)/);
-    
-    console.log('rotate', rotate);
-
-    if (rotate && parseInt(rotate[1])) {
-      const splitted = base64Data.split(',');
-      const [, data] = splitted;
-
-      const image = await Jimp.read(path);
-
-      image.rotate(360-parseInt(rotate[1]))
-      .write(path);
-
-      const imageNoBarcode = await Jimp.read(pathNoBarcode);
-
-      imageNoBarcode.rotate(360-parseInt(rotate[1]))
-      .write(pathNoBarcode);
+    try {
+      let src = getCVSrcFromBase64(base64Data);
+      const rotation = stdout.match(/Rotate: (\d+)/);
+      console.log('rotate', rotation);
+      if (rotation && parseInt(rotation[1])) {
+        const angle = 360-parseInt(rotation[1]);
+        src = rotate(src, angle);
+        const buffer = getBufferFromCVSrc(src);
+        await uploadReceipt(name, buffer);
+      }
+      
+      src = extractBarCode(src, id);
+  
+      const buffer = getBufferFromCVSrc(src);
+      console.log('buffer', buffer);
+      await uploadReceipt(nameNoBarcode, buffer);
+  
+      src.delete();
+    } catch(error) {
+      console.info('No bar code extracted', error);
+      pathNoBarcode = path;
     }
 
     return child_process.execFile('tesseract', [
       '-l', 'fin',
       '--psm', '4',
       '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.-/% ',
-      '-c', 'textord_max_noise_size=30',
+      '-c', 'textord_max_noise_size=15',
       //'-c', 'textord_noise_sizelimit=1',
       pathNoBarcode,
       'stdout',
@@ -362,7 +379,7 @@ app.post('/api/receipt/original', (req, res) => {
   var base64Data = req.body.src;
   var name = req.body.id+'_original';
 
-  return uploadReceipt(name, base64Data)
+  return uploadReceiptFromBase64(name, base64Data)
   .then(name => res.send(name))
   .catch(error => res.sendStatus(500));
 });
@@ -371,7 +388,7 @@ app.post('/api/receipt/picture', (req, res) => {
   var base64Data = req.body.src;
   var name = req.body.id+'_edited';
 
-  return uploadReceipt(name, base64Data)
+  return uploadReceiptFromBase64(name, base64Data)
   .then(name => res.send(name))
   .catch(error => res.sendStatus(500));
 });
@@ -380,7 +397,7 @@ app.post('/api/receipt/pre', (req, res) => {
   var base64Data = req.body.src;
   var name = req.body.id+'_pre';
 
-  return uploadReceipt(name, base64Data)
+  return uploadReceiptFromBase64(name, base64Data)
   .then(name => res.send(name))
   .catch(error => res.sendStatus(500));
 });
