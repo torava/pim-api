@@ -1,6 +1,7 @@
 import axios from "axios";
 import DataStore from './DataStore';
-import {getTransactionsFromReceipt, getSrc, crop, cropMinAreaRect, extractBarCode} from '../utils/receipt';
+import {getTransactionsFromReceipt} from '../utils/receipt';
+import {getSrc, crop} from '../utils/imageProcessing';
 
 const WAITING = -1;
 
