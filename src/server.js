@@ -8,7 +8,8 @@ import Knex from 'knex';
 import knexConfig from '../knexfile';
 import {Model} from 'objection';
 import {JSDOM} from 'jsdom';
-const { Canvas, createCanvas, Image, ImageData, loadImage } = require('canvas');
+import mongo from './utils/mongo';
+import { Canvas, createCanvas, Image, ImageData } from 'canvas';
 
 const app = new Express();
 const server = new Server(app);
@@ -75,6 +76,11 @@ installDOM();
 loadOpenCV();
 
 global.createCanvas = (width, height) => createCanvas(width, height);
+
+async function initializeMongoDB() {
+  await mongo.initialize();
+}
+initializeMongoDB();
 
 server.listen(port, (err) => {
   if (err) {
