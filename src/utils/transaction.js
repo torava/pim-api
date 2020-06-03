@@ -1,4 +1,5 @@
 import natural from 'natural';
+import mongo from './mongo';
 
 export const details = {};
 
@@ -91,7 +92,8 @@ details.type = {
   frozenfood: ['pakasteateria', 'pakastettu', 'pakaste'],
   bag: ['pussi'],
   glutenfree: ['gluteeniton', 'gton'],
-  vitamin: ['d-vitaminoitu', 'vitaminoitu']
+  vitamin: ['d-vitaminoitu', 'vitaminoitu'],
+  canned: ['säilyke']
 };
 details.origin = {
   finnish: ['suomi', 'suomalainen', 'suomesta']
@@ -292,4 +294,32 @@ export function stringToSlug(str,  sep) {
     .replace(new RegExp(sep_regexp+"+$"), ""); // trim - from end of text
 
   return str;
+}
+
+export function getOpenFoodFactsProduct(name) {
+  return new Promise((resolve, reject) => {
+    const db = mongo.getDB();
+    return db.collection('products').find({
+      $text: {
+        $search: name
+      }
+    })
+    .project({
+      score: { 
+        $meta: "textScore"
+      }
+    })
+    .sort({
+      score: {
+        $meta: "textScore"
+      }
+    }).limit(1)
+    .toArray((error, results) => {
+      if (error) {
+        console.error(error);
+        resolve();
+      }
+      resolve(results[0]);
+    });
+  });
 }

@@ -6,7 +6,7 @@ import _ from 'lodash';
 import {NlpManager, SimilarSearch} from 'node-nlp';
 import { stringSimilarity } from "string-similarity-js";
 import Item from '../models/Item';
-import {details, stripDetails, escapeRegExp, getParentPath, CSVToArray, toTitleCase, stripName} from '../utils/transaction';
+import {details, stripDetails, escapeRegExp, getParentPath, CSVToArray, toTitleCase, stripName, getOpenFoodFactsProduct} from '../utils/transaction';
 
 const similarSearch = new SimilarSearch({normalize: true});
 
@@ -131,19 +131,21 @@ app.post('/api/transaction', async function(req, res) {
       return categories;
     });
 
-    transaction.items.forEach(item => {
+    for (let item of transaction.items) {
       item_categories = [];
       trimmed_item_name = stripDetails(item.product.name);
   
       items.forEach(comparable_item => {
         if (comparable_item.product && comparable_item.product.category && comparable_item.text) {
-          distance = stringSimilarity(item.product.name.toLowerCase(), comparable_item.text.toLowerCase());
+          const productName = item.product.name.toLowerCase();
+          const itemName = comparable_item.text.toLowerCase();
+          distance = stringSimilarity(productName, itemName);
           
           if (distance > 0.8) {
+            console.log('comparing product to items', productName, itemName, distance);
             console.log(item.product.name, comparable_item.text, distance);
             item_categories.push({
-              id: comparable_item.product.category.id,
-              original_name: comparable_item.product.category.name['fi-FI'],
+              category: comparable_item.product.category,
               item_name: item.product.name,
               trimmed_item_name: trimmed_item_name,
               parents: getParentPath(comparable_item.product.category.parent),
@@ -155,19 +157,17 @@ app.post('/api/transaction', async function(req, res) {
   
       trimmed_categories.forEach((category, index) => {
         if (category.trimmed_name && category.trimmed_name['fi-FI']) {
-          distance = Math.max(
-            stringSimilarity(trimmed_item_name.toLowerCase(), category.trimmed_name['fi-FI'].toLowerCase()),
-            stringSimilarity(item.product.name.toLowerCase(), category.name['fi-FI'].toLowerCase())
-          );
+          distance = stringSimilarity(trimmed_item_name.toLowerCase(), category.trimmed_name['fi-FI'].toLowerCase());
+          distance+= stringSimilarity(item.product.name.toLowerCase(), category.name['fi-FI'].toLowerCase());
           if (category.parent) {
             distance+= stringSimilarity(trimmed_item_name, category.parent.name['fi-FI']);
           }
           //accuracy = (trimmed_item_name.length-distance)/trimmed_item_name.length;
   
-          if (distance > 0.4) {
+          if (distance > 1) {
+            console.log('comparing item to categories', item.product.name, category.name['fi-FI'], distance);
             item_categories.push({
-              id: category.id,
-              original_name: category.name['fi-FI'],
+              category,
               item_name: item.product.name,
               trimmed_item_name: trimmed_item_name,
               name: category.trimmed_name['fi-FI'],
@@ -180,13 +180,15 @@ app.post('/api/transaction', async function(req, res) {
 
       if (item.product.category && item.product.category.name) {
         trimmed_categories.forEach((category, index) => {
-          distance = stringSimilarity(item.product.category.name['fi-FI'].toLowerCase(), category.name['fi-FI'].toLowerCase());
+          const productCategoryName = item.product.category.name['fi-FI'].toLowerCase();
+          const categoryName = category.name['fi-FI'].toLowerCase();
+          distance = stringSimilarity(productCategoryName, categoryName);
           //accuracy = (trimmed_item_name.length-distance)/trimmed_item_name.length;
   
           if (distance > 0.4) {
+            console.log('comparing product category to categories', productCategoryName, categoryName, distance);
             item_categories.push({
-              id: category.id,
-              original_name: category.name['fi-FI'],
+              category,
               item_name: item.product.name,
               trimmed_item_name: trimmed_item_name,
               parents: getParentPath(category.parent),
@@ -199,11 +201,25 @@ app.post('/api/transaction', async function(req, res) {
       if (item_categories.length) {
         item_categories.sort((a, b) => b.distance-a.distance);
   
-        item.product.category = {id: item_categories[0].id};
+        item.product.category = {id: item_categories[0].category.id};
+
+        console.log(item_categories[0]);
       }
 
-      console.log(item_categories);
-    });
+      if (!item.measure) {
+        const itemCategory = item_categories.length && item_categories[0].category;
+        const itemCategoryName = itemCategory && itemCategory.name && itemCategory.name['en-US'] || '';
+        console.log('get off product', `${trimmed_item_name} ${itemCategoryName}`);
+        const offProduct = await getOpenFoodFactsProduct(`${trimmed_item_name} ${itemCategoryName}`);
+        if (offProduct && parseFloat(offProduct.product_quantity)) {
+          item.product.measure = parseFloat(offProduct.product_quantity);
+          item.product.unit = 'g';
+          console.log(item);
+        }
+      }
+
+      //console.log(item_categories);
+    }
   }
   let transaction = {};
   if ('fromcsv' in req.query) {
@@ -310,6 +326,8 @@ app.post('/api/transaction', async function(req, res) {
 
     await resolveCategories(transaction);
 
+    console.dir(transaction, {depth:null});
+
     return Transaction.query()
     .upsertGraph(transaction, {relate: true})
     .then(transaction => {
@@ -318,7 +336,7 @@ app.post('/api/transaction', async function(req, res) {
     .catch(error => {
       console.dir(transaction, {depth:null});
       console.error(error);
-      res.status(500).send(error);
+      res.sendStatus(500);
     });
   }
 });
