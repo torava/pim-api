@@ -1,0 +1,23 @@
+version: '2'
+services:
+  bookkeepr-app:
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_PORT: 5432
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: bookkeepr
+      DATABASE_URL: postgres://admin@postgres/bookkeepr
+      ADMIN_USER: postgres
+      ADMIN_PASSWORD: password
+    image: registry.gitlab.com/torava/bookkeepr:master
+  postgres:
+    image: postgres:13.1
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: bookkeepr
