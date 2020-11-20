@@ -4,10 +4,10 @@ module.exports = {
     client: 'postgresql',
     useNullAsDefault: true,
     connection: {
-      host: 'localhost',
-      user: 'postgres',
-      password: 'password',
-      database: 'bookkeepr',
+      host: process.env.POSTGRES_HOST || 'localhost',
+      user: process.env.POSTGRES_USER || 'postgres',
+      password: process.env.POSTGRES_PASSWORD || 'password',
+      database: process.env.POSTGRES_DB || 'bookkeepr',
       //filename: './example.db'
     }
   },
@@ -15,7 +15,10 @@ module.exports = {
   production: {
     client: 'postgresql',
     connection: {
-      database: 'example'
+      host: process.env.POSTGRES_HOST || 'localhost',
+      user: process.env.POSTGRES_USER || 'postgres',
+      password: process.env.POSTGRES_PASSWORD || 'password',
+      database: process.env.POSTGRES_DB || 'bookkeepr'
     },
     pool: {
       min: 2,

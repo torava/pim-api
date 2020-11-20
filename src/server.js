@@ -11,8 +11,8 @@ import {JSDOM} from 'jsdom';
 import mongo from './utils/mongo';
 import { Canvas, createCanvas, Image, ImageData } from 'canvas';
 
-const app = new Express();
-const server = new Server(app);
+export const app = new Express();
+export const server = new Server(app);
 
 // define the folder that will be used for static assets
 app.use(Express.static('src/static'));

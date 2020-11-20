@@ -46,49 +46,46 @@ export default class OverviewPage extends Component {
     this.setAttributeAggregateVisibility = this.setAttributeAggregateVisibility.bind(this);
     this.setFilter = this.setFilter.bind(this);
     this.setAverageRange = this.setAverageRange.bind(this);
-
-    axios.get('/api/attribute/?parent')
-    .then((attributes) => {
+  }
+  async componentDidMount() {
+    try {
+      const attributes = await axios.get('/api/attribute/?parent')
       this.setState({attributes: attributes.data});
-      return axios.get('/api/transaction/')
-      .then((response) => {
+
+      const transactions = await axios.get('/api/transaction/');
+      this.setState({
+        transactions: transactions.data
+      }, async () => {
+        this.setMaximumRangeFilter();
         this.setState({
-          transactions: response.data
+          transaction_aggregates: this.aggregateTransactions()
+        });
+        const items = await axios.get('/api/item/');
+        this.setState({items: items.data});
+        
+        const categories = await axios.get('/api/category/?parent&locale='+locale.getLocale())
+
+        this.setState({
+          categories: [...categories.data],
+          resolved_categories: [...categories.data],
+          columns: this.getColumns(),
+          attribute_columns: this.getAttributeColumns()
         }, () => {
-          this.setMaximumRangeFilter();
+          this.resolvePieItems();
+          this.resolveStackItems();
+          this.aggregateCategoryPrice();
+          this.aggregateCategoryAttribute();
+
+          document.title = "Categories";
+
           this.setState({
-            transaction_aggregates: this.aggregateTransactions()
-          });
-          return axios.get('/api/item/')
-          .then(response => {
-            this.setState({items: response.data});
-            return axios.get('/api/category/?parent&locale='+locale.getLocale())
-            .then((response) => {
-              this.setState({
-                categories: [...response.data],
-                resolved_categories: [...response.data],
-                columns: this.getColumns(),
-                attribute_columns: this.getAttributeColumns()
-              }, () => {
-                this.resolvePieItems();
-                this.resolveStackItems();
-                this.aggregateCategoryPrice();
-                this.aggregateCategoryAttribute();
-
-                document.title = "Categories";
-
-                this.setState({
-                  ready: true
-                });
-              });
-            });
+            ready: true
           });
         });
       });
-    })
-    .catch(function(error) {
+    } catch (error) {
       console.error(error);
-    });
+    }
   }
   handleZoom(domain) {
     this.setState({selectedDomain: domain});
@@ -120,6 +117,7 @@ export default class OverviewPage extends Component {
       let {start_date, end_date} = {...this.state.filter};
       let minimum, maximum;
       if (!start_date || !end_date) {
+        console.log('!!!', transactions);
         transactions.forEach(transaction => {
           let transaction_date = moment(transaction.date).toDate();
           if (!minimum || transaction_date < minimum) minimum = transaction_date;
@@ -390,7 +388,7 @@ export default class OverviewPage extends Component {
     const {start_date, end_date} = this.state.filter;
     const {average_range} = this.state;
     const rate = average_range ? average_range/moment.duration(moment(end_date).diff(moment(start_date))).asDays() : 1;
-    console.log(rate, this.state, moment(start_date));
+    //console.log(rate, this.state, moment(start_date));
     return rate;
   }
   aggregateCategoryPrice() {

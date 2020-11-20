@@ -1,0 +1,1 @@
+global.Tesseract = jest.fn();
