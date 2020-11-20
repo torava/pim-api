@@ -1,6 +1,6 @@
 process.env.NODE_ENV = 'test';
 
-const server = require('../src/server').default;
+const {server} = require('../src/server');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const should = chai.should();
@@ -9,6 +9,57 @@ const fs = require('fs');
 const moment = require('moment');
 
 chai.use(chaiHttp);
+
+const mockTransaction = {
+  total_price: 11.50,
+  total_price_read: 11.50,
+  party: {
+    name: 'K-Supermarket Herkkuduo',
+    street_name: 'Pietilänkatu',
+    street_number: '2',
+    postal_code: '33720',
+    city: 'Tampere'
+  },
+  date: 1452697800000,
+  items: [
+    {
+      name: 'Vaasan ruispalat 300g jälkiuun',
+      price: 1.65
+    },
+    {
+      name: 'Pirkka kevytmaito 1 l',
+      price: 0.7
+    },
+    {
+      name: 'Pirkka kevytmaito 1 l',
+      price: 0.7
+    },
+    {
+      name: 'HK naudan jauheliha 10% 600g',
+      price: 6.99
+    },
+    {
+      name: 'Fazer pantteri tuutti 91g',
+      price: 1.79
+    },
+    {
+      name: 'Bonduelle Kidneypavut 310/250g',
+      price: 1.59
+    },
+    {
+      name: 'Pirkka Tomaattimurska 390 g ch',
+      price: 0.89
+    },
+    {
+      name: 'Muovikassi 40L',
+      price: 0.19
+    },
+    {
+      name: 'K-Plussa-Etu',
+      price: -2
+    }
+  ]
+};
 
 describe('Receipt', () => {
   var file,
@@ -48,17 +99,7 @@ describe('Receipt', () => {
         if (error) console.error(error);
         res.should.have.status(200);
         console.log(JSON.stringify(res.body, null, '  '));
-        /*expect(res.body.transactions[0].total_price).to.be.equal(11.50);
-        expect(res.body.transactions[0].total_price_read).to.be.equal(11.50);
-        expect(res.body.transactions[0].party.name).to.equal('K-Supermarket Herkkuduo');
-        //expect(res.body.transactions[0].date).to.be.equal(1452697800000);
-        expect(res.body.transactions[0].party.street_name).to.equal('Pietilänkatu');
-        expect(res.body.transactions[0].party.street_number).to.equal('2');
-        expect(res.body.transactions[0].party.postal_code).to.equal('33720');
-        expect(res.body.transactions[0].party.city).to.equal('Tampere');
-        expect(res.body.transactions[0].items.length).to.equal(9);
-        //expect(res.body.transactions[0].items[0].name).to.equal('Vaasan ruispalat 300g jälkiuun');
-        expect(res.body.transactions[0].items[0].price).to.equal(1.65);*/
+        expect(res.body.transactions[0]).to.be.equal(mockTransaction);
         transaction = res.body.transactions[0];
         done();
       });
