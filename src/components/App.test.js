@@ -1,11 +1,16 @@
+import Axios from 'axios';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { getByTitle, render, screen, waitFor } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 
 global.Tesseract = jest.fn();
 
-it('renders without crashing', () => {
-  const div = document.createElement('div');
-  ReactDOM.render(<App />, div);
-  ReactDOM.unmountComponentAtNode(div);
+jest.mock('axios');
+
+Axios.get.mockResolvedValue({data: []});
+
+it('renders without crashing', async () => {
+  render(<BrowserRouter><App /></BrowserRouter>);
+  await waitFor(() => screen.getByTitle('Upload'));
 });
