@@ -132,6 +132,8 @@ app.post('/api/transaction', async function(req, res) {
     });
 
     for (let item of transaction.items) {
+      if (!item) continue;
+      
       item_categories = [];
       trimmed_item_name = stripDetails(item.product.name);
   
@@ -303,7 +305,12 @@ app.post('/api/transaction', async function(req, res) {
     }
     let promises = [];
     for (let i in transaction) {
-      await resolveCategories(transaction[i]);
+      try {
+        await resolveCategories(transaction[i]);
+      } catch (error) {
+        console.log(error);
+        return res.status(500);
+      }
 
       promises.push(
         Transaction.query()
