@@ -54,7 +54,6 @@
     "natural": "^0.6.3",
     "node-nlp": "^2.1.7",
     "node-polyglot": "^2.3.0",
-    "node-postal": "github:openvenues/node-postal",
     "nodemon": "^1.18.10",
     "objection": "^2.2.3",
     "pg": "^8.5.1",
