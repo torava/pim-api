@@ -288,7 +288,7 @@ app.post('/api/receipt/recognize/', async function(req, res) {
     return child_process.execFile('tesseract', [
       '-l', 'fin',
       '--psm', '4',
-      '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.-/% ',
+      '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.:-/% ',
       '-c', 'textord_max_noise_size=15',
       //'-c', 'textord_noise_sizelimit=1',
       pathNoBarcode,
