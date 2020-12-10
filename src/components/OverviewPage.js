@@ -23,6 +23,10 @@ function first(list) {
   }
 }
 
+moment.locale(locale.getLanguage());
+
+const currencyFormat = new Intl.NumberFormat(locale.getLocale(), { style: 'currency', currency: locale.getCurrency() });
+
 const TreeTable = sortable(tree(AsteriskTable));
 
 export default class OverviewPage extends Component {
@@ -631,20 +635,19 @@ export default class OverviewPage extends Component {
             labels={d => d.datum.goal}
             labelComponent={<VictoryTooltip renderInPortal/>}
           />
-          <VictoryLine
+          <VictoryBar
             data={this.state.transaction_aggregates.monthly}
             x={d => moment(d.date).toDate()}
             y="total_price"
-            interpolation="bundle"
-            style={{ data: { stroke: "navy" } }}
-            labels={d => d.datum.total_price}
+            style={{ data: { fill: "navy", width: 10 } }}
+            labels={d => moment(d.datum.date).format('MMM YYYY')+' '+currencyFormat.format(d.datum.total_price)}
             labelComponent={<VictoryTooltip renderInPortal/>}
           />
           <VictoryBar
             data={this.state.transactions}
             x={d => moment(d.date).toDate()}
             y="total_price"
-            labels={d => d.datum.total_price}
+            labels={d => moment(d.datum.date).format('LLL')+' '+currencyFormat.format(d.datum.total_price)}
             style={{ data: { fill: "seagreen", width: 10 } }}
             labelComponent={<VictoryTooltip renderInPortal/>}
           />
@@ -658,8 +661,7 @@ export default class OverviewPage extends Component {
               brushDomain={this.state.selectedDomain}
               onBrushDomainChange={this.handleBrush.bind(this)}
             />
-          }
-        >
+          }>
           <VictoryLine
             style={{
               data: {stroke: "tomato"}
