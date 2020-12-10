@@ -129,7 +129,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
 
       if (!data.date) {
         // 1.1.12 1:12
-        line_date = line.match(/((\d{1,2})[\.|\,](\d{1,2})[\.|\,](\d{2,4}))(\s)?((\d{1,2})[:|,|\.|\s|z]?((\d{1,2})[:|,|\.|\s|z]?)?(\d{1,2})?)?/);
+        line_date = line.match(/((\d{1,2})[\.|\,|\/](\d{1,2})[\.|\,|\/](\d{2,4}))(\s)?((\d{1,2})[:|,|\.|\s|z]?((\d{2})[:|,|\.|\s|z]?)?(\d{2})?)?/);
         date = line_date && parseYear(line_date[4])+'-'+line_date[3]+'-'+line_date[2]+' '+line_date[7]+':'+line_date[9];//+':'+line_date[10];
         if (date && moment(date).isValid()) {
           console.log(line_date, date);
@@ -140,7 +140,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
 
         if (!date || !line_date[6]) {
           // 1:12 1-1-12
-          line_date = line.match(/((\d{1,2}[:|,|\.|1]?)(\d{1,2}[:|,|\.]?)?(\d{1,2})?)?(\s)?((\d{1,2})[\-|\.](\d{1,2})[\-|\.](\d{2,4}))/);
+          line_date = line.match(/((\d{1,2}[:|,|\.|1]?)(\d{2}[:|,|\.]?)?(\d{1,2})?)?(\s)?((\d{1,2})[\-|\.](\d{1,2})[\-|\.](\d{2,4}))/);
           date = line_date && parseYear(line_date[9])+'-'+line_date[8]+'-'+line_date[7]+' '+line_date[1];
           if (date && moment(date).isValid()) {
             console.log(line_date, date);
@@ -258,7 +258,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
       }
 
       // opening hours
-      line_opening = line.match(/^((ma|ti|ke|to|pe|la|su)-(ma|ti|ke|to|pe|la|su)[0-9-\.:\s]+)+$/i);
+      line_opening = line.match(/^(palvelemme|ark)?(ma|ti|ke|to|pe|la|su|ja|klo|[0-9-\.:\s]+)+$/i);
       if (line_opening) {
         console.log('opening', line_opening);
         continue;
@@ -322,7 +322,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
           const line_measure = line.substring(0, line_price.index).match(/(\d{1,4}(\.\d)?)((kg)|(g)|(l|1))/);
           const line_quantity = line_number_format.substring(0, line_price.index).match(/(\d{1,4}\.\d{2})\s?x\s?(\d{1,2})/i);
           
-          let line_item = line.substring(0, line_price.index).match(/^((\d+)\s)?([\u00C0-\u017F-a-z0-9\s\-\.\,\+\&\%\=\/\(\)\{\}\[\]]+)$/i);
+          let line_item = line.substring(0, line_price.index).match(/^((\d+)\s)?([\u00C0-\u017F-a-z0-9\s:\-\.\,\+\&\%\=\/\(\)\{\}\[\]]+)$/i);
 
           const measure = line_measure && parseFloat(line_measure[1]);
           const quantity = line_quantity && parseFloat(line_quantity[2]);
