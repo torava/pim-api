@@ -102,6 +102,7 @@
     "jest": "^26.6.3",
     "react-hot-loader": "^4.12.19",
     "regenerator-runtime": "^0.12.1",
+    "sass": "^1.32.0",
     "sass-loader": "^10.1.0",
     "wait-on": "^4.0.1",
     "webpack-cli": "^3.3.11",
