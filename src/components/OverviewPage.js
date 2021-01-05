@@ -502,8 +502,6 @@ export default class OverviewPage extends Component {
           </label>
           <VictoryChart
             scale={{ x: "time" }}
-            width={600}
-            height={300}
             crossAxis={true}
             containerComponent={
               <VictoryZoomContainer
@@ -539,10 +537,11 @@ export default class OverviewPage extends Component {
             />
           </VictoryChart>
           <VictoryChart
+            height={120}
             padding={{top: 0, left: 50, right: 50, bottom: 30}}
-            width={750} height={90} scale={{x: "time"}}
+            scale={{x: "time"}}
             containerComponent={
-              <VictoryBrushContainer responsive={false}
+              <VictoryBrushContainer
                 brushDimension="x"
                 brushDomain={this.state.selectedDomain}
                 onBrushDomainChange={this.handleBrush.bind(this)}

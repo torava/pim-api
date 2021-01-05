@@ -159,9 +159,6 @@ fieldset {
     width: 80px;
     color: gray;
   }
-  input {
-    width: 100px;
-  }
   table.no-more-tables > tbody > tr > td > span > input,
   table.no-more-tables > tbody > tr > td > div > input,
   table.no-more-tables > tbody > tr > td > input {

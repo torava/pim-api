@@ -34,9 +34,9 @@ export const aggregateCategoryAttribute = (resolvedCategories, attributeAggregat
         measured_value = value*item_measure;
         category.attribute_sum[attribute_id] = measured_value || parent_value*item_measure || 0;
         category.attribute_sum[attribute_id]*= average_rate;
-        let target_unit = locale.getAttributeUnit(attribute_aggregates[attribute_id].name['en-US']);
+        let target_unit = locale.getAttributeUnit(attributeAggregates[attribute_id].name['en-US']);
         if (target_unit) {
-          let rate = config.unit_conversions[attribute_aggregates[attribute_id].unit][target_unit];
+          let rate = config.unit_conversions[attributeAggregates[attribute_id].unit][target_unit];
           if (rate) {
             category.attribute_sum[attribute_id]*= rate;
           }

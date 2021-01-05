@@ -109,14 +109,14 @@ export default class Layout extends React.Component {
         <footer>
           <div className="footer-container">
             <nav>
-              <Link to="/" className="button"><i className="fas fa-chart-area" title="Overview"></i></Link>&nbsp;
-              <Link to="/categories" className="button"><i className="fas fa-search" title="Categories"></i></Link>&nbsp;
+              <Link to="/" className="button"><i className="fas fa-chart-area" title="Overview"></i></Link>
+              <Link to="/categories" className="button"><i className="fas fa-search" title="Categories"></i></Link>
               <div className="button file-upload-wrapper">
                 <i className="fas fa-plus" title="Upload"></i>
                 <input type="file" name="upload-file" id="upload-file" multiple draggable onChange={this.onUpload}/>
               </div>
-              <Link to="/transactions" className="button"><i className="fas fa-shopping-cart" title="Transactions"></i></Link>&nbsp;
-              <Link to="/items" className="button"><i className="fas fa-box-open" title="Items"></i></Link>&nbsp;
+              <Link to="/transactions" className="button"><i className="fas fa-shopping-cart" title="Transactions"></i></Link>
+              <Link to="/items" className="button"><i className="fas fa-box-open" title="Items"></i></Link>
             </nav>
           </div>
         </footer>
