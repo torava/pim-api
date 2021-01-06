@@ -1,24 +1,15 @@
-'use strict';
-
+import React, { Component } from 'react';
 import axios from 'axios';
 import moment from 'moment';
-import React, { Component } from 'react';
 import {Link} from 'react-router-dom';
-import {
-  VictoryChart,
-  VictoryZoomContainer,
-  VictoryBrushContainer,
-  VictoryLine,
-  VictoryTooltip,
-  VictoryBar
-} from 'victory';
 import AsteriskTable from 'react-asterisk-table';
 import sortable from 'react-asterisk-table/lib/Sortable';
 import tree from 'react-asterisk-table/lib/Tree';
 
-import { locale } from './locale';
-import { aggregateCategoryAttribute, aggregateCategoryPrice, getAverageRate } from '../utils/categories';
-import { getItemNameByDepth } from '../utils/items';
+import { locale } from '../locale';
+import { aggregateCategoryAttribute, aggregateCategoryPrice, getAverageRate } from '../../utils/categories';
+import { getItemNameByDepth } from '../../utils/items';
+import { OverviewChart } from './OverviewChart';
 
 import './OverviewPage.scss';
 
@@ -106,13 +97,6 @@ export default class OverviewPage extends Component {
     } catch (error) {
       console.error(error);
     }
-  }
-  handleZoom(domain) {
-    this.setState({selectedDomain: domain});
-  }
-
-  handleBrush(domain) {
-    this.setState({zoomDomain: domain});
   }
   filterCategories(categories, start_date, end_date) {
     const {transactions} = this.state;
@@ -379,7 +363,7 @@ export default class OverviewPage extends Component {
         aggregate;
     for (let id in attribute_aggregates) {
       aggregate = attribute_aggregates[id];
-      if (aggregate && !aggregate.children.length) {
+      if (id > 0 && aggregate && !aggregate.children.length) {
         let label = locale.getNameLocale(aggregate.name)+(aggregate.unit ? " ("+aggregate.unit+")" : '');
         let target_unit = locale.getAttributeUnit(aggregate.name['en-US']);
         if (target_unit) {
@@ -406,11 +390,6 @@ export default class OverviewPage extends Component {
         width: '700'
       },
       {
-        id: 'price_sum',
-        formatter: value => value && value.toFixed(2),
-        label: 'Price'
-      },
-      {
         id: 'weight_sum',
         formatter: value => value && value.toFixed(2),
         label: 'Weight'
@@ -420,7 +399,12 @@ export default class OverviewPage extends Component {
         formatter: value => value && value.toFixed(2),
         label: 'Volume'
       }
-    ].concat(attribute_aggregate_columns);
+    ].concat(this.state.attribute_aggregates[-1] ? [{
+      id: 'price_sum',
+      formatter: value => value && value.toFixed(2),
+      label: 'Price'
+    }] : [])
+    .concat(attribute_aggregate_columns);
   }
   getAttributeColumns() {
     return [
@@ -484,78 +468,9 @@ export default class OverviewPage extends Component {
       <div className="overview-page__container">
         <div className="overview-page__content">
           <h2>Transactions</h2>
-          <label>
-            Start
-            <input
-              type="date"
-              defaultValue={this.state.filter.start_date}
-              onBlur={event => this.setFilter('start_date', event.target.value)}
-            />
-          </label>
-          <label>
-            End
-            <input
-              type="date"
-              defaultValue={this.state.filter.end_date}
-              onBlur={event => this.setFilter('end_date', event.target.value)}
-            />
-          </label>
-          <VictoryChart
-            scale={{ x: "time" }}
-            crossAxis={true}
-            containerComponent={
-              <VictoryZoomContainer
-                zoomDimension="x"
-                zoomDomain={this.state.zoomDomain}
-                onZoomDomainChange={this.handleZoom.bind(this)}
-              />
-            }
-          >
-            <VictoryLine
-              data={this.state.transaction_aggregates.monthly}
-              x={d => moment(d.date).toDate()}
-              y="goal"
-              style={{ data: { stroke: "red" } }}
-              labels={d => d.datum.goal}
-              labelComponent={<VictoryTooltip renderInPortal/>}
-            />
-            <VictoryBar
-              data={this.state.transaction_aggregates.monthly}
-              x={d => moment(d.date).toDate()}
-              y="total_price"
-              style={{ data: { fill: "navy", width: 10 } }}
-              labels={d => moment(d.datum.date).format('MMM YYYY')+' '+currencyFormat.format(d.datum.total_price)}
-              labelComponent={<VictoryTooltip renderInPortal/>}
-            />
-            <VictoryBar
-              data={this.state.transactions}
-              x={d => moment(d.date).toDate()}
-              y="total_price"
-              labels={d => moment(d.datum.date).format('LLL')+' '+currencyFormat.format(d.datum.total_price)}
-              style={{ data: { fill: "seagreen", width: 10 } }}
-              labelComponent={<VictoryTooltip renderInPortal/>}
-            />
-          </VictoryChart>
-          <VictoryChart
-            height={120}
-            padding={{top: 0, left: 50, right: 50, bottom: 30}}
-            scale={{x: "time"}}
-            containerComponent={
-              <VictoryBrushContainer
-                brushDimension="x"
-                brushDomain={this.state.selectedDomain}
-                onBrushDomainChange={this.handleBrush.bind(this)}
-              />
-            }>
-            <VictoryLine
-              style={{
-                data: {stroke: "tomato"}
-              }}
-              data={this.state.transaction_aggregates.monthly}
-              x={d => moment(d.date).toDate()}
-              y="total_price"
-            />
-          </VictoryChart>
+          <OverviewChart
+            transactions={this.state.transactions}
+            transactionAggregates={this.state.transaction_aggregates}/>
           <h2>Categories</h2>
           <select
             value={this.state.average_range}
@@ -573,10 +488,37 @@ export default class OverviewPage extends Component {
           />
         </div>
         <div className="overview-page__options">
+          <h3>Time</h3>
+          <table className="overview-page__time-table">
+            <tr>
+              <td>
+                <label for="start-date">Start</label>
+              </td>
+              <td>
+                <input
+                  id="start-date"
+                  type="date"
+                  defaultValue={this.state.filter.start_date}
+                  onBlur={event => this.setFilter('start_date', event.target.value)}/>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label for="end-date">End</label>
+              </td>
+              <td>
+                <input
+                  id="end-date"
+                  type="date"
+                  defaultValue={this.state.filter.end_date}
+                  onBlur={event => this.setFilter('end_date', event.target.value)}/>
+              </td>
+            </tr>
+          </table>
           <h3>Attributes</h3>
           <TreeTable
             columns={this.state.attribute_columns}
-            items={this.state.attributes}
+            items={[{id: -1, name: 'Price', children: []}, ...this.state.attributes]}
           />
         </div>
       </div>

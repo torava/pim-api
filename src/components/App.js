@@ -1,9 +1,9 @@
-'use strict';
-
 import React from 'react';
 import {Switch, Route} from 'react-router';
+import { hot } from 'react-hot-loader';
+
 import Layout from './Layout';
-import OverviewPage from './OverviewPage';
+import OverviewPage from './OverviewPage/OverviewPage';
 import ItemListPage from './ItemListPage';
 import TransactionListPage from './TransactionListPage';
 import CategoryListPage from './CategoryListPage';
@@ -13,7 +13,7 @@ import EditReceiptPage from './EditReceiptPage';
 import TextBoxTool from './TextBoxTool';
 import CropTool from './CropTool';
 import NotFoundPage from './NotFoundPage';
-import { hot } from 'react-hot-loader';
+
 import './App.css';
 
 const App = () => <Layout>

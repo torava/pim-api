@@ -7,6 +7,9 @@
   .overview-page__options {
     position: sticky;
     top: 0;
+    .overview-page__time-table {
+      border-width: 0;
+    }
   }
 }
 @media (max-width: 1000px) {
