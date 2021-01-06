@@ -3,16 +3,38 @@ import React from 'react';
 import AsteriskTable from 'react-asterisk-table';
 import sortable from 'react-asterisk-table/lib/Sortable';
 import tree from 'react-asterisk-table/lib/Tree';
+import { Link } from 'react-router-dom';
+
+import { aggregateCategoryAttribute, aggregateCategoryPrice, getAverageRate } from '../../utils/categories';
+import { locale } from '../locale';
 
 const TreeTable = sortable(tree(AsteriskTable));
 
-export default function Categories() {
+export default function Categories(props) {
+  const {
+    categories,
+    attributeAggregates,
+    filter,
+    averageRange
+  } = props;
+
+  const getResolvedCategories = () => {
+    let resolvedCategories = [...categories];
+    
+    const averageRate = getAverageRate(filter, averageRange);
+    
+    resolvedCategories = aggregateCategoryAttribute(resolvedCategories, attributeAggregates, averageRate);
+    resolvedCategories = aggregateCategoryPrice(resolvedCategories, averageRate);
+
+    return resolvedCategories;
+  };
+
   const getColumns = () => {
     let attribute_aggregate_columns = [],
-        attribute_aggregates = Object.assign({}, this.state.attribute_aggregates),
+        attribute_aggregates = {...attributeAggregates},
         aggregate;
-    for (let id in attribute_aggregates) {
-      aggregate = attribute_aggregates[id];
+    for (let id in attributeAggregates) {
+      aggregate = attributeAggregates[id];
       if (id > 0 && aggregate && !aggregate.children.length) {
         let label = locale.getNameLocale(aggregate.name)+(aggregate.unit ? " ("+aggregate.unit+")" : '');
         let target_unit = locale.getAttributeUnit(aggregate.name['en-US']);
@@ -49,7 +71,7 @@ export default function Categories() {
         formatter: value => value && value.toFixed(2),
         label: 'Volume'
       }
-    ].concat(this.state.attribute_aggregates[-1] ? [{
+    ].concat(attribute_aggregates[-1] ? [{
       id: 'price_sum',
       formatter: value => value && value.toFixed(2),
       label: 'Price'
@@ -58,7 +80,7 @@ export default function Categories() {
   }
   return <>
     <select
-      value={this.state.average_range}
+      value={averageRange}
       onChange={event => this.setAverageRange(event.target.value)}>
       <option value="">All</option>
       <option value="365">Yearly average</option>
@@ -67,8 +89,8 @@ export default function Categories() {
       <option value="1">Daily average</option>
     </select>
     <TreeTable
-      columns={this.state.columns}
-      items={this.state.resolved_categories}
+      columns={getColumns()}
+      items={getResolvedCategories()}
       resolveItems={items => items.filter(item => item.price_sum > 0)}/>
   </>;
 }

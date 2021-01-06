@@ -8,9 +8,12 @@ import { locale } from '../locale';
 
 const TreeTable = sortable(tree(AsteriskTable));
 
-export default function Attributes() {
-  const [columns, setColumns] = useState(getColumns());
-  const [attributeAggregates, setAttributeAggregates] = useState();
+export default function Attributes(props) {
+  const {
+    attributes,
+    attributeAggregates,
+    setAttributeAggregates
+  } = props;
 
   const getColumns = () => {
     return [
@@ -33,41 +36,29 @@ export default function Attributes() {
     ]
   }
   const setAttributeAggregateVisibility = (attribute, visible) => {
-    function set(attribute, visible, attribute_aggregates) {
+    function set(attribute, visible, aggregates) {
       attribute.children.forEach(child => {
-        set(child, visible, attribute_aggregates);
+        set(child, visible, aggregates);
       });
-      if (visible) attribute_aggregates[attribute.id] = attribute;
-      else delete attribute_aggregates[attribute.id];
+      if (visible) aggregates[attribute.id] = attribute;
+      else delete aggregates[attribute.id];
     }
     let aggregates = {...attributeAggregates};
 
     if (attribute) {
-      set(attribute, visible, attribute_aggregates);
+      set(attribute, visible, aggregates);
     }
     else {
       this.state.attributes.forEach(a => {
-        set(a, visible, attribute_aggregates);
+        set(a, visible, aggregates);
       });
     }
     
     setAttributeAggregates(aggregates);
-    
-    let resolvedCategories = this.state.resolved_categories;
-  
-    const averageRate = getAverageRate(this.state.filter, this.state.average_range);
-    
-    resolvedCategories = aggregateCategoryAttribute(resolvedCategories, attributeAggregates, averageRate);
-    resolvedCategories = aggregateCategoryPrice(resolvedCategories, averageRate);
-
-    this.setState({
-      columns: this.getColumns(),
-      resolved_categories: resolvedCategories
-    });
   }
   return (
     <TreeTable
-      columns={columns}
-      items={[{id: -1, name: 'Price', children: []}, ...this.state.attributes]}/>
+      columns={getColumns()}
+      items={[{id: -1, name: 'Price', children: []}, ...attributes]}/>
   );
 }

@@ -11,6 +11,7 @@ import Attributes from './Attributes';
 import Categories from './Categories';
 
 import './OverviewPage.scss';
+import TimeFilter from './TimeFilter';
 
 function first(list) {
   for (let i in list) {
@@ -38,9 +39,9 @@ export default class OverviewPage extends Component {
       resolved_timeline_categories: []
     };
 
-    this.setAttributeAggregateVisibility = this.setAttributeAggregateVisibility.bind(this);
     this.setFilter = this.setFilter.bind(this);
     this.setAverageRange = this.setAverageRange.bind(this);
+    this.setAttributeAggregates = this.setAttributeAggregates.bind(this);
   }
   async componentDidMount() {
     try {
@@ -62,25 +63,10 @@ export default class OverviewPage extends Component {
 
         this.setState({
           categories: [...categories.data],
-          resolved_categories: [...categories.data],
-          columns: this.getColumns(),
-          attribute_columns: this.getAttributeColumns()
+          resolved_categories: [...categories.data]
         }, () => {
           this.resolvePieItems();
           this.resolveStackItems();
-          
-          let resolvedCategories = this.state.resolved_categories;
-    
-          const attributeAggregates = this.state.attribute_aggregates;
-          const averageRate = getAverageRate(this.state.filter, this.state.average_range);
-          
-          resolvedCategories = aggregateCategoryAttribute(resolvedCategories, attributeAggregates, averageRate);
-          resolvedCategories = aggregateCategoryPrice(resolvedCategories, averageRate);
-
-          this.setState({
-            columns: this.getColumns(),
-            resolved_categories: resolvedCategories
-          });
 
           document.title = "Categories";
 
@@ -116,7 +102,6 @@ export default class OverviewPage extends Component {
       let {start_date, end_date} = {...this.state.filter};
       let minimum, maximum;
       if (!start_date || !end_date) {
-        console.log('!!!', transactions);
         transactions.forEach(transaction => {
           let transaction_date = moment(transaction.date).toDate();
           if (!minimum || transaction_date < minimum) minimum = transaction_date;
@@ -131,20 +116,7 @@ export default class OverviewPage extends Component {
     });
   }
   setAverageRange(average_range) {
-    this.setState({average_range}, () => {
-      let resolvedCategories = this.state.resolved_categories;
-    
-      const attributeAggregates = this.state.attribute_aggregates;
-      const averageRate = getAverageRate(this.state.filter, this.state.average_range);
-          
-      resolvedCategories = aggregateCategoryAttribute(resolvedCategories, attributeAggregates, averageRate);
-      resolvedCategories = aggregateCategoryPrice(resolvedCategories, averageRate);
-
-      this.setState({
-        columns: this.getColumns(),
-        resolved_categories: resolvedCategories
-      });
-    });
+    this.setState({average_range});
   }
   setFilter(parameter, value) {
     let resolved_categories = _.cloneDeep(this.state.categories),
@@ -162,21 +134,7 @@ export default class OverviewPage extends Component {
       },
       resolved_categories
     }, () => {
-      console.log(this.state);
-      this.setMaximumRangeFilter().then(() => {
-        let resolvedCategories = this.state.resolved_categories;
-    
-        const attributeAggregates = this.state.attribute_aggregates;
-        const averageRate = getAverageRate(this.state.filter, this.state.average_range);
-          
-        resolvedCategories = aggregateCategoryAttribute(resolvedCategories, attributeAggregates, averageRate);
-        resolvedCategories = aggregateCategoryPrice(resolvedCategories, averageRate);
-
-        this.setState({
-          columns: this.getColumns(),
-          resolved_categories: resolvedCategories
-        });
-      });
+      this.setMaximumRangeFilter();
     });
   }
   onDepthChange(event) {
@@ -352,23 +310,48 @@ export default class OverviewPage extends Component {
       resolved_stack_items: resolved_items
     });
   }
+  setAttributeAggregates(attribute_aggregates) {
+    this.setState({
+      attribute_aggregates
+    });
+  }
   render() {
-    if (!this.state.ready) return null;
+    const {
+      ready,
+      attributes,
+      transactions,
+      transaction_aggregates,
+      attribute_aggregates,
+      resolved_categories,
+      filter,
+      setFilter,
+      average_range
+    } = this.state;
+    if (!ready) return null;
     return (
       <div className="overview-page__container">
         <div className="overview-page__content">
           <h2>Transactions</h2>
           <Transactions
-            transactions={this.state.transactions}
-            transactionAggregates={this.state.transaction_aggregates}/>
+            transactions={transactions}
+            transactionAggregates={transaction_aggregates}/>
           <h2>Categories</h2>
-          <Categories/>
+          <Categories
+            categories={resolved_categories}
+            attributeAggregates={attribute_aggregates}
+            filter={filter}
+            averageRange={average_range}/>
         </div>
         <div className="overview-page__options">
           <h3>Time</h3>
-          <TimeFilter/>
+          <TimeFilter
+            filter={filter}
+            setFilter={this.setFilter}/>
           <h3>Attributes</h3>
-          <Attributes/>
+          <Attributes
+            attributes={attributes}
+            attributeAggregates={attribute_aggregates}
+            setAttributeAggregates={this.setAttributeAggregates}/>
         </div>
       </div>
     );

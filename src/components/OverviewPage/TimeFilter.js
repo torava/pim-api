@@ -1,4 +1,11 @@
-export default function TimeFilter() {
+import React from 'react';
+
+export default function TimeFilter(props) {
+  const {
+    filter,
+    setFilter
+  } = props;
+
   return (
     <table className="overview-page__time-filter">
       <tr>
@@ -9,8 +16,8 @@ export default function TimeFilter() {
           <input
             id="start-date"
             type="date"
-            defaultValue={this.state.filter.start_date}
-            onBlur={event => this.setFilter('start_date', event.target.value)}/>
+            defaultValue={filter.start_date}
+            onBlur={event => setFilter('start_date', event.target.value)}/>
         </td>
       </tr>
       <tr>
@@ -21,8 +28,8 @@ export default function TimeFilter() {
           <input
             id="end-date"
             type="date"
-            defaultValue={this.state.filter.end_date}
-            onBlur={event => this.setFilter('end_date', event.target.value)}/>
+            defaultValue={filter.end_date}
+            onBlur={event => setFilter('end_date', event.target.value)}/>
         </td>
       </tr>
     </table>
