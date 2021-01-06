@@ -40,9 +40,9 @@ export default function Transactions(props) {
       <VictoryLine
         data={transactionAggregates.monthly}
         x={d => moment(d.date).toDate()}
-        y="goal"
+        y={() => attributeGoals[selectedAttributeId]}
         style={{ data: { stroke: "red" } }}
-        labels={d => d.datum.goal}
+        labels={() => attributeGoals[selectedAttributeId]}
         labelComponent={<VictoryTooltip renderInPortal/>}/>
       <VictoryBar
         data={transactionAggregates.monthly}

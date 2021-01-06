@@ -59,7 +59,7 @@ export default class OverviewPage extends Component {
         transactions: transactions.data
       }, async () => {
         this.setMaximumRangeFilter();
-        this.aggregateTransactions();
+        this.aggregateTransactionPrice();
         const items = await axios.get('/api/item/');
         this.setState({items: items.data});
         
@@ -149,44 +149,32 @@ export default class OverviewPage extends Component {
     this.resolveStackItems();
     this.resolveTimelineItems();
   }
-  aggregateTransactions() {
+  aggregateTransactionPrice() {
     let date,
         aggregates = {
       monthly: {}
     };
-    const {attribute_aggregates, selectedAttributeId} = this.state;
     const transactions = this.state.transactions.map(transaction => {
-      let attributeValue = 0;
-
       date = moment(transaction.date, 'YYYY-MM-01').format();
-      
-      transaction.items.forEach(item => {
-        const itemAttribute = item.product?.category?.attributes?.find(attribute => attribute.id === selectedAttributeId);
-        const measure = locale.convertMeasure(item.product?.measure || item.measure, item.product?.unit || item.unit, 'kg');
-        const itemMeasure = (item.product?.quantity || item.quantity || 1)*measure;
-        attributeValue+= itemAttribute?.value*itemMeasure || 0;
-      });
 
       const aggregate = aggregates.monthly[date] || {};
-      const attributes = aggregate.attributes || {};
-      attributes[selectedAttributeId] = attributeValue+(attributes[selectedAttributeId] || 0);
-      attributes[-1] = transaction.total_price+(attributes[-1] || 0);
-  
-      aggregates.monthly[date] = {
-        date: date,
-        goal: 100,
-        attributes
+      const aggregateAttributes = aggregate.attributes || {};
+
+      aggregateAttributes[-1] = transaction.total_price;
+
+      const transactionAttributes = {
+        ...transaction.attributes || {},
+        [-1]: transaction.total_price+(aggregateAttributes[-1] || 0)
       };
 
-      const transactionAttributes = transaction.attributes || {};
-      const previousAttributeValue = transactionAttributes[selectedAttributeId] || 0;
+      aggregates.monthly[date] = {
+        date: date,
+        attributes: aggregateAttributes
+      };
+
       return {
         ...transaction,
-        attributes: {
-          ...transactionAttributes,
-          [-1]: transaction.total_price,
-          [selectedAttributeId]: attributeValue+previousAttributeValue
-        }
+        attributes: transactionAttributes
       };
     });
     aggregates.monthly = Object.values(aggregates.monthly);
@@ -195,6 +183,57 @@ export default class OverviewPage extends Component {
       transactions,
       transaction_aggregates: aggregates
     });
+  }
+  aggregateTransactionAttribute() {
+    const {selectedAttributeId} = this.state;
+
+    console.log(selectedAttributeId);
+    if (selectedAttributeId > 0) {
+      let date,
+          aggregates = this.state.transaction_aggregates || {
+        monthly: {}
+      };
+      const transactions = this.state.transactions.map(transaction => {
+        let attributeValue = 0;
+
+        date = moment(transaction.date, 'YYYY-MM-01').format();
+
+        const aggregate = aggregates.monthly[date] || {};
+        const aggregateAttributes = aggregate.attributes || {};
+
+        transaction.items.forEach(item => {
+          const itemAttribute = item.product?.category?.attributes?.find(attribute => attribute.attributeId === selectedAttributeId);
+          const measure = locale.convertMeasure(item.product?.measure || item.measure, item.product?.unit || item.unit, 'kg');
+          const itemMeasure = (item.product?.quantity || item.quantity || 1)*measure || 0;
+          attributeValue+= (itemAttribute?.value || 0)*itemMeasure;
+          console.log(item, itemAttribute?.value, itemMeasure, attributeValue);
+        });
+        aggregateAttributes[selectedAttributeId] = attributeValue+(aggregateAttributes[selectedAttributeId] || 0);
+
+        const previousAttributes = transaction.attributes || {};
+        const previousAttributeValue = previousAttributes[selectedAttributeId] || 0;
+        const transactionAttributes = {
+          ...previousAttributes,
+          [selectedAttributeId]: attributeValue+previousAttributeValue
+        };
+
+        aggregates.monthly[date] = {
+          date: date,
+          attributes: aggregateAttributes
+        };
+
+        return {
+          ...transaction,
+          attributes: transactionAttributes
+        };
+      });
+      aggregates.monthly = Object.values(aggregates.monthly);
+
+      this.setState({
+        transactions,
+        transaction_aggregates: aggregates
+      });
+    }
   }
   resolvePieItems() {
     let that = this,
@@ -340,7 +379,9 @@ export default class OverviewPage extends Component {
     });
   }
   setSelectedAttributeId(selectedAttributeId) {
-    this.setState({selectedAttributeId});
+    this.setState({selectedAttributeId}, () => {
+      this.aggregateTransactionAttribute();
+    });
   }
   setAttributeGoals(attributeGoals) {
     this.setState({attributeGoals});

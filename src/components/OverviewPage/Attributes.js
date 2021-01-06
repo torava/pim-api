@@ -39,11 +39,11 @@ export default function Attributes(props) {
         label: 'Name',
         property: attribute => locale.getNameLocale(attribute.name),
         formatter: (value, attribute) => (
-          <div
+          <span
             className={classNames('attributes__attribute-name', attribute.id === selectedAttributeId && 'attributes__attribute-name--selected')}
             onClick={() => setSelectedAttributeId(attribute.id)}>
               {locale.getNameLocale(value)}
-          </div>
+          </span>
         )
       }
     ]
