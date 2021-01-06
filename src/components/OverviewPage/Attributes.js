@@ -1,8 +1,8 @@
-import React from 'react';
-
+import React, { useMemo } from 'react';
 import AsteriskTable from 'react-asterisk-table';
 import sortable from 'react-asterisk-table/lib/Sortable';
 import tree from 'react-asterisk-table/lib/Tree';
+import classNames from 'classnames';
 
 import { locale } from '../locale';
 
@@ -10,10 +10,17 @@ const TreeTable = sortable(tree(AsteriskTable));
 
 export default function Attributes(props) {
   const {
-    attributes,
     attributeAggregates,
-    setAttributeAggregates
+    setAttributeAggregates,
+    selectedAttributeId,
+    setSelectedAttributeId,
+    attributeGoals,
+    setAttributeGoals
   } = props;
+
+  const attributes = [{id: -1, name: 'Price', children: []}, ...props.attributes];
+
+  const selectedAttribute = useMemo(() => attributes.find(attribute => attribute.id === selectedAttributeId), [attributes, selectedAttributeId]);
 
   const getColumns = () => {
     return [
@@ -31,7 +38,13 @@ export default function Attributes(props) {
         id: 'name',
         label: 'Name',
         property: attribute => locale.getNameLocale(attribute.name),
-        formatter: (value, attribute) => <label htmlFor={"toggle-attribute-"+attribute.id}>{locale.getNameLocale(value)}</label>
+        formatter: (value, attribute) => (
+          <div
+            className={classNames('attributes__attribute-name', attribute.id === selectedAttributeId && 'attributes__attribute-name--selected')}
+            onClick={() => setSelectedAttributeId(attribute.id)}>
+              {locale.getNameLocale(value)}
+          </div>
+        )
       }
     ]
   }
@@ -56,9 +69,24 @@ export default function Attributes(props) {
     
     setAttributeAggregates(aggregates);
   }
-  return (
+  const setAttributeGoal = (goal) => {
+    setAttributeGoals({
+      ...attributeGoals,
+      [selectedAttributeId]: goal
+    });
+  };
+  return <>
     <TreeTable
       columns={getColumns()}
-      items={[{id: -1, name: 'Price', children: []}, ...attributes]}/>
-  );
+      items={attributes}/>
+    <p>
+      Selected: {locale.getNameLocale(selectedAttribute?.name)}
+    </p>
+    <p>
+      Goal: <input
+        type="number"
+        value={attributeGoals[selectedAttributeId]}
+        onChange={event => setAttributeGoal(event.target.value)}/>
+    </p>
+  </>;
 }

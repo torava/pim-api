@@ -36,12 +36,18 @@ export default class OverviewPage extends Component {
       resolved_pie_items: [],
       resolved_stack_items: [],
       resolved_timeline_items: [],
-      resolved_timeline_categories: []
+      resolved_timeline_categories: [],
+      attributeGoals: {
+        [-1]: 100
+      },
+      selectedAttributeId: -1
     };
 
     this.setFilter = this.setFilter.bind(this);
     this.setAverageRange = this.setAverageRange.bind(this);
     this.setAttributeAggregates = this.setAttributeAggregates.bind(this);
+    this.setSelectedAttributeId = this.setSelectedAttributeId.bind(this);
+    this.setAttributeGoals = this.setAttributeGoals.bind(this);
   }
   async componentDidMount() {
     try {
@@ -53,9 +59,7 @@ export default class OverviewPage extends Component {
         transactions: transactions.data
       }, async () => {
         this.setMaximumRangeFilter();
-        this.setState({
-          transaction_aggregates: this.aggregateTransactions()
-        });
+        this.aggregateTransactions();
         const items = await axios.get('/api/item/');
         this.setState({items: items.data});
         
@@ -150,27 +154,47 @@ export default class OverviewPage extends Component {
         aggregates = {
       monthly: {}
     };
-    const {attribute_aggregates} = this.state;
-    this.state.transactions.map(transaction => {
+    const {attribute_aggregates, selectedAttributeId} = this.state;
+    const transactions = this.state.transactions.map(transaction => {
+      let attributeValue = 0;
+
       date = moment(transaction.date, 'YYYY-MM-01').format();
-      Object.entries(attribute_aggregates).forEach(([id, attribute]) => {
-        transaction.items.forEach(item => {
-          const item_attribute = item.product.category.attributes.find(attribute => attribute.id === id);
-        })
+      
+      transaction.items.forEach(item => {
+        const itemAttribute = item.product?.category?.attributes?.find(attribute => attribute.id === selectedAttributeId);
+        const measure = locale.convertMeasure(item.product?.measure || item.measure, item.product?.unit || item.unit, 'kg');
+        const itemMeasure = (item.product?.quantity || item.quantity || 1)*measure;
+        attributeValue+= itemAttribute?.value*itemMeasure || 0;
       });
-      if (aggregates.monthly.hasOwnProperty(date)) {
-        aggregates.monthly[date].total_price+= transaction.total_price;
-      }
-      else {
-        aggregates.monthly[date] = {
-          date: date,
-          goal: 100,
-          total_price: transaction.total_price
+
+      const aggregate = aggregates.monthly[date] || {};
+      const attributes = aggregate.attributes || {};
+      attributes[selectedAttributeId] = attributeValue+(attributes[selectedAttributeId] || 0);
+      attributes[-1] = transaction.total_price+(attributes[-1] || 0);
+  
+      aggregates.monthly[date] = {
+        date: date,
+        goal: 100,
+        attributes
+      };
+
+      const transactionAttributes = transaction.attributes || {};
+      const previousAttributeValue = transactionAttributes[selectedAttributeId] || 0;
+      return {
+        ...transaction,
+        attributes: {
+          ...transactionAttributes,
+          [-1]: transaction.total_price,
+          [selectedAttributeId]: attributeValue+previousAttributeValue
         }
-      }
+      };
     });
     aggregates.monthly = Object.values(aggregates.monthly);
-    return aggregates;
+
+    this.setState({
+      transactions,
+      transaction_aggregates: aggregates
+    });
   }
   resolvePieItems() {
     let that = this,
@@ -315,6 +339,12 @@ export default class OverviewPage extends Component {
       attribute_aggregates
     });
   }
+  setSelectedAttributeId(selectedAttributeId) {
+    this.setState({selectedAttributeId});
+  }
+  setAttributeGoals(attributeGoals) {
+    this.setState({attributeGoals});
+  }
   render() {
     const {
       ready,
@@ -324,8 +354,9 @@ export default class OverviewPage extends Component {
       attribute_aggregates,
       resolved_categories,
       filter,
-      setFilter,
-      average_range
+      average_range,
+      selectedAttributeId,
+      attributeGoals
     } = this.state;
     if (!ready) return null;
     return (
@@ -334,7 +365,9 @@ export default class OverviewPage extends Component {
           <h2>Transactions</h2>
           <Transactions
             transactions={transactions}
-            transactionAggregates={transaction_aggregates}/>
+            transactionAggregates={transaction_aggregates}
+            selectedAttributeId={selectedAttributeId}
+            attributeGoals={attributeGoals}/>
           <h2>Categories</h2>
           <Categories
             categories={resolved_categories}
@@ -351,7 +384,11 @@ export default class OverviewPage extends Component {
           <Attributes
             attributes={attributes}
             attributeAggregates={attribute_aggregates}
-            setAttributeAggregates={this.setAttributeAggregates}/>
+            setAttributeAggregates={this.setAttributeAggregates}
+            selectedAttributeId={selectedAttributeId}
+            setSelectedAttributeId={this.setSelectedAttributeId}
+            attributeGoals={attributeGoals}
+            setAttributeGoals={this.setAttributeGoals}/>
         </div>
       </div>
     );

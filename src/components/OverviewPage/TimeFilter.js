@@ -10,7 +10,7 @@ export default function TimeFilter(props) {
     <table className="overview-page__time-filter">
       <tr>
         <td>
-          <label for="start-date">Start</label>
+          <label for="start-date">Start: </label>
         </td>
         <td>
           <input
@@ -22,7 +22,7 @@ export default function TimeFilter(props) {
       </tr>
       <tr>
         <td>
-          <label for="end-date">End</label>
+          <label for="end-date">End: </label>
         </td>
         <td>
           <input

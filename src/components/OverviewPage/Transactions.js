@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
 import moment from 'moment';
+import React, { useState } from 'react';
 import { VictoryBar, VictoryBrushContainer, VictoryChart, VictoryLine, VictoryTooltip, VictoryZoomContainer } from 'victory';
-
 import { locale } from '../locale';
+
 
 moment.locale(locale.getLanguage());
 
@@ -11,7 +11,9 @@ const currencyFormat = new Intl.NumberFormat(locale.getLocale(), { style: 'curre
 export default function Transactions(props) {
   const {
     transactions,
-    transactionAggregates
+    transactionAggregates,
+    selectedAttributeId,
+    attributeGoals
   } = props;
 
   const [selectedDomain, setSelectedDomain] = useState();
@@ -45,15 +47,15 @@ export default function Transactions(props) {
       <VictoryBar
         data={transactionAggregates.monthly}
         x={d => moment(d.date).toDate()}
-        y="total_price"
+        y={d => d.attributes[selectedAttributeId]}
         style={{ data: { fill: "navy", width: 10 } }}
-        labels={d => moment(d.datum.date).format('MMM YYYY')+' '+currencyFormat.format(d.datum.total_price)}
+        labels={d => `${moment(d.datum.date).format('MMM YYYY')} ${currencyFormat.format(d.datum.attributes[selectedAttributeId])}`}
         labelComponent={<VictoryTooltip renderInPortal/>}/>
       <VictoryBar
         data={transactions}
         x={d => moment(d.date).toDate()}
-        y="total_price"
-        labels={d => moment(d.datum.date).format('LLL')+' '+currencyFormat.format(d.datum.total_price)}
+        y={d => d.attributes[selectedAttributeId]}
+        labels={d => `${moment(d.datum.date).format('LLL')} ${currencyFormat.format(d.datum.attributes[selectedAttributeId])}`}
         style={{ data: { fill: "seagreen", width: 10 } }}
         labelComponent={<VictoryTooltip renderInPortal/>}/>
     </VictoryChart>

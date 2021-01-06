@@ -34,6 +34,7 @@
     "canvas": "^2.6.1",
     "chai": "^4.2.0",
     "chai-http": "^4.2.0",
+    "classnames": "^2.2.6",
     "corenlp": "^1.5.0",
     "css-loader": "^1.0.1",
     "eslint": "^5.8.0",
