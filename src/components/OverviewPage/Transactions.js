@@ -8,7 +8,7 @@ moment.locale(locale.getLanguage());
 
 const currencyFormat = new Intl.NumberFormat(locale.getLocale(), { style: 'currency', currency: locale.getCurrency() });
 
-export function OverviewChart(props) {
+export default function Transactions(props) {
   const {
     transactions,
     transactionAggregates

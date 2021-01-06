@@ -2,14 +2,13 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import moment from 'moment';
 import {Link} from 'react-router-dom';
-import AsteriskTable from 'react-asterisk-table';
-import sortable from 'react-asterisk-table/lib/Sortable';
-import tree from 'react-asterisk-table/lib/Tree';
 
 import { locale } from '../locale';
 import { aggregateCategoryAttribute, aggregateCategoryPrice, getAverageRate } from '../../utils/categories';
 import { getItemNameByDepth } from '../../utils/items';
-import { OverviewChart } from './OverviewChart';
+import Transactions from './Transactions';
+import Attributes from './Attributes';
+import Categories from './Categories';
 
 import './OverviewPage.scss';
 
@@ -20,10 +19,6 @@ function first(list) {
 }
 
 moment.locale(locale.getLanguage());
-
-const currencyFormat = new Intl.NumberFormat(locale.getLocale(), { style: 'currency', currency: locale.getCurrency() });
-
-const TreeTable = sortable(tree(AsteriskTable));
 
 export default class OverviewPage extends Component {
   constructor(props) {
@@ -357,169 +352,23 @@ export default class OverviewPage extends Component {
       resolved_stack_items: resolved_items
     });
   }
-  getColumns() {
-    let attribute_aggregate_columns = [],
-        attribute_aggregates = Object.assign({}, this.state.attribute_aggregates),
-        aggregate;
-    for (let id in attribute_aggregates) {
-      aggregate = attribute_aggregates[id];
-      if (id > 0 && aggregate && !aggregate.children.length) {
-        let label = locale.getNameLocale(aggregate.name)+(aggregate.unit ? " ("+aggregate.unit+")" : '');
-        let target_unit = locale.getAttributeUnit(aggregate.name['en-US']);
-        if (target_unit) {
-          label = locale.getNameLocale(aggregate.name)+" ("+target_unit+")";
-        }
-        attribute_aggregate_columns.push({
-          id: aggregate.name[locale.getLocale()]+'_sum',
-          property: 'attribute_sum['+id+']',
-          formatter: (value, item) => {
-            return item.attribute_sum && 
-                   item.attribute_sum[id] &&
-                   item.attribute_sum[id].toLocaleString(locale.getLocale(), {minimumFractionDigits: 2,maximumFractionDigits:2});
-          },
-          label
-        });
-      }
-    }
-    return [
-      {
-        id: 'name',
-        label: 'Name',
-        property: item => locale.getNameLocale(item.name),
-        formatter: (value, item) => <Link to={"/category/"+item.id}>{locale.getNameLocale(value)}</Link>,
-        width: '700'
-      },
-      {
-        id: 'weight_sum',
-        formatter: value => value && value.toFixed(2),
-        label: 'Weight'
-      },
-      {
-        id: 'volume_sum',
-        formatter: value => value && value.toFixed(2),
-        label: 'Volume'
-      }
-    ].concat(this.state.attribute_aggregates[-1] ? [{
-      id: 'price_sum',
-      formatter: value => value && value.toFixed(2),
-      label: 'Price'
-    }] : [])
-    .concat(attribute_aggregate_columns);
-  }
-  getAttributeColumns() {
-    return [
-      {
-        id: 'checkbox',
-        label: <input type="checkbox"
-                      id={"toggle-attribute-all"}
-                      onChange={event => this.setAttributeAggregateVisibility(null, event.target.checked)}/>,
-        formatter: (value, attribute) => <input type="checkbox"
-                                                id={"toggle-attribute-"+attribute.id}
-                                                checked={this.state.attribute_aggregates.hasOwnProperty(attribute.id)}
-                                                onChange={event => this.setAttributeAggregateVisibility(attribute, event.target.checked)}/>
-      },
-      {
-        id: 'name',
-        label: 'Name',
-        property: attribute => locale.getNameLocale(attribute.name),
-        formatter: (value, attribute) => <label htmlFor={"toggle-attribute-"+attribute.id}>{locale.getNameLocale(value)}</label>
-      }
-    ]
-  }
-  setAttributeAggregateVisibility(attribute, visible) {
-    function set(attribute, visible, attribute_aggregates) {
-      attribute.children.forEach(child => {
-        set(child, visible, attribute_aggregates);
-      });
-      if (visible) attribute_aggregates[attribute.id] = attribute;
-      else delete attribute_aggregates[attribute.id];
-    }
-    let attribute_aggregates = {...this.state.attribute_aggregates};
-
-    if (attribute) {
-      set(attribute, visible, attribute_aggregates);
-    }
-    else {
-      this.state.attributes.forEach(a => {
-        set(a, visible, attribute_aggregates);
-      });
-    }
-    
-    this.setState({
-      attribute_aggregates
-    }, () => {
-      let resolvedCategories = this.state.resolved_categories;
-    
-      const attributeAggregates = this.state.attribute_aggregates;
-      const averageRate = getAverageRate(this.state.filter, this.state.average_range);
-      
-      resolvedCategories = aggregateCategoryAttribute(resolvedCategories, attributeAggregates, averageRate);
-      resolvedCategories = aggregateCategoryPrice(resolvedCategories, averageRate);
-
-      this.setState({
-        columns: this.getColumns(),
-        resolved_categories: resolvedCategories
-      });
-    });
-  }
   render() {
     if (!this.state.ready) return null;
     return (
       <div className="overview-page__container">
         <div className="overview-page__content">
           <h2>Transactions</h2>
-          <OverviewChart
+          <Transactions
             transactions={this.state.transactions}
             transactionAggregates={this.state.transaction_aggregates}/>
           <h2>Categories</h2>
-          <select
-            value={this.state.average_range}
-            onChange={event => this.setAverageRange(event.target.value)}>
-            <option value="">All</option>
-            <option value="365">Yearly average</option>
-            <option value="30">Monthly average</option>
-            <option value="7">Weekly average</option>
-            <option value="1">Daily average</option>
-          </select>
-          <TreeTable
-            columns={this.state.columns}
-            items={this.state.resolved_categories}
-            resolveItems={items => items.filter(item => item.price_sum > 0)}
-          />
+          <Categories/>
         </div>
         <div className="overview-page__options">
           <h3>Time</h3>
-          <table className="overview-page__time-table">
-            <tr>
-              <td>
-                <label for="start-date">Start</label>
-              </td>
-              <td>
-                <input
-                  id="start-date"
-                  type="date"
-                  defaultValue={this.state.filter.start_date}
-                  onBlur={event => this.setFilter('start_date', event.target.value)}/>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <label for="end-date">End</label>
-              </td>
-              <td>
-                <input
-                  id="end-date"
-                  type="date"
-                  defaultValue={this.state.filter.end_date}
-                  onBlur={event => this.setFilter('end_date', event.target.value)}/>
-              </td>
-            </tr>
-          </table>
+          <TimeFilter/>
           <h3>Attributes</h3>
-          <TreeTable
-            columns={this.state.attribute_columns}
-            items={[{id: -1, name: 'Price', children: []}, ...this.state.attributes]}
-          />
+          <Attributes/>
         </div>
       </div>
     );
