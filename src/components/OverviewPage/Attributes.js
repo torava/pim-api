@@ -5,6 +5,7 @@ import tree from 'react-asterisk-table/lib/Tree';
 import classNames from 'classnames';
 
 import { locale } from '../locale';
+import { getPriceAttribute } from './OverviewPage';
 
 const TreeTable = sortable(tree(AsteriskTable));
 
@@ -12,15 +13,13 @@ export default function Attributes(props) {
   const {
     attributeAggregates,
     setAttributeAggregates,
-    selectedAttributeId,
-    setSelectedAttributeId,
+    selectedAttribute,
+    setSelectedAttribute,
     attributeGoals,
     setAttributeGoals
   } = props;
 
-  const attributes = [{id: -1, name: 'Price', children: []}, ...props.attributes];
-
-  const selectedAttribute = useMemo(() => attributes.find(attribute => attribute.id === selectedAttributeId), [attributes, selectedAttributeId]);
+  const attributes = [getPriceAttribute(), ...props.attributes];
 
   const getColumns = () => {
     return [
@@ -40,8 +39,8 @@ export default function Attributes(props) {
         property: attribute => locale.getNameLocale(attribute.name),
         formatter: (value, attribute) => (
           <span
-            className={classNames('attributes__attribute-name', attribute.id === selectedAttributeId && 'attributes__attribute-name--selected')}
-            onClick={() => setSelectedAttributeId(attribute.id)}>
+            className={classNames('attributes__attribute-name', attribute.id === selectedAttribute.id && 'attributes__attribute-name--selected')}
+            onClick={() => setSelectedAttribute(attribute)}>
               {locale.getNameLocale(value)}
           </span>
         )
@@ -72,7 +71,7 @@ export default function Attributes(props) {
   const setAttributeGoal = (goal) => {
     setAttributeGoals({
       ...attributeGoals,
-      [selectedAttributeId]: goal
+      [selectedAttribute.id]: goal
     });
   };
   return <>
@@ -85,7 +84,7 @@ export default function Attributes(props) {
     <p>
       Goal: <input
         type="number"
-        value={attributeGoals[selectedAttributeId]}
+        value={attributeGoals[selectedAttribute.id] || 0}
         onChange={event => setAttributeGoal(event.target.value)}/>
     </p>
   </>;

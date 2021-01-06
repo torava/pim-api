@@ -1,20 +1,22 @@
 import moment from 'moment';
 import React, { useState } from 'react';
-import { VictoryBar, VictoryBrushContainer, VictoryChart, VictoryLine, VictoryTooltip, VictoryZoomContainer } from 'victory';
+import { VictoryBar, VictoryBrushContainer, VictoryChart, VictoryLine, VictoryScatter, VictoryTooltip, VictoryZoomContainer } from 'victory';
 import { locale } from '../locale';
 
 
 moment.locale(locale.getLanguage());
 
-const currencyFormat = new Intl.NumberFormat(locale.getLocale(), { style: 'currency', currency: locale.getCurrency() });
+const numberFormat = new Intl.NumberFormat(locale.getLocale());
 
 export default function Transactions(props) {
   const {
     transactions,
     transactionAggregates,
-    selectedAttributeId,
+    selectedAttribute,
     attributeGoals
   } = props;
+
+  const monthlyAggregates = Object.values(transactionAggregates.monthly);
 
   const [selectedDomain, setSelectedDomain] = useState();
   const [zoomDomain, setZoomDomain] = useState();
@@ -29,35 +31,37 @@ export default function Transactions(props) {
   return <>
     <VictoryChart
       scale={{ x: "time" }}
-      crossAxis={true}
       containerComponent={
         <VictoryZoomContainer
           zoomDimension="x"
           zoomDomain={zoomDomain}
-          onZoomDomainChange={handleZoom.bind(this)}
+          onZoomDomainChange={handleZoom}
         />
       }>
       <VictoryLine
-        data={transactionAggregates.monthly}
+        data={monthlyAggregates}
         x={d => moment(d.date).toDate()}
-        y={() => attributeGoals[selectedAttributeId]}
-        style={{ data: { stroke: "red" } }}
-        labels={() => attributeGoals[selectedAttributeId]}
-        labelComponent={<VictoryTooltip renderInPortal/>}/>
-      <VictoryBar
-        data={transactionAggregates.monthly}
+        y={d => d.attributes[selectedAttribute.id]}
+        style={{ data: { stroke: "navy" } }}/>
+      <VictoryScatter
+        data={monthlyAggregates}
         x={d => moment(d.date).toDate()}
-        y={d => d.attributes[selectedAttributeId]}
+        y={d => d.attributes[selectedAttribute.id]}
         style={{ data: { fill: "navy", width: 10 } }}
-        labels={d => `${moment(d.datum.date).format('MMM YYYY')} ${currencyFormat.format(d.datum.attributes[selectedAttributeId])}`}
+        labels={d => `${moment(d.datum.date).format('MMM YYYY')} ${locale.getNameLocale(selectedAttribute.name)} ${numberFormat.format(d.datum.attributes[selectedAttribute.id])}`}
         labelComponent={<VictoryTooltip renderInPortal/>}/>
       <VictoryBar
         data={transactions}
         x={d => moment(d.date).toDate()}
-        y={d => d.attributes[selectedAttributeId]}
-        labels={d => `${moment(d.datum.date).format('LLL')} ${currencyFormat.format(d.datum.attributes[selectedAttributeId])}`}
+        y={d => d.attributes[selectedAttribute.id]}
+        labels={d => `${moment(d.datum.date).format('LLL')} ${locale.getNameLocale(selectedAttribute.name)} ${numberFormat.format(d.datum.attributes[selectedAttribute.id])}`}
         style={{ data: { fill: "seagreen", width: 10 } }}
         labelComponent={<VictoryTooltip renderInPortal/>}/>
+      {attributeGoals[selectedAttribute.id] && <VictoryLine
+        data={monthlyAggregates}
+        x={d => moment(d.date).toDate()}
+        y={() => attributeGoals[selectedAttribute.id]}
+        style={{ data: { stroke: "red" } }}/>}
     </VictoryChart>
     <VictoryChart
       height={100}
@@ -67,16 +71,16 @@ export default function Transactions(props) {
         <VictoryBrushContainer
           brushDimension="x"
           brushDomain={selectedDomain}
-          onBrushDomainChange={handleBrush.bind(this)}
+          onBrushDomainChange={handleBrush}
         />
       }>
       <VictoryLine
         style={{
           data: {stroke: "tomato"}
         }}
-        data={transactionAggregates.monthly}
+        data={monthlyAggregates}
         x={d => moment(d.date).toDate()}
-        y="total_price"/>
+        y={d => d.attributes[selectedAttribute.id]}/>
     </VictoryChart>
   </>
 }

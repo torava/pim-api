@@ -1,17 +1,15 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import moment from 'moment';
-import {Link} from 'react-router-dom';
 
 import { locale } from '../locale';
-import { aggregateCategoryAttribute, aggregateCategoryPrice, getAverageRate } from '../../utils/categories';
 import { getItemNameByDepth } from '../../utils/items';
 import Transactions from './Transactions';
 import Attributes from './Attributes';
 import Categories from './Categories';
+import TimeFilter from './TimeFilter';
 
 import './OverviewPage.scss';
-import TimeFilter from './TimeFilter';
 
 function first(list) {
   for (let i in list) {
@@ -20,6 +18,8 @@ function first(list) {
 }
 
 moment.locale(locale.getLanguage());
+
+export const getPriceAttribute = () => ({id: -1, name: 'Price', children: [], unit: '€'});
 
 export default class OverviewPage extends Component {
   constructor(props) {
@@ -40,13 +40,14 @@ export default class OverviewPage extends Component {
       attributeGoals: {
         [-1]: 100
       },
-      selectedAttributeId: -1
+      selectedAttribute: getPriceAttribute(),
+      aggregateAttributes: {}
     };
 
     this.setFilter = this.setFilter.bind(this);
     this.setAverageRange = this.setAverageRange.bind(this);
     this.setAttributeAggregates = this.setAttributeAggregates.bind(this);
-    this.setSelectedAttributeId = this.setSelectedAttributeId.bind(this);
+    this.setSelectedAttribute = this.setSelectedAttribute.bind(this);
     this.setAttributeGoals = this.setAttributeGoals.bind(this);
   }
   async componentDidMount() {
@@ -160,11 +161,11 @@ export default class OverviewPage extends Component {
       const aggregate = aggregates.monthly[date] || {};
       const aggregateAttributes = aggregate.attributes || {};
 
-      aggregateAttributes[-1] = transaction.total_price;
+      aggregateAttributes[-1] = transaction.total_price+(aggregateAttributes[-1] || 0);
 
       const transactionAttributes = {
         ...transaction.attributes || {},
-        [-1]: transaction.total_price+(aggregateAttributes[-1] || 0)
+        [-1]: transaction.total_price
       };
 
       aggregates.monthly[date] = {
@@ -177,22 +178,18 @@ export default class OverviewPage extends Component {
         attributes: transactionAttributes
       };
     });
-    aggregates.monthly = Object.values(aggregates.monthly);
 
     this.setState({
       transactions,
       transaction_aggregates: aggregates
     });
   }
-  aggregateTransactionAttribute() {
-    const {selectedAttributeId} = this.state;
+  aggregateTransactionAttribute(selectedAttribute) {
+    const {aggregateAttributes} = this.state;
 
-    console.log(selectedAttributeId);
-    if (selectedAttributeId > 0) {
+    if (selectedAttribute.id > 0 && !aggregateAttributes[selectedAttribute]) {
       let date,
-          aggregates = this.state.transaction_aggregates || {
-        monthly: {}
-      };
+          aggregates = {...this.state.transaction_aggregates};
       const transactions = this.state.transactions.map(transaction => {
         let attributeValue = 0;
 
@@ -202,19 +199,17 @@ export default class OverviewPage extends Component {
         const aggregateAttributes = aggregate.attributes || {};
 
         transaction.items.forEach(item => {
-          const itemAttribute = item.product?.category?.attributes?.find(attribute => attribute.attributeId === selectedAttributeId);
+          const itemAttribute = item.product?.category?.attributes?.find(attribute => attribute.attributeId === selectedAttribute.id);
           const measure = locale.convertMeasure(item.product?.measure || item.measure, item.product?.unit || item.unit, 'kg');
           const itemMeasure = (item.product?.quantity || item.quantity || 1)*measure || 0;
           attributeValue+= (itemAttribute?.value || 0)*itemMeasure;
-          console.log(item, itemAttribute?.value, itemMeasure, attributeValue);
         });
-        aggregateAttributes[selectedAttributeId] = attributeValue+(aggregateAttributes[selectedAttributeId] || 0);
+        aggregateAttributes[selectedAttribute.id] = attributeValue+(aggregateAttributes[selectedAttribute.id] || 0);
 
         const previousAttributes = transaction.attributes || {};
-        const previousAttributeValue = previousAttributes[selectedAttributeId] || 0;
         const transactionAttributes = {
           ...previousAttributes,
-          [selectedAttributeId]: attributeValue+previousAttributeValue
+          [selectedAttribute.id]: attributeValue
         };
 
         aggregates.monthly[date] = {
@@ -227,12 +222,15 @@ export default class OverviewPage extends Component {
           attributes: transactionAttributes
         };
       });
-      aggregates.monthly = Object.values(aggregates.monthly);
 
-      this.setState({
+      return {
         transactions,
-        transaction_aggregates: aggregates
-      });
+        transaction_aggregates: aggregates,
+        aggregateAttributes: {
+          ...aggregateAttributes,
+          [selectedAttribute.id]: true
+        }
+      };
     }
   }
   resolvePieItems() {
@@ -378,9 +376,10 @@ export default class OverviewPage extends Component {
       attribute_aggregates
     });
   }
-  setSelectedAttributeId(selectedAttributeId) {
-    this.setState({selectedAttributeId}, () => {
-      this.aggregateTransactionAttribute();
+  setSelectedAttribute(selectedAttribute) {
+    this.setState({
+      ...this.aggregateTransactionAttribute(selectedAttribute) || {},
+      selectedAttribute
     });
   }
   setAttributeGoals(attributeGoals) {
@@ -396,7 +395,7 @@ export default class OverviewPage extends Component {
       resolved_categories,
       filter,
       average_range,
-      selectedAttributeId,
+      selectedAttribute,
       attributeGoals
     } = this.state;
     if (!ready) return null;
@@ -405,9 +404,10 @@ export default class OverviewPage extends Component {
         <div className="overview-page__content">
           <h2>Transactions</h2>
           <Transactions
+            attributes={attributes}
             transactions={transactions}
             transactionAggregates={transaction_aggregates}
-            selectedAttributeId={selectedAttributeId}
+            selectedAttribute={selectedAttribute}
             attributeGoals={attributeGoals}/>
           <h2>Categories</h2>
           <Categories
@@ -426,8 +426,8 @@ export default class OverviewPage extends Component {
             attributes={attributes}
             attributeAggregates={attribute_aggregates}
             setAttributeAggregates={this.setAttributeAggregates}
-            selectedAttributeId={selectedAttributeId}
-            setSelectedAttributeId={this.setSelectedAttributeId}
+            selectedAttribute={selectedAttribute}
+            setSelectedAttribute={this.setSelectedAttribute}
             attributeGoals={attributeGoals}
             setAttributeGoals={this.setAttributeGoals}/>
         </div>
