@@ -67,6 +67,13 @@ export default app => {
         column_name = column_names[n];
         attribute = column_name.match(/^attribute\:(.*)(\s\((.*)\))/i) ||
                     column_name.match(/^attribute\:(.*)/i);
+        let nameMatch = column_name.match(/^(name|nimi)\["([a-z-]+)"\]$/i),
+            name,
+            locale;
+        if (nameMatch) {
+          name = nameMatch[1];
+          locale = nameMatch[2];
+        }
         if (attribute) {
           if (columns[n] !== "") {
             found = false;
@@ -91,7 +98,7 @@ export default app => {
                 attribute_object = {
                   '#id': ref,
                   name: {
-                    'fi-FI': attribute[1]
+                    'en-US': attribute[1]
                   }
                 }
               }
@@ -109,10 +116,12 @@ export default app => {
           }
         }
         else if (column_name.toLowerCase() == 'note') {
-          note = columns[n];
+          if (columns[n] !== '') {
+            note = columns[n];
+          }
         }
         else if (['source', 'lähde'].indexOf(column_name.toLowerCase()) !== -1) {
-          if (!columns[n]) continue;
+          if (columns[n] === '') continue;
           sources = columns[n].split(',');
           for (let m in item.attributes) {
             for (let j in sources) {
@@ -148,28 +157,31 @@ export default app => {
             }
           }
         }
-        else if (['nimi', 'name'].indexOf(column_name.toLowerCase()) !== -1) {
+        else if (name && locale) {
+          if (columns[n] === '') continue;
           for (let i in categories) {
-            if (categories[i].name && categories[i].name['fi-FI'] == columns[n]) {
+            if (categories[i].name && categories[i].name[locale] == columns[n]) {
               item.id = categories[i].id;
               break;
             }
           }
           if (!item.id) {
             ref = 'category:'+columns[n];
-            if (ref in refs) {
+            if (ref in refs && !item['#id']) {
               item['#ref'] = ref;
             }
             else {
-              refs[ref] = true;
-              item['#id'] = ref;
+              if (!item['#id']) {
+                refs[ref] = true;
+                item['#id'] = ref;
+              }
               if (!item.name) item.name = {};
-              item.name['fi-FI'] = columns[n];
+              item.name[locale] = columns[n];
             }
           }
         }
         else if (['isä', 'parent'].indexOf(column_name.toLowerCase()) !== -1) {
-          if (!columns[n]) continue;
+          if (columns[n] === '') continue;
           for (let i in categories) {
             if (categories[i].name && categories[i].name['fi-FI'] == columns[n]) {
               item.parent = {
@@ -193,18 +205,19 @@ export default app => {
             }
           }      
         }
-        else if (column_name === 'aliases' && columns[n] !== '') {
+        else if (column_name.toLowerCase() === 'aliases' && columns[n] !== '') {
+          if (!columns[n]) continue;
           try {
-            let aliases = JSON.parse(columns[n]);
+            const aliases = JSON.parse(columns[n]);
             if (aliases) {
-              _.set(item, column_name.replace('[i]', '['+(i-1)+']'), aliases);
+              _.set(item, column_name.toLowerCase().replace('[i]', `[${i-1}]`), aliases);
             }
           } catch (error) {
-            console.log('Aliases parse error', error);
+            console.log('Aliases parse error', columns[n], error);
           }
         }
         else if (column_name !== '' && columns[n] !== '') {
-          _.set(item, column_name.replace('[i]', '['+(i-1)+']'), columns[n]);
+          _.set(item, column_name.toLowerCase().replace('[i]', `[${i-1}]`), columns[n]);
         }
       }
       items.push(item);
@@ -459,7 +472,7 @@ app.post('/api/category', async function(req, res) {
   else {
     category = req.body;
   }
-  console.log(JSON.stringify(category, null, 2));
+  //console.log(JSON.stringify(category, null, 2));
   return Category.query()
     .upsertGraph(category, {
       noDelete: true,

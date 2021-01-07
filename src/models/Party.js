@@ -19,7 +19,8 @@ export default class Party extends Model {
 				street_number: {type: ['string', 'null']},
 				postal_code: {type: ['string', 'null']},
 				city: {type: ['string', 'null']},
-				phone_number: {type: ['string', 'null']}
+				phone_number: {type: ['string', 'null']},
+				email: {type: ['string', 'null']}
 			}
 		}
 	}

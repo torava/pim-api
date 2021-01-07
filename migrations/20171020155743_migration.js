@@ -9,6 +9,7 @@ exports.up = function(knex, Promise) {
     table.string('postal_code');
     table.string('city');
     table.string('phone_number');
+    table.string('email');
   })
   .createTable('Transaction', function(table) {
     table.increments('id').primary();
@@ -28,7 +29,7 @@ exports.up = function(knex, Promise) {
   .createTable('Category', function(table) {
     table.increments('id').primary();
     table.json('name');
-    table.json('aliases');
+    table.specificType('aliases', 'text ARRAY');
     table.integer('parentId').unsigned().references('id').inTable('Category');
   })
   .createTable('Product', function(table) {
