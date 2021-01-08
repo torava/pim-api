@@ -161,6 +161,9 @@ app.post('/api/transaction', async function(req, res) {
         if (category.trimmed_name && category.trimmed_name['fi-FI']) {
           distance = stringSimilarity(trimmed_item_name.toLowerCase(), category.trimmed_name['fi-FI'].toLowerCase());
           distance+= stringSimilarity(item.product.name.toLowerCase(), category.name['fi-FI'].toLowerCase());
+          category.aliases?.forEach(alias => {
+            distance+= stringSimilarity(item.product.name.toLowerCase(), alias.toLowerCase());
+          });
           if (category.parent) {
             distance+= stringSimilarity(trimmed_item_name, category.parent.name['fi-FI']);
           }
