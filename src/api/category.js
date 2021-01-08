@@ -98,6 +98,7 @@ export default app => {
                 attribute_object = {
                   '#id': ref,
                   name: {
+                    'fi-FI': attribute[1],
                     'en-US': attribute[1]
                   }
                 }

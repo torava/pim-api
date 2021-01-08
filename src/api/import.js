@@ -490,15 +490,15 @@ app.get('/api/import/getexternalcategoriesfineli', async function(req, res) {
           res.send(category);
       })
       .catch(error => {
-        console.error(error);
-        throw new Error('Category values error');
+        console.error('Category values error', error);
+        res.sendStatus(500);
       });
       //attribute_values = attribute_values.slice(0,1);
       //console.dir(attribute_values, {depth:null});
     })
     .catch(error => {
-      console.error(error);
-      throw new Error('Base category error');
+      console.error('Base category error', error);
+      res.sendStatus(500);
     });
 });
 
