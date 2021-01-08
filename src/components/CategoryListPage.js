@@ -12,7 +12,8 @@ export default class CategoryList extends Component {
     super(props);
 
     this.state = {
-      selected_attributes: {}
+      selected_attributes: {},
+      searchCategoryName: ''
     };
 
     Promise.all([
@@ -22,6 +23,7 @@ export default class CategoryList extends Component {
     .then(([attributes, categories]) => {
       this.setState({
         categories: categories.data,
+        resolvedCategories: categories.data,
         attributes: attributes
       }, () => {
         this.setState({
@@ -39,6 +41,7 @@ export default class CategoryList extends Component {
     this.setAttributeVisibility = this.setAttributeVisibility.bind(this);
     this.selectCategory = this.selectCategory.bind(this);
     this.copyAttributes = this.copyAttributes.bind(this);
+    this.setSearchCategoryName = this.setSearchCategoryName.bind(this);
   }
   setAttributeVisibility(attribute, visible) {
     function set(attribute, visible, selected_attributes) {
@@ -128,7 +131,21 @@ export default class CategoryList extends Component {
         id: 'name',
         label: 'Name',
         property: 'name',
-        formatter: (value, item) => <a href={"/category/"+item.id}>{value}</a>,
+        formatter: (value, item) => {
+          const searchCategoryName = this.state.searchCategoryName;
+          const index = value.toLowerCase().indexOf(searchCategoryName.toLowerCase());
+          let content = value;
+          if (index !== -1) {
+            content = <>
+              {value.slice(0, index)}
+              <b>{value.slice(index, index+searchCategoryName.length)}</b>
+              {value.slice(index+searchCategoryName.length)}
+            </>;
+          }
+          return <a href={"/category/"+item.id}>
+            {content}
+          </a>;
+        },
         width: '700'
       },
       {
@@ -163,6 +180,24 @@ export default class CategoryList extends Component {
       console.error(error);
     });
   }
+  setSearchCategoryName(searchCategoryName) {
+    this.setState({
+      searchCategoryName
+    }, () => {
+      if (searchCategoryName !== '') {
+        const resolvedCategories = this.state.categories.filter(category => (
+          category.name.toLowerCase().indexOf(searchCategoryName.toLowerCase()) !== -1
+        ));
+        this.setState({
+          resolvedCategories
+        });
+      } else {
+        this.setState({
+          resolvedCategories: this.state.categories
+        });
+      }
+    });
+  }
   render() {
     if (!this.state || !this.state.columns || !this.state.attributes) return null;
     return (
@@ -170,13 +205,19 @@ export default class CategoryList extends Component {
         <button onClick={this.copyAttributes}>Copy Selected Attributes</button>
         <EditableTable
           columns={this.state.attribute_selector_columns}
-          items={this.state.attributes}
-        />
-        <br/>
+          items={this.state.attributes}/>
+        <p>
+          <label>
+            Search category:&nbsp;
+            <input
+              type="search"
+              value={this.state.searchCategoryName}
+              onChange={event => this.setSearchCategoryName(event.target.value)}/>
+          </label>
+        </p>
         <EditableTable
           columns={this.state.columns}
-          items={this.state.categories}
-        />
+          items={this.state.resolvedCategories}/>
       </div>
     );
   }
