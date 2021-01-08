@@ -76,12 +76,12 @@ export default class Layout extends React.Component {
               <select id="currency"
                       value={this.state.currency}
                       onChange={this.onCurrencyChange.bind(this)
-              }>
+              }>&nbsp;
                 <option value="EUR">EUR</option>
                 <option value="USD">USD</option>
                 <option value="CAD">CAD</option>
                 <option value="ARS">ARS</option>
-              </select>
+              </select>&nbsp;
               <select id="locale"
                       value={this.state.locale}
                       onChange={this.onLocaleChange.bind(this)}
@@ -90,7 +90,7 @@ export default class Layout extends React.Component {
                 <option value="sv-SV">sv-SV</option>
                 <option value="en-US">en-US</option>
                 <option value="es-AR">es-AR</option>
-              </select>
+              </select>&nbsp;
               <select id="energy"
                       value={locale.getAttributeUnit('energy,calculated')}
                       onChange={this.onEnergyUnitChange.bind(this)}
