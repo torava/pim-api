@@ -755,7 +755,7 @@ export default class Category extends Component {
             amount: function() {
               let total = 0;
               that.state.category.contributions.map((item) => {
-                total+= item.amount;
+                total+= item.amount || 0;
               })
               return total;
             }(),
