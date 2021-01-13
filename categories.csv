@@ -5,12 +5,13 @@ Hummeri;;;;;27,8;;;Lobster, median;https://core.ac.uk/download/pdf/76958641.pdf
 Naudanpaisti;;;;;26,61;;;Beef: world average, median;https://core.ac.uk/download/pdf/76958641.pdf
 Lampaanpaisti;;;;;25,58;;;Lamb: world average, median;https://core.ac.uk/download/pdf/76958641.pdf
 Naudanliha, rasvainen, keskiarvo;;;;;15;;;Naudanliha, raaka;Katajajuuri 2009, Angervall et. al. 2007, Carlsson-Kanyama 1998
-Juusto;;;;;13;;;Juusto;Nissinen et. al. 2007
+Juustot, kypsytetyt, rasvaa <= 17%;;;;;13;;;Juusto;Nissinen et. al. 2007
+Juustot, kypsytetyt, rasvaa >17 %;;;;;13;;;Juusto;Nissinen et. al. 2007
 Kirjolohi, kokonainen, keskiarvo;;;;;11,9;;;Kirjolohi, kasvatettu;http://static.ewg.org/reports/2011/meateaters/pdf/methodology_ewg_meat_eaters_guide_to_health_and_climate_2011.pdf
 Kalkkuna nahkoineen;;;;;10,9;;;Kalkkuna;http://static.ewg.org/reports/2011/meateaters/pdf/methodology_ewg_meat_eaters_guide_to_health_and_climate_2011.pdf
 Sinisimpukka, vedessä, säilyke;;;;;9,51;;;Mussels, median;https://core.ac.uk/download/pdf/76958641.pdf
 Voi;;;;;9,25;;;Butter, median;https://core.ac.uk/download/pdf/76958641.pdf
-Juusto;;;;;8,55;;;Cheese, median;https://core.ac.uk/download/pdf/76958641.pdf
+Juustot, sulatejuustot, rasvaa <= 17 %;;;;;8,55;;;Cheese, median;https://core.ac.uk/download/pdf/76958641.pdf
 Silokampela;;;Kalat;;8,41;;;Rhombus, median;https://core.ac.uk/download/pdf/76958641.pdf
 Katkarapu;;;;;7,8;;;Prawns/shrimp, median;https://core.ac.uk/download/pdf/76958641.pdf
 Kalkkuna nahkoineen;;;;;7,17;;;Turkey, median;https://core.ac.uk/download/pdf/76958641.pdf
@@ -26,13 +27,14 @@ Täysjyväriisi;;;;;5;;;Riisi, raaka;Katajajuuri 2009, Angervall et. al. 2007, C
 Sianliha, keskiarvo;;;;;5;;;Sianliha, raaka;Katajajuuri 2009, Angervall et. al. 2007, Carlsson-Kanyama 1998
 Kurkku;;;;;5;;;Tomaatti, kurkku (kasvihuone talvella);Katajajuuri 2009, Angervall et. al. 2007, Carlsson-Kanyama 1998
 Tomaatti;;;;;5;;;Tomaatti, kurkku (kasvihuone talvella);Katajajuuri 2009, Angervall et. al. 2007, Carlsson-Kanyama 1998
-Maapähkinäöjy;;;;;4,717;;;Including iLUC;http://lcafood2014.org/papers/165.pdf
+Maapähkinäöljy;;;;;4,717;;;Including iLUC;http://lcafood2014.org/papers/165.pdf
 Kani;;;;;4,7;;;Rabbit, median;https://core.ac.uk/download/pdf/76958641.pdf
 Taimen;;;;;4,2;;;Trout, median;https://core.ac.uk/download/pdf/76958641.pdf
 Kenguru;;;Riista;;4,1;;;Kangaroo, median;https://core.ac.uk/download/pdf/76958641.pdf
 Ankerias;;;Kalat;;3,88;;;Eel, median;https://core.ac.uk/download/pdf/76958641.pdf
 Lehtisalaatti, ruukkusalaatti, lollo rosso;;;;;3,7;;;Lettuce: heated greenhouse, median;https://core.ac.uk/download/pdf/76958641.pdf
 Kana;;;;;3,65;;;Chicken, median;https://core.ac.uk/download/pdf/76958641.pdf
+Rasvainen maito, rasvaa > 2 %;;;;;;;;;
 Biisonin maito;;;Rasvainen maito, rasvaa > 2 %;;3,57;;;Buffalo milk, median;https://core.ac.uk/download/pdf/76958641.pdf
 Turska;;;Kalat;;3,51;;;Cod, median;https://core.ac.uk/download/pdf/76958641.pdf
 Kala, painotettu keskiarvo;;;;;3,49;;;Fish: all species, median;https://core.ac.uk/download/pdf/76958641.pdf
@@ -179,15 +181,16 @@ Peruna, punnittu kuorineen;;;;;0,18;;;Potatoes, median;https://core.ac.uk/downlo
 Sipuli, keltasipuli;;["Sipuli"];;;0,17;;;Onion, median;https://core.ac.uk/download/pdf/76958641.pdf
 Vaatteet;Clothes;;;0,49;;;;Vaatteet;Envimat, Seppälä et. al. 2009
 Jalkineet;Shoes;;Vaatteet;0,64;;;;Jalkineet;Envimat, Seppälä et. al. 2009
+Sisustus;Interior design;;Tarvikkeet;0,67;;;;Kodintaloustekstiilit, sisustus, astiat keskiarvo;Envimat, Seppälä et. al. 2009
 Huonekalut;Furniture;;Sisustus;0,42;;;;Huonekalut, matot;Envimat, Seppälä et. al. 2009
 Matot;Carpets;;Sisustus;0,42;;;;Huonekalut, matot;Envimat, Seppälä et. al. 2009
 Tarvikkeet;Supplies;;;;;;;;
 Keittiö;Kitchen;;Tarvikkeet;;;;;;
 Astiat;;;Keittiö;0,67;;;;Kodintaloustekstiilit, sisustus, astiat keskiarvo;Envimat, Seppälä et. al. 2009
-Kodintaloustekstiilit;;;Tarvikkeet;0,67;;;;Kodintaloustekstiilit, sisustus, astiat keskiarvo;Envimat, Seppälä et. al. 2009
-Sisustus;Interior design;;Tarvikkeet;0,67;;;;Kodintaloustekstiilit, sisustus, astiat keskiarvo;Envimat, Seppälä et. al. 2009
+Tekstiilit;Textiles;;Tarvikkeet;0,67;;;;Kodintaloustekstiilit, sisustus, astiat keskiarvo;Envimat, Seppälä et. al. 2009
 Työkalut;Tools;;Tarvikkeet;0,51;;;;Kodinkoneet ja työkalut;Envimat, Seppälä et. al. 2009
 Kodinkoneet;Appliances;;Tarvikkeet;0,51;;;;Kodinkoneet ja työkalut;Envimat, Seppälä et. al. 2009
+Palvelut;Services;;;0,27;;;;Viestintä, vakuutus keskiarvo;Envimat, Seppälä et. al. 2009
 Vapaa-ajan palvelut keskiarvo;Leisure time services;;Palvelut;0,29;;;;Vapaa-ajan palvelut keskiarvo;Envimat, Seppälä et. al. 2009
 Elektroniikka;Electronics;;Tarvikkeet;0,82;;;;Elektroniikka;Envimat, Seppälä et. al. 2009
 Paperi;Paper;;Tarvikkeet;0,3;;;;Paperitarvikkeet, kirjat, lehdet;Envimat, Seppälä et. al. 2009
@@ -197,7 +200,6 @@ Talouspaperi;Kitchen paper;;Tarvikkeet;0,03;;;;Paper towel per piece;https://two
 Hygienia;Hygiene;;Tarvikkeet;;;;;;
 Vessapaperi;Toilet paper;["Wc-paperi"];Hygienia;0,03;;;;Paper towel per piece;https://twosidesna.org/US/our-carbon-footprint-how-do-paper-products-fit-in/
 Nenäliina;Napkin;;Hygienia;0,03;;;;Paper towel per piece;https://twosidesna.org/US/our-carbon-footprint-how-do-paper-products-fit-in/
-Palvelut;Services;;;0,27;;;;Viestintä, vakuutus keskiarvo;Envimat, Seppälä et. al. 2009
 Ravintola;Restaurant;;Palvelut;0,31;;;;Ravintolat, kahvilat;Envimat, Seppälä et. al. 2009
 Kahvila;Café;;Palvelut;0,31;;;;Ravintolat, kahvilat;Envimat, Seppälä et. al. 2009
 Rakentaminen;Construction;;;;;;;;
@@ -218,10 +220,10 @@ Lähijuna;;;Matkustus;1;;;;Lähijuna;HKL
 Kaukojuna;;;Matkustus;1;;;;Kaukojuna;VR
 Raitiovaunu;;;Matkustus;1;;;;Raitiovaunu;HKL
 Metro;;;Matkustus;1;;;;Metro;HKL
+Polttoaine;Fuel;;Matkustus;;;;;;
 E10 bensiini;;;Polttoaine;;;;2,26;With ethanol combustion;https://www.eia.gov/tools/faqs/faq.php?id=307&t=11
 Diesel;;["Dieselöljy"];Polttoaine;;;;2,68;;https://www.eia.gov/tools/faqs/faq.php?id=307&t=11
 B20 biodiesel;;;Polttoaine;;;;2,14;;https://www.eia.gov/tools/faqs/faq.php?id=307&t=11
-Polttoaine;Fuel;;Matkustus;;;;;;
 Rakentaminen;Construction;;;;;;;;
 Kirjallisuus;Literature;["Book", "Kirja"];Tarvikkeet;;;;;;
 Bensiini;;;Polttoaine;;;;2,392;;http://ecoscore.be/en/info/ecoscore/co2
@@ -230,7 +232,7 @@ Sähkö;Electricity;;;;;;;;
 Sähkö, Tampereen sähkölaitos;;;Sähkö;;;0,1197;;;https://www.sahkolaitos.fi/valoa-ja-virtaa/palvelut-ja-edut/sahkon-alkupera/
 Diesel;;;;;;;2,6391;;https://comcar.co.uk/emissions/co2litre/
 Bensiini;;;;;;;2,3035;;https://comcar.co.uk/emissions/co2litre/
-Henkselikassi;Shopping bag;;;14;;Tarvikkeet;;Shopping bag, recycled plastic, Finland 2007;https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1530-9290.2010.00326.x
+Henkselikassi;Shopping bag;;Tarvikkeet;14;;;;Shopping bag, recycled plastic, Finland 2007;https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1530-9290.2010.00326.x
 Muovikassi;Shopping bag, plastic;;Tarvikkeet;37;;;;Shopping bag, plastic, Finland 2007;https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1530-9290.2010.00326.x
 Paperikassi;Paper bag;;Tarvikkeet;;;;;;
 Kaupankäynti;Commerce;;;;;;;;
