@@ -114,6 +114,9 @@ app.post('/api/transaction', async function(req, res) {
     .eager('[product.[category]]')
     .then(items => {
       return items;
+    })
+    .catch(error => {
+      console.error(error);
     });
 
     const trimmed_categories = await Category.query()
@@ -129,101 +132,109 @@ app.post('/api/transaction', async function(req, res) {
       });
       //fs.writeFileSync('./ner.json', JSON.stringify(manager.save()));
       return categories;
+    })
+    .catch(error => {
+      console.error(error);
     });
-
-    for (let item of transaction.items) {
-      if (!item) continue;
-      
-      item_categories = [];
-      trimmed_item_name = stripDetails(item.product.name);
-  
-      items.forEach(comparable_item => {
-        if (comparable_item.product && comparable_item.product.category && comparable_item.text) {
-          const productName = item.product.name.toLowerCase();
-          const itemName = comparable_item.text.toLowerCase();
-          distance = stringSimilarity(productName, itemName);
-          
-          if (distance > 0.8) {
-            console.log('comparing product to items', productName, itemName, distance);
-            console.log(item.product.name, comparable_item.text, distance);
-            item_categories.push({
-              category: comparable_item.product.category,
-              item_name: item.product.name,
-              trimmed_item_name: trimmed_item_name,
-              parents: getParentPath(comparable_item.product.category.parent),
-              distance: distance
-            });
-          }
-        }
-      });
-  
-      trimmed_categories.forEach((category, index) => {
-        if (category.trimmed_name && category.trimmed_name['fi-FI']) {
-          distance = stringSimilarity(trimmed_item_name.toLowerCase(), category.trimmed_name['fi-FI'].toLowerCase());
-          distance+= stringSimilarity(item.product.name.toLowerCase(), category.name['fi-FI'].toLowerCase());
-          category.aliases?.forEach(alias => {
-            distance+= stringSimilarity(item.product.name.toLowerCase(), alias.toLowerCase());
-          });
-          if (category.parent) {
-            distance+= stringSimilarity(trimmed_item_name, category.parent.name['fi-FI']);
-          }
-          //accuracy = (trimmed_item_name.length-distance)/trimmed_item_name.length;
-  
-          if (distance > 1) {
-            console.log('comparing item to categories', item.product.name, category.name['fi-FI'], distance);
-            item_categories.push({
-              category,
-              item_name: item.product.name,
-              trimmed_item_name: trimmed_item_name,
-              name: category.trimmed_name['fi-FI'],
-              parents: getParentPath(category.parent),
-              distance: distance
-            });
-          }
-        }
-      });
-
-      if (item.product.category && item.product.category.name) {
-        trimmed_categories.forEach((category, index) => {
-          const productCategoryName = item.product.category.name['fi-FI'].toLowerCase();
-          const categoryName = category.name['fi-FI'].toLowerCase();
-          distance = stringSimilarity(productCategoryName, categoryName);
-          //accuracy = (trimmed_item_name.length-distance)/trimmed_item_name.length;
-  
-          if (distance > 0.4) {
-            console.log('comparing product category to categories', productCategoryName, categoryName, distance);
-            item_categories.push({
-              category,
-              item_name: item.product.name,
-              trimmed_item_name: trimmed_item_name,
-              parents: getParentPath(category.parent),
-              distance: distance
-            });
+    
+    try {
+      for (let item of transaction.items) {
+        if (!item) continue;
+        
+        item_categories = [];
+        trimmed_item_name = stripDetails(item.product.name);
+    
+        items.forEach(comparable_item => {
+          if (comparable_item.product && comparable_item.product.category && comparable_item.text) {
+            const productName = item.product.name.toLowerCase() || '';
+            const itemName = comparable_item.text.toLowerCase() || '';
+            distance = stringSimilarity(productName, itemName);
+            
+            if (distance > 0.8) {
+              console.log('comparing product to items', productName, itemName, distance);
+              console.log(item.product.name, comparable_item.text, distance);
+              item_categories.push({
+                category: comparable_item.product.category,
+                item_name: item.product.name,
+                trimmed_item_name: trimmed_item_name,
+                parents: getParentPath(comparable_item.product.category.parent),
+                distance: distance
+              });
+            }
           }
         });
-      }
-      
-      if (item_categories.length) {
-        item_categories.sort((a, b) => b.distance-a.distance);
-  
-        item.product.category = {id: item_categories[0].category.id};
+    
+        trimmed_categories.forEach((category, index) => {
+          if (category.trimmed_name && category.trimmed_name['fi-FI']) {
+            distance = stringSimilarity(trimmed_item_name.toLowerCase() || '', category.trimmed_name['fi-FI'].toLowerCase() || '');
+            distance+= stringSimilarity(item.product.name.toLowerCase() || '', category.name['fi-FI'].toLowerCase() || '');
+            category.aliases?.forEach(alias => {
+              distance+= stringSimilarity(trimmed_item_name.toLowerCase() || '', alias.toLowerCase() || '');
+              distance+= stringSimilarity(item.product.name.toLowerCase() || '', alias.toLowerCase() || '');
+            });
+            if (category.parent) {
+              distance+= stringSimilarity(trimmed_item_name || '', category.parent.name['fi-FI'] || '');
+            }
+            //accuracy = (trimmed_item_name.length-distance)/trimmed_item_name.length;
+    
+            if (distance > 1) {
+              console.log('comparing item to categories', item.product.name, category.name['fi-FI'], distance);
+              item_categories.push({
+                category,
+                item_name: item.product.name,
+                trimmed_item_name: trimmed_item_name,
+                name: category.trimmed_name['fi-FI'],
+                parents: getParentPath(category.parent),
+                distance: distance
+              });
+            }
+          }
+        });
 
-        console.log(item_categories[0]);
-      }
-
-      if (!item.measure) {
-        const itemCategory = item_categories.length && item_categories[0].category;
-        const itemCategoryName = itemCategory && itemCategory.name && itemCategory.name['en-US'] || '';
-        console.log('get off product', `${trimmed_item_name} ${itemCategoryName}`);
-        const offProduct = await getOpenFoodFactsProduct(`${trimmed_item_name} ${itemCategoryName}`);
-        if (offProduct && parseFloat(offProduct.product_quantity)) {
-          item.product.measure = parseFloat(offProduct.product_quantity);
-          item.product.unit = 'g';
-          console.log(item);
+        if (item.product.category && item.product.category.name) {
+          trimmed_categories.forEach((category, index) => {
+            const productCategoryName = item.product.category.name['fi-FI'].toLowerCase();
+            const categoryName = category.name['fi-FI'].toLowerCase();
+            distance = stringSimilarity(productCategoryName, categoryName);
+            //accuracy = (trimmed_item_name.length-distance)/trimmed_item_name.length;
+    
+            if (distance > 0.4) {
+              console.log('comparing product category to categories', productCategoryName, categoryName, distance);
+              item_categories.push({
+                category,
+                item_name: item.product.name,
+                trimmed_item_name: trimmed_item_name,
+                parents: getParentPath(category.parent),
+                distance: distance
+              });
+            }
+          });
         }
-      }
+        
+        if (item_categories.length) {
+          item_categories.sort((a, b) => b.distance-a.distance);
+    
+          item.product.category = {id: item_categories[0].category.id};
 
-      //console.log(item_categories);
+          console.log(item_categories[0]);
+        }
+
+        if (!item.measure) {
+          const itemCategory = item_categories.length && item_categories[0].category;
+          const itemCategoryName = itemCategory && itemCategory.name && itemCategory.name['en-US'] || '';
+          console.log('get off product', `${trimmed_item_name} ${itemCategoryName}`);
+          const offProduct = await getOpenFoodFactsProduct(`${trimmed_item_name} ${itemCategoryName}`);
+          if (offProduct && parseFloat(offProduct.product_quantity)) {
+            item.product.measure = parseFloat(offProduct.product_quantity);
+            item.product.unit = 'g';
+            console.log(item);
+          }
+        }
+
+        //console.log(item_categories);
+      }
+    } catch (error) {
+      console.error(error);
     }
   }
   let transaction = {};
@@ -238,81 +249,89 @@ app.post('/api/transaction', async function(req, res) {
         item_index = 0,
         rows = CSVToArray(req.body.transaction, CSV_SEPARATOR[template] || ';'),
         category_refs = [];
-    for (let i = starting_row; i < rows.length; i++) {
-      let column_key = '';
-      columns = rows[i];
-      indexes.forEach(index => {
-          column_key+= columns[index];
-      });
-      if (!(column_key in transaction)) {
-        item_index = 0;
-        transaction[column_key] = {items:[], party:{}, receipts:[], total_price: 0};
-      }
-      for (let n in columns) {
-        let column_name = TRANSACTION_CSV_COLUMNS[template](item_index)[n];
-        if (!column_name) continue;
 
-        let value = columns[n];
+    try {
+      for (let i = starting_row; i < rows.length; i++) {
+        let column_key = '';
+        columns = rows[i];
+        indexes.forEach(index => {
+            column_key+= columns[index];
+        });
+        if (!(column_key in transaction)) {
+          item_index = 0;
+          transaction[column_key] = {items:[], party:{}, receipts:[], total_price: 0};
+        }
+        for (let n in columns) {
+          let column_name = TRANSACTION_CSV_COLUMNS[template](item_index)[n];
 
-        if (column_name.split('.').includes('name') || column_name.split('.').includes(`name['fi-FI']`)) {
-          value = toTitleCase(value);
+          let value = columns[n];
 
-          if (column_name.split('.').includes('category')) {
-            if (category_refs.some(ref => ref === value)) {
-              column_name = column_name.replace(`name['fi-FI']`, '#ref');
+          if (!column_name || !value) continue;
+
+          console.log(i, column_name, value);
+
+          if (column_name.split('.').includes('name') || column_name.split('.').includes(`name['fi-FI']`)) {
+            value = toTitleCase(value);
+
+            if (column_name.split('.').includes('category')) {
+              if (category_refs.some(ref => ref === value)) {
+                column_name = column_name.replace(`name['fi-FI']`, '#ref');
+              }
+              else {
+                category_refs.push(value);
+                _.set(transaction[column_key], column_name.replace(`name['fi-FI']`, '#id'), value);
+              }
+            }
+
+            tokens = value.match(/(\d{1,4})\s?((m|k)?((g|9)|(l|1)))/);
+            measure = tokens && parseFloat(tokens[1]);
+            if (measure) {
+              _.set(transaction[column_key], `items[${item_index}].measure`, measure);
+              _.set(transaction[column_key], `items[${item_index}].unit`, tokens[2]);
+            }
+          }
+
+          if (column_name.split('.')[1] === 'quantity_or_measure') {
+            if (value.match(/^\d+\.\d{3}$/)) {
+              column_name = column_name.replace('quantity_or_measure', 'measure');
+              value = getNumber(value);
             }
             else {
-              category_refs.push(value);
-              _.set(transaction[column_key], column_name.replace(`name['fi-FI']`, '#id'), value);
+              column_name = column_name.replace('quantity_or_measure', 'quantity');
+              value = parseFloat(value);
             }
           }
-
-          tokens = value.match(/(\d{1,4})\s?((m|k)?((g|9)|(l|1)))/);
-          measure = tokens && parseFloat(tokens[1]);
-          if (measure) {
-            _.set(transaction[column_key], `items[${item_index}].measure`, measure);
-            _.set(transaction[column_key], `items[${item_index}].unit`, tokens[2]);
+          else if (column_name === 'date_fi_FI') {
+            let date = value.split('.');
+            value = moment().format(`${date[2]}-${date[1].padStart(2, '0')}-${date[0].padStart(2, '0')}`);
+            column_name = 'date';
           }
-        }
-
-        if (column_name.split('.')[1] === 'quantity_or_measure') {
-          if (value.match(/^\d+\.\d{3}$/)) {
-            column_name = column_name.replace('quantity_or_measure', 'measure');
+          else if (column_name === 'time') {
+            let time = value.split(':');
+            value = moment(transaction[column_key].date).add(time[0], 'hours').add(time[1], 'minutes').format();
+            column_name = 'date';
+          }
+          else if (column_name.split('.')[1] === 'price') {
             value = getNumber(value);
+            transaction[column_key].total_price += value;
           }
-          else {
-            column_name = column_name.replace('quantity_or_measure', 'quantity');
-            value = parseFloat(value);
+          if (column_name !== 'id') {
+            _.set(transaction[column_key], column_name, value);
           }
         }
-        else if (column_name === 'date_fi_FI') {
-          let date = value.split('.');
-          value = moment().format(`${date[2]}-${date[1].padStart(2, '0')}-${date[0].padStart(2, '0')}`);
-          column_name = 'date';
-        }
-        else if (column_name === 'time') {
-          let time = value.split(':');
-          value = moment(transaction[column_key].date).add(time[0], 'hours').add(time[1], 'minutes').format();
-          column_name = 'date';
-        }
-        else if (column_name.split('.')[1] === 'price') {
-          value = getNumber(value);
-          transaction[column_key].total_price += value;
-        }
-        console.log(i, column_name, value);
-        if (column_name !== 'id') {
-          _.set(transaction[column_key], column_name, value);
-        }
+        item_index++;
       }
-      item_index++;
+    } catch (error) {
+      console.error(error);
     }
+    
     let promises = [];
     for (let i in transaction) {
       try {
         await resolveCategories(transaction[i]);
       } catch (error) {
-        console.log(error);
-        return res.status(500);
+        console.error(error);
+        res.sendStatus(500);
       }
 
       promises.push(
@@ -328,13 +347,18 @@ app.post('/api/transaction', async function(req, res) {
     .catch(error => {
       console.dir(transaction, {depth:null});
       console.error(error);
-      res.status(500).send(error);
+      res.sendStatus(500);
     });
   }
   else {
     transaction = req.body[0];
 
-    await resolveCategories(transaction);
+    try {
+      await resolveCategories(transaction);
+    } catch (error) {
+      console.error(error);
+      res.sendStatus(500);
+    }
 
     console.dir(transaction, {depth:null});
 
