@@ -7,10 +7,14 @@ class MongoDB {
     this.client = new MongoClient(url, { useUnifiedTopology: true });
   }
   async initialize() {
-    await this.client.connect();
-    console.log('Connected to MongoDB');
+    try {
+      await this.client.connect();
+      console.log('Connected to MongoDB');
 
-    this.db = this.client.db('off');
+      this.db = this.client.db('off');
+    } catch (error) {
+      console.error(error);
+    }
   }
   createIndex() {
     return this.db.products.createIndex({
