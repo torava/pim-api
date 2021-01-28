@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 //import ReactTable from 'react-table';
 import AsteriskTable from 'react-asterisk-table';
 import tree from 'react-asterisk-table/lib/Tree';
@@ -11,62 +11,51 @@ import axios from 'axios';
 //import Timeline from 'react-visjs-timeline';
 import _ from 'lodash';
 import {Link} from 'react-router-dom';
+import { downloadString, exportTransactions } from '../utils/export';
 
 const TreeTable = sortable(tree(AsteriskTable));
 const Table = sortable(AsteriskTable);
 
-export default class TransactionList extends React.Component {
-  constructor(props) {
-    super(props);
+export default function TransactionList() {
+  const [selectedTransactionIds, setSelectedTransactionIds] = useState({});
+  const [selectedItemIds, setSelectedItemIds] = useState({});
+  const [editableItem, setEditableItem] = useState({});
+  const [transactions, setTransactions] = useState([]);
+  const [categories, setCategories] = useState([]);
 
-    this.state = {
-      selected_transactions: {},
-      editable_item: {}
-    };
-
+  useEffect(() => {
     Promise.all([
       DataStore.getCategories(),
       DataStore.getTransactions()
     ])
     .then(([categories, transactions]) => {
-      this.setState({transactions});
+      setCategories(categories);
+      setTransactions(transactions);
     })
     .catch(function(error) {
       console.error(error);
     });
+  }, []);
 
-    this.editable_item = {};
-
-    this.selectTransaction = this.selectTransaction.bind(this);
-    this.selectItem = this.selectItem.bind(this);
-    this.removeSelected = this.removeSelected.bind(this);
-    this.itemEdited = this.itemEdited.bind(this);
-    this.itemSaved = this.itemSaved.bind(this);
-    this.handleEdit = this.handleEdit.bind(this);
-    this.handleCancel = this.handleCancel.bind(this);
-    this.handleItemCategoryChange = this.handleItemCategoryChange.bind(this);
-  }
-  handleEdit() {
-    this.setState({
-        editable_item: {
-        id: parseInt(event.target.parentNode.dataset.id),
-        field: event.target.parentNode.dataset.field
-      }
+  const handleEdit = (event) => {
+    setEditableItem({
+      id: parseInt(event.target.parentNode.dataset.id),
+      field: event.target.parentNode.dataset.field
     });
-  }
-  handleCancel() {
+  };
+  const handleCancel = (event) => {
     if (event.key == 'Escape') {
       event.target.innerHTML = event.target.dataset.value;
-      this.setState({editable_item: {}});
+      setEditableItem({});
     }
-  }
-  handleItemCategoryChange() {
+  };
+  const handleItemCategoryChange = (event) => {
     let value = event.target.value,
         item_id = parseInt(event.target.parentNode.dataset.id),
         product_id = parseInt(event.target.parentNode.dataset.productid),
         category_id;
 
-    let option = document.querySelector('#'+event.target.getAttribute('list')+' option[value="'+value+'"]');
+    let option = document.querySelector(`#${event.target.getAttribute('list')} option[value="${value}"]`);
 
     if (option) category_id = parseInt(option.dataset.id);
 
@@ -85,20 +74,22 @@ export default class TransactionList extends React.Component {
     return axios.post('/api/item/', item)
     .then(response => {
       console.log(response);
-      this.setState({editable_item: {}});
+      setEditableItem({});
       return DataStore.getTransactions(true);
     })
     .catch(error => {
       console.error(error);
     });
-  }
-  itemEdited(event) {
+  };
+
+  const itemEdited = (event) => {
     if (event.key == 'Escape') {
       event.target.innerHTML = event.target.dataset.value;
       event.target.blur();
     }
-  }
-  itemSaved(event) {
+  };
+
+  const itemSaved = async (event) => {
     let id = parseInt(event.target.dataset.id),
         productid = parseInt(event.target.dataset.productid),
         field = event.target.dataset.field,
@@ -109,206 +100,239 @@ export default class TransactionList extends React.Component {
     item.product = {id: productid};
     _.set(item, field, value);
 
-    return axios.post('/api/item/', item)
-    .then(function(response) {
+    try {
+      const response = await axios.post('/api/item/', item);
       console.log(response);
-      return DataStore.getTransactions(true);
-    })
-    .catch(function(error) {
+      return await DataStore.getTransactions(true);
+    } catch (error) {
       console.error(error);
-    });
-  }
-  removeSelected() {
-    let queue = [];
-    for (let id in this.state.selected_transactions) {
-      if (this.state.selected_transactions[id]) {
+    }
+  };
+  
+  const removeSelected = () => {
+    const queue = [];
+    for (const id in selectedTransactionIds) {
+      if (selectedTransactionIds[id]) {
         queue.push(axios.delete('/api/transaction/'+id));
       }
     }
-    for (let id in this.state.selected_items) {
-      if (this.state.selected_items[id]) {
+    for (const id in selectedItemIds) {
+      if (selectedItemIds[id]) {
         queue.push(axios.delete('/api/item/'+id));
       }
     }
     Promise.all(queue).then(() => {
       return DataStore.getTransactions()
       .then(transactions => {
-        this.setState({transactions});
+        setTransactions(transactions);
       });
     })
     .catch(function(error) {
       console.error(error);
     });
-  }
-  selectTransaction(transaction, selected) {
-    let selected_transactions = {...this.state.selected_transactions};
+  };
+  const exportSelected = () => {
+    console.log(transactions);
+    const selectedTransactions = transactions.filter(transaction => selectedTransactionIds[transaction.id]);
+    const csv = exportTransactions(selectedTransactions);
+    console.log(csv);
+    downloadString(csv, 'text/csv', 'items.csv');
+  };
+
+  const selectTransaction = (transaction, selected) => {
+    let updatedTransactionIds = {...selectedTransactionIds};
+    if (transaction) {
+      if (selected) {
+        updatedTransactionIds[transaction.id] = true;
+      } else {
+        delete updatedTransactionIds[transaction.id];
+      }
+    } else {
+      if (selected) {
+        transactions.forEach(transaction => {
+          updatedTransactionIds[transaction.id] = true;
+        });
+      } else {
+        updatedTransactionIds = {};
+      }
+    }
+    setSelectedTransactionIds(updatedTransactionIds);
+  };
+
+  const selectItem = (item, selected) => {
+    let updatedItemIds = {...selectedItemIds};
     if (selected) {
-      selected_transactions[transaction.id] = true;
+      updatedItemIds[item.id] = true;
     }
     else {
-      delete selected_transactions[transaction.id];
+      delete updatedItemIds[item.id];
     }
-    this.setState({selected_transactions});
-  }
-  selectItem(item, selected) {
-    let selected_items = {...this.state.selected_items};
-    if (selected) {
-      selected_items[item.id] = true;
+    setSelectedItemIds(updatedItemIds);
+  };
+
+  const getTransactionColumns = () => ([
+    {
+      id: 'select_transaction',
+      label: <input type="checkbox"
+                    onClick={event => { event.stopPropagation(); selectTransaction(null, event.target.checked); }}/>,
+      formatter: (value, item) => (
+        <input
+          type="checkbox"
+          onClick={event => selectTransaction(item, event.target.checked)}
+          checked={selectedTransactionIds[item.id] ? true : false}/>
+      ),
+      class: 'nowrap'
+    },
+    {
+      id: 'date',
+      label: 'Date',
+      formatter: (value, item) => <span><Link to={"/edit/"+item.id}>{new Date(value).toLocaleString()}</Link></span>
+    },
+    {
+      label: 'Store',
+      property: item => item.party.name
+    },
+    {
+      id: 'total_price',
+      label: 'Total Price'
     }
-    else {
-      delete selected_items[item.id];
-    }
-    this.setState({selected_items});
-  }
-  getTransactionColumns() {
-    return [
-      {
-        id: 'select_transaction',
-        label: <input type="checkbox"
-                      onClick={event => this.selectTransaction(null, event.target.checked)}/>,
-        formatter: (value, item) => <input type="checkbox"
-                                           onClick={event => this.selectTransaction(item, event.target.checked)}/>,
-        class: 'nowrap'
+  ]);
+
+  const getItemColumns = () => ([
+    {
+      id: 'select_item',
+      formatter: (value, item) => (
+        <input
+          type="checkbox"
+          onClick={event => selectItem(item, event.target.checked)}
+          checked={selectedItemIds(item.id)}/>
+      ),
+      class: 'nowrap'
+    },
+    {
+      id: 'name',
+      label: 'Name',
+      property: item => item.product.name,
+      formatter: (value, item) => (
+        <span contentEditable
+          onKeyUp={itemEdited}
+          onBlur={itemSaved}
+          data-value={value}
+          data-field="product.name"
+          data-id={item.id}
+          data-productid={item.product.id}
+          suppressContentEditableWarning={true}>
+          {value}
+        </span>
+      )
+    },
+    {
+      label: 'Manufacturer',
+      property: item => item.product.manufacturer && item.product.manufacturer.name
+    },
+    {
+      id: 'quantity',
+      label: 'Quantity',
+      property: item => item.product.quantity || item.quantity,
+      formatter: value => <span contentEditable suppressContentEditableWarning={true}>{value}</span>
+    },
+    {
+      id: 'measure',
+      label: 'Measure',
+      property: item => item.product.measure || item.measure,
+      formatter: value => <span contentEditable suppressContentEditableWarning={true}>{value}</span>
+    },
+    {
+      id: 'unit',
+      label: 'Unit',
+      property: item => item.product.unit || item.unit,
+      formatter: value => <span contentEditable suppressContentEditableWarning={true}>{value}</span>
+    },
+    {
+      id: 'category',
+      label: 'Category',
+      property: item => item.product.category && item.product.category.name['fi-FI'],
+      formatter: (value, item) => (
+        <div
+          data-field="category"
+          data-id={item.id}
+          data-productid={item.product.id}>
+            {editableItem.id !== item.id || editableItem.field !== 'category' ?
+            <div onClick={handleEdit}>
+              {value && <a href={"/category/"+item.product.category.id}>
+                {value}
+              </a>}
+            </div> :
+            <input
+              type="search"
+              list="categories"
+              defaultValue={value}
+              onKeyUp={handleCancel}
+              onBlur={handleItemCategoryChange}/>}
+        </div>
+      )
+    },
+    {
+      id: 'price',
+      label: 'Price',
+      property: item => {
+        let currency = localStorage.getItem('currency');
+        return item.price;
       },
-      {
-        id: 'date',
-        label: 'Date',
-        formatter: (value, item) => <span><Link to={"/edit/"+item.id}>{new Date(value).toLocaleString()}</Link></span>
-      },
-      {
-        label: 'Store',
-        property: item => item.party.name
-      },
-      {
-        id: 'total_price',
-        label: 'Total Price'
+      formatter: value => <span contentEditable suppressContentEditableWarning={true}>{value}</span>
+    },
+    {
+      id: 'pricemeasure',
+      label: 'Price/Measure',
+      property: item => {
+        const measure = item.product.measure || item.measure;
+        const unit = item.product.unit || item.unit;
+        return measure ? (item.price/locale.convertMeasure(measure, unit, 'kg')).toLocaleString() : null;
       }
-    ];
-  }
-  getItemColumns() {
-    return [
-      {
-        id: 'select_item',
-        formatter: (value, item) => <input type="checkbox"
-                                           onClick={event => this.selectItem(item, event.target.checked)}/>,
-        class: 'nowrap'
-      },
-      {
-        id: 'name',
-        label: 'Name',
-        property: item => item.product.name,
-        formatter: (value, item) => <span contentEditable
-                                          onKeyUp={this.itemEdited}
-                                          onBlur={this.itemSaved}
-                                          data-value={value}
-                                          data-field="product.name"
-                                          data-id={item.id}
-                                          data-productid={item.product.id}
-                                          suppressContentEditableWarning={true}>
-                                          {value}
-                                    </span>
-      },
-      {
-        label: 'Manufacturer',
-        property: item => item.product.manufacturer && item.product.manufacturer.name
-      },
-      {
-        id: 'quantity',
-        label: 'Quantity',
-        property: item => item.product.quantity || item.quantity,
-        formatter: value => <span contentEditable suppressContentEditableWarning={true}>{value}</span>
-      },
-      {
-        id: 'measure',
-        label: 'Measure',
-        property: item => item.product.measure || item.measure,
-        formatter: value => <span contentEditable suppressContentEditableWarning={true}>{value}</span>
-      },
-      {
-        id: 'unit',
-        label: 'Unit',
-        property: item => item.product.unit || item.unit,
-        formatter: value => <span contentEditable suppressContentEditableWarning={true}>{value}</span>
-      },
-      {
-        id: 'category',
-        label: 'Category',
-        property: item => item.product.category && item.product.category.name['fi-FI'],
-        formatter: (value, item) => <div data-field="category"
-                                         data-id={item.id}
-                                         data-productid={item.product.id}>
-                                      {this.state.editable_item.id !== item.id || this.state.editable_item.field !== 'category' ?
-                                        <div onClick={this.handleEdit}>
-                                                {value && <a href={"/category/"+item.product.category.id}>
-                                                  {value}
-                                                </a>}
-                                        </div> :
-                                        <input type="search"
-                                              list="categories"
-                                              defaultValue={value}
-                                              onKeyUp={this.handleCancel}
-                                              onBlur={this.handleItemCategoryChange}/>}
-                                    </div>
-      },
-      {
-        id: 'price',
-        label: 'Price',
-        property: item => {
-          let currency = localStorage.getItem('currency');
-          return item.price;
-        },
-        formatter: value => <span contentEditable suppressContentEditableWarning={true}>{value}</span>
-      },
-      {
-        id: 'pricemeasure',
-        label: 'Price/Measure',
-        property: item => {
-          return item.product.measure || item.measure ? (item.price/locale.convertMeasure(item.product.measure || item.measure, item.product.unit || item.unit, 'kg')).toLocaleString() : null;
-        }
-      }
-    ];
-  }
-  render() {
-    if (!DataStore.transactions || !DataStore.categories) return null;
-    return (
-      <div>
-        <datalist id="categories">
-          {DataStore.categories.map(function(item, i) {
-            if (item.parentId !== null) return <option key={'category-option-'+item.id} data-id={item.id} value={item.name}/>
-          })}
-        </datalist>
-        <button onClick={this.removeSelected}>Remove Selected</button>
-        <TreeTable
-          columns={this.getTransactionColumns()}
-          items={DataStore.transactions}
-          childView={(transaction) => {
-            return <Table
-              columns={this.getItemColumns()}
-              items={transaction.items}
-            />
-          }}
-        />
-      </div>
-    );
-    /*return (
-      <div>
-        <ReactTable
-          data={DataStore.transactions}
-          columns={transaction_columns}
-          pageSize={DataStore.transactions ? DataStore.transactions.length : 1}
-          showPagination={false}
-          SubComponent={row => {
-            return (
-              <ReactTable
-                data={DataStore.transactions[row.index].items}
-                pageSize={DataStore.transactions[row.index].items ? DataStore.transactions[row.index].items.length : 1}
-                showPagination={false}
-                columns={item_columns}
-                />
-            );
-          }}
-        />
-      </div>
-    );*/
-  }
+    }
+  ]);
+
+  if (!transactions || !categories) return null;
+  else return (
+    <div>
+      <datalist id="categories">
+        {categories.map((item, i) => (
+          item.parentId !== null &&
+          <option key={'category-option-'+item.id} data-id={item.id} value={item.name}/>
+        ))}
+      </datalist>
+      <button onClick={removeSelected}>Remove Selected</button>
+      <button onClick={exportSelected}>Export Selected</button>
+      <TreeTable
+        columns={getTransactionColumns()}
+        items={transactions}
+        childView={(transaction) => {
+          return <Table
+            columns={getItemColumns()}
+            items={transaction.items}
+          />
+        }}
+      />
+    </div>
+  );
+  /*return (
+    <div>
+      <ReactTable
+        data={DataStore.transactions}
+        columns={transaction_columns}
+        pageSize={DataStore.transactions ? DataStore.transactions.length : 1}
+        showPagination={false}
+        SubComponent={row => {
+          return (
+            <ReactTable
+              data={DataStore.transactions[row.index].items}
+              pageSize={DataStore.transactions[row.index].items ? DataStore.transactions[row.index].items.length : 1}
+              showPagination={false}
+              columns={item_columns}
+              />
+          );
+        }}
+      />
+    </div>
+  );*/
 }
