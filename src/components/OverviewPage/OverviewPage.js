@@ -8,6 +8,7 @@ import Transactions from './Transactions';
 import Attributes from './Attributes';
 import Categories from './Categories';
 import TimeFilter from './TimeFilter';
+import { convertMeasure } from '../../utils/entities';
 
 import './OverviewPage.scss';
 
@@ -200,7 +201,7 @@ export default class OverviewPage extends Component {
 
         transaction.items.forEach(item => {
           const itemAttribute = item.product?.category?.attributes?.find(attribute => attribute.attributeId === selectedAttribute.id);
-          const measure = locale.convertMeasure(item.product?.measure || item.measure, item.product?.unit || item.unit, 'kg');
+          const measure = convertMeasure(item.product?.measure || item.measure, item.product?.unit || item.unit, 'kg');
           const itemMeasure = (item.product?.quantity || item.quantity || 1)*measure || 0;
           attributeValue+= (itemAttribute?.value || 0)*itemMeasure;
         });

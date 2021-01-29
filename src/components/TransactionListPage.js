@@ -1,17 +1,17 @@
 'use strict';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 //import ReactTable from 'react-table';
 import AsteriskTable from 'react-asterisk-table';
 import tree from 'react-asterisk-table/lib/Tree';
 import sortable from 'react-asterisk-table/lib/Sortable';
 import DataStore from './DataStore';
-import {locale} from './locale';
 import axios from 'axios';
 //import Timeline from 'react-visjs-timeline';
 import _ from 'lodash';
 import {Link} from 'react-router-dom';
 import { downloadString, exportTransactions } from '../utils/export';
+import { convertMeasure } from '../utils/entities';
 
 const TreeTable = sortable(tree(AsteriskTable));
 const Table = sortable(AsteriskTable);
@@ -20,8 +20,8 @@ export default function TransactionList() {
   const [selectedTransactionIds, setSelectedTransactionIds] = useState({});
   const [selectedItemIds, setSelectedItemIds] = useState({});
   const [editableItem, setEditableItem] = useState({});
-  const [transactions, setTransactions] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [transactions, setTransactions] = useState();
+  const [categories, setCategories] = useState();
 
   useEffect(() => {
     Promise.all([
@@ -134,12 +134,12 @@ export default function TransactionList() {
   const exportSelected = () => {
     console.log(transactions);
     const selectedTransactions = transactions.filter(transaction => selectedTransactionIds[transaction.id]);
-    const csv = exportTransactions(selectedTransactions);
+    const csv = exportTransactions(selectedTransactions, categories);
     console.log(csv);
     downloadString(csv, 'text/csv', 'items.csv');
   };
 
-  const selectTransaction = (transaction, selected) => {
+  const selectTransaction = useCallback((transaction, selected) => {
     let updatedTransactionIds = {...selectedTransactionIds};
     if (transaction) {
       if (selected) {
@@ -156,8 +156,9 @@ export default function TransactionList() {
         updatedTransactionIds = {};
       }
     }
+    console.log(transaction, selected, transactions, updatedTransactionIds);
     setSelectedTransactionIds(updatedTransactionIds);
-  };
+  }, [transactions, selectedTransactionIds]);
 
   const selectItem = (item, selected) => {
     let updatedItemIds = {...selectedItemIds};
@@ -169,16 +170,15 @@ export default function TransactionList() {
     }
     setSelectedItemIds(updatedItemIds);
   };
-
-  const getTransactionColumns = () => ([
+  const transactionColumns = () => [
     {
       id: 'select_transaction',
       label: <input type="checkbox"
-                    onClick={event => { event.stopPropagation(); selectTransaction(null, event.target.checked); }}/>,
+                    onClick={event => selectTransaction(null, event.target.checked)}/>,
       formatter: (value, item) => (
         <input
           type="checkbox"
-          onClick={event => selectTransaction(item, event.target.checked)}
+          onChange={event => selectTransaction(item, event.target.checked)}
           checked={selectedTransactionIds[item.id] ? true : false}/>
       ),
       class: 'nowrap'
@@ -196,7 +196,7 @@ export default function TransactionList() {
       id: 'total_price',
       label: 'Total Price'
     }
-  ]);
+  ];
 
   const getItemColumns = () => ([
     {
@@ -204,7 +204,7 @@ export default function TransactionList() {
       formatter: (value, item) => (
         <input
           type="checkbox"
-          onClick={event => selectItem(item, event.target.checked)}
+          onChange={event => selectItem(item, event.target.checked)}
           checked={selectedItemIds(item.id)}/>
       ),
       class: 'nowrap'
@@ -287,7 +287,7 @@ export default function TransactionList() {
       property: item => {
         const measure = item.product.measure || item.measure;
         const unit = item.product.unit || item.unit;
-        return measure ? (item.price/locale.convertMeasure(measure, unit, 'kg')).toLocaleString() : null;
+        return measure ? (item.price/convertMeasure(measure, unit, 'kg')).toLocaleString() : null;
       }
     }
   ]);
@@ -304,7 +304,7 @@ export default function TransactionList() {
       <button onClick={removeSelected}>Remove Selected</button>
       <button onClick={exportSelected}>Export Selected</button>
       <TreeTable
-        columns={getTransactionColumns()}
+        columns={transactionColumns()}
         items={transactions}
         childView={(transaction) => {
           return <Table

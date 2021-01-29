@@ -9,47 +9,6 @@ class Locale {
       this.attribute_units = JSON.parse(window.localStorage.getItem('attribute_units') || '{}');
     }
   }
-  convertMeasure(measure, from_unit, to_unit) {
-    const factors = {
-      y: -24,
-      z: -21,
-      a: -16,
-      f: -15,
-      p: -12,
-      n: -9,
-      µ: -6,
-      m: -3,
-      c: -2,
-      d: -1,
-      '': 0,
-      da: 1,
-      h: 2,
-      k: 3,
-      M: 6,
-      G: 9,
-      T: 12,
-      P: 15,
-      E: 18,
-      Z: 21,
-      Y: 24
-    }
-    if (from_unit && from_unit.length > 1) {
-      from_unit = from_unit.substring(0,1);
-      from_unit = from_unit.toLowerCase();
-    }
-    else {
-      from_unit = '';
-    }
-    if (to_unit && to_unit.length > 1) {
-      to_unit = to_unit.substring(0,1);
-      to_unit = to_unit.toLowerCase();
-    }
-    else {
-      to_unit = '';
-    }
-    let conversion = factors[from_unit]-factors[to_unit];
-    return measure*Math.pow(10, conversion);
-  }
   setCurrency(currency) {
     if (typeof window !== 'undefined') {
       window.localStorage.setItem('currency', currency);

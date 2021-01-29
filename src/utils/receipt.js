@@ -344,15 +344,15 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
               else if (line_measure[6]) {
                 item.product.unit = 'l';
               }
-              name =
+              /*name =
                 name.substring(0, line_measure.index)+
-                name.substring(line_measure.index+line_measure[0].length);
+                name.substring(line_measure.index+line_measure[0].length);*/
             }
             if (quantity & !isNaN(quantity)) {
               item.product.quantity = quantity;
-              name =
+              /*name =
                 name.substring(0, line_quantity.index)+
-                name.substring(line_quantity.index+line_quantity[0].length);
+                name.substring(line_quantity.index+line_quantity[0].length);*/
             }
 
             if (name) {

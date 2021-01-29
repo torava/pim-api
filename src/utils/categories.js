@@ -98,4 +98,17 @@ export const aggregateCategoryPrice = (resolvedCategories, averageRate) => {
     weight_sum: 0
   });
   return categories;
-}
+};
+
+export const getCategoryWithAttribute = (categories, categoryId, attributeId) => {
+  if (!categoryId) return;
+
+  const category = categories.find(c => c.id === categoryId);
+  let attribute = Object.values(category?.attributes || {}).find(attribute => attribute.attributeId === attributeId);
+  if (attribute) {
+    return category;
+  } else {
+    const parentCategory = getCategoryWithAttribute(categories, category?.parentId, attributeId);
+    return parentCategory;
+  }
+};
