@@ -205,7 +205,7 @@ export default function TransactionList() {
         <input
           type="checkbox"
           onChange={event => selectItem(item, event.target.checked)}
-          checked={selectedItemIds(item.id)}/>
+          checked={selectedItemIds[item.id]}/>
       ),
       class: 'nowrap'
     },

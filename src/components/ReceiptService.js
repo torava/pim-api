@@ -310,31 +310,37 @@ class ReceiptService {
           console.log('loaded');
           console.timeLog('process');
 
-          const PROCESSING_WIDTH = 3200;
+          const PROCESSING_WIDTH = 4000;
 
           try {
             let src = cv.imread(img);
-            //let bil = new cv.Mat();
+            let dst = new cv.Mat();
 
             cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
 
-            let dst = crop(src);
+            src = crop(src);
 
             //let anchor, M, ksize;
 
-            //cv.bilateralFilter(src,dst,9,10,10);
-
-            /*ksize = new cv.Size(7,7);
-            cv.GaussianBlur(dst, dst, ksize, 0, 0, cv.BORDER_DEFAULT);*/
-
             if (dst.cols > PROCESSING_WIDTH) {
               let dsize = new cv.Size(PROCESSING_WIDTH, dst.rows/dst.cols*PROCESSING_WIDTH);
-              cv.resize(dst, dst, dsize, 0, 0, cv.INTER_AREA);
+              cv.resize(src, src, dsize, 0, 0, cv.INTER_AREA);
             }
 
-            //dst.convertTo(dst, 0, 6, -500);
+            cv.bilateralFilter(src,dst,7,10,10);
 
-            cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 51, 31);//61, 17);
+            //dst.convertTo(dst, 0, 6, -500);
+            /*
+            let ksize = new cv.Size(3,3);
+            cv.GaussianBlur(dst, dst, ksize, 0, 0, cv.BORDER_DEFAULT);
+            
+            // https://stackoverflow.com/a/59744211
+            let kdata = [-1,-1,-1,-1,9,-1,-1,-1,-1] ;
+            let M = cv.matFromArray(3,3, cv.CV_32FC1,kdata);
+            let anchor = new cv.Point(-1, -1);
+            cv.filter2D(dst, dst, cv.CV_8U, M, anchor, 0, cv.BORDER_DEFAULT);
+            */
+            cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 41, 31);//61, 17);
 
             /*M = cv.Mat.ones(2, 2, cv.CV_8U);
             anchor = new cv.Point(-1, -1);

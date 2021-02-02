@@ -667,9 +667,9 @@ export function getClosestCategory(toCompare, locale) {
   });
 }
 
-export function localeToLanguage(locale) {
+export function localeToOcrLanguage(locale) {
   let ocr_languages = {
-    'fi-FI': 'fin',
+    'fi-FI': 'fin_fast',
     'es-AR': 'spa'
   }
 
@@ -739,12 +739,13 @@ export function processReceiptImage(filepath, data, resize) {
 }
 
 export function extractTextFromFile(filepath, locale) {
-  let language = localeToLanguage(locale);
+  let language = localeToOcrLanguage(locale);
 
   return new Promise((resolve, reject) => {
     child_process.execFile('tesseract', [
       '-l',
-      ['fin'].indexOf(language) !== -1 ? language : 'eng',
+      ['fin'].indexOf(language) !== -1 ? `${language}+eng` : 'eng',
+      '-c', 'load_number_dawg=0',
       '-psm', 6,
       filepath+'_edited',
       'stdout'

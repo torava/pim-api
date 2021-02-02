@@ -1,4 +1,5 @@
 import axios from "axios";
+import { locale } from "./locale";
 
 export default {
   getManufacturers() {
@@ -92,7 +93,8 @@ export default {
         resolve(this.categories);
       }
       else {
-        axios.get('/api/category?attributes&locale=fi-FI')
+        const currentLocale = locale.getLocale();
+        axios.get(`/api/category?attributes&locale=${currentLocale}`)
         .then(response => {
           this.categories = response.data;
           resolve(this.categories);
@@ -109,7 +111,8 @@ export default {
         resolve(this.categories_attributes);
       }
       else {
-        axios.get('/api/category?attributes&parent&locale=fi-FI')
+        const currentLocale = locale.getLocale();
+        axios.get(`/api/category?attributes&parent&locale=${currentLocale}`)
         .then(response => {
           this.categories_attributes = response.data;
           resolve(this.categories_attributes);
