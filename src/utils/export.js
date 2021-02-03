@@ -5,6 +5,21 @@ import { convertMeasure, getRootEntity } from './entities';
 import { getCategoryWithAttribute } from './categories';
 
 export const exportTransactions = (transactions, categories) => {
+  const categoryLocale = locale.getLocale();
+  const numberLocale = 'fi-FI';//locale.getLocale();
+
+  const formatNumber = (number) => number ? new Intl.NumberFormat(numberLocale).format(number) : undefined;
+  const formatDate = (date) => (
+    date ? new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: false
+    }).format(new Date(date)) : undefined
+  );
+
   let csv = [
     [
       'Date',
@@ -54,21 +69,21 @@ export const exportTransactions = (transactions, categories) => {
       const rootCategory = getRootEntity(categories, categoryParentId);
 
       return [
-        transaction.date,
+        formatDate(transaction.date),
         moment(transaction.date).week(),
         ,
         transaction.party.name,
         item.product.name,
         rootCategory?.name,
-        item.product.category?.name[locale.getLocale()],
+        item.product.category?.name[categoryLocale],
         categoryWithGhg?.name,
         quantity,
-        weight,
-        volume,
-        item.price,
-        ghgAttribute?.value,
+        formatNumber(weight),
+        formatNumber(volume),
+        formatNumber(item.price),
+        formatNumber(ghgAttribute?.value),
         ghgAttribute?.unit,
-        ghg,
+        formatNumber(ghg),
         ghgAttribute ? 0 : 1
       ].join('\t');
     }));
