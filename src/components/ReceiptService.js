@@ -310,7 +310,9 @@ class ReceiptService {
           console.log('loaded');
           console.timeLog('process');
 
-          const PROCESSING_WIDTH = 4000;
+          const PROCESSING_WIDTH = 1000;
+
+          const upScale = true;
 
           try {
             let src = cv.imread(img);
@@ -322,12 +324,12 @@ class ReceiptService {
 
             //let anchor, M, ksize;
 
-            if (dst.cols > PROCESSING_WIDTH) {
-              let dsize = new cv.Size(PROCESSING_WIDTH, dst.rows/dst.cols*PROCESSING_WIDTH);
+            if (upScale || src.cols > PROCESSING_WIDTH) {
+              let dsize = new cv.Size(PROCESSING_WIDTH, src.rows/src.cols*PROCESSING_WIDTH);
               cv.resize(src, src, dsize, 0, 0, cv.INTER_AREA);
             }
 
-            cv.bilateralFilter(src,dst,7,10,10);
+            cv.bilateralFilter(src,dst,3,10,10);
 
             //dst.convertTo(dst, 0, 6, -500);
             /*
@@ -340,7 +342,7 @@ class ReceiptService {
             let anchor = new cv.Point(-1, -1);
             cv.filter2D(dst, dst, cv.CV_8U, M, anchor, 0, cv.BORDER_DEFAULT);
             */
-            cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 41, 31);//61, 17);
+            cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 31, 21);//61, 17);
 
             /*M = cv.Mat.ones(2, 2, cv.CV_8U);
             anchor = new cv.Point(-1, -1);
