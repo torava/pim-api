@@ -95,311 +95,316 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
   aika 1.2.2003 01:02
   */
   if (locale == "fi-FI") {
-    for (let i in ines) {
-      line_product_name = null;
+    try {
+      for (let i in ines) {
+        line_product_name = null;
 
-      found_attribute = null;
+        found_attribute = null;
 
-      line = ines[i].trim();
-      line_number_format = line.replace(/\s*(\.,|\,|\.)\s*/g, '.');
+        line = ines[i].trim();
+        line_number_format = line.replace(/\s*(\.,|\,|\.)\s*/g, '.');
 
-      line_name = line.match(/^[\u00C0-\u017F-a-z0-9\s\-\.%\/]+$/i);
-      //if (!line_name || line_name[0].length <= 1) continue;
+        line_name = line.match(/^[\u00C0-\u017F-a-z0-9\s\-\.%\/]+$/i);
+        //if (!line_name || line_name[0].length <= 1) continue;
 
-      line_number++;
+        line_number++;
 
-      // Attributes to find only once
-      if (!data.party.vat) {
-        line_vat = line.match(/\d{7}[-|.]\d{1}/);
-        if (line_vat) {
-          data.party.vat = line_vat[0];
+        // Attributes to find only once
+        if (!data.party.vat) {
+          line_vat = line.match(/\d{7}[-|.]\d{1}/);
+          if (line_vat) {
+            data.party.vat = line_vat[0];
 
-          found_attribute = 'party.vat';
-        }
-      }
-
-      if (!data.party.phone_number) {
-        line_phone_number = line.replace(/\s|-/g, '').match(/\d{10}|\+\d{12}/);
-        if (line_phone_number) {
-          data.party.phone_number = line_phone_number[0];
-
-          found_attribute = 'party.phone_number';
-        }
-      }
-
-      if (!data.date) {
-        // 1.1.12 1:12
-        line_date = line.match(/((\d{1,2})[\.|\,|\/](\d{1,2})[\.|\,|\/](\d{2,4}))(\s)?((\d{1,2})[:|,|\.|\s|z]?((\d{2})[:|,|\.|\s|z]?)?(\d{2})?)?/);
-        date = line_date && parseYear(line_date[4])+'-'+line_date[3]+'-'+line_date[2]+' '+line_date[7]+':'+line_date[9];//+':'+line_date[10];
-        if (date && moment(date).isValid()) {
-          console.log(line_date, date);
-          data.date = date;
-
-          found_attribute = 'date';
+            found_attribute = 'party.vat';
+          }
         }
 
-        if (!date || !line_date[6]) {
-          // 1:12 1-1-12
-          line_date = line.match(/((\d{1,2}[:|,|\.|1]?)(\d{2}[:|,|\.]?)?(\d{1,2})?)?(\s)?((\d{1,2})[\-|\.](\d{1,2})[\-|\.](\d{2,4}))/);
-          date = line_date && parseYear(line_date[9])+'-'+line_date[8]+'-'+line_date[7]+' '+line_date[1];
+        if (!data.party.phone_number) {
+          line_phone_number = line.replace(/\s|-/g, '').match(/\d{10}|\+\d{12}/);
+          if (line_phone_number) {
+            data.party.phone_number = line_phone_number[0];
+
+            found_attribute = 'party.phone_number';
+          }
+        }
+
+        if (!data.date) {
+          // 1.1.12 1:12
+          line_date = line.match(/((\d{1,2})[\.|\,|\/](\d{1,2})[\.|\,|\/](\d{2,4}))(\s)?((\d{1,2})[:|,|\.|\s|z]?((\d{2})[:|,|\.|\s|z]?)?(\d{2})?)?/);
+          date = line_date && parseYear(line_date[4])+'-'+line_date[3]+'-'+line_date[2]+' '+line_date[7]+':'+line_date[9];//+':'+line_date[10];
           if (date && moment(date).isValid()) {
             console.log(line_date, date);
             data.date = date;
 
             found_attribute = 'date';
           }
-        }
-      }
 
-      if (!data.party.street_name) {
-        // Hämeenkatu 123-123 33100 Tampere
-        line_address = line.match(/^([\u00C0-\u017F-a-z\/\s]+)((\d{1,4})([-]\d{1,4})?)[-]?\s?(\d{5})?[,|.]?\s?([\u00C0-\u017F-a-z\/]+)?$/i);
-        if (line_address) {
-          console.log(line_address);
-          data.party.street_name = toTitleCase(line_address[1]);
-          data.party.street_number = line_address[2];
-          data.party.postal_code = line_address[5];
-          data.party.city = toTitleCase(line_address[6]);
+          if (!date || !line_date[6]) {
+            // 1:12 1-1-12
+            line_date = line.match(/((\d{1,2}[:|,|\.|1]?)(\d{2}[:|,|\.]?)?(\d{1,2})?)?(\s)?((\d{1,2})[\-|\.](\d{1,2})[\-|\.](\d{2,4}))/);
+            date = line_date && parseYear(line_date[9])+'-'+line_date[8]+'-'+line_date[7]+' '+line_date[1];
+            if (date && moment(date).isValid()) {
+              console.log(line_date, date);
+              data.date = date;
 
-          found_attribute = 'party.street_name';
-          continue;
-        }
-      }
-
-      // store name
-      if (!data.party.id && result.parties.length) {
-        const party = result.parties.reduce((previous_party, current_party) => {
-          if (current_party.name) {
-            current_party.similarity = stringSimilarity(line, current_party.name);
-            if (current_party.similarity > 0.6 && (!previous_party || !previous_party.similarity || previous_party.similarity < current_party.similarity)) {
-              return current_party;
+              found_attribute = 'date';
             }
           }
-          if (previous_party && previous_party.similarity) {
-            return previous_party;
-          }
-        });
-
-        if (party) {
-          data.party = {id: party.id};
-
-          previous_line = 'party_name';
         }
-      }
 
-      if (line_name && !data.party.name && !data.party.id) {
-        data.party.name = toTitleCase(line_name[0]);
+        if (!data.party.street_name) {
+          // Hämeenkatu 123-123 33100 Tampere
+          line_address = line.match(/^([\u00C0-\u017F-a-z\/\s]+)((\d{1,4})([-]\d{1,4})?)[-]?\s?(\d{5})?[,|.]?\s?([\u00C0-\u017F-a-z\/]+)?$/i);
+          if (line_address) {
+            console.log(line_address);
+            data.party.street_name = toTitleCase(line_address[1]);
+            data.party.street_number = line_address[2];
+            data.party.postal_code = line_address[5];
+            data.party.city = toTitleCase(line_address[6]);
 
-        previous_line = 'party.name';
-        continue;
-      }
-
-      if (found_attribute) {
-        previous_line = found_attribute;
-        continue;
-      }
-
-      /*price_re = /(\d+\s*[\.|\,|\,\.]\s*\d{2})(\-)?\s?/;
-      name_re = /[\u00C0-\u017F-a-z0-9 -.%\/\(\){}]/;
-      id_re = /\d+(?=\s)/;
-      quantity_re = /(\d+\s*[\.|\,|\,\.]\s*\d{3})(\s?kg)?\sx\s((\d+\s*[\.|\,|\,\.]\s*\d{2})\s?)(\s?EUR\/kg)?/;
-      line_item_re = '('+id_re+')?('+name_re+')('+price_re+'){1,2}[\s|T|1|A|B]?$';
-      line_id_re = '('+id_re+')('+quantity_re+')?';*/
-
-      // general attributes
-
-      // total line
-      line_total = line_number_format.match(/^([\u00C0-\u017F-a-z0-9\/]+)[^0-9]((\d+\.\d{2})(\-)?\s)?((\d+\.\d{2})(\-)?)(\s?eur(oa)?)?$/i);
-      if (line_total) {
-        if (line_total[2]) continue;
-        let found = false;
-        total_words.forEach(word => {
-          if (stringSimilarity(line_total[1], word) > 0.6) {
-            found = true;
-            return false;
+            found_attribute = 'party.street_name';
+            continue;
           }
-        });
-        if (found) {
-          price = parseFloat(line_total[6]);
+        }
+
+        // store name
+        if (!data.party.id && result.parties.length) {
+          const party = result.parties.reduce((previous_party, current_party) => {
+            if (current_party.name) {
+              current_party.similarity = stringSimilarity(line, current_party.name);
+              if (current_party.similarity > 0.6 && (!previous_party || !previous_party.similarity || previous_party.similarity < current_party.similarity)) {
+                return current_party;
+              }
+            }
+            if (previous_party && previous_party.similarity) {
+              return previous_party;
+            }
+          });
+
+          if (party) {
+            data.party = {id: party.id};
+
+            previous_line = 'party_name';
+          }
+        }
+
+        if (line_name && !data.party.name && !data.party.id) {
+          data.party.name = toTitleCase(line_name[0]);
+
+          previous_line = 'party.name';
+          continue;
+        }
+
+        if (found_attribute) {
+          previous_line = found_attribute;
+          continue;
+        }
+
+        /*price_re = /(\d+\s*[\.|\,|\,\.]\s*\d{2})(\-)?\s?/;
+        name_re = /[\u00C0-\u017F-a-z0-9 -.%\/\(\){}]/;
+        id_re = /\d+(?=\s)/;
+        quantity_re = /(\d+\s*[\.|\,|\,\.]\s*\d{3})(\s?kg)?\sx\s((\d+\s*[\.|\,|\,\.]\s*\d{2})\s?)(\s?EUR\/kg)?/;
+        line_item_re = '('+id_re+')?('+name_re+')('+price_re+'){1,2}[\s|T|1|A|B]?$';
+        line_id_re = '('+id_re+')('+quantity_re+')?';*/
+
+        // general attributes
+
+        // total line
+        line_total = line_number_format.match(/^([\u00C0-\u017F-a-z0-9\/]+)[^0-9]((\d+\.\d{2})(\-)?\s)?((\d+\.\d{2})(\-)?)(\s?eur(oa)?)?$/i);
+        if (line_total) {
+          if (line_total[2]) continue;
+          let found = false;
+          total_words.forEach(word => {
+            if (stringSimilarity(line_total[1], word) > 0.6) {
+              found = true;
+              return false;
+            }
+          });
+          if (found) {
+            price = parseFloat(line_total[6]);
+          
+            if (price[7] === '-') {
+              has_discount = true;
+              price = 0-price;
+            }
+
+            data.total_price_read = price;
+            previous_line = 'total_price';
+            continue;
+          }
+        }
+
+        // misc line
+        line_misc = line.replace(/[0-9\.,%]/i, '').trim().match(/^([\u00C0-\u017F-a-z\/\s]+)/i);
+        if (line_misc) {
+          let found = false;
+          misc_words.forEach(word => {
+            if (stringSimilarity(line_misc[1], word) > 0.6) {
+              console.log('misc', line, word);
+              found = true;
+              return false;
+            }
+          });
+
+          if (found) {
+            continue;
+          }
+        }
+
+        // tax line
+        line_tax = line_number_format.match(/^[a-z]\s\d+%\s(\d+\.\d+\s?)+/i);
+        if (line_tax) {
+          console.log('tax', line_tax);
+          continue;
+        }
+
+        // opening hours
+        line_opening = line.match(/^(palvelemme|ark)?(ma|ti|ke|to|pe|la|su|ja|klo|[0-9-\.:\s]+)+$/i);
+        if (line_opening) {
+          console.log('opening', line_opening);
+          continue;
+        }
+
+        // serial number line
+        if (previous_line === 'item' && previous_line === 'details') {
+          line_item_details = line.match(/^\d+$/);
+
+          if (line_item_details) {
+            items[items.length-1].item_number = line;
+
+            previous_line = 'details';
+            continue;
+          }
+        }
         
-          if (price[7] === '-') {
-            has_discount = true;
-            price = 0-price;
-          }
-
-          data.total_price_read = price;
-          previous_line = 'total_price';
-          continue;
-        }
-      }
-
-      // misc line
-      line_misc = line.replace(/[0-9\.,%]/i, '').trim().match(/^([\u00C0-\u017F-a-z\/\s]+)/i);
-      if (line_misc) {
-        let found = false;
-        misc_words.forEach(word => {
-          if (stringSimilarity(line_misc[1], word) > 0.6) {
-            console.log('misc', line, word);
-            found = true;
-            return false;
-          }
-        });
-
-        if (found) {
-          continue;
-        }
-      }
-
-      // tax line
-      line_tax = line_number_format.match(/^[a-z]\s\d+%\s(\d+\.\d+\s?)+/i);
-      if (line_tax) {
-        console.log('tax', line_tax);
-        continue;
-      }
-
-      // opening hours
-      line_opening = line.match(/^(palvelemme|ark)?(ma|ti|ke|to|pe|la|su|ja|klo|[0-9-\.:\s]+)+$/i);
-      if (line_opening) {
-        console.log('opening', line_opening);
-        continue;
-      }
-
-      // serial number line
-      if (previous_line === 'item' && previous_line === 'details') {
-        line_item_details = line.match(/^\d+$/);
-
-        if (line_item_details) {
-          items[items.length-1].item_number = line;
-
-          previous_line = 'details';
-          continue;
-        }
-      }
-      
-      // details line
-      line_item_details = null;
-      if (previous_line === 'item') {
-        // 1234 1,000 x 1,00
-        /*
-            (
-              (\d+)\s
-            )?
-            (
+        // details line
+        line_item_details = null;
+        if (previous_line === 'item') {
+          // 1234 1,000 x 1,00
+          /*
               (
-                (
-                  (\d+)|
-                  (
-                    (\d+\.\d{2,3})
-                    (\s?kg)?
-                  )
-                )
-                \s?x\s?
+                (\d+)\s
               )?
               (
-                (\d+\.\d{2})\s?
+                (
+                  (
+                    (\d+)|
+                    (
+                      (\d+\.\d{2,3})
+                      (\s?kg)?
+                    )
+                  )
+                  \s?x\s?
+                )?
+                (
+                  (\d+\.\d{2})\s?
+                )
+                (\s?EUR\/kg)?
               )
-              (\s?EUR\/kg)?
-            )
-        */
-        line_item_details = line_number_format.replace(/-/g, '').match(/((\d+)\s)?((((\d+)|((\d+\.\d{2,3})(\s?kg)?))\s?x\s?)?((\d+\.\d{2})\s?)(\s?EUR\/kg)?)/i);
+          */
+          line_item_details = line_number_format.replace(/-/g, '').match(/((\d+)\s)?((((\d+)|((\d+\.\d{2,3})(\s?kg)?))\s?x\s?)?((\d+\.\d{2})\s?)(\s?EUR\/kg)?)/i);
 
-        if (line_item_details && (line_item_details[6] || line_item_details[8])) {
-          console.log(line, line_item_details);
-          items[items.length-1].item_number = line_item_details[2];
-          items[items.length-1].quantity = parseFloat(line_item_details[6]);
-          items[items.length-1].measure = parseFloat(line_item_details[8]);
-          items[items.length-1].unit = 'kg';
-          previous_line = 'details';
-          continue;
+          if (line_item_details && (line_item_details[6] || line_item_details[8])) {
+            console.log(line, line_item_details);
+            items[items.length-1].item_number = line_item_details[2];
+            items[items.length-1].quantity = parseFloat(line_item_details[6]);
+            items[items.length-1].measure = parseFloat(line_item_details[8]);
+            items[items.length-1].unit = 'kg';
+            previous_line = 'details';
+            continue;
+          }
         }
-      }
-      
-      // item line
-      if (!has_discount) {
-        let line_price = line_number_format.match(/\s((\d{1,4}\.\d{2})(\-)?){1,2}\s*.{0,3}$/i);
-        if (line_price) {
-          // 1kg
-          const line_measure = line.substring(0, line_price.index).match(/(\d{1,4}(\.\d)?)((kg)|(g)|(l|1))/);
-          const line_quantity = line_number_format.substring(0, line_price.index).match(/(\d{1,4}\.\d{2})\s?x\s?(\d{1,2})/i);
-          
-          let line_item = line.substring(0, line_price.index).match(/^((\d+)\s)?([\u00C0-\u017F-a-z0-9\s:\-\.\,\+\&\%\=\/\(\)\{\}\[\]]+)$/i);
+        
+        // item line
+        if (!has_discount) {
+          let line_price = line_number_format.match(/(\s|\.)((\d{1,4}\.\d{2})(\-)?){1,2}\s*.{0,3}$/i);
+          if (line_price) {
+            // 1kg
+            const line_measure = line.substring(0, line_price.index).match(/(\d{1,4}(\.\d)?)((kg)|(g)|(l|1))/);
+            const line_quantity = line_number_format.substring(0, line_price.index).match(/(\d{1,4}\.\d{2})\s?x\s?(\d{1,2})/i);
+            
+            let line_item = line.substring(0, line_price.index).match(/^((\d+)\s)?([\u00C0-\u017F-a-z0-9\s:\-\.\,\+\&\%\=\/\(\)\{\}\[\]]+)$/i);
 
-          const measure = line_measure && parseFloat(line_measure[1]);
-          const quantity = line_quantity && parseFloat(line_quantity[2]);
+            const measure = line_measure && parseFloat(line_measure[1]);
+            const quantity = line_quantity && parseFloat(line_quantity[2]);
 
-          let item = {
-            product: {}
-          };
-          let name;
-          if (line_item && !line.match(/^(\d|\.|\s|%|A|B|ma|la|su|pe|X|x|-)+$/)) {
-            name = toTitleCase(line_item[3]);
-            if (measure && !isNaN(measure)) {
-              item.product.measure = measure;
-              if (line_measure[4]) {
-                item.product.unit = 'kg';
-              }
-              else if (line_measure[5]) {
-                item.product.unit = 'g';
-              }
-              else if (line_measure[6]) {
-                item.product.unit = 'l';
-              }
-              /*name =
-                name.substring(0, line_measure.index)+
-                name.substring(line_measure.index+line_measure[0].length);*/
-            }
-            if (quantity & !isNaN(quantity)) {
-              item.product.quantity = quantity;
-              /*name =
-                name.substring(0, line_quantity.index)+
-                name.substring(line_quantity.index+line_quantity[0].length);*/
-            }
-
-            if (name) {
-              const price = parseFloat(line_price[1]);
-
-              if (line_price[3] === '-') {
-                has_discount = true;
-                price = 0-price;
-              }
-
-              item = {
-                ...item,
-                item_number: line_item[2] || '',
-                text: line_item[0],
-                product: {
-                  ...item.product,
-                  name: name
-                },
-                price: price
-              };
-
-              items.push(item);
-
-              //category = this.getClosestCategory(name, locale, categories);
-
-              //if (quantity) items[items.length-1].quantity = quantity;
-              //if (measure) items[items.length-1].measure = measure;
-              //if (category) items[items.length-1].product.category = category/*{id: category.id, name: category.locales && category.locales[locale] || category.name}*/;
-
-              let found = false;
-              for (i in result.products) {
-                if (result.products[i].name === name) {
-                  found = true;
-                  break;
+            let item = {
+              product: {}
+            };
+            let name;
+            if (line_item && !line.match(/^(\d|\.|\s|%|A|B|ma|la|su|pe|X|x|-)+$/)) {
+              name = toTitleCase(line_item[3]);
+              if (measure && !isNaN(measure)) {
+                item.product.measure = measure;
+                if (line_measure[4]) {
+                  item.product.unit = 'kg';
                 }
+                else if (line_measure[5]) {
+                  item.product.unit = 'g';
+                }
+                else if (line_measure[6]) {
+                  item.product.unit = 'l';
+                }
+                /*name =
+                  name.substring(0, line_measure.index)+
+                  name.substring(line_measure.index+line_measure[0].length);*/
               }
-              !found && result.products.push({label: name, name: name});
+              if (quantity & !isNaN(quantity)) {
+                item.product.quantity = quantity;
+                /*name =
+                  name.substring(0, line_quantity.index)+
+                  name.substring(line_quantity.index+line_quantity[0].length);*/
+              }
 
-              if (price) total_price_computed+= price;
+              if (name) {
+                const price = parseFloat(line_price[2]);
 
-              previous_line = 'item';
-              continue;
+                if (line_price[4] === '-') {
+                  has_discount = true;
+                  price = 0-price;
+                }
+
+                item = {
+                  ...item,
+                  item_number: line_item[2] || '',
+                  text: line_item[0],
+                  product: {
+                    ...item.product,
+                    name: name
+                  },
+                  price: price
+                };
+
+                items.push(item);
+
+                //category = this.getClosestCategory(name, locale, categories);
+
+                //if (quantity) items[items.length-1].quantity = quantity;
+                //if (measure) items[items.length-1].measure = measure;
+                //if (category) items[items.length-1].product.category = category/*{id: category.id, name: category.locales && category.locales[locale] || category.name}*/;
+
+                let found = false;
+                for (i in result.products) {
+                  if (result.products[i].name === name) {
+                    found = true;
+                    break;
+                  }
+                }
+                !found && result.products.push({label: name, name: name});
+
+                if (price) total_price_computed+= price;
+
+                previous_line = 'item';
+                continue;
+              }
             }
           }
         }
+        console.log(line, previous_line, has_discount);
       }
-      console.log(line, previous_line, has_discount);
+    } catch (error) {
+      console.error(error);
+      return;
     }
   }
   /* español, Argentina

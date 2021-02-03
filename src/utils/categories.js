@@ -1,6 +1,7 @@
 import moment from 'moment';
 
 import { locale } from "../components/locale";
+import { convertMeasure } from './entities';
 
 export const getAverageRate = (filter, average_range) => {
   const {start_date, end_date} = filter;
@@ -21,7 +22,7 @@ export const aggregateCategoryAttribute = (resolvedCategories, attributeAggregat
       if (category.hasOwnProperty('products') && category.products.length) {
         category.products.map(product => {
           product.items.map(item => {
-            measure = locale.convertMeasure(product.measure || item.measure, product.unit || item.unit, 'kg');
+            measure = convertMeasure(product.measure || item.measure, product.unit || item.unit, 'kg');
             itemMeasure+=(product.quantity || item.quantity || 1)*measure;
           });
         });
@@ -69,7 +70,7 @@ export const aggregateCategoryPrice = (resolvedCategories, averageRate) => {
             item_volumes+= (product.quantity || item.quantity || 1)*(product.measure || item.measure || 0);
           }
           else {
-            item_weights+= (product.quantity || item.quantity || 1)*locale.convertMeasure(product.measure || item.measure, product.unit || item.unit, 'kg');
+            item_weights+= (product.quantity || item.quantity || 1)*convertMeasure(product.measure || item.measure, product.unit || item.unit, 'kg');
           }
         });
       });
