@@ -53,6 +53,20 @@ export default {
       }
     });
   },
+  async getGroups(fetch) {
+    if (this.groups && !fetch) {
+      return this.groups;
+    }
+    else {
+      try {
+        const response = await axios.get('/api/group');
+        this.groups = response.data;
+        return this.groups;
+      } catch(error) {
+        console.error(error);
+      }
+    }
+  },
   getProducts() {
     return new Promise((resolve, reject) => {
       if (this.products) {

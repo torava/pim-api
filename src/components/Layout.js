@@ -1,7 +1,6 @@
-'use strict';
-
 import React from 'react';
 import {Link} from 'react-router-dom';
+
 import {locale} from './locale';
 import ReceiptService from './ReceiptService';
 import DataStore from './DataStore';
@@ -16,7 +15,8 @@ export default class Layout extends React.Component {
 
     this.state = {
       currency: locale.getCurrency(),
-      locale: locale.getLocale()
+      locale: locale.getLocale(),
+      groups: []
     }
 
     this.onCurrencyChange = this.onCurrencyChange.bind(this);
@@ -25,6 +25,12 @@ export default class Layout extends React.Component {
     this.onUpload = this.onUpload.bind(this);
 
     this.receiptService = new ReceiptService();
+  }
+  componentDidMount() {
+    DataStore.getGroups().then(groups => {
+      console.log(groups);
+      this.setState({groups});
+    });
   }
   onCurrencyChange(event) {
     locale.setCurrency(event.target.value);
@@ -73,28 +79,40 @@ export default class Layout extends React.Component {
               <Link to="/"></Link>
             </div>
             <div style={{float:'right'}}>
-              <select id="currency"
-                      value={this.state.currency}
-                      onChange={this.onCurrencyChange.bind(this)
-              }>&nbsp;
+              <select
+                id="group"
+                placeholder="Group">
+                <option>All groups</option>
+                <option>No group</option>
+                {this.state.groups.map(group => (
+                  <option key={`group-${group.id}`}>{group.name}</option>
+                ))}
+              </select>&nbsp;
+              <select 
+                id="currency"
+                placeholder="Currency"
+                value={this.state.currency}
+                onChange={this.onCurrencyChange.bind(this)}>
                 <option value="EUR">EUR</option>
                 <option value="USD">USD</option>
                 <option value="CAD">CAD</option>
                 <option value="ARS">ARS</option>
               </select>&nbsp;
-              <select id="locale"
-                      value={this.state.locale}
-                      onChange={this.onLocaleChange.bind(this)}
-              >
+              <select
+                id="locale"
+                placeholder="Locale"
+                value={this.state.locale}
+                onChange={this.onLocaleChange.bind(this)}>
                 <option value="fi-FI">fi-FI</option>
                 <option value="sv-SV">sv-SV</option>
                 <option value="en-US">en-US</option>
                 <option value="es-AR">es-AR</option>
               </select>&nbsp;
-              <select id="energy"
-                      value={locale.getAttributeUnit('energy,calculated')}
-                      onChange={this.onEnergyUnitChange.bind(this)}
-              >
+              <select
+                id="energy"
+                placeholder="Energy"
+                value={locale.getAttributeUnit('energy,calculated')}
+                onChange={this.onEnergyUnitChange.bind(this)}>
                 <option value="kJ">kJ</option>
                 <option value="kcal">kcal</option>
               </select>

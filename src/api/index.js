@@ -10,6 +10,7 @@ import attribute from './attribute';
 import source from './source';
 import manufacturer from './manufacturer';
 import party from './party';
+import group from './group';
 
 export default api => {
   importApi(api);
@@ -22,4 +23,5 @@ export default api => {
   source(api);
   manufacturer(api);
   party(api);
+  group(api);
 }

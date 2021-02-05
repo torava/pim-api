@@ -1,8 +1,10 @@
 import {Model} from 'objection';
+import moment from 'moment';
+
 import Party from './Party';
 import Receipt from './Receipt';
 import Item from './Item';
-import moment from 'moment';
+import Group from './Group';
 
 export default class Transaction extends Model {
 	static get tableName() {
@@ -30,6 +32,14 @@ export default class Transaction extends Model {
 				join: {
 					from: 'Transaction.partyId',
 					to: 'Party.id'
+				}
+			},
+			group: {
+				relation: Model.BelongsToOneRelation,
+				modelClass: Group,
+				join: {
+					from: 'Transaction.groupId',
+					to: 'Group.id'
 				}
 			},
 			receipts: {
