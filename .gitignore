@@ -5,3 +5,4 @@ src/static/js/bundle.js
 src/server-compiled.js
 resources/uploads
 .babel_cache
+.env

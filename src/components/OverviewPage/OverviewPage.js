@@ -5,10 +5,12 @@ import moment from 'moment';
 import { locale } from '../locale';
 import { getItemNameByDepth } from '../../utils/items';
 import Transactions from './Transactions';
-import Attributes from './Attributes';
+import Attributes from '../shared/Attributes';
 import Categories from './Categories';
 import TimeFilter from './TimeFilter';
 import { convertMeasure } from '../../utils/entities';
+import { SelectedAttribute } from '../shared/SelectedAttribute';
+import { AttributeGoals } from '../shared/AttributeGoals';
 
 import './OverviewPage.scss';
 
@@ -20,7 +22,7 @@ function first(list) {
 
 moment.locale(locale.getLanguage());
 
-export const getPriceAttribute = () => ({id: -1, name: 'Price', children: [], unit: '€'});
+const initialAttributes = [{id: -1, name: 'Price', children: [], unit: '€'}];
 
 export default class OverviewPage extends Component {
   constructor(props) {
@@ -41,7 +43,7 @@ export default class OverviewPage extends Component {
       attributeGoals: {
         [-1]: 100
       },
-      selectedAttribute: getPriceAttribute(),
+      selectedAttribute: initialAttributes[0],
       aggregateAttributes: {}
     };
 
@@ -399,7 +401,9 @@ export default class OverviewPage extends Component {
       selectedAttribute,
       attributeGoals
     } = this.state;
+
     if (!ready) return null;
+
     return (
       <div className="overview-page__container">
         <div className="overview-page__content">
@@ -424,13 +428,17 @@ export default class OverviewPage extends Component {
             setFilter={this.setFilter}/>
           <h3>Attributes</h3>
           <Attributes
-            attributes={attributes}
+            attributes={[...initialAttributes, ...attributes]}
             attributeAggregates={attribute_aggregates}
             setAttributeAggregates={this.setAttributeAggregates}
             selectedAttribute={selectedAttribute}
-            setSelectedAttribute={this.setSelectedAttribute}
+            setSelectedAttribute={this.setSelectedAttribute}/>
+          <SelectedAttribute
+            selectedAttribute={selectedAttribute}/>
+          <AttributeGoals
             attributeGoals={attributeGoals}
-            setAttributeGoals={this.setAttributeGoals}/>
+            setAttributeGoals={this.setAttributeGoals}
+            selectedAttribute={selectedAttribute}/>
         </div>
       </div>
     );

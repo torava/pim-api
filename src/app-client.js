@@ -1,7 +1,7 @@
-'use strict';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {BrowserRouter} from 'react-router-dom';
+
 import App from './components/App';
 
 // https://stackoverflow.com/questions/13626465/how-to-create-a-new-imagedata-object-independently

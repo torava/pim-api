@@ -1,36 +1,180 @@
-'use strict';
-
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 //import ReactTable from 'react-table';
 import AsteriskTable from 'react-asterisk-table';
 import tree from 'react-asterisk-table/lib/Tree';
 import sortable from 'react-asterisk-table/lib/Sortable';
-import DataStore from './DataStore';
 import axios from 'axios';
 //import Timeline from 'react-visjs-timeline';
 import _ from 'lodash';
 import {Link} from 'react-router-dom';
+
+import DataStore from './DataStore';
 import { downloadString, exportTransactions } from '../utils/export';
 import { convertMeasure } from '../utils/entities';
+import Attributes from './shared/Attributes';
+
+import './TransactionListPage.scss';
 
 const TreeTable = sortable(tree(AsteriskTable));
 const Table = sortable(AsteriskTable);
 
 export default function TransactionList() {
+  const transactionColumns = () => [
+    {
+      id: 'select_transaction',
+      label: <input type="checkbox"
+                    onClick={event => selectTransaction(null, event.target.checked)}/>,
+      formatter: (value, item) => (
+        <input
+          type="checkbox"
+          onChange={event => selectTransaction(item, event.target.checked)}
+          checked={selectedTransactionIds[item.id] ? true : false}/>
+      ),
+      class: 'nowrap'
+    },
+    {
+      id: 'date',
+      label: 'Date',
+      formatter: (value, item) => <span><Link to={"/edit/"+item.id}>{new Date(value).toLocaleString()}</Link></span>
+    },
+    {
+      label: 'Store',
+      property: item => item.party.name
+    },
+    {
+      id: 'total_price',
+      label: 'Total Price'
+    }
+  ];
+
+  const itemColumns = [
+    {
+      id: 'select_item',
+      formatter: (value, item) => (
+        <input
+          type="checkbox"
+          onChange={event => selectItem(item, event.target.checked)}
+          checked={selectedItemIds[item.id]}/>
+      ),
+      class: 'nowrap'
+    },
+    {
+      id: 'name',
+      label: 'Name',
+      property: item => item.product.name,
+      formatter: (value, item) => (
+        <span contentEditable
+          onKeyUp={itemEdited}
+          onBlur={itemSaved}
+          data-value={value}
+          data-field="product.name"
+          data-id={item.id}
+          data-productid={item.product.id}
+          suppressContentEditableWarning={true}>
+          {value}
+        </span>
+      )
+    },
+    {
+      label: 'Manufacturer',
+      property: item => item.product.manufacturer && item.product.manufacturer.name
+    },
+    {
+      id: 'quantity',
+      label: 'Quantity',
+      property: item => item.product.quantity || item.quantity,
+      formatter: value => <span contentEditable suppressContentEditableWarning={true}>{value}</span>
+    },
+    {
+      id: 'measure',
+      label: 'Measure',
+      property: item => item.product.measure || item.measure,
+      formatter: value => <span contentEditable suppressContentEditableWarning={true}>{value}</span>
+    },
+    {
+      id: 'unit',
+      label: 'Unit',
+      property: item => item.product.unit || item.unit,
+      formatter: value => <span contentEditable suppressContentEditableWarning={true}>{value}</span>
+    },
+    {
+      id: 'category',
+      label: 'Category',
+      property: item => item.product.category && item.product.category.name['fi-FI'],
+      formatter: (value, item) => (
+        <div
+          data-field="category"
+          data-id={item.id}
+          data-productid={item.product.id}>
+            {editableItem.id !== item.id || editableItem.field !== 'category' ?
+            <div onClick={handleEdit}>
+              {value && <a href={"/category/"+item.product.category.id}>
+                {value}
+              </a>}
+            </div> :
+            <input
+              type="search"
+              list="categories"
+              defaultValue={value}
+              onKeyUp={handleCancel}
+              onBlur={handleItemCategoryChange}/>}
+        </div>
+      )
+    },
+    {
+      id: 'price',
+      label: 'Price',
+      property: item => {
+        let currency = localStorage.getItem('currency');
+        return item.price;
+      },
+      formatter: value => <span contentEditable suppressContentEditableWarning={true}>{value}</span>
+    },
+    {
+      id: 'pricemeasure',
+      label: 'Price/Measure',
+      property: item => {
+        const measure = item.product.measure || item.measure;
+        const unit = item.product.unit || item.unit;
+        return measure ? (item.price/convertMeasure(measure, unit, 'kg')).toLocaleString() : null;
+      }
+    }
+  ];
+
+  const initialAttributes = itemColumns.filter(column => column.label)
+  .map(column => ({
+    id: column.id,
+    name: column.label
+  }));
+
+  let initialAttributeAggregates = {};
+
+  itemColumns.filter(column => column.label)
+  .forEach(column => {
+    initialAttributeAggregates[column.id] = {
+      id: column.id,
+      name: column.label
+    }
+  });
+
   const [selectedTransactionIds, setSelectedTransactionIds] = useState({});
   const [selectedItemIds, setSelectedItemIds] = useState({});
   const [editableItem, setEditableItem] = useState({});
   const [transactions, setTransactions] = useState();
   const [categories, setCategories] = useState();
+  const [attributes, setAttributes] = useState([]);
+  const [attributeAggregates, setAttributeAggregates] = useState(initialAttributeAggregates);
 
   useEffect(() => {
     Promise.all([
       DataStore.getCategories(),
-      DataStore.getTransactions()
+      DataStore.getTransactions(),
+      DataStore.getAttributes()
     ])
-    .then(([categories, transactions]) => {
+    .then(([categories, transactions, attributes]) => {
       setCategories(categories);
       setTransactions(transactions);
+      setAttributes(attributes);
     })
     .catch(function(error) {
       console.error(error);
@@ -170,149 +314,41 @@ export default function TransactionList() {
     }
     setSelectedItemIds(updatedItemIds);
   };
-  const transactionColumns = () => [
-    {
-      id: 'select_transaction',
-      label: <input type="checkbox"
-                    onClick={event => selectTransaction(null, event.target.checked)}/>,
-      formatter: (value, item) => (
-        <input
-          type="checkbox"
-          onChange={event => selectTransaction(item, event.target.checked)}
-          checked={selectedTransactionIds[item.id] ? true : false}/>
-      ),
-      class: 'nowrap'
-    },
-    {
-      id: 'date',
-      label: 'Date',
-      formatter: (value, item) => <span><Link to={"/edit/"+item.id}>{new Date(value).toLocaleString()}</Link></span>
-    },
-    {
-      label: 'Store',
-      property: item => item.party.name
-    },
-    {
-      id: 'total_price',
-      label: 'Total Price'
-    }
-  ];
 
-  const getItemColumns = () => ([
-    {
-      id: 'select_item',
-      formatter: (value, item) => (
-        <input
-          type="checkbox"
-          onChange={event => selectItem(item, event.target.checked)}
-          checked={selectedItemIds[item.id]}/>
-      ),
-      class: 'nowrap'
-    },
-    {
-      id: 'name',
-      label: 'Name',
-      property: item => item.product.name,
-      formatter: (value, item) => (
-        <span contentEditable
-          onKeyUp={itemEdited}
-          onBlur={itemSaved}
-          data-value={value}
-          data-field="product.name"
-          data-id={item.id}
-          data-productid={item.product.id}
-          suppressContentEditableWarning={true}>
-          {value}
-        </span>
-      )
-    },
-    {
-      label: 'Manufacturer',
-      property: item => item.product.manufacturer && item.product.manufacturer.name
-    },
-    {
-      id: 'quantity',
-      label: 'Quantity',
-      property: item => item.product.quantity || item.quantity,
-      formatter: value => <span contentEditable suppressContentEditableWarning={true}>{value}</span>
-    },
-    {
-      id: 'measure',
-      label: 'Measure',
-      property: item => item.product.measure || item.measure,
-      formatter: value => <span contentEditable suppressContentEditableWarning={true}>{value}</span>
-    },
-    {
-      id: 'unit',
-      label: 'Unit',
-      property: item => item.product.unit || item.unit,
-      formatter: value => <span contentEditable suppressContentEditableWarning={true}>{value}</span>
-    },
-    {
-      id: 'category',
-      label: 'Category',
-      property: item => item.product.category && item.product.category.name['fi-FI'],
-      formatter: (value, item) => (
-        <div
-          data-field="category"
-          data-id={item.id}
-          data-productid={item.product.id}>
-            {editableItem.id !== item.id || editableItem.field !== 'category' ?
-            <div onClick={handleEdit}>
-              {value && <a href={"/category/"+item.product.category.id}>
-                {value}
-              </a>}
-            </div> :
-            <input
-              type="search"
-              list="categories"
-              defaultValue={value}
-              onKeyUp={handleCancel}
-              onBlur={handleItemCategoryChange}/>}
-        </div>
-      )
-    },
-    {
-      id: 'price',
-      label: 'Price',
-      property: item => {
-        let currency = localStorage.getItem('currency');
-        return item.price;
-      },
-      formatter: value => <span contentEditable suppressContentEditableWarning={true}>{value}</span>
-    },
-    {
-      id: 'pricemeasure',
-      label: 'Price/Measure',
-      property: item => {
-        const measure = item.product.measure || item.measure;
-        const unit = item.product.unit || item.unit;
-        return measure ? (item.price/convertMeasure(measure, unit, 'kg')).toLocaleString() : null;
-      }
-    }
-  ]);
+  const filteredItemColumns = itemColumns.filter(column => attributeAggregates[column.id]);
 
   if (!transactions || !categories) return null;
   else return (
-    <div>
-      <datalist id="categories">
-        {categories.map((item, i) => (
-          item.parentId !== null &&
-          <option key={'category-option-'+item.id} data-id={item.id} value={item.name}/>
-        ))}
-      </datalist>
-      <button onClick={removeSelected}>Remove Selected</button>
-      <button onClick={exportSelected}>Export Selected</button>
-      <TreeTable
-        columns={transactionColumns()}
-        items={transactions}
-        childView={(transaction) => {
-          return <Table
-            columns={getItemColumns()}
-            items={transaction.items}
-          />
-        }}
-      />
+    <div className="transaction-list-page__container">
+      <div className="transaction-list-page__content">
+        <datalist id="categories">
+          {categories.map((item, i) => (
+            item.parentId !== null &&
+            <option key={`category-option-${item.id}`} data-id={item.id} value={item.name}/>
+          ))}
+        </datalist>
+        <TreeTable
+          columns={transactionColumns()}
+          items={transactions}
+          childView={transaction => (
+            <Table
+              columns={filteredItemColumns}
+              items={transaction.items}
+            />
+          )}
+        />
+      </div>
+      <div className="transaction-list-page__options">
+        <p>
+          <button onClick={removeSelected}>Remove Selected</button>
+          <button onClick={exportSelected}>Export Selected</button>
+        </p>
+        <h3>Item Attributes</h3>
+        <Attributes
+          attributes={[...initialAttributes, ...attributes]}
+          attributeAggregates={attributeAggregates}
+          setAttributeAggregates={setAttributeAggregates}/>
+      </div>
     </div>
   );
   /*return (

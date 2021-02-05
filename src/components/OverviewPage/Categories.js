@@ -33,22 +33,21 @@ export default function Categories(props) {
     let attribute_aggregate_columns = [],
         attribute_aggregates = {...attributeAggregates},
         aggregate;
-    for (let id in attributeAggregates) {
+    for (const id in attributeAggregates) {
       aggregate = attributeAggregates[id];
       if (id > 0 && aggregate && !aggregate.children.length) {
-        let label = locale.getNameLocale(aggregate.name)+(aggregate.unit ? " ("+aggregate.unit+")" : '');
+        const name = locale.getNameLocale(aggregate.name);
+        let label = `${name}${aggregate.unit ? ` ${aggregate.unit})` : ''}`;
         let target_unit = locale.getAttributeUnit(aggregate.name['en-US']);
         if (target_unit) {
-          label = locale.getNameLocale(aggregate.name)+" ("+target_unit+")";
+          label = `${name} (${target_unit})`;
         }
         attribute_aggregate_columns.push({
-          id: aggregate.name[locale.getLocale()]+'_sum',
-          property: 'attribute_sum['+id+']',
-          formatter: (value, item) => {
-            return item.attribute_sum && 
-                   item.attribute_sum[id] &&
-                   item.attribute_sum[id].toLocaleString(locale.getLocale(), {minimumFractionDigits: 2,maximumFractionDigits:2});
-          },
+          id: `${aggregate.name[locale.getLocale()]}_sum`,
+          property: `attribute_sum[${id}]`,
+          formatter: (value, item) => (
+            item.attribute_sum?.[id]?.toLocaleString(locale.getLocale(), {minimumFractionDigits: 2,maximumFractionDigits:2})
+          ),
           label
         });
       }
@@ -58,7 +57,7 @@ export default function Categories(props) {
         id: 'name',
         label: 'Name',
         property: item => locale.getNameLocale(item.name),
-        formatter: (value, item) => <Link to={"/category/"+item.id}>{locale.getNameLocale(value)}</Link>,
+        formatter: (value, item) => <Link to={`/category/${item.id}`}>{locale.getNameLocale(value)}</Link>,
         width: '700'
       },
       {

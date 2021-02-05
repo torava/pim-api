@@ -1,0 +1,16 @@
+.transaction-list-page__container {
+  display: flex;
+  align-items: flex-start;
+  .transaction-list-page__content {
+    flex: 1;
+  }
+  .transaction-list-page__options {
+    position: sticky;
+    top: 0;
+  }
+}
+@media (max-width: 1000px) {
+  .transaction-list-page__container {
+    flex-direction: column;
+  }
+}
