@@ -47,4 +47,21 @@ export const getItemNameByDepth = (item, depth) => {
     name = 'Uncategorized';
   }
   return {id, name};
-}
+};
+
+export const getItemAttributeValue = (item, attribute) => {
+  const quantity = getItemQuantity(item);
+  const measure = getItemMeasure(item);
+  
+  let value;
+  if (!attribute?.unit.includes('/')) {
+    value = attribute?.value*quantity || undefined;  
+  } else {
+    value = attribute?.value*measure*(quantity || 1) || undefined;
+  }
+  return value;
+};
+
+export const getItemQuantity = item => item.quantity || item.product.quantity;
+export const getItemMeasure = item => item.measure || item.product.measure;
+export const getItemUnit = item => item.unit || item.product.unit;

@@ -12,9 +12,11 @@ import DataStore from './DataStore';
 import { downloadString, exportTransactions } from '../utils/export';
 import { convertMeasure } from '../utils/entities';
 import Attributes from './shared/Attributes';
+import { locale } from './locale';
+import { getCategoryWithAttribute } from '../utils/categories';
+import { getItemAttributeValue } from '../utils/items';
 
 import './TransactionListPage.scss';
-import { locale } from './locale';
 
 const TreeTable = sortable(tree(AsteriskTable));
 const Table = sortable(AsteriskTable);
@@ -333,7 +335,12 @@ export default function TransactionList() {
   const attributeColumns = Object.entries(attributeAggregates)
   .filter(([id]) => !itemColumns.some(column => column.id === id))
   .map(([id, attribute]) => ({
-    label: locale.getNameLocale(attribute.name)
+    label: locale.getNameLocale(attribute.name),
+    property: item => {
+      const category = getCategoryWithAttribute(categories, item.product.category?.id, attribute.id);
+      const categoryAttribute = Object.values(category?.attributes || {}).find(a => a.attributeId === attribute.id);
+      return getItemAttributeValue(item, categoryAttribute);
+    }
   }));
 
   if (!transactions || !categories) return null;

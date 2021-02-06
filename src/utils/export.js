@@ -3,6 +3,7 @@ import moment from 'moment';
 import { locale } from '../components/locale';
 import { convertMeasure, getRootEntity } from './entities';
 import { getCategoryWithAttribute } from './categories';
+import { getItemAttributeValue, getItemMeasure, getItemUnit } from './items';
 
 export const exportTransactions = (transactions, categories) => {
   const categoryLocale = locale.getLocale();
@@ -43,9 +44,9 @@ export const exportTransactions = (transactions, categories) => {
   let items = [];
   Object.values(transactions).forEach(transaction => {
     items = items.concat(transaction.items.map(item => {
-      const unit = item.unit || item.product.unit;
-      const measure = convertMeasure(item.measure || item.product.measure, unit, 'kg');
-      const quantity = item.quantity || item.product.quantity;
+      const unit = getItemUnit(item);
+      const measure = convertMeasure(getItemMeasure(item), unit, 'kg');
+      const quantity = getItemUnit(item);
 
       let volume, weight;
 
@@ -58,12 +59,7 @@ export const exportTransactions = (transactions, categories) => {
       const categoryWithGhg = getCategoryWithAttribute(categories, item.product.category?.id, 107);
       const ghgAttribute = Object.values(categoryWithGhg?.attributes || {}).find(attribute => attribute.attributeId === 107);
 
-      let ghg;
-      if (ghgAttribute?.unit === 'kgCO₂e') {
-        ghg = ghgAttribute?.value*(quantity || 1) || undefined;  
-      } else {
-        ghg = ghgAttribute?.value*measure*(quantity || 1) || undefined;
-      }
+      let ghg = getItemAttributeValue(item, ghgAttribute);
 
       const categoryParentId = categories.find(category => category.id === item.product.category?.id)?.parentId;
       const rootCategory = getRootEntity(categories, categoryParentId);
