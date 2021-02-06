@@ -19,6 +19,14 @@ const TreeTable = sortable(tree(AsteriskTable));
 const Table = sortable(AsteriskTable);
 
 export default function TransactionList() {
+  const [groups, setGroups] = useState();
+  useEffect(() => {
+    async function fetchGroups() {
+      const groups = await DataStore.getGroups();
+      setGroups(groups);
+    }
+    fetchGroups();
+  }, []);
   const transactionColumns = () => [
     {
       id: 'select_transaction',
@@ -36,6 +44,10 @@ export default function TransactionList() {
       id: 'date',
       label: 'Date',
       formatter: (value, item) => <span><Link to={"/edit/"+item.id}>{new Date(value).toLocaleString()}</Link></span>
+    },
+    {
+      label: 'Group',
+      property: transaction => groups.find(group => group.id === transaction.groupId)?.name
     },
     {
       label: 'Store',

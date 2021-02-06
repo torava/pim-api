@@ -2,6 +2,15 @@ import axios from "axios";
 import { locale } from "./locale";
 
 export default {
+  constructor() {
+    this.manufacturers = [];
+    this.transactions = [];
+    this.parties = [];
+    this.groups = [];
+    this.attributes = [];
+    this.categories = [];
+    this.categories_attributes = [];
+  },
   getManufacturers() {
     return new Promise((resolve, reject) => {
       if (this.manufacturers) {

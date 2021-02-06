@@ -1,7 +1,9 @@
 import axios from "axios";
+
 import DataStore from './DataStore';
 import {getTransactionsFromReceipt} from '../utils/receipt';
 import {getSrc, crop} from '../utils/imageProcessing';
+import ui from "./ui";
 
 const WAITING = -1;
 
@@ -410,6 +412,7 @@ class ReceiptService {
   saveTransactionPipeline() {
     return new Promise((resolve, reject) => {
       console.log(this.pipeline.transactions);
+      this.pipeline.transactions[0].groupId = ui.currentGroupId;
       this.saveReceipt(this.pipeline.transactions).then((transactions) => {
         console.log('saved');
         console.timeEnd('process');

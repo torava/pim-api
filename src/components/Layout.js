@@ -4,6 +4,7 @@ import {Link} from 'react-router-dom';
 import {locale} from './locale';
 import ReceiptService from './ReceiptService';
 import DataStore from './DataStore';
+import ui from './ui';
 
 function confirmExit() {
   return "You have attempted to leave this page. Are you sure?";
@@ -16,6 +17,7 @@ export default class Layout extends React.Component {
     this.state = {
       currency: locale.getCurrency(),
       locale: locale.getLocale(),
+      currentGroupId: ui.getCurrentGroup(),
       groups: []
     }
 
@@ -44,6 +46,10 @@ export default class Layout extends React.Component {
       locale: locale.getLocale()
     });
   }
+  onGroupChange(currentGroupId) {
+    ui.setCurrentGroup(currentGroupId);
+    this.setState({currentGroupId});
+  }
   onEnergyUnitChange(event) {
     locale.setAttributeUnit('energy,calculated', event.target.value);
   }
@@ -71,6 +77,10 @@ export default class Layout extends React.Component {
     });
   }
   render() {
+    const {
+      groups,
+      currentGroupId
+    } = this.state;
     return (
       <div className="app-container">
        <header>
@@ -81,11 +91,17 @@ export default class Layout extends React.Component {
             <div style={{float:'right'}}>
               <select
                 id="group"
-                placeholder="Group">
-                <option>All groups</option>
-                <option>No group</option>
-                {this.state.groups.map(group => (
-                  <option key={`group-${group.id}`}>{group.name}</option>
+                placeholder="Group"
+                value={currentGroupId}
+                onChange={event => this.onGroupChange(event.target.value)}>
+                <option value="-1">All groups</option>
+                <option value="">No group</option>
+                {groups.map(group => (
+                  <option
+                    key={`group-${group.id}`}
+                    value={group.id}>
+                      {group.name}
+                  </option>
                 ))}
               </select>&nbsp;
               <select 
