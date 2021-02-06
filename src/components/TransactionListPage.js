@@ -14,6 +14,7 @@ import { convertMeasure } from '../utils/entities';
 import Attributes from './shared/Attributes';
 
 import './TransactionListPage.scss';
+import { locale } from './locale';
 
 const TreeTable = sortable(tree(AsteriskTable));
 const Table = sortable(AsteriskTable);
@@ -88,6 +89,7 @@ export default function TransactionList() {
       )
     },
     {
+      id: 'manufacturer',
       label: 'Manufacturer',
       property: item => item.product.manufacturer && item.product.manufacturer.name
     },
@@ -328,6 +330,11 @@ export default function TransactionList() {
   };
 
   const filteredItemColumns = itemColumns.filter(column => attributeAggregates[column.id]);
+  const attributeColumns = Object.entries(attributeAggregates)
+  .filter(([id]) => !itemColumns.some(column => column.id === id))
+  .map(([id, attribute]) => ({
+    label: locale.getNameLocale(attribute.name)
+  }));
 
   if (!transactions || !categories) return null;
   else return (
@@ -344,7 +351,7 @@ export default function TransactionList() {
           items={transactions}
           childView={transaction => (
             <Table
-              columns={filteredItemColumns}
+              columns={[...filteredItemColumns, ...attributeColumns]}
               items={transaction.items}
             />
           )}
