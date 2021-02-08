@@ -49,10 +49,12 @@ export default function TransactionList() {
       formatter: (value, item) => <span><Link to={"/edit/"+item.id}>{new Date(value).toLocaleString()}</Link></span>
     },
     {
+      id: 'group',
       label: 'Group',
       property: transaction => groups.find(group => group.id === transaction.groupId)?.name
     },
     {
+      id: 'store',
       label: 'Store',
       property: item => item.party.name
     },

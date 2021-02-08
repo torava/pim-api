@@ -2,7 +2,7 @@ import axios from "axios";
 
 import DataStore from './DataStore';
 import {getTransactionsFromReceipt} from '../utils/receipt';
-import {getSrc, crop} from '../utils/imageProcessing';
+import {getSrc, crop, getDataUrlFromPdf} from '../utils/imageProcessing';
 import ui from "./ui";
 
 const WAITING = -1;
@@ -424,8 +424,12 @@ class ReceiptService {
         this.pipeline.file = file;
 
         const reader = new FileReader();
-        reader.addEventListener('load', () => {
-          this.pipeline.src = reader.result;
+        reader.addEventListener('load', async () => {
+          if (file.type === 'application/pdf') {
+            this.pipeline.src = await getDataUrlFromPdf(reader.result);
+          } else {
+            this.pipeline.src = reader.result;
+          }
 
           console.time('process');
 

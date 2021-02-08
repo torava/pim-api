@@ -1,3 +1,5 @@
+import {getDocument} from 'pdfjs-dist/lib/pdf';
+
 export function getSrc(orig, from_grayscale) {
   let src;
   if (from_grayscale) {
@@ -290,3 +292,58 @@ export function cropMinAreaRect(src, rotatedRect, scale, offsetX, offsetY) {
 
   return warped;
 }
+
+// https://gist.github.com/jdeng/cbfad9cb21e452127c81
+export const getDataUrlFromPdf = async src => {
+  const pages = [];
+  const heights = [];
+  let width = 0,
+    height = 0,
+    currentPage = 1;
+
+  const scale = 1.5;
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+
+  //PDFJS.disableWorker = true; // due to CORS
+  const pdf = await getDocument(src);
+
+  function draw() {
+    canvas.width = width;
+    canvas.height = height;
+    for (var i = 0; i < pages.length; i++)
+      ctx.putImageData(pages[i], 0, heights[i]);
+  }
+
+  async function getPage() {
+    const page = await pdf.getPage(currentPage);
+    console.log("Printing " + currentPage);
+    var viewport = page.getViewport(scale);
+    var canvas = document.createElement('canvas'), ctx = canvas.getContext('2d');
+    var renderContext = { canvasContext: ctx, viewport: viewport };
+
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+
+    page.render(renderContext).then(function () {
+      pages.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+
+      heights.push(height);
+      height += canvas.height;
+      if (width < canvas.width) width = canvas.width;
+
+      if (currentPage < pdf.numPages) {
+        currentPage++;
+        getPage();
+      }
+      else {
+        draw();
+      }
+    });
+  }
+
+  await getPage();
+
+  return canvas.toDataURL();
+};
