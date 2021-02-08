@@ -67,18 +67,12 @@ class ReceiptService {
   }
   saveOriginalPipeline() {
     return new Promise((resolve, reject) => {
-      let reader = new FileReader();
-
-      reader.addEventListener('load', () => {
-        axios.post('/api/receipt/original', {
-          src: reader.result,
-          id: this.pipeline.receipt.id
-        })
-        .then(original => resolve(original))
-        .catch(error => reject(error));
-      });
-
-      reader.readAsDataURL(this.pipeline.file);
+      axios.post('/api/receipt/original', {
+        src: this.pipeline.src,
+        id: this.pipeline.receipt.id
+      })
+      .then(original => resolve(original))
+      .catch(error => reject(error));
     });
   }
   saveEditedPipeline() {
@@ -305,108 +299,104 @@ class ReceiptService {
   }
   processPipeline() {
     return new Promise((resolve, reject) => {
-      let reader = new FileReader();
-      reader.addEventListener('load', () => {
-        let img = new Image();
-        img.addEventListener('load', async () => {
-          console.log('loaded');
+      let img = new Image();
+      img.addEventListener('load', async () => {
+        console.log('loaded');
+        console.timeLog('process');
+
+        const PROCESSING_WIDTH = 1000;
+
+        const upScale = true;
+
+        try {
+          let src = cv.imread(img);
+          let dst = new cv.Mat();
+
+          cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
+
+          src = crop(src);
+
+          //let anchor, M, ksize;
+
+          if (upScale || src.cols > PROCESSING_WIDTH) {
+            let dsize = new cv.Size(PROCESSING_WIDTH, src.rows/src.cols*PROCESSING_WIDTH);
+            cv.resize(src, src, dsize, 0, 0, cv.INTER_AREA);
+          }
+
+          cv.bilateralFilter(src,dst,3,10,10);
+
+          //dst.convertTo(dst, 0, 6, -500);
+          /*
+          let ksize = new cv.Size(3,3);
+          cv.GaussianBlur(dst, dst, ksize, 0, 0, cv.BORDER_DEFAULT);
+          
+          // https://stackoverflow.com/a/59744211
+          let kdata = [-1,-1,-1,-1,9,-1,-1,-1,-1] ;
+          let M = cv.matFromArray(3,3, cv.CV_32FC1,kdata);
+          let anchor = new cv.Point(-1, -1);
+          cv.filter2D(dst, dst, cv.CV_8U, M, anchor, 0, cv.BORDER_DEFAULT);
+          */
+          cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 31, 21);//61, 17);
+
+          /*M = cv.Mat.ones(2, 2, cv.CV_8U);
+          anchor = new cv.Point(-1, -1);
+          cv.dilate(dst, dst, M, anchor, 1);
+          cv.erode(dst, dst, M, anchor, 1);
+
+          M = new cv.Mat();
+          ksize = new cv.Size(3, 3);
+          M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
+          cv.morphologyEx(dst, dst, cv.MORPH_CLOSE, M);*/
+
+          let imagedata = getSrc(dst, true);
+
+          const id = this.pipeline.receipt.id;
+
+          console.log('processed');
+          console.timeLog('process');
+    
+          const text = await fetch('/api/receipt/recognize', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              id,
+              src: imagedata
+            })
+          })
+          .then(response => response.json())
+          .then(response => response.result);
+
+          console.log('recognized', text);
           console.timeLog('process');
 
-          const PROCESSING_WIDTH = 1000;
+          const locale = 'fi-FI';
 
-          const upScale = true;
+          let data = {
+            products: this.products,
+            manufacturers: this.manufacturers,
+            categories: this.categories,
+            parties: this.parties
+          };
 
-          try {
-            let src = cv.imread(img);
-            let dst = new cv.Mat();
+          getTransactionsFromReceipt(data, text, locale, id);
 
-            cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
+          console.log('extracted transformed');
+          console.timeLog('process');
+          console.log(data, locale);
 
-            src = crop(src);
+          src.delete();
+          dst.delete();
 
-            //let anchor, M, ksize;
-
-            if (upScale || src.cols > PROCESSING_WIDTH) {
-              let dsize = new cv.Size(PROCESSING_WIDTH, src.rows/src.cols*PROCESSING_WIDTH);
-              cv.resize(src, src, dsize, 0, 0, cv.INTER_AREA);
-            }
-
-            cv.bilateralFilter(src,dst,3,10,10);
-
-            //dst.convertTo(dst, 0, 6, -500);
-            /*
-            let ksize = new cv.Size(3,3);
-            cv.GaussianBlur(dst, dst, ksize, 0, 0, cv.BORDER_DEFAULT);
-            
-            // https://stackoverflow.com/a/59744211
-            let kdata = [-1,-1,-1,-1,9,-1,-1,-1,-1] ;
-            let M = cv.matFromArray(3,3, cv.CV_32FC1,kdata);
-            let anchor = new cv.Point(-1, -1);
-            cv.filter2D(dst, dst, cv.CV_8U, M, anchor, 0, cv.BORDER_DEFAULT);
-            */
-            cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 31, 21);//61, 17);
-
-            /*M = cv.Mat.ones(2, 2, cv.CV_8U);
-            anchor = new cv.Point(-1, -1);
-            cv.dilate(dst, dst, M, anchor, 1);
-            cv.erode(dst, dst, M, anchor, 1);
-
-            M = new cv.Mat();
-            ksize = new cv.Size(3, 3);
-            M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
-            cv.morphologyEx(dst, dst, cv.MORPH_CLOSE, M);*/
-
-            let imagedata = getSrc(dst, true);
-
-            const id = this.pipeline.receipt.id;
-
-            console.log('processed');
-            console.timeLog('process');
-      
-            const text = await fetch('/api/receipt/recognize', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                id,
-                src: imagedata
-              })
-            })
-            .then(response => response.json())
-            .then(response => response.result);
-
-            console.log('recognized', text);
-            console.timeLog('process');
-
-            const locale = 'fi-FI';
-
-            let data = {
-              products: this.products,
-              manufacturers: this.manufacturers,
-              categories: this.categories,
-              parties: this.parties
-            };
-
-            getTransactionsFromReceipt(data, text, locale, id);
-
-            console.log('extracted transformed');
-            console.timeLog('process');
-            console.log(data, locale);
-
-            src.delete();
-            dst.delete();
-
-            this.pipeline.transactions = data.transactions;
-            resolve(data.transactions);
-          } catch(error) {
-            console.error(error);
-            reject();
-          }
-        });
-        img.src = reader.result;
+          this.pipeline.transactions = data.transactions;
+          resolve(data.transactions);
+        } catch(error) {
+          console.error(error);
+          reject();
+        }
       });
-      reader.readAsDataURL(this.pipeline.file);
+      img.src = this.pipeline.src;
     });
   }
   saveTransactionPipeline() {
@@ -426,40 +416,46 @@ class ReceiptService {
     return new Promise(async (resolve, reject) => {
       console.log(files);
 
-      let result = [];
+      const result = [];
 
       for (const file of Array.from(files)) {
         console.log('file', file);
 
         this.pipeline.file = file;
 
-        console.time('process');
+        const reader = new FileReader();
+        reader.addEventListener('load', () => {
+          this.pipeline.src = reader.result;
 
-        /*
-          1) image   -> 2) recognize
-          1) receipt ->               -> 3) edited
-                        2) original
-                                                    -> 4) save
-        */
+          console.time('process');
 
-        const transactions = await axios.post('/api/receipt')
-        .then(receipt => {
-          this.pipeline.receipt = receipt.data;
-          return Promise.all([this.processPipeline(), this.prepareReceiptPipeline()])
-          .then(() => (
-            this.saveTransactionPipeline()
-            .then(transactions => {
-              console.log(transactions);
-              console.log(this.pipeline);
-              return transactions;
-            })
-          ))
-        })
-        .catch(error => {
-          reject(error);
+          /*
+            1) image   -> 2) recognize
+            1) receipt ->               -> 3) edited
+                          2) original
+                                                      -> 4) save
+          */
+
+          const transactions = await axios.post('/api/receipt')
+          .then(receipt => {
+            this.pipeline.receipt = receipt.data;
+            return Promise.all([this.processPipeline(), this.prepareReceiptPipeline()])
+            .then(() => (
+              this.saveTransactionPipeline()
+              .then(transactions => {
+                console.log(transactions);
+                console.log(this.pipeline);
+                return transactions;
+              })
+            ))
+          })
+          .catch(error => {
+            reject(error);
+          });
+
+          result.push(transactions);
         });
-
-        result.push(transactions);
+        reader.readAsDataURL(this.pipeline.file);
       }
       resolve(result);
     });

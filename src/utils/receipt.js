@@ -35,6 +35,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
     total_words = [
       'hinta',
       'total',
+      'totalt',
       'grand total',
       'summa',
       'yhteensä',
@@ -67,7 +68,8 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
       'pankkikortti',
       'kassaversio',
       'veloitus',
-      'korttimaksu'
+      'korttimaksu',
+      'vero'
     ],
     line_measure,
     total_price, price, has_discount, previous_line, found_attribute, category,
@@ -172,7 +174,8 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
           const party = result.parties.reduce((previous_party, current_party) => {
             if (current_party.name) {
               current_party.similarity = stringSimilarity(line, current_party.name);
-              if (current_party.similarity > 0.6 && (!previous_party || !previous_party.similarity || previous_party.similarity < current_party.similarity)) {
+              // K-Supermarket Kaisaniemi != K-Supermarket Kamppi
+              if (current_party.similarity > 0.7 && (!previous_party || !previous_party.similarity || previous_party.similarity < current_party.similarity)) {
                 return current_party;
               }
             }

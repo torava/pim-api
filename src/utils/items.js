@@ -1,3 +1,5 @@
+import { convertMeasure } from "./entities";
+
 export const getItemNameByDepth = (item, depth) => {
   let name,
       id = false;
@@ -51,10 +53,11 @@ export const getItemNameByDepth = (item, depth) => {
 
 export const getItemAttributeValue = (item, attribute) => {
   const quantity = getItemQuantity(item);
-  const measure = getItemMeasure(item);
+  const measure = convertMeasure(getItemMeasure(item), unit, 'kg');
+  const unit = getItemUnit(item);
   
   let value;
-  if (!attribute?.unit.includes('/')) {
+  if (!unit) {
     value = attribute?.value*quantity || undefined;  
   } else {
     value = attribute?.value*measure*(quantity || 1) || undefined;

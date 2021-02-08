@@ -7,7 +7,7 @@ import { getItemAttributeValue, getItemMeasure, getItemUnit } from './items';
 
 export const exportTransactions = (transactions, categories) => {
   const categoryLocale = locale.getLocale();
-  const numberLocale = 'fi-FI';//locale.getLocale();
+  const numberLocale = locale.getLocale();
 
   const formatNumber = (number) => number ? new Intl.NumberFormat(numberLocale).format(number) : undefined;
   const formatDate = (date) => (
