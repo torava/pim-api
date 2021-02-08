@@ -314,7 +314,9 @@ class ReceiptService {
 
           cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
 
-          src = crop(src);
+          if (this.pipeline.crop) {
+            src = crop(src);
+          }
 
           //let anchor, M, ksize;
 
@@ -427,8 +429,10 @@ class ReceiptService {
         reader.addEventListener('load', async () => {
           if (file.type === 'application/pdf') {
             this.pipeline.src = await getDataUrlFromPdf(reader.result);
+            this.pipeline.crop = false;
           } else {
             this.pipeline.src = reader.result;
+            this.pipeline.crop = true;
           }
 
           console.time('process');

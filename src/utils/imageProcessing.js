@@ -1,4 +1,6 @@
-import {getDocument} from 'pdfjs-dist/lib/pdf';
+import {getDocument, GlobalWorkerOptions} from 'pdfjs-dist/build/pdf';
+
+GlobalWorkerOptions.workerSrc = '//cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.min.js';
 
 export function getSrc(orig, from_grayscale) {
   let src;
@@ -293,57 +295,33 @@ export function cropMinAreaRect(src, rotatedRect, scale, offsetX, offsetY) {
   return warped;
 }
 
-// https://gist.github.com/jdeng/cbfad9cb21e452127c81
+// https://stackoverflow.com/a/62870491
 export const getDataUrlFromPdf = async src => {
-  const pages = [];
-  const heights = [];
-  let width = 0,
-    height = 0,
-    currentPage = 1;
+  try {
+    // Load the PDF file.
+    const loadingTask = getDocument(src);
+    const pdfDocument = await loadingTask.promise;
 
-  const scale = 1.5;
+    // Get the first page.
+    const page = await pdfDocument.getPage(1);
+    // Render the page on a Node canvas with 1500% scale.
+    const scale = 15;
+    const viewport = page.getViewport({ scale: scale });
 
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
+    const canvas = document.createElement('canvas');
 
-  //PDFJS.disableWorker = true; // due to CORS
-  const pdf = await getDocument(src);
-
-  function draw() {
-    canvas.width = width;
-    canvas.height = height;
-    for (var i = 0; i < pages.length; i++)
-      ctx.putImageData(pages[i], 0, heights[i]);
-  }
-
-  async function getPage() {
-    const page = await pdf.getPage(currentPage);
-    console.log("Printing " + currentPage);
-    var viewport = page.getViewport(scale);
-    var canvas = document.createElement('canvas'), ctx = canvas.getContext('2d');
-    var renderContext = { canvasContext: ctx, viewport: viewport };
-
+    // Prepare canvas using PDF page dimensions
+    const context = canvas.getContext('2d');
     canvas.height = viewport.height;
     canvas.width = viewport.width;
 
-    page.render(renderContext).then(function () {
-      pages.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+    // Render PDF page into canvas context
+    const renderContext = { canvasContext: context, viewport: viewport };
 
-      heights.push(height);
-      height += canvas.height;
-      if (width < canvas.width) width = canvas.width;
-
-      if (currentPage < pdf.numPages) {
-        currentPage++;
-        getPage();
-      }
-      else {
-        draw();
-      }
-    });
+    const renderTask = page.render(renderContext);
+    await renderTask.promise;
+    return canvas.toDataURL();
+  } catch (error) {
+    console.error(error);
   }
-
-  await getPage();
-
-  return canvas.toDataURL();
 };
