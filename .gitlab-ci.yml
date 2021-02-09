@@ -22,7 +22,7 @@ variables:
 
 test:
   # From https://stackoverflow.com/questions/54775558/how-to-run-a-test-in-gitlab-for-nodejs-application
-  image: node:14
+  image: node:12
   stage: pre
   script:
     - npm config set registry ${CI_NPM_REGISTRY}
