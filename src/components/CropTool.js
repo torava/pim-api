@@ -1,8 +1,5 @@
-'use strict';
-
-import axios from 'axios';
 import React, {Component} from 'react';
-import { createGzip } from 'zlib';
+import axios from 'axios';
 
 export default class TextBoxTool extends Component {
   constructor(props) {
