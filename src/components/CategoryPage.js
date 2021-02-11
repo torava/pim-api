@@ -3,8 +3,8 @@
 import axios from 'axios';
 import React, {Component} from 'react';
 import Autosuggest from 'react-autosuggest';
-import EditableTable from './EditableTable';
 import CreatableSelect from 'react-select/lib/Creatable';
+import AsteriskTable from 'react-asterisk-table';
 
 export default class Category extends Component {
   constructor(props) {
@@ -748,7 +748,7 @@ export default class Category extends Component {
           }
         </h1>
         <h2>Contributions</h2>
-        <EditableTable
+        <AsteriskTable
           columns={this.state.contribution_columns}
           items={[...this.state.category.contributions, {
             _aggregate: "Total",
@@ -763,11 +763,11 @@ export default class Category extends Component {
           }]}
         />
         <h2>Attributes</h2>
-        <EditableTable
+        <AsteriskTable
           columns={this.state.attribute_columns}
           items={this.state.category.attributes}
           childView={(attribute, index) => (
-            <EditableTable
+            <AsteriskTable
               columns={this.getSourceColumns(index)}
               items={attribute.sources}
               tableProps={{
@@ -777,7 +777,7 @@ export default class Category extends Component {
           )}
         />
         <h2>Products</h2>
-        <EditableTable
+        <AsteriskTable
           columns={this.state.product_columns}
           items={this.state.category.products}
         />

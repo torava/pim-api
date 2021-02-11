@@ -2,10 +2,15 @@
 
 import axios from 'axios';
 import React, {Component} from 'react';
-import EditableTable from './EditableTable';
+import AsteriskTable from 'react-asterisk-table';
+import tree from 'react-asterisk-table/lib/Tree';
+import sortable from 'react-asterisk-table/lib/Sortable';
+
 import { locale } from './locale';
 import config from '../config/default.json';
 import DataStore from './DataStore';
+
+const TreeTable = sortable(tree(AsteriskTable));
 
 export default class CategoryList extends Component {
   constructor(props) {
@@ -203,7 +208,7 @@ export default class CategoryList extends Component {
     return (
       <div>
         <button onClick={this.copyAttributes}>Copy Selected Attributes</button>
-        <EditableTable
+        <TreeTable
           columns={this.state.attribute_selector_columns}
           items={this.state.attributes}/>
         <p>
@@ -215,7 +220,7 @@ export default class CategoryList extends Component {
               onChange={event => this.setSearchCategoryName(event.target.value)}/>
           </label>
         </p>
-        <EditableTable
+        <TreeTable
           columns={this.state.columns}
           items={this.state.resolvedCategories}/>
       </div>
