@@ -25,8 +25,6 @@ export default class Layout extends React.Component {
     this.onLocaleChange = this.onLocaleChange.bind(this);
     this.onEnergyUnitChange = this.onEnergyUnitChange.bind(this);
     this.onUpload = this.onUpload.bind(this);
-
-    this.receiptService = new ReceiptService();
   }
   componentDidMount() {
     DataStore.getGroups().then(groups => {
@@ -53,7 +51,7 @@ export default class Layout extends React.Component {
   onEnergyUnitChange(event) {
     locale.setAttributeUnit('energy,calculated', event.target.value);
   }
-  onUpload(event) {
+  async onUpload(event) {
     //event.preventDefault();
 
     //window.onbeforeunload = confirmExit;
@@ -67,14 +65,15 @@ export default class Layout extends React.Component {
 
     if (!files[0]) return;
 
-    this.receiptService.upload(files)
-    .then((transactions) => {
-      console.log(transactions);
-      window.onbeforeunload = null;
-    })
-    .catch(error => {
-      console.error(error);
-    });
+    for (let file of Array.from(files)) {
+      try {
+        const transactions = await (new ReceiptService).upload(file);
+        console.log(transactions);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    window.onbeforeunload = null;
   }
   render() {
     const {

@@ -325,7 +325,11 @@ class ReceiptService {
             cv.resize(src, src, dsize, 0, 0, cv.INTER_AREA);
           }
 
-          cv.bilateralFilter(src,dst,3,10,10);
+          if (this.pipeline.filter) {
+            cv.bilateralFilter(src,dst,3,10,10);
+          } else {
+            dst = src;
+          }
 
           //dst.convertTo(dst, 0, 6, -500);
           /*
@@ -338,7 +342,9 @@ class ReceiptService {
           let anchor = new cv.Point(-1, -1);
           cv.filter2D(dst, dst, cv.CV_8U, M, anchor, 0, cv.BORDER_DEFAULT);
           */
-          cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 31, 21);//61, 17);
+          if (this.pipeline.threshold) {
+            cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 31, 21);//61, 17);
+          }
 
           /*M = cv.Mat.ones(2, 2, cv.CV_8U);
           anchor = new cv.Point(-1, -1);
@@ -389,7 +395,10 @@ class ReceiptService {
           console.log(data, locale);
 
           src.delete();
-          dst.delete();
+
+          if (this.pipeline.filter) {
+            dst.delete();
+          }
 
           this.pipeline.transactions = data.transactions;
           resolve(data.transactions);
@@ -414,57 +423,60 @@ class ReceiptService {
       .catch(error => reject(error));
     });
   }
-  upload(files) {
+  upload(file) {
     return new Promise(async (resolve, reject) => {
-      console.log(files);
+      console.log(file);
 
       const result = [];
 
-      for (const file of Array.from(files)) {
-        console.log('file', file);
+      console.log('file', file);
 
-        this.pipeline.file = file;
+      this.pipeline.file = file;
 
-        const reader = new FileReader();
-        reader.addEventListener('load', async () => {
-          if (file.type === 'application/pdf') {
-            this.pipeline.src = await getDataUrlFromPdf(reader.result);
-            this.pipeline.crop = false;
-          } else {
-            this.pipeline.src = reader.result;
-            this.pipeline.crop = true;
-          }
+      const reader = new FileReader();
+      reader.addEventListener('load', async () => {
+        if (file.type === 'application/pdf') {
+          this.pipeline.src = await getDataUrlFromPdf(reader.result);
+          this.pipeline.crop = false;
+          this.pipeline.filter = false;
+          this.pipeline.threshold = false;
+        } else {
+          this.pipeline.src = reader.result;
+          this.pipeline.crop = true;
+          this.pipeline.filter = true;
+          this.pipeline.threshold = true;
+        }
 
-          console.time('process');
+        console.time('process');
 
-          /*
-            1) image   -> 2) recognize
-            1) receipt ->               -> 3) edited
-                          2) original
-                                                      -> 4) save
-          */
+        /*
+          1) image   -> 2) recognize
+          1) receipt ->               -> 3) edited
+                        2) original
+                                                    -> 4) save
+        */
 
-          const transactions = await axios.post('/api/receipt')
-          .then(receipt => {
-            this.pipeline.receipt = receipt.data;
-            return Promise.all([this.processPipeline(), this.prepareReceiptPipeline()])
-            .then(() => (
-              this.saveTransactionPipeline()
-              .then(transactions => {
-                console.log(transactions);
-                console.log(this.pipeline);
-                return transactions;
-              })
-            ))
-          })
-          .catch(error => {
-            reject(error);
-          });
-
-          result.push(transactions);
+        const transactions = await axios.post('/api/receipt')
+        .then(receipt => {
+          this.pipeline.receipt = receipt.data;
+          return Promise.all([this.processPipeline(), this.prepareReceiptPipeline()])
+          .then(() => (
+            this.saveTransactionPipeline()
+            .then(transactions => {
+              console.log(transactions);
+              console.log(this.pipeline);
+              return transactions;
+            })
+          ))
+        })
+        .catch(error => {
+          reject(error);
         });
-        reader.readAsDataURL(this.pipeline.file);
-      }
+
+        result.push(transactions);
+      });
+      reader.readAsDataURL(this.pipeline.file);
+    
       resolve(result);
     });
   }
