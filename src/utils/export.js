@@ -3,7 +3,7 @@ import moment from 'moment';
 import { locale } from '../components/locale';
 import { convertMeasure, getRootEntity } from './entities';
 import { getCategoryWithAttribute } from './categories';
-import { getItemAttributeValue, getItemMeasure, getItemUnit } from './items';
+import { getItemAttributeValue, getItemMeasure, getItemQuantity, getItemUnit } from './items';
 
 export const exportTransactions = (transactions, categories) => {
   const categoryLocale = locale.getLocale();
@@ -11,10 +11,12 @@ export const exportTransactions = (transactions, categories) => {
 
   const formatNumber = (number) => number ? new Intl.NumberFormat(numberLocale).format(number) : undefined;
   const formatDate = (date) => (
-    date ? new Intl.DateTimeFormat('en-US', {
+    date ? new Intl.DateTimeFormat(locale.getLocale(), {
       year: 'numeric',
       month: 'numeric',
       day: 'numeric',
+    }).format(new Date(date))+' '+
+    new Intl.DateTimeFormat(locale.getLocale(), {
       hour: 'numeric',
       minute: 'numeric',
       hour12: false
@@ -28,6 +30,7 @@ export const exportTransactions = (transactions, categories) => {
       'Participant',
       'Vendor',
       'Item name',
+      'Product name',
       'Main category',
       'Category',
       'GHG category',
@@ -46,7 +49,7 @@ export const exportTransactions = (transactions, categories) => {
     items = items.concat(transaction.items.map(item => {
       const unit = getItemUnit(item);
       const measure = convertMeasure(getItemMeasure(item), unit, 'kg');
-      const quantity = getItemUnit(item);
+      const quantity = getItemQuantity(item);
 
       let volume, weight;
 
@@ -66,9 +69,10 @@ export const exportTransactions = (transactions, categories) => {
 
       return [
         formatDate(transaction.date),
-        moment(transaction.date).week(),
+        moment(transaction.date).isoWeek(),
         ,
         transaction.party.name,
+        item.text,
         item.product.name,
         rootCategory?.name,
         item.product.category?.name[categoryLocale],
