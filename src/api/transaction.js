@@ -127,6 +127,8 @@ app.post('/api/transaction', async function(req, res) {
         if (!category.children.length) {
           name = category.name;
           category.trimmed_name = stripName(name);
+        } else {
+          category.trimmed_name = {};
         }
         return !category.children.length;
       });
@@ -165,49 +167,53 @@ app.post('/api/transaction', async function(req, res) {
         });
     
         trimmed_categories.forEach((category, index) => {
-          if (category.trimmed_name && category.trimmed_name['fi-FI']) {
-            distance = stringSimilarity(trimmed_item_name.toLowerCase() || '', category.trimmed_name['fi-FI'].toLowerCase() || '');
-            distance+= stringSimilarity(item.product.name.toLowerCase() || '', category.name['fi-FI'].toLowerCase() || '');
-            category.aliases?.forEach(alias => {
-              distance+= stringSimilarity(trimmed_item_name.toLowerCase() || '', alias.toLowerCase() || '');
-              distance+= stringSimilarity(item.product.name.toLowerCase() || '', alias.toLowerCase() || '');
-            });
-            if (category.parent) {
-              distance+= stringSimilarity(trimmed_item_name || '', category.parent.name['fi-FI'] || '');
-            }
-            //accuracy = (trimmed_item_name.length-distance)/trimmed_item_name.length;
-    
-            if (distance > 1) {
-              console.log('comparing item to categories', item.product.name, category.name['fi-FI'], distance);
-              item_categories.push({
-                category,
-                item_name: item.product.name,
-                trimmed_item_name: trimmed_item_name,
-                name: category.trimmed_name['fi-FI'],
-                parents: getParentPath(category.parent),
-                distance: distance
+          Object.entries(category.trimmed_name).forEach(([locale, nameLocale]) => {
+            if (category.trimmed_name && category.trimmed_name[locale]) {
+              distance = stringSimilarity(trimmed_item_name.toLowerCase() || '', category.trimmed_name[locale].toLowerCase() || '');
+              distance+= stringSimilarity(item.product.name.toLowerCase() || '', category.name[locale].toLowerCase() || '');
+              category.aliases?.forEach(alias => {
+                distance+= stringSimilarity(trimmed_item_name.toLowerCase() || '', alias.toLowerCase() || '');
+                distance+= stringSimilarity(item.product.name.toLowerCase() || '', alias.toLowerCase() || '');
               });
+              if (category.parent) {
+                distance+= stringSimilarity(trimmed_item_name || '', category.parent.name[locale] || '');
+              }
+              //accuracy = (trimmed_item_name.length-distance)/trimmed_item_name.length;
+      
+              if (distance > 1) {
+                console.log('comparing item to categories', item.product.name, category.name[locale], distance);
+                item_categories.push({
+                  category,
+                  item_name: item.product.name,
+                  trimmed_item_name: trimmed_item_name,
+                  name: category.trimmed_name[locale],
+                  parents: getParentPath(category.parent),
+                  distance: distance
+                });
+              }
             }
-          }
+          });
         });
 
         if (item.product.category && item.product.category.name) {
           trimmed_categories.forEach((category, index) => {
-            const productCategoryName = item.product.category.name['fi-FI'].toLowerCase();
-            const categoryName = category.name['fi-FI'].toLowerCase();
-            distance = stringSimilarity(productCategoryName, categoryName);
-            //accuracy = (trimmed_item_name.length-distance)/trimmed_item_name.length;
-    
-            if (distance > 0.4) {
-              console.log('comparing product category to categories', productCategoryName, categoryName, distance);
-              item_categories.push({
-                category,
-                item_name: item.product.name,
-                trimmed_item_name: trimmed_item_name,
-                parents: getParentPath(category.parent),
-                distance: distance
-              });
-            }
+            Object.entries(category.name).forEach(([locale, categoryTranslation]) => {
+              const productCategoryName = item.product.category.name[locale]?.toLowerCase();
+              const categoryName = categoryTranslation.toLowerCase();
+              distance = stringSimilarity(productCategoryName, categoryName);
+              //accuracy = (trimmed_item_name.length-distance)/trimmed_item_name.length;
+      
+              if (distance > 0.4) {
+                console.log('comparing product category to categories', productCategoryName, categoryName, distance);
+                item_categories.push({
+                  category,
+                  item_name: item.product.name,
+                  trimmed_item_name: trimmed_item_name,
+                  parents: getParentPath(category.parent),
+                  distance: distance
+                });
+              }
+            });
           });
         }
         

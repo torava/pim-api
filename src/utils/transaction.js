@@ -203,21 +203,24 @@ export function escapeRegExp(stringToGoIntoTheRegex) {
 }
 
 export function stripName(name) {
-  let stripped_name = {...name};
-  if (name && name['fi-FI']) {
-    for (let i in details) {
-      for (let j in details[i]) {
+  let strippedName = {};
+  Object.entries(name).forEach(([locale, translation]) => {
+    strippedName[locale] = translation;
+    for (const i in details) {
+      for (const j in details[i]) {
         details[i][j].forEach(detail => {
-          stripped_name['fi-FI'] = stripped_name['fi-FI']
-          .replace(new RegExp(escapeRegExp(detail)), "")
+          strippedName[locale] = strippedName[locale]
+          .replace(new RegExp(escapeRegExp(detail)), '')
         });
       }
     }
-    stripped_name['fi-FI'] = stripped_name['fi-FI']
-    .trim()
-    .replace(/,|\s{2,}|/g, '');
-  }
-  return stripped_name;
+    strippedName[locale] = (
+      strippedName[locale]
+      .trim()
+      .replace(/,|\s{2,}|/g, '')
+    );
+  });
+  return strippedName;
 }
 
 export function stripDetails(name) {
