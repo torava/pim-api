@@ -296,7 +296,7 @@ export default function TransactionList() {
   const exportSelected = () => {
     console.log(transactions);
     const selectedTransactions = transactions.filter(transaction => selectedTransactionIds[transaction.id]);
-    const csv = exportTransactions(selectedTransactions, categories);
+    const csv = exportTransactions(selectedTransactions, categories, groups);
     console.log(csv);
     downloadString(csv, 'text/csv', 'items.csv');
   };

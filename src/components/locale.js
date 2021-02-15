@@ -1,7 +1,8 @@
 class Locale {
   constructor() {
-    this.currency = 'eur';
+    this.currency = 'EUR';
     this.locale = 'en-us';
+    this.attribute_units = '{}';
 
     if (typeof window !== 'undefined') {
       this.currency = window.localStorage.getItem('currency') || 'EUR';

@@ -5,7 +5,7 @@ import { convertMeasure, getRootEntity } from './entities';
 import { getCategoryWithAttribute } from './categories';
 import { getItemAttributeValue, getItemMeasure, getItemQuantity, getItemUnit } from './items';
 
-export const exportTransactions = (transactions, categories) => {
+export const exportTransactions = (transactions, categories, groups) => {
   const categoryLocale = locale.getLocale();
   const numberLocale = locale.getLocale();
 
@@ -67,10 +67,12 @@ export const exportTransactions = (transactions, categories) => {
       const categoryParentId = categories.find(category => category.id === item.product.category?.id)?.parentId;
       const rootCategory = getRootEntity(categories, categoryParentId);
 
+      const group = groups.find(group => group.id === transaction.groupId)?.name;
+
       return [
         formatDate(transaction.date),
         moment(transaction.date).isoWeek(),
-        ,
+        group,
         transaction.party.name,
         item.text,
         item.product.name,
