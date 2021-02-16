@@ -1,5 +1,5 @@
 THSCODE;DESCRIPT;LANG
-NUTRIENT;N‰rings‰mne;SV
+NUTRIENT;N√§rings√§mne;SV
 MACROCMP;Makrokomponenter;SV
 ENERGY;Energi;SV
 PROTEIN;Protein;SV
@@ -8,10 +8,10 @@ TOTALCAR;Kolhydrater, totalt;SV
 ALCOHOL;Alkohol;SV
 WATER;Vatten;SV
 ASH;Aska;SV
-DRYMATR;Torr‰mne;SV
+DRYMATR;Torr√§mne;SV
 CARBOCMP;Kolhydrater, komponenter;SV
 SUGAR;Sockerarter;SV
-STARCH;St‰rkelse;SV
+STARCH;St√§rkelse;SV
 FIBRE;Fiber;SV
 POLYOL;Polyoler;SV
 POLYSACC;Polysackarider;SV
@@ -21,15 +21,15 @@ FATACID;Fettsyror;SV
 STEROL;Steroler;SV
 PHOLIPID;Fosfolipider;SV
 TRIGLYSE;Triglycerider;SV
-MINERAL;Mineral‰mnen;SV
+MINERAL;Mineral√§mnen;SV
 MACROELM;Makroelement;SV
-TRACEELM;SpÂrelement;SV
-NITROCMP;Kv‰vefˆreningar;SV
-NITROGEN;Kv‰ve;SV
+TRACEELM;Sp√•relement;SV
+NITROCMP;Kv√§vef√∂reningar;SV
+NITROGEN;Kv√§ve;SV
 AMACID;Aminosyror;SV
 VITAM;Vitaminer;SV
-FSVITAM;Fettlˆsliga vitaminer;SV
-WSVITAM;Vattenlˆsliga vitaminer;SV
+FSVITAM;Fettl√∂sliga vitaminer;SV
+WSVITAM;Vattenl√∂sliga vitaminer;SV
 ORGACID;Organiska syror;SV
 MISC;Diverse;SV
 NATINHCN;Naturliga ingredienser;SV
@@ -37,16 +37,18 @@ FLAVON;Flavonoider;SV
 NITRATE;Nitrat;SV
 OXAACID;Oxalsyra;SV
 PHYACID;Fytinsyra;SV
-PHYESTRO;Fytoˆstrogener;SV
+PHYESTRO;Fyto√∂strogener;SV
 TANNIN;Tannin;SV
 INOSITOL;Inositol;SV
 PURINE;Puriner;SV
+BIOAMIN;Biogena aminer;SV
 BIOTOXIN;Biotoxin;SV
 ADDITIVE;Tillsatser;SV
-CONT;Fr‰mmande ‰mnen;SV
+CONT;Fr√§mmande √§mnen;SV
 ORGCONT;Organiska kontaminanter;SV
-PCB;PCB-fˆreningar;SV
+PCB;PCB-f√∂reningar;SV
 DIOXIN;Dioxiner;SV
 INOCONT;Oorganiska kontaminanter;SV
 HVYMETAL;Tungmetaller;SV
 PESTICID;Pesticider;SV
+OTHER;Andra ingredienser;SV
