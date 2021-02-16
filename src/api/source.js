@@ -13,7 +13,7 @@ export default app => {
       });
   });
 
-  app.post('/api/category', async (req, res) => {
+  app.post('/api/source', async (req, res) => {
     try {
       let sources;
       if (req.body.csv) {

@@ -60,7 +60,7 @@ export function first(list) {
   }
 }
 
-export function getNameLocale(name, locale, strict) {
+export function getTranslation(name, locale, strict) {
   if (!name) {
     return name;
   }

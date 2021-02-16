@@ -22,7 +22,7 @@ app.delete('/api/transaction/:id', function(req, res) {
     })
     .catch(error => {
       console.error(error);
-      throw new Error();
+      res.sendStatus(500);
     });
 });
 
