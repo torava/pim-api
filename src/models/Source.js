@@ -1,6 +1,8 @@
-import {Model} from 'objection';
+import {Model, snakeCaseMappers} from 'objection';
 
 export default class Source extends Model {
+	static columnNameMappers = snakeCaseMappers();
+	
 	static get tableName() {
 		return 'Source';
 	}
@@ -12,8 +14,9 @@ export default class Source extends Model {
 			properties: {
 				name: {type: 'string'},
         authors: {type: ['string', 'null']},
-        publication_url: {type: ['string', 'null']},
-				publication_date: { type: 'string' }
+        publicationUrl: {type: ['string', 'null']},
+				publicationCate: { type: 'string' },
+				countryCode: { type: 'string' }
 			}
 		}
 	}

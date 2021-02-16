@@ -141,6 +141,7 @@ exports.up = (knex, Promise) => (
     table.increments('id').primary();
     table.string('name');
     table.string('authors');
+    table.string('country_code');
     table.string('publication_date');
     table.string('publication_url');
   }))
