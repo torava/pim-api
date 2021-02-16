@@ -53,3 +53,53 @@ export const convertMeasure = (measure, from_unit, to_unit) => {
   let conversion = factors[from_unit]-factors[to_unit];
   return measure*Math.pow(10, conversion);
 }
+
+export function first(list) {
+  for (let i in list) {
+    return list[i];
+  }
+}
+
+export function getNameLocale(name, locale, strict) {
+  if (!name) {
+    return name;
+  }
+  if (typeof name === 'string') {
+    return name;
+  } 
+  else if (name.hasOwnProperty(locale)) {
+    return name[locale];
+  }
+  else if (!strict) {
+    return first(name);
+  }
+  else return '';
+}
+
+export function escapeRegExp(stringToGoIntoTheRegex) {
+  return stringToGoIntoTheRegex.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+}
+
+export function stringToSlug(str,  sep) {
+  let sep_regexp = escapeRegExp(sep);
+
+  str = str.replace(/^\s+|\s+$/g, ""); // trim
+  str = str.toLowerCase();
+
+  // remove accents, swap ñ for n, etc
+  var from = "åàáãäâèéëêìíïîòóöôùúüûñç·/_,:;";
+  var to = "aaaaaaeeeeiiiioooouuuunc------";
+
+  for (var i = 0, l = from.length; i < l; i++) {
+    str = str.replace(new RegExp(from.charAt(i), "g"), to.charAt(i));
+  }
+
+  str = str
+    .replace(/[^a-z0-9 -]/g, "") // remove invalid chars
+    .replace(/\s+/g, "-") // collapse whitespace and replace by -
+    .replace(new RegExp("-+", "g"), sep) // collapse dashes
+    .replace(new RegExp(sep_regexp+"+"), "") // trim - from start of text
+    .replace(new RegExp(sep_regexp+"+$"), ""); // trim - from end of text
+
+  return str;
+}
