@@ -121,7 +121,8 @@ exports.up = (knex, Promise) => (
       .integer('categoryId')
       .unsigned()
       .references('id')
-      .inTable('Category');
+      .inTable('Category')
+      .onDelete('CASCADE');
     table
       .integer('attributeId')
       .unsigned()
