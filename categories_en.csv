@@ -16,13 +16,16 @@ Baby toy,Vauvanlelu,"[""Vauvan- Ja Kehityslelut""]",Children's supplies,,,,,,,,
 Baking paper,Leivinpaperi,,Supplies,,,,,,0.72,"Paper, carton and cardboard products",2
 "Baking Yeast, Fresh",,,,,,,,,0.7,Plant based groceries,2
 "Banana, With Skin",,"[""Banaani""]",,,0.72,,,,,"Musa, bananas, median",1
+Barber,Parturi,,Recreational services,,,,,,,,
 "Barley, Rolled, Barley Flakes",,,,,0.43,,,,,"Barley, median",1
 Bay leaf,Laakerinlehti,,Spices,,,,,,,,
 "Bean, Green Bean, String Bean","Papu, vihreä taitepapu, tuore",,,,0.75,,,,,"Beans: french and runner, median",1
 "Bean, Green Bean, String Bean","Papu, vihreä taitepapu, tuore",,,,0.31,,,,,"Beans: green, median",1
 Beef,Nauta,,,,26.61,,,,,"Beef: world average, median",1
-Beef,Nauta,,,,15,,,,,"Naudanliha, raaka",4
-"Beer, Alcohol-Free, 0.0% Volume",,,,,,,,0.54,,"Beer, cradle-to-grave",5
+Beef,Nauta,,,,15,,,,,"Beef, raw",4
+"Beef, Cured, 2.8% Fat",,"[""Paahtopaisti""]",,,15,,,,,"Beef, raw",4
+"Beer, Alcohol-Free, 0.0% Volume",,"[""Pils alkoholiton""]",,,,,,0.54,,"Beer, cradle-to-grave",5
+"Beer, Lager, Medium Strength, 4.5% Volume",,"[""Lager"", ""Pils""]",,,,,,,,,
 Beers,,,,,,,,0.54,,"Beer, cradle-to-grave",5
 "Beetroot, Red Beet",Punajuuri,,,,0.24,,,,,"Beetroot, median",1
 Berries,,,,,,,,,0.7,Plant based groceries,2
@@ -30,9 +33,11 @@ Blackcurrant,Mustaherukka,,,,0.84,,,,,"Currants and gooseberries, median",1
 Blended spread >= 55 %,,,,,9.25,,,,,"Butter, median",1
 Blueberry,"Mustikka, pensasmustikka",,,,0.92,,,,,"Cranberries/blueberries, median",1
 "Blueberry, Bilberry",,"[""Kotimainen pakastemustikka""]",,,,,,,0.7,Plant based groceries,2
+Body lotion,Vartalovoide,,Skincare products,,,,,,,,
 "Bread, mixed flour",,,,,1.55,,,,,"Bread, cradle-to-grave, 0.6-2.5 kg",6
+"Bread, mixed flour",,,,,,,,,0.7,Plant based groceries,2
 Breakfast cereals,,,,,,,,,0.7,Plant based groceries,2
-Broccoli,,,,,0.6,,,,,"Broccoli, median",1
+Broccoli,,"[""Parsakaali""]",,,0.6,,,,,"Broccoli, median",1
 Buffalo,Biisoni,,Beef,,60.43,,,,,"Buffalo, median",1
 Buffalo milk,Biisonin maito,,Milks >2% fat,,3.57,,,,,"Buffalo milk, median",1
 Buns,,,,,2.5,,,,,"Pastry, including waste, secondary source",7
@@ -53,6 +58,8 @@ Celery,,,,,0.18,,,,,"Celery, median",1
 Ceramics,Keramiikka,,Supplies,,,,,,0.65,Ceramic products for other than construction purposes,2
 Cereals,,,,,,,,,0.7,Plant based groceries,2
 "Champignon, Fresh",Herkkusieni,,,,0.27,,,,,"Mushrooms, median",1
+"Cheese, Emmental, 27-30% Fat, Red-Label",,"[""Maasdam""]",,,,,,,,,
+"Cheese, Gouda, Average, 28-30% Fat",,"[""Gouda"", ""Vanha gouda""]",,,,,,,,,
 "Cheese, ripened cheese <= 17 %",,,,,8.55,,,,,"Cheese, median",1
 "Cheese, ripened cheese <= 17 %",,,,,10,,,,,Juusto,9
 "Cheese, ripened cheese > 17 %",,,,,8.55,,,,,"Cheese, median",1
@@ -124,6 +131,8 @@ Ferry 80km Helsinki-Tallinn,Autolautta 80 km Helsinki-Tallinna,,Travel,35,,,,,,A
 "Fig, Dried","Viikuna, kuivattu",,,,0.43,,,,,"Figs, median",1
 Fish,,,,,3.49,,,,,"Fish: all species, median",1
 Fish,,,,,1.5,,,,,"Kala, raaka",20
+"Fish Ball, Industrial",,"[""Saaristolaispyörykät""]",,,,,,,,,
+Fish dishes,,,,,,,,,1.1,Animal based groceries,2
 Fish oil,,,Supplies,,,,,,1.1,Animal based groceries,2
 Flight 1603km Helsinki-Düsseldorf,Lento 1603 km Helsinki-Düsseldorf,,Travel,255,,,,,,Lento 1603 km Helsinki-Düsseldorf,21
 Flight 4700km Helsinki-Las Palmas,Lento 4700 km Helsinki-Las Palmas,,Travel,747,,,,,,Lento 4700 km Helsinki-Las Palmas,21
@@ -141,6 +150,8 @@ Flour,,,,,,,,,0.7,Plant based groceries,2
 Flowers,Kukat,,Supplies,,,,,,,,
 "Fresh Pasta, Contains Egg",,,,,,,,,1.1,Animal based groceries,2
 Fried onions,Paahdettu sipulirouhe,,Spices,,,,,,,,
+"Frozen Vegetable Mix, Root Vegetables",,"[""Keittovihannekset""]",,,,,,,,,
+Fruit and berry dishes,,,,,,,,,0.7,Plant based groceries,2
 Fruits,Hedelmät,,,,0.42,,,,,"Fruit (all field grown fruit), median",1
 Fruits,Hedelmät,,,,0.2,,,,,"Hedelmät, marjat",4
 Fruits,,,,,,,,,0.7,Plant based groceries,2
@@ -157,6 +168,7 @@ Gooseberry,Karviainen,,,,0.84,,,,,"Currants and gooseberries, median",1
 "Grapefruit, Average, With Skin",,,,,0.51,,,,,"Grapefruit and pomelo, median",1
 Guava,Guava,,,,0.28,,,,,"Guavas, median",1
 Haddock,Kolja,,Fish,,3.41,,,,,"Haddock, median",1
+Hairdresser,Kampaamo,,Recreational services,,,,,,,,
 "Ham, Cooked, 2% Fat",,,,,5.77,,,,,Ham,1
 Headphones,Kuulokkeet,,Electronics,,,,,,,,
 Healthcare products,Terveydenhoitotuotteet,,Supplies,,,,,,0.51,"Kestokulutustavarat, terveydenhoitotuotteet keskiarvo",2
@@ -164,7 +176,7 @@ Healthcare services,Terveydenhuoltopalvelut,,Services,,,,,,0.2,Terveydenhuolto- 
 "Herring, Pickled/Salted, Average",,,,,1.16,,,,,"Herring, median",1
 Honey,Hunaja,,,,0.75,,,,,"Honey, average, 140-1800 miles",15
 Housekeeping products,Kodinhoitotuotteet,,Supplies,,,,,,0.4,Housekeeping products and services,2
-"Hummus, Chick Pea Paste",,,,,,,,,0.7,Plant based groceries,2
+"Hummus, Chick Pea Paste",,"[""Hummus""]",,,,,,,0.7,Plant based groceries,2
 Hygiene products,Hygieniatuotteet,,Supplies,,,,,,0.4,Personal hygiene and cosmetic care,2
 "Ice Cream, Cream Based",,,,,,,,4.2,,"Ice cream, vanilla regular",22
 Iceberg Lettuce,,"[""Jäävuorisalaatti"", ""Jääsalaatti""]",,,0.56,,,,,Including waste,8
@@ -172,19 +184,20 @@ Interior design,Sisustus,,Supplies,,,,,,0.67,"Kodintaloustekstiilit, sisustus, a
 iPhone 12 128GB,iPhone 12 128 Gt,,Smartphone,75,,,,,,,23
 iPhone 12 256GB,iPhone 12 256 Gt,,Smartphone,85,,,,,,,23
 iPhone 12 64GB,iPhone 12 64 Gt,,Smartphone,,,,,,,,23
+Jams and marmalades,,,,,,,,,0.7,Plant based groceries,2
 Jerusalem Artichoke,Maa-artisokka,,,,0.48,,,,,"Artichokes, median",1
 Juices,Juomat,,,,,,,,0.7,Alkoholittomat juomat,2
 Kangaroo,Kenguru,,Game meat,,4.1,,,,,"Kangaroo, median",1
+"Karelian Pasty, Rice Filling, Saarioinen",,"[""Riisipiirakka""]",,,,,,,,,
 Kitchen,Keittiö,,Supplies,,,,,,,,
 Kitchen paper,Talouspaperi,,Supplies,0.03,,,,,,Paper towel per piece,24
 "Kiwi Fruit, With Skin",,,,,0.36,,,,,"Kiwi fruit, median",1
 Lamb/mutton,Lammas,,,,25.58,,,,,"Lamb: world average, median",1
-Leisure Time Services,Vapaa-ajan palvelut,,Services,,,,,,0.39,Vapaa-ajan palvelut keskiarvo,2
 "Lemon, With Skin",Sitruuna,,,,0.26,,,,,"Lemons and limes, median",1
 "Lentils, Green/Brown Dried","Linssi, vihreä/ruskea, kuivattu",,,,1.03,,,,,"Lentils, median",1
 "Lentils, Red, Cooked","Linssi, punainen, keitetty",,,,1.03,,,,,"Lentils, median",1
 "Lentils, Red, Dried","Linssi, punainen, kuivattu",,,,1.03,,,,,"Lentils, median",1
-Lettuce,,,,,3.7,,,,,"Lettuce: heated greenhouse, median",1
+Lettuce,,"[""Sesonkisalaattisekoitus""]",,,3.7,,,,,"Lettuce: heated greenhouse, median",1
 Lima bean,Limanpapu,"[""Butter bean"", ""Voipapu""]",Pulses vegetables,,0.39,,,,,"Beans: gigante/butter, median",1
 Lime,Limetti,,Citrus fruit,,0.26,,,,,"Lemons and limes, median",1
 Ling,Molva,,Fish,,6.45,,,,,"Ling common, median",1
@@ -192,6 +205,7 @@ Ling,Molva,,Fish,,6.45,,,,,"Ling common, median",1
 Literature,Kirjallisuus,"[""Book"", ""Kirja""]",Supplies,,,,,,0.4,"Sanomalehdet, kirjat ja paperitarvikkeet",2
 Lobster,Hummeri,,,,27.8,,,,,"Lobster, median",1
 Lottery tickets,Arvat,"[""Arpa"", ""Arpamyynti""]",Commerce,,,,,,,,
+"Macaroni, Dark, Whole Wheat And Dark Wheat Flour",,"[""Täysjyväspagetti""]",,,,,,,,,
 "Macbook Pro 13"" M2 2012 256GB SSD","Macbook Pro 13"" M2 2012 256 Gt SSD",,Electronics,185,,,,,,"MacBook Pro (13-inch, M1, 2020) with 256GB / 512GB storage",25
 Mackerel,Makrilli,,Fish,,1.8,,,,,"Mackerel, median",1
 Magazine paper,,,Supplies,,,,,,0.32,,2
@@ -200,22 +214,22 @@ Magazine paper,Aikakausilehti,,Supplies,0.83,,,,,,National Geographic magazine,2
 Margarine and fat spread  < 55%,,,,,1.75,,,,,"Margarine, 60% fat, including waste",7
 Margarine and fat spread >= 55%,,,,,1.75,,,,,"Margarine, 60% fat, including waste",7
 "Meal Replacement, Protein Bar, Average, C. 20% Protein",,,,,,,,,0.7,Plant based groceries,2
-Medicine,Lääkkeet,,Supplies,,,,,,0.4,"Lääkintätuotteet, -laitteet ja -välineet",2
+Meat dishes,,,,,,,,,1.1,Animal based groceries,2
+Medicine,Lääkkeet,,Supplies,,,,,,0.48,"Medicine, raw materials and chemicals",2
 Melon,Meloni,,Other fruits,,1.43,,,,,"Melons: passive greenhouse, median",1
 Melon,Meloni,,,,0.51,,,,,"Melons, median",1
 Metal products,Metallituotteet,,Construction,,,,,,0.81,Other metal products,2
 Milk desserts,,,,,,,,,1.1,Animal based groceries,2
+"Milk, 1.5% Fat, 1 Ug Added Vitamin D",,"[""Kevytmaito""]",,,,,,,,,
+"Milk, 1.5% Fat, Low-Lactose, 1 Ug Added Vitamin D",,"[""Kevytmaito hyla"", ""Kevytmaito vähälaktoosinen""]",,,,,,,,,
 Milks <= 2% fat,,,,,1.29,,,,,"Milk: world average, median",1
 Milks <= 2% fat,,,,,1,,,,,,26
 Milks >2% fat,,,,,1.29,,,,,"Milk: world average, median",1
 Milks >2% fat,,,,,1,,,,,,26
 Milks skimmed,,,,,1.29,,,,,"Milk: world average, median",1
 Milks skimmed,,,,,1,,,,,,26
-"Milk, 1.5% Fat, 1 Ug Added Vitamin D",,"[""Kevytmaito""]",,,,,,,,,
-"Milk, 1.5% Fat, Low-Lactose, 1 Ug Added Vitamin D",,"[""Kevytmaito hyla"", ""Kevytmaito vähälaktoosinen""]",,,,,,,,,
+"Multigrain Bread, Oat Bread, Water",,"[""Kauraleipä""]",,,,,,,,,
 "Muskmelon/Cantaloupe Melon, With Skin",,,,,0.25,,,,,"Rockmelon/cantelope, median",1
-"Frozen Vegetable Mix, Root Vegetables",,"[""Keittovihannekset""]",,,,,,,,,
-Jams and marmalades,,,,,,,,,0.7,Plant based groceries,2
 "Mussel In Water, Canned",,,,,9.51,,,,,"Mussels, median",1
 Napkin,Nenäliina,,Hygiene products,0.03,,,,,,Paper towel per piece,24
 Newspaper,Sanomalehti,,Supplies,0.22,,,,,,Newspaper,24
@@ -231,17 +245,17 @@ Oat Bran,"Lese, kauralese",,,,0.38,,,,,"Oats, median",1
 "Oat Drink Without Milk, Average Of Industrial Products",Kaurajuoma,,,,,,,1.01,,"Oat drink, vitamin D and Ca added, CO2 equivalent",28
 "Oat Drink Without Milk, Oatly Ikaffe, Calcium, Vitamins",,,,,,,,0.55,,"Cradle-to-gate (upstream), Carbon footprint of the product considering all stages of life cycle from field to the gate of the grocery store, incl. transport and packaging.",29
 Oatly iMat,,,Oat and oat products,,0.56,,,,,,29
-"Oats, Rolled, Oat Flakes",Kaurahiutale,,,,0.38,,,,,"Oats, median",1
+"Oats, Rolled, Oat Flakes",Kaurahiutale,"[""Iso kaurahiutale""]",,,0.38,,,,,"Oats, median",1
 Octopus,Mustekala,,,,7.13,,,,,"Octopus/squid/cuttlefish, median",1
 Offal dishes,,,,,,,,,1.1,Animal based groceries,2
 Oils,,,,,,,,,0.7,Plant based groceries,2
 Olive oil,,,,,,,,0.79,,"Life cycle, cradle to grave, approximate value, 2018",28
-"Olive, Average, With Stone, In Oil, Green/Black","Oliivi, keskiarvo, punnittu kivineen, öljyssä, vihreä/musta","[""Oliivi""]",,,0.63,,,,,"Olives, median",1
+"Olive, Average, Without Stone, In Brine, Green",,"[""Oliivi"", ""Kalamata oliivi"", ""Kalamon oliivi""]",,,0.63,,,,,"Olives, median",1
 Onion,"Sipuli, keltasipuli","[""Sipuli""]",,,0.17,,,,,"Onion, median",1
 Onion-family vegetables,,,,,0.17,,,,,"Onion, median",1
 "Onion, Red Onion",,,,,0.17,,,,,"Onion, median",1
 "Orange Juice, Unsweetened, Vitamin C",,,,,,,,0.19,,"Orange juice, with resetting",30
-"Orange, Average, With Skin",,,,,0.33,,,,,"Orange, median",1
+"Orange, Average, With Skin",,"[""Appelsiini"", ""Veriappelsiini""]",,,0.33,,,,,"Orange, median",1
 Palm Oil,Palmuöljy,,,,2.23,,,,,,31
 Palm Oil,Palmuöljy,,,,,,,2,,Including iLUC,32
 Paper,Paperi,,Supplies,,,,,,0.32,"Paperitarvikkeet, kirjat, lehdet",1
@@ -251,6 +265,7 @@ Peanut Butter Without Added Salt,,,,,2.5,,,,,Maapähkinävoi,27
 Peanut Oil,Maapähkinäöljy,,,,,,,5,,Including iLUC,32
 "Pear, With Skin",Päärynä,,,,0.31,,,,,"Pears, median",1
 "Peas, Green, Dried","Herne, vihreä, kuivattu",,,,0.38,,,,,"Peas, median",1
+"Pelmeni, Dumpling Filled With Minced Meat",,"[""Pelmienit""]",,,,,,,,,
 "Pesto Sauce, Herb Sauce",,,,,,,,,0.7,Plant based groceries,2
 Phone,Puhelin,,Electronics,,,,,,,,
 Phone case,Puhelimen suojakotelo,,Supplies,,,,,,,,
@@ -261,7 +276,7 @@ Pinto bean,Pintopapu,,Pulses vegetables,,0.73,,,,,"Beans: pinto USA dried, media
 "Pizza, Mozzarella And Tomato Pizza, Saarioinen",,,,,4.4,,,,,Tesco Family Cheese and Tomato Pizza 512g,34
 "Pizza, pepperoni","Pizza, pepperoni",,Pizza,,4.7,,,,,Tesco Family Pepperoni Pizza 487g,34
 Plakebean,Plakepapu,,Pulses vegetables,,0.26,,,,,"Beans: blake, median",1
-Plastic bag,Muovikassi,"[""Muovipussi""]",Supplies,0.035,,,,,,"Plastic bag, average",33
+Plastic bag,Muovikassi,"[""Muovipussi"", ""Pakastuspussi""]",Supplies,0.035,,,,,,"Plastic bag, average",33
 "Plastic bag, biodegradable",Biohajoava pussi,,Supplies,0.05,,,,,,"Biodegradable plastic bag, average",33
 "Plastic bag, recycled","Muovikassi, kierrätetty","[""Henkselikassi, recycling"", ""Muovipussi, recycled""]",Supplies,0.01,,,,,,"Recyclable plastic bag, average",33
 Pollock,Lyyraturska,,Fish,,1.6,,,,,"Pollock, median",1
@@ -271,6 +286,7 @@ Pork,,,,,5.77,,,,,"Pork: world average, median",1
 Pork,,,,,5,,,,,"Sianliha, raaka",4
 Postal services,,,Services,,,,,,0.2,Postal and telecommunication services,2
 "Potato Crisps, Potato Chips, Potato Snack",,,,,2.25,,,,,"Cradle-to-grave, Svenska Lantchips, Transportation to Helsinki taken into consideration, in 200 gramms packets",35
+"Potato Wedges, Oven-Baked",,,,,,,,,0.7,Plant based groceries,2
 "Potato, Unpeeled, Avarage, Raw",,"[""Peruna"", ""Varhaisperuna""]",,,0.2,,,,,"Peruna, vihannekset, raaka",4
 "Potato, Unpeeled, Avarage, Raw",,,,,0.18,,,,,"Potatoes, median",1
 Processed cheese <= 17%,,,,,10,,,,,Juusto,9
@@ -286,6 +302,7 @@ Rabbit,Kani,,,,4.7,,,,,"Rabbit, median",1
 Rapeseed Oil,Rypsiöljy,,,,,,,2.09,,"Rape and mustard seed, median",1
 Rapeseed Oil,Rypsiöljy,,,,262,,,,,Including iLUC,
 Raspberry,Vadelma,,,,0.84,,,,,"Rasberries, median",1
+Recreational services,Vapaa-ajan palvelut,,Services,,,,,,0.2,Recreational and culture services,2
 Renovation,Remontointi,,Construction,,,,,,0.02,Remontointi,2
 Restaurant,Ravintola,,Services,,,,,,0.49,Ravintolapalvelut,2
 Rhombus,Silokampela,,Fish,,8.41,,,,,"Rhombus, median",
@@ -301,6 +318,7 @@ Salmon fillet,,,,,3.47,,,,,"Salmon, median",1
 "Salmon, Whole",,,,,3.47,,,,,"Salmon, median",1
 "Sardine, Average, In Oil And Tomato Sauce",,,,,1.1,,,,,"Pilchard, median",1
 Sausages,,,,,5.64,,,,,"Grilled sausage, high meat content, life cycle, cradle to grave, approximate value",28
+Savoury bakery,,,,,,,,,1.1,Animal based groceries,2
 Savoury biscuits,,,,,,,,,0.7,Plant based groceries,2
 Sea bass,Meriahven,,Fish,,3.27,,,,,"Sea bass, median",1
 Services,Palvelut,,,,,,,,0.3,Muut palvelut,2
@@ -308,9 +326,11 @@ Services,Palvelut,,,,,,,,0.3,Muut palvelut,2
 "Sesame Seed, With Hull","Seesaminsiemen, kuorineen",,,,0.88,,,,,"Sesame seed, median",1
 Shoes,Jalkineet,,Clothes,,,,,,0.64,Jalkineet,2
 Shrimp,Katkarapu,,,,7.8,,,,,"Prawns/shrimp, median",1
+Skincare products,Ihonhoitotuotteet,,Hygiene products,,,,,,,,
 Smartphone,Älypuhelin,,Electronics,,,,,,,,
 Snacks,Naposteltavat,"[""Snacksit""]",,,,,,,0.7,Plant based groceries,1
-"Soft Drink, Lemonade",Virvoitusjuoma,,,,,,,0.2,,Virvoitusjuomat,36
+"Soft Drink, Lemonade",Virvoitusjuoma,"[""Coca-Cola"", ""Pepsi"", ""Fanta"", ""Sprite"", ""7up"", ""Jaffa""]",,,,,,0.2,,Virvoitusjuomat,36
+Soil,Multa,"[""Kukkamulta""]",,,,,,,3.36,Plant growing products,2
 Soup vegetables,Kuivatut keittovihannekset,"[""Kuivattu keittovihannes""]",Spices,,,,,,,,
 Soy Sauce,,,,,,,,,0.7,Plant based groceries,2
 "Soya Beans, Dried","Soijapapu, kuivattu","[""Soijapapu""]",,,0.49,,,,,"Soybean, median",1
@@ -321,7 +341,7 @@ Spices,,"[""Mausteseos""]",,,,,,,0.7,Plant based groceries,2
 Spinach,Pinaatti,"[""Lehtipinaatti""]",,,0.54,,,,,"Spinach, median",1
 Strawberry,Mansikka,,,,1.64,,,,,"Strawberries: heated greenhouse, median",1
 Strawberry,Mansikka,,,,0.58,,,,,"Strawberries, median",1
-Sugar,Sokeri,,,,1.1,,,,,,10
+Sugar,Sokeri,"[""Taloussokeri""]",,,1.1,,,,,,10
 Sunflower Oil,Auringonkukkaöljy,,,,0.76,,,,,"Sunflower oil, Including iLUC",
 Sunflower Seed,"Auringonkukansiemen, kuorittu",,,,1.41,,,,,"Sunflower seed, median",1
 Supplies,Tarvikkeet,,,,,,,,0.51,"Kestokulutustavarat, terveydenhoitotuotteet keskiarvo",2
@@ -363,9 +383,10 @@ Washing liquid,Pesuneste,,Hygiene products,,,,,,0.6,"Pesu-, puhdistus- ja kiillo
 "Watermelon, With Skin",,,,,0.32,,,,,"Water melons, median",1
 Wheat,,,,,0.52,,,,,"Wheat, median",1
 Wheat,,,,,0.5,,,,,"Vehnäjauhot, ryynit",4
-Wheat Tortilla,,,,,1.55,,,,,"Bread, cradle-to-grave, 0.6-2.5 kg",6
+Wheat Tortilla,,"[""Tortilla""]",,,1.55,,,,,"Bread, cradle-to-grave, 0.6-2.5 kg",6
 Whiting,Valkoturska,,Fish,,2.66,,,,,"Whiting, median",1
-Wines,,,,1.28,,,,,,"Wine bottle, cradle-to-grave",42
+Wines,,,,,,,,1.70666667,,"1.28 kgCO₂e wine bottle, cradle-to-grave",42
+Yarn,Lanka,"[""Arwetta""]",Supplies,,,,,,0.67,Textile yarn,2
 Yoghurt  <= 1 %,,,,,1.31,,,,,"Yoghurt, median",1
 Yoghurt > 1 %,,,,,1.31,,,,,"Yoghurt, median",1
 "Zucchini, Summer Squash","Kesäkurpitsa, zucchini",,,,1.77,,,,,"Zucchini: passive greenhouse, median",1
