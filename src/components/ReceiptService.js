@@ -442,7 +442,7 @@ class ReceiptService {
           this.pipeline.threshold = false;
         } else {
           this.pipeline.src = reader.result;
-          this.pipeline.crop = true;
+          this.pipeline.crop = false;
           this.pipeline.filter = true;
           this.pipeline.threshold = true;
         }

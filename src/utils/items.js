@@ -57,12 +57,14 @@ export const getItemAttributeValue = (item, attribute) => {
   const unit = getItemUnit(item);
   
   let value;
-  if (!unit) {
-    value = attribute?.value*quantity || undefined;  
+  if (attribute?.unit?.split('/')?.[1] === 'EUR') {
+    value = attribute.value*item.price;
+  } else if (!unit) {
+    value = attribute?.value*quantity;  
   } else {
-    value = attribute?.value*measure*(quantity || 1) || undefined;
+    value = attribute?.value*measure*(quantity || 1);
   }
-  return value;
+  return value || undefined;
 };
 
 export const getItemQuantity = item => item.quantity || item.product.quantity;

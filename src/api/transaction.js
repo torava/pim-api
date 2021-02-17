@@ -102,30 +102,24 @@ app.post('/api/transaction', async function(req, res) {
     return parseFloat(value.replace('−', '-').replace(',', '.'));
   }
   async function resolveCategories(transaction) {
-    let trimmed_accuracy,
-        type,
-        trimmed_item_name,
-        trimmed_distance,
-        distance,
-        item_categories,
-        accuracy;
+    try {
+      let trimmed_item_name,
+          distance,
+          item_categories;
 
-    const items = await Item.query()
-    .eager('[product.[category]]')
-    .then(items => {
-      return items;
-    })
-    .catch(error => {
-      console.error(error);
-    });
+      const items = await Item.query()
+      .withGraphFetched('[product.[category]]');
 
-    const trimmed_categories = await Category.query()
-    .eager('[children, parent.^]')
-    .then(categories => {
-      let n = 0, name, entity_name, entities, category;
-      categories.filter(async category => {
+      console.log('items length', items.length);
+
+      let trimmed_categories = await Category.query()
+      .withGraphFetched('[children, parent]');
+
+      console.log('categories length', trimmed_categories.length);
+
+      trimmed_categories = trimmed_categories.filter(async category => {
         if (!category.children.length) {
-          name = category.name;
+          let name = category.name;
           category.trimmed_name = stripName(name);
         } else {
           category.trimmed_name = {};
@@ -133,18 +127,16 @@ app.post('/api/transaction', async function(req, res) {
         return !category.children.length;
       });
       //fs.writeFileSync('./ner.json', JSON.stringify(manager.save()));
-      return categories;
-    })
-    .catch(error => {
-      console.error(error);
-    });
-    
-    try {
+
+      console.log('trimmed categories length', trimmed_categories.length);
+      
       for (let item of transaction.items) {
         if (!item) continue;
         
         item_categories = [];
         trimmed_item_name = stripDetails(item.product.name);
+
+        console.log('trimmed item name', trimmed_item_name);
     
         items.forEach(comparable_item => {
           if (comparable_item.product && comparable_item.product.category && comparable_item.text) {
@@ -159,7 +151,6 @@ app.post('/api/transaction', async function(req, res) {
                 category: comparable_item.product.category,
                 item_name: item.product.name,
                 trimmed_item_name: trimmed_item_name,
-                parents: getParentPath(comparable_item.product.category.parent),
                 distance: distance
               });
             }
@@ -167,27 +158,26 @@ app.post('/api/transaction', async function(req, res) {
         });
     
         trimmed_categories.forEach((category, index) => {
-          Object.entries(category.trimmed_name).forEach(([locale, nameLocale]) => {
-            if (category.trimmed_name && category.trimmed_name[locale]) {
-              distance = stringSimilarity(trimmed_item_name.toLowerCase() || '', category.trimmed_name[locale].toLowerCase() || '');
-              distance+= stringSimilarity(item.product.name.toLowerCase() || '', category.name[locale].toLowerCase() || '');
+          Object.entries(category.trimmed_name).forEach(([locale, translation]) => {
+            if (category.trimmed_name && translation) {
+              distance = stringSimilarity(trimmed_item_name.toLowerCase() || '', translation.toLowerCase() || '');
+              distance = Math.max(distance, stringSimilarity(item.product.name.toLowerCase() || '', category.name[locale].toLowerCase() || ''));
               category.aliases?.forEach(alias => {
-                distance+= stringSimilarity(trimmed_item_name.toLowerCase() || '', alias.toLowerCase() || '');
-                distance+= stringSimilarity(item.product.name.toLowerCase() || '', alias.toLowerCase() || '');
+                distance = Math.max(distance, stringSimilarity(trimmed_item_name.toLowerCase() || '', alias.toLowerCase() || ''));
+                distance = Math.max(distance, stringSimilarity(item.product.name.toLowerCase() || '', alias.toLowerCase() || '')/category.aliases.length);
               });
               if (category.parent) {
-                distance+= stringSimilarity(trimmed_item_name || '', category.parent.name[locale] || '');
+                distance = Math.max(distance, stringSimilarity(trimmed_item_name || '', category.parent.name[locale] || ''));
               }
               //accuracy = (trimmed_item_name.length-distance)/trimmed_item_name.length;
       
-              if (distance > 1) {
-                console.log('comparing item to categories', item.product.name, category.name[locale], distance);
+              if (distance > 0.4) {
+                console.log('comparing item to categories', 'product name', item.product.name, 'category name', category.name[locale], 'aliases', category.aliases, 'parent', category.parent?.name[locale], 'distance', distance);
                 item_categories.push({
                   category,
                   item_name: item.product.name,
                   trimmed_item_name: trimmed_item_name,
-                  name: category.trimmed_name[locale],
-                  parents: getParentPath(category.parent),
+                  name: translation,
                   distance: distance
                 });
               }
@@ -209,7 +199,6 @@ app.post('/api/transaction', async function(req, res) {
                   category,
                   item_name: item.product.name,
                   trimmed_item_name: trimmed_item_name,
-                  parents: getParentPath(category.parent),
                   distance: distance
                 });
               }
@@ -337,7 +326,7 @@ app.post('/api/transaction', async function(req, res) {
         await resolveCategories(transaction[i]);
       } catch (error) {
         console.error(error);
-        res.sendStatus(500);
+        return res.sendStatus(500);
       }
 
       promises.push(
@@ -348,36 +337,30 @@ app.post('/api/transaction', async function(req, res) {
     return Promise.all(promises)
     .then(transaction => {
       console.dir(transaction, {depth:null});
-      res.send(transaction);
+      return res.send(transaction);
     })
     .catch(error => {
       console.dir(transaction, {depth:null});
       console.error(error);
-      res.sendStatus(500);
+      return res.sendStatus(500);
     });
   }
   else {
-    transaction = req.body[0];
-
     try {
+      transaction = req.body[0];
+
       await resolveCategories(transaction);
+
+      console.dir(transaction, {depth:null});
+
+      const upsertedTransactions = await Transaction.query()
+      .upsertGraph(transaction, {relate: true});
+      return res.send(upsertedTransactions);
     } catch (error) {
-      console.error(error);
-      res.sendStatus(500);
-    }
-
-    console.dir(transaction, {depth:null});
-
-    return Transaction.query()
-    .upsertGraph(transaction, {relate: true})
-    .then(transaction => {
-      res.send(transaction);
-    })
-    .catch(error => {
       console.dir(transaction, {depth:null});
       console.error(error);
-      res.sendStatus(500);
-    });
+      return res.sendStatus(500);
+    }
   }
 });
 

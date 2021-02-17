@@ -85,7 +85,7 @@ const getCategoriesFromCsv = async (csv, sourceIdOffset = 0) => {
           }
         }
         else if (columnName.toLowerCase() === 'sourceid') {
-          if (1 || column === '') return true;
+          if (column === '') return true;
           for (let m in item.attributes) {
             if (!item.attributes[m].sources) {
               item.attributes[m].sources = [];

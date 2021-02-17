@@ -8,7 +8,7 @@ Appliances,Kodinkoneet,,Supplies,,,,,,0.51,Kodinkoneet ja työkalut,2
 Artichoke,Latva-artisokka,,,,0.48,,,,,"Artichokes, median",1
 "Asparagus, Raw, Cleaned","Parsa, raaka, puhdistettu",,,,0.83,,,,,"Asparagus, median",1
 Aubergine,Munakoiso,,,,1.35,,,,,"Eggplants (aubergines), median",1
-Avocado With Skin And Stone,,"[""Avokadopussi""]",,,1.3,,,,,"Avocados, median",1
+Avocado  with skin and stone,,"[""Avokadopussi""]",,,1.3,,,,,"Avocados, median",1
 "Avocado Sauce, Guacamole, Industrial",,,,,,,,,0.7,Plant based groceries,2
 B20 biodiesel,B20 biodiesel,,Fuel,,,,,2.14,,,3
 Baby toy,Vauvanlelu,"[""Vauvan- Ja Kehityslelut""]",Children's supplies,,,,,,,,
@@ -24,6 +24,8 @@ Beef,Nauta,,,,15,,,,,"Naudanliha, raaka",4
 "Beer, Alcohol-Free, 0.0% Volume",,,,,,,,0.54,,"Beer, cradle-to-grave",5
 Beers,,,,,,,,0.54,,"Beer, cradle-to-grave",5
 "Beetroot, Red Beet",Punajuuri,,,,0.24,,,,,"Beetroot, median",1
+Berries,,,,,,,,,0.7,Plant based groceries,2
+"Blueberry, Bilberry",,"[""Kotimainen pakastemustikka""]",,,,,,,0.7,Plant based groceries,2
 Blackcurrant,Mustaherukka,,,,0.84,,,,,"Currants and gooseberries, median",1
 Blended spread >= 55 %,,,,,9.25,,,,,"Butter, median",1
 Blueberry,"Mustikka, pensasmustikka",,,,0.92,,,,,"Cranberries/blueberries, median",1
@@ -73,7 +75,7 @@ Chicken eggs,Kananmunat,,,,2.5,,,,,,10
 Children's supplies,Lastentarvikkeet,,Supplies,,,,,,,,
 Chocolate,Chocolate,,,,3.55,,,,,"Chocolate, 2.9–4.2 kg CO2 eq./kg",11
 Cleaning Services,Siivouspalvelut,,Services,,,,,,0.1,Siivouspalvelut arvio,2
-Clothes,Vaatteet,,,,,,,,0.4,Vaatteet,2
+Clothes,Vaatteet,,Supplies,,,,,,0.4,Vaatteet,2
 "Cocoa Powder, Unsweetened",,,,,3.35,,,,,2.04-4.66 kg,12
 Coconut Milk,,,,,0.42,,,,,"Almond/coconut milk, median",1
 Coconut Oil,Kookosöljy,,,,1.78,,,,,,13
@@ -84,6 +86,7 @@ Commerce,Kaupankäynti,,,,,,,,,,
 Construction,Rakentaminen,,Supplies,,,,,,,,
 Condiments,,,,,,,,,0.7,Plant based groceries,2
 "Corn Cookie, Lentil and Sea Salt",Maissikakut Linssi ja Merisuola,,Savoury biscuits,,,,,,,,
+"Corn Snack, Puffed, Corn Puffs Without Added Salt",,"[""Maissikakku""]",,,,,,,,,
 Corn syrup,Maissisiirappi,,Sugar and syrups,,2.5,,,,,"Corn syrup, graph",15
 Cosmetic products,Kosmetiikka,,Supplies,,,,,,0.4,Personal hygiene and cosmetic care,2
 "Cottage cheese, fat-free, low-lactose",,,,,3.7,,,,,"Cheese, cottage 20+, 4% fat",7
@@ -103,7 +106,7 @@ Diesel,Diesel,,,,,,,2.64,,,17
 Diesel,Diesel,,,,,,,3,,,18
 "Dipmix, Milk-Free",,,,,,,,,0.7,Plant based groceries,2
 Discount,Alennus,,Commerce,,,,,,,,
-Dish,Astiat,,Kitchen,0.67,,,,,0.67,"Kodintaloustekstiilit, sisustus, astiat keskiarvo",2
+Tableware,Astiat,,Kitchen,0.67,,,,,0.67,"Kodintaloustekstiilit, sisustus, astiat keskiarvo",2
 Disposable Dish,Kertakäyttöastiat,"[""Kertak.kattaustuott.""]",Kitchen,,,,,,,,
 Duck,Ankka,,Birds,,3.09,,,,,"Duck, median",1
 E10 fuel,E10 bensiini,,Fuel,,,,,2.26,,With ethanol combustion,3
@@ -184,7 +187,7 @@ Leisure Time Services,Vapaa-ajan palvelut,,Services,,,,,,0.39,Vapaa-ajan palvelu
 Lettuce,,,,,3.7,,,,,"Lettuce: heated greenhouse, median",1
 "Liquorice, licorice",,,,,,,,,0.7,Plant based groceries,2
 Lima bean,Limanpapu,"[""Butter bean"", ""Voipapu""]",Pulses vegetables,,0.39,,,,,"Beans: gigante/butter, median",1
-Lime,Lime,,Citrus fruit,,0.26,,,,,"Lemons and limes, median",1
+Lime,Limetti,,Citrus fruit,,0.26,,,,,"Lemons and limes, median",1
 Ling,Molva,,Fish,,6.45,,,,,"Ling common, median",1
 Literature,Kirjallisuus,"[""Book"", ""Kirja""]",Supplies,,,,,,0.4,"Sanomalehdet, kirjat ja paperitarvikkeet",2
 Lobster,Hummeri,,,,27.8,,,,,"Lobster, median",1
@@ -194,7 +197,7 @@ Mackerel,Makrilli,,Fish,,1.8,,,,,"Mackerel, median",1
 Magazine paper,,,Supplies,,,,,,0.32,,2
 Magazine paper,Aikakausilehti,,Supplies,0.83,,,,,,National Geographic magazine,24
 "Mandarin, Average, With Skin",,,,,0.45,,,,,"Mandarin, median",1
-Margarine and fat spread < 55%,,,,,1.75,,,,,"Margarine, 60% fat, including waste",7
+Margarine and fat spread  < 55%,,,,,1.75,,,,,"Margarine, 60% fat, including waste",7
 Margarine and fat spread >= 55%,,,,,1.75,,,,,"Margarine, 60% fat, including waste",7
 "Meal Replacement, Protein Bar, Average, C. 20% Protein",,,,,,,,,0.7,Plant based groceries,2
 Medicine,Lääkkeet,,Supplies,,,,,,0.4,"Lääkintätuotteet, -laitteet ja -välineet",2

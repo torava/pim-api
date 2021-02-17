@@ -22,48 +22,6 @@ const TreeTable = sortable(tree(AsteriskTable));
 const Table = sortable(AsteriskTable);
 
 export default function TransactionList() {
-  const [groups, setGroups] = useState();
-  useEffect(() => {
-    async function fetchGroups() {
-      const groups = await DataStore.getGroups();
-      setGroups(groups);
-    }
-    fetchGroups();
-  }, []);
-  const transactionColumns = () => [
-    {
-      id: 'select_transaction',
-      label: <input type="checkbox"
-                    onClick={event => selectTransaction(null, event.target.checked)}/>,
-      formatter: (value, item) => (
-        <input
-          type="checkbox"
-          onChange={event => selectTransaction(item, event.target.checked)}
-          checked={selectedTransactionIds[item.id] ? true : false}/>
-      ),
-      class: 'nowrap'
-    },
-    {
-      id: 'date',
-      label: 'Date',
-      formatter: (value, item) => <span><Link to={"/edit/"+item.id}>{new Date(value).toLocaleString()}</Link></span>
-    },
-    {
-      id: 'group',
-      label: 'Group',
-      property: transaction => groups.find(group => group.id === transaction.groupId)?.name
-    },
-    {
-      id: 'store',
-      label: 'Store',
-      property: item => item.party.name
-    },
-    {
-      id: 'total_price',
-      label: 'Total Price'
-    }
-  ];
-
   const itemColumns = [
     {
       id: 'select_item',
@@ -175,11 +133,12 @@ export default function TransactionList() {
     }
   });
 
+  const [groups, setGroups] = useState([]);
   const [selectedTransactionIds, setSelectedTransactionIds] = useState({});
   const [selectedItemIds, setSelectedItemIds] = useState({});
   const [editableItem, setEditableItem] = useState({});
-  const [transactions, setTransactions] = useState();
-  const [categories, setCategories] = useState();
+  const [transactions, setTransactions] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [attributes, setAttributes] = useState([]);
   const [attributeAggregates, setAttributeAggregates] = useState(initialAttributeAggregates);
 
@@ -187,17 +146,53 @@ export default function TransactionList() {
     Promise.all([
       DataStore.getCategories(),
       DataStore.getTransactions(),
-      DataStore.getAttributes()
+      DataStore.getAttributes(),
+      DataStore.getGroups()
     ])
-    .then(([categories, transactions, attributes]) => {
+    .then(([categories, transactions, attributes, groups]) => {
       setCategories(categories);
       setTransactions(transactions);
       setAttributes(attributes);
+      setGroups(groups);
     })
     .catch(function(error) {
       console.error(error);
     });
   }, []);
+  
+  const transactionColumns = () => [
+    {
+      id: 'select_transaction',
+      label: <input type="checkbox"
+                    onClick={event => selectTransaction(null, event.target.checked)}/>,
+      formatter: (value, item) => (
+        <input
+          type="checkbox"
+          onChange={event => selectTransaction(item, event.target.checked)}
+          checked={selectedTransactionIds[item.id] ? true : false}/>
+      ),
+      class: 'nowrap'
+    },
+    {
+      id: 'date',
+      label: 'Date',
+      formatter: (value, item) => <span><Link to={"/edit/"+item.id}>{new Date(value).toLocaleString()}</Link></span>
+    },
+    {
+      id: 'group',
+      label: 'Group',
+      property: transaction => groups.find(group => group.id === transaction.groupId)?.name
+    },
+    {
+      id: 'store',
+      label: 'Store',
+      property: item => item.party.name
+    },
+    {
+      id: 'total_price',
+      label: 'Total Price'
+    }
+  ];
 
   const handleEdit = (event) => {
     setEditableItem({

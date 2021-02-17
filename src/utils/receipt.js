@@ -35,9 +35,12 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
     total_words = [
       'hinta',
       'total',
+      'total in eur',
       'totalt',
       'grand total',
       'summa',
+      'kokonaissumma',
+      'kokonaissumma eur',
       'yhteensä',
       'yhteensa',
       'tilauksesi yhteensä:',
@@ -77,7 +80,11 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
       'korttimaksu',
       'vero',
       'veroton',
-      'moms'
+      'moms',
+      'yhteensä',
+      'alkuomavastuu ennen ostoa',
+      'vuosiomavastuu oston jälkeen',
+      'ennen arvonlisäveroa'
     ],
     line_measure,
     total_price, price, has_discount, previous_line, found_attribute, category,
@@ -246,7 +253,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
         }
 
         // misc line
-        line_misc = line.replace(/[0-9\.,%]/i, '').trim().match(/^([\u00C0-\u017F-a-z\/\s]+)/i);
+        line_misc = line.replace(/[0-9.,%]/i, '').trim().match(/^([\u00C0-\u017F-a-z/\s]+)/i);
         if (line_misc) {
           let found = false;
           misc_words.forEach(word => {
@@ -270,7 +277,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
         }
 
         // opening hours
-        line_opening = line.match(/^(palvelemme|ark)?(ma|ti|ke|to|pe|la|su|ja|klo|[0-9-\.:\s]+)+$/i);
+        line_opening = line.match(/^(palvelemme|ark|avoinna|öppet)?(ma|ti|ke|to|pe|la|su|må|fr|lö|sö|ja|klo|[0-9-.:\s]+)+$/i);
         if (line_opening) {
           console.log('opening', line_opening);
           continue;
