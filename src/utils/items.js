@@ -53,8 +53,8 @@ export const getItemNameByDepth = (item, depth) => {
 
 export const getItemAttributeValue = (item, attribute) => {
   const quantity = getItemQuantity(item);
-  const measure = convertMeasure(getItemMeasure(item), unit, 'kg');
   const unit = getItemUnit(item);
+  const measure = convertMeasure(getItemMeasure(item), unit, 'kg');
   
   let value;
   if (attribute?.unit?.split('/')?.[1] === 'EUR') {

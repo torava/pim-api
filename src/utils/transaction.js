@@ -1,13 +1,15 @@
 import natural from 'natural';
 import Manufacturer from '../models/Manufacturer';
 import mongo from './mongo';
+import { measureRegExp } from './receipt';
 
 export const details = {};
 (async () => {
   try {
     details.manufacturers = {};
     
-    (await Manufacturer.query()).forEach(manufacturer => {
+    const manufacturers = await Manufacturer.query();
+    manufacturers.forEach(manufacturer => {
       details.manufacturers[manufacturer.name] = [manufacturer.name, ...manufacturer.aliases || []];
     });
   } catch (error) {
@@ -21,7 +23,8 @@ details.weighting = {
   stoneless: ['kivetön'],
   withpeel: ['kuorineen'],
   peeled: ['kuorittu'],
-  average: ['tuotekeskiarvo', 'keskiarvo']
+  average: ['tuotekeskiarvo', 'keskiarvo'],
+  kilogram: ['kg']
 };
 details.cooking = {
   boiled: ['keitetty'],
@@ -59,7 +62,8 @@ details.type = {
   nonlactose: ['laktoositon'],
   thickened: ['puuroutuva'],
   parboiled: ['kiehautettu', 'parboiled'],
-  lowlactose: ['vähälaktoosinen'],
+  lowlactose: ['vähälaktoosinen', 'hyla'],
+  uht: ['uht'],
   insaltwater: ['suolavedessä', 'suolaved'],
   frozenfood: ['pakasteateria', 'pakastettu', 'pakaste'],
   bag: ['pussi'],
@@ -70,12 +74,22 @@ details.type = {
   vegan: ['vegaaninen', 'vegan'],
   grannysmith: ['granny smith'],
   sweetorange: ['sweet orange'],
-  golden: ['golden']
+  golden: ['golden'],
+  royalgala: ['royal gala'],
+  tarocco: ['tarocco'],
+  moro: ['moro'],
+  sanguinello: ['sanguinello'],
+  yellow: ['keltainen'],
+  red: ['punainen'],
+  green: ['vihreä'],
+  skin: ['kuorellinen'],
+  withoutskin: ['kuoreton']
 };
 details.origin = {
   local: ['kotimainen'],
   finnish: ['suomi', 'suomalainen', 'suomesta'],
-  californian: ['kalifornia', 'kalifornialainen']
+  californian: ['kalifornia', 'kalifornialainen'],
+  spanish: ['espanja', 'espanjalainen']
 };
 
 export function getNameLocale(name, locale, strict) {
@@ -206,18 +220,18 @@ export function stripDetails(name) {
   let token,
       accuracy,
       words;
-
+  name = name.replace(measureRegExp, '');
   for (let type in details) {
     for (let detailName in details[type]) {
       details[type][detailName].forEach(detail => {
         //token = similarSearch.getBestSubstring(name, detail);
         // Didn't work with compound words like ruukkutilli
-        token = natural.LevenshteinDistance(detail, name.toLowerCase(), {search: true});
+        token = natural.LevenshteinDistance(detail.toLowerCase(), name.toLowerCase(), {search: true});
         accuracy = (detail.length-token.distance)/detail.length;
         if (accuracy > 0.8) {
           //name = name.substring(0, token.start)+name.substring(token.end+1);
           name = name.replace(new RegExp(token.substring, 'i'), '').trim();
-          console.log(detail, name, accuracy, token, type, detailName);
+          console.log('detail', detail, 'name', name, 'accuracy', accuracy, 'token', token, 'type', type, 'detailName', detailName);
         }
       });
     }

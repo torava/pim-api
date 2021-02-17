@@ -35,7 +35,8 @@ const manufacturers = [
   { name: 'My Best Veggie' },
   { name: 'Sondey' },
   { name: 'Sun-Maid' },
-  { name: 'Alpro' }
+  { name: 'Alpro' },
+  { name: 'Valio' }
 ];
 
 exports.seed = knex => (

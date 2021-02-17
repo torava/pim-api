@@ -1,6 +1,8 @@
 import moment from 'moment';
 import { stringSimilarity } from "string-similarity-js";
 
+export const measureRegExp = /(\d{1,4}(\.\d)?)((kg)|(g)|(l|1))/;
+
 function parseYear(year) {
   if (year.length == 2) {
     if (year > new Date().getFullYear().toString().substr(-2)) {
@@ -228,12 +230,12 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
         // general attributes
 
         // total line
-        line_total = line_number_format.match(/^([\u00C0-\u017F-a-z0-9\/]+)[^0-9]((\d+\.\d{2})(\-)?\s)?((\d+\.\d{2})(\-)?)(\s?eur(oa)?)?$/i);
+        line_total = line_number_format.match(/^([\u00C0-\u017F-a-z0-9/\s]+)[^0-9]((\d+\.\d{2})(-)?\s)?((\d+\.\d{2})(-)?)(\s?eur(oa)?)?$/i);
         if (line_total) {
           if (line_total[2]) continue;
           let found = false;
           total_words.forEach(word => {
-            if (stringSimilarity(line_total[1], word) > 0.6) {
+            if (stringSimilarity(line_total[1].toLowerCase(), word) > 0.6) {
               found = true;
               return false;
             }
@@ -257,7 +259,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
         if (line_misc) {
           let found = false;
           misc_words.forEach(word => {
-            if (stringSimilarity(line_misc[1], word) > 0.6) {
+            if (stringSimilarity(line_misc[1].toLowerCase(), word) > 0.6) {
               console.log('misc', line, word);
               found = true;
               return false;
@@ -338,7 +340,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
           let line_price = line_number_format.match(/(\s|\.)((\d{1,4}\.\d{2})(\-)?){1,2}\s*.{0,3}$/i);
           if (line_price) {
             // 1kg
-            const line_measure = line.substring(0, line_price.index).match(/(\d{1,4}(\.\d)?)((kg)|(g)|(l|1))/);
+            const line_measure = line.substring(0, line_price.index).match(measureRegExp);
             const line_quantity = line_number_format.substring(0, line_price.index).match(/(\d{1,4}\.\d{2})\s?x\s?(\d{1,2})/i);
             
             let line_item = line.substring(0, line_price.index).match(/^((\d+)\s)?([\u00C0-\u017F-a-z0-9\s:\-\.\,\+\&\%\=\/\(\)\{\}\[\]]+)$/i);
