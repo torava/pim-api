@@ -161,10 +161,10 @@ app.post('/api/transaction', async function(req, res) {
           Object.entries(category.trimmed_name).forEach(([locale, translation]) => {
             if (category.trimmed_name && translation) {
               distance = stringSimilarity(trimmed_item_name.toLowerCase() || '', translation.toLowerCase() || '');
-              distance = Math.max(distance, stringSimilarity(item.product.name.toLowerCase() || '', category.name[locale].toLowerCase() || ''));
+              distance = Math.max(distance, stringSimilarity(item.product.name.toLowerCase() || '', category.name[locale].toLowerCase() || '')+0.1);
               category.aliases?.forEach(alias => {
-                distance = Math.max(distance, stringSimilarity(trimmed_item_name.toLowerCase() || '', alias.toLowerCase() || ''));
-                distance = Math.max(distance, stringSimilarity(item.product.name.toLowerCase() || '', alias.toLowerCase() || '')/category.aliases.length);
+                distance = Math.max(distance, stringSimilarity(trimmed_item_name.toLowerCase() || '', alias.toLowerCase() || '')+0.1);
+                distance = Math.max(distance, stringSimilarity(item.product.name.toLowerCase() || '', alias.toLowerCase() || '')+0.1);
               });
               if (category.parent) {
                 distance = Math.max(distance, stringSimilarity(trimmed_item_name || '', category.parent.name[locale] || ''));
@@ -172,7 +172,14 @@ app.post('/api/transaction', async function(req, res) {
               //accuracy = (trimmed_item_name.length-distance)/trimmed_item_name.length;
       
               if (distance > 0.4) {
-                console.log('comparing item to categories', 'product name', item.product.name, 'category name', category.name[locale], 'aliases', category.aliases, 'parent', category.parent?.name[locale], 'distance', distance);
+                console.log(
+                  'comparing item to categories',
+                  'product name', item.product.name,
+                  'category name', category.name[locale],
+                  'aliases', category.aliases,
+                  'parent', category.parent?.name[locale],
+                  'distance', distance
+                );
                 item_categories.push({
                   category,
                   item_name: item.product.name,
