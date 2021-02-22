@@ -36,7 +36,9 @@ const manufacturers = [
   { name: 'Sondey' },
   { name: 'Sun-Maid' },
   { name: 'Alpro' },
-  { name: 'Valio' }
+  { name: 'Valio' },
+  { name: 'God Morgon' },
+  { name: 'Dentalux' }
 ];
 
 exports.seed = knex => (
