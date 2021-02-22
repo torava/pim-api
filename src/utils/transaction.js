@@ -58,6 +58,7 @@ details.type = {
   withfat: ['rasvaa'],
   nonfat: ['rasvaton'],
   lowfat: ['vähärasvainen'],
+  foam: ['vaahtoutuva'],
   sliced: ['paloiteltu', 'palat', 'pala'],
   nonlactose: ['laktoositon'],
   thickened: ['puuroutuva'],
@@ -72,21 +73,31 @@ details.type = {
   canned: ['säilyke'],
   fairtrade: ['reilun kaupan'],
   vegan: ['vegaaninen', 'vegan'],
-  grannysmith: ['granny smith'],
+  
   sweetorange: ['sweet orange'],
+
+  grannysmith: ['granny smith'],
   golden: ['golden'],
   royalgala: ['royal gala'],
+
   tarocco: ['tarocco'],
   moro: ['moro'],
   sanguinello: ['sanguinello'],
+
+  nadorcott: ['nadorcott'],
+  bruno: ['bruno'],
+
   yellow: ['keltainen'],
   red: ['punainen'],
   green: ['vihreä'],
+
   skin: ['kuorellinen'],
-  withoutskin: ['kuoreton']
+  withoutskin: ['kuoreton'],
+  package: ['paperipakkaus']
 };
 details.origin = {
   local: ['kotimainen'],
+  imported: ['ulkomainen'],
   finnish: ['suomi', 'suomalainen', 'suomesta'],
   californian: ['kalifornia', 'kalifornialainen'],
   spanish: ['espanja', 'espanjalainen']
@@ -220,7 +231,7 @@ export function stripDetails(name) {
   let token,
       accuracy,
       words;
-  name = name.replace(measureRegExp, '');
+  name = name.replace(measureRegExp, '').replace(/[0-9.,]/g, '');
   for (let type in details) {
     for (let detailName in details[type]) {
       details[type][detailName].forEach(detail => {
