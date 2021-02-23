@@ -89,9 +89,9 @@ export const aggregateCategoryPrice = (resolvedCategories, averageRate) => {
       category.volume_sum = sum.volume_sum;
     }
     return {
-      price_sum: sum.price_sum+(category.price_sum || 0),
+      price_sum: sum.price_sum+(category.price_sum || 0),
       weight_sum: sum.weight_sum+(category.weight_sum || 0),
-      volume_sum: sum.volume_sum+(category.volume_sum || 0)
+      volume_sum: sum.volume_sum+(category.volume_sum || 0)
     };
   }, {
     price_sum: 0,

@@ -18,7 +18,6 @@ const manufacturers = [
   { name: 'Isokari' },
   { name: 'Pirkka' },
   { name: 'K-Menu' },
-  { name: 'Reilun Kaupan' },
   { name: 'Gold&Green' },
   { name: 'Sandels' },
   { name: 'Knorr' },
@@ -32,7 +31,14 @@ const manufacturers = [
   { name: 'Italiamo' },
   { name: 'Santa Maria' },
   { name: 'Oululainen' },
-  { name: 'Halva' }
+  { name: 'Halva' },
+  { name: 'My Best Veggie' },
+  { name: 'Sondey' },
+  { name: 'Sun-Maid' },
+  { name: 'Alpro' },
+  { name: 'Valio' },
+  { name: 'God Morgon' },
+  { name: 'Dentalux' }
 ];
 
 exports.seed = knex => (

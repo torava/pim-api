@@ -1,73 +1,36 @@
+import _ from 'lodash';
+import parse from 'csv-parse/lib/sync';
+
 import Category from '../models/Category';
 import Attribute from '../models/Attribute';
-import _ from 'lodash';
+import { getTranslation } from '../utils/entities';
 
-export default app => {
-
-  function first(list) {
-    for (let i in list) {
-      return list[i];
-    }
-  }
-  function getNameLocale(name, locale, strict) {
-    if (!name) {
-      return name;
-    }
-    if (typeof name === 'string') {
-      return name;
-    } 
-    else if (name.hasOwnProperty(locale)) {
-      return name[locale];
-    }
-    else if (!strict) {
-      return first(name);
-    }
-    else return '';
-  }
-
-  const CSV_SEPARATOR = ";";
-
-  async function csvToObject(csv) {
-    let columns,
-        item_index = 0,
-        rows = csv.replace(/\r/g, '').trim().split('\n'),
-        sep = rows[0].trim().match(/^SEP=(.{1})$/),
-        separator,
-        items = [],
+const getCategoriesFromCsv = async (csv, sourceIdOffset = 0) => {
+  try {
+    let items = [],
         item,
-        column_name,
-        elements,
         found,
-        year,
-        source,
-        sources,
         attribute,
         note,
         attributes = await Attribute.query(),
         categories = await Category.query(),
-        attribute_object,
+        attributeObject,
         value,
         ref,
         refs = {};
-    if (sep) {
-      separator = sep[1];
-      rows.shift();
-    }
-    else {
-      separator = CSV_SEPARATOR;
-    }
-  
-    let column_names = rows[0].split(separator);
 
-    for (let i = 1; i < rows.length; i++) {
-      columns = rows[i].split(separator);
+    const records = parse(csv, {
+      columns: true,
+      skipEmptyLines: true
+    });
+
+    records.forEach(columns => {
       item = {};
       note = '';
-      for (let n in columns) {
-        column_name = column_names[n];
-        attribute = column_name.match(/^attribute\:(.*)(\s\((.*)\))/i) ||
-                    column_name.match(/^attribute\:(.*)/i);
-        let nameMatch = column_name.match(/^(name|nimi)\["([a-z-]+)"\]$/i),
+      Object.entries(columns).forEach(([columnName, column]) => {
+        attribute = columnName.match(/^attribute:(.*)(\s\((.*)\))/i) ||
+                    columnName.match(/^attribute:(.*)/i);
+        let nameMatch = columnName.match(/^(name|nimi)\["([a-z-]+)"\]$/i),
             name,
             locale;
         if (nameMatch) {
@@ -75,11 +38,11 @@ export default app => {
           locale = nameMatch[2];
         }
         if (attribute) {
-          if (columns[n] !== "") {
+          if (column !== "") {
             found = false;
             for (let m in attributes) {
-              if (attribute[1] == attributes[m].name) {
-                attribute_object = {
+              if (Object.values(attributes[m].name).includes(attribute[1])) {
+                attributeObject = {
                   id: attributes[m].id
                 }
                 found = true;
@@ -89,13 +52,13 @@ export default app => {
             if (!found) {
               ref = 'attribute:'+attribute[1];
               if (ref in refs) {
-                attribute_object = {
+                attributeObject = {
                   '#ref': ref
                 }
               }
               else {
                 refs[ref] = true;
-                attribute_object = {
+                attributeObject = {
                   '#id': ref,
                   name: {
                     'fi-FI': attribute[1],
@@ -104,11 +67,11 @@ export default app => {
                 }
               }
             }
-            value = parseFloat(columns[n].replace(',', '.'));
+            value = parseFloat(column.replace(',', '.'));
             Object.assign(item, {
               attributes: [
                 {
-                  attribute: attribute_object,
+                  attribute: attributeObject,
                   value,
                   unit: attribute[3]
                 }
@@ -116,75 +79,57 @@ export default app => {
             });
           }
         }
-        else if (column_name.toLowerCase() == 'note') {
-          if (columns[n] !== '') {
-            note = columns[n];
+        else if (columnName.toLowerCase() === 'note') {
+          if (column !== '') {
+            note = column;
           }
         }
-        else if (['source', 'lähde'].indexOf(column_name.toLowerCase()) !== -1) {
-          if (columns[n] === '') continue;
-          sources = columns[n].split(',');
+        else if (columnName.toLowerCase() === 'sourceid') {
+          if (column === '') return true;
           for (let m in item.attributes) {
-            for (let j in sources) {
-              elements = sources[j].match(/^(.*)\s([0-9]{4})/);
-              if (elements) {
-                source = elements[1].trim();
-                year = parseInt(elements[2].trim());
-              }
-              else {
-                source = sources[j].trim();
-                year = null;
-              }
-              ref = 'source:'+source+','+year;
-              if (!item.attributes[m].sources) item.attributes[m].sources = [];
-              if (ref in refs) {
-                item.attributes[m].sources.push({
-                  source: {
-                    '#ref': ref
-                  }
-                });
-              }
-              else {
-                refs[ref] = true,
-                item.attributes[m].sources.push({
-                  source: {
-                    '#id': ref,
-                    name: source,
-                    publication_date: String(year)
-                  },
-                  note
-                });
-              }
+            if (!item.attributes[m].sources) {
+              item.attributes[m].sources = [];
             }
+            item.attributes[m].sources.push({
+              source: {
+                id: parseInt(column)+sourceIdOffset,
+              },
+              note
+            });
           }
         }
         else if (name && locale) {
-          if (columns[n] === '') continue;
-          for (let i in categories) {
-            if (categories[i].name && categories[i].name[locale] == columns[n]) {
-              item.id = categories[i].id;
-              break;
-            }
-          }
+          if (column === '') return true;
           if (!item.id) {
-            ref = 'category:'+columns[n];
-            if (ref in refs && !item['#id']) {
-              item['#ref'] = ref;
-            }
-            else {
-              if (!item['#id']) {
-                refs[ref] = true;
-                item['#id'] = ref;
+            for (let i in categories) {
+              if (categories[i].name?.[locale] && categories[i].name[locale].toLowerCase().trim() === column?.toLowerCase().trim()) {
+                item.id = categories[i].id;
+                delete item['#ref'];
+                delete item['#id'];
+                delete item.name;
+                break;
               }
-              if (!item.name) item.name = {};
-              item.name[locale] = columns[n];
+            }
+            if (!item.id) {
+              ref = `category:${column}`;
+              if (ref in refs && !item['#id'] && !item['#ref']) {
+                item['#ref'] = ref;
+              }
+              else {
+                if (!item['#id'] && !item['#ref']) {
+                  refs[ref] = true;
+                  item['#id'] = ref;
+                }
+                if (!item.name) item.name = {};
+                item.name[locale] = column;
+              }
             }
           }
         }
-        else if (['isä', 'parent'].indexOf(column_name.toLowerCase()) !== -1) {
-          if (columns[n] === '') continue;
+        else if (['isä', 'parent'].indexOf(columnName.toLowerCase()) !== -1) {
+          if (column === '') return true;
           for (let i in categories) {
-            if (categories[i].name && categories[i].name['fi-FI'] == columns[n]) {
+            if (categories[i].name && Object.values(categories[i].name).some(category => category.toLowerCase().trim() === column.toLowerCase().trim())) {
               item.parent = {
                 id: categories[i].id
               }
@@ -193,67 +138,35 @@ export default app => {
           }
           if (!item.parent) {
             item.parent = {};
-            ref = 'category:'+columns[n];
-            if (ref in refs) {
-              item.parent['#ref'] = ref;
-            }
-            else {
-              refs[ref] = true;
-              item.parent['#id'] = ref;
-              item.parent.name = {
-                'fi-FI': columns[n]
-              }
-            }
+            ref = `category:${column}`;
+            item.parent['#ref'] = ref;
           }      
         }
-        else if (column_name.toLowerCase() === 'aliases' && columns[n] !== '') {
-          if (!columns[n]) continue;
+        else if (columnName.toLowerCase() === 'aliases' && column !== '') {
+          if (column === '') return true;
           try {
-            const aliases = JSON.parse(columns[n]);
+            const aliases = JSON.parse(column);
             if (aliases) {
-              _.set(item, column_name.toLowerCase().replace('[i]', `[${i-1}]`), aliases);
+              _.set(item, columnName, aliases);
             }
           } catch (error) {
-            console.log('Aliases parse error', columns[n], error);
+            console.log('Aliases parse error', column, error);
           }
         }
-        else if (column_name !== '' && columns[n] !== '') {
-          _.set(item, column_name.toLowerCase().replace('[i]', `[${i-1}]`), columns[n]);
+        else if (columnName !== '' && column !== '') {
+          _.set(item, columnName, column);
         }
-      }
+      });
       items.push(item);
-    }
+    });
+    //console.dir(items, {depth: null, maxArrayLength: null});
     return items;
+  } catch (error) {
+    console.error(error);
   }
+};
 
-  function escapeRegExp(stringToGoIntoTheRegex) {
-    return stringToGoIntoTheRegex.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-  }
-
-  function stringToSlug(str,  sep) {
-    let sep_regexp = escapeRegExp(sep);
-
-    str = str.replace(/^\s+|\s+$/g, ""); // trim
-    str = str.toLowerCase();
-  
-    // remove accents, swap ñ for n, etc
-    var from = "åàáãäâèéëêìíïîòóöôùúüûñç·/_,:;";
-    var to = "aaaaaaeeeeiiiioooouuuunc------";
-  
-    for (var i = 0, l = from.length; i < l; i++) {
-      str = str.replace(new RegExp(from.charAt(i), "g"), to.charAt(i));
-    }
-
-    str = str
-      .replace(/[^a-z0-9 -]/g, "") // remove invalid chars
-      .replace(/\s+/g, "-") // collapse whitespace and replace by -
-      .replace(new RegExp("-+", "g"), sep) // collapse dashes
-      .replace(new RegExp(sep_regexp+"+"), "") // trim - from start of text
-      .replace(new RegExp(sep_regexp+"+$"), ""); // trim - from end of text
-  
-    return str;
-  }
-
+export default app => {
 function getCategories(parent) {
   return new Promise((resolve, reject) => {
     Category.query()
@@ -325,11 +238,11 @@ function resolveCategories(items, locale) {
     item_attributes = item.attributes;
     for (let n in item_attributes) {
       if (item_attributes[n].attribute) {
-        item_attributes[n].attribute.name = getNameLocale(item_attributes[n].attribute.name, locale);
+        item_attributes[n].attribute.name = getTranslation(item_attributes[n].attribute.name, locale);
 
         let parent = item_attributes[n].attribute.parent;
         while (parent) {
-          parent.name = getNameLocale(parent.name, locale);
+          parent.name = getTranslation(parent.name, locale);
           parent = parent.parent;
         }
       }
@@ -339,11 +252,11 @@ function resolveCategories(items, locale) {
     if (item.children) {
       resolveCategories(item.children, locale);
     }
-    item.name = getNameLocale(item.name, locale);
+    item.name = getTranslation(item.name, locale);
 
     let parent = item.parent;
     while (parent) {
-      parent.name = getNameLocale(parent.name, locale);
+      parent.name = getTranslation(parent.name, locale);
       parent = parent.parent;
     }
   }
@@ -465,28 +378,26 @@ app.get('/api/category', function(req, res) {
   }
 });
 
-app.post('/api/category', async function(req, res) {
-  let category;
-  if (req.body.csv) {
-    category = await csvToObject(req.body.csv).catch(error => { console.log(error) });
-  }
-  else {
-    category = req.body;
-  }
-  //console.log(JSON.stringify(category, null, 2));
-  return Category.query()
+app.post('/api/category', async (req, res) => {
+  try {
+    let category;
+    if (req.body.csv) {
+      category = await getCategoriesFromCsv(req.body.csv, parseInt(req.query.sourceIdOffset));
+    }
+    else {
+      category = req.body;
+    }
+    const upsertedCategories = await Category.query()
     .upsertGraph(category, {
       noDelete: true,
       relate: true,
       allowRefs: true
-    })
-    .then(category => {
-      return res.send(category);
-    })
-    .catch(error => {
-      console.error(error);
-      return res.sendStatus(500);
     });
+    return res.send(upsertedCategories);
+  } catch (error) {
+    console.error(error);
+    return res.sendStatus(500);
+  }
 });
 
 app.post('/api/category/attribute/copy', (req, res) => {
@@ -545,6 +456,16 @@ app.post('/api/category/attribute/copy', (req, res) => {
     console.error(error);
     return res.sendStatus(500);
   });
+});
+
+app.delete('/api/category/:id', async (req, res) => {
+  try {
+    await Category.query().deleteById(req.params.id);
+    return res.send();
+  } catch (error) {
+    console.error(error);
+    return res.sendStatus(500);
+  }
 });
 
 }

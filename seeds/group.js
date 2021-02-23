@@ -1,6 +1,6 @@
-if (process.env.GROUPS) {
+if (1) {
   const groups = (
-    process.env.GROUPS
+    'Clean Nature,The Reducetarian,Bernie,Fab4,Master Cook,Daddy Greens,Betula Pendula,Green Bean,Green Ghost,Evil Carbon,Peanut Butter Falcon,Lily Lion'
     .split(',')
     .map(group => ({name: group}))
   );

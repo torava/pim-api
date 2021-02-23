@@ -1,55 +1,30 @@
 import natural from 'natural';
+import Manufacturer from '../models/Manufacturer';
 import mongo from './mongo';
+import { measureRegExp } from './receipt';
 
 export const details = {};
+(async () => {
+  try {
+    details.manufacturers = {};
+    
+    const manufacturers = await Manufacturer.query();
+    manufacturers.forEach(manufacturer => {
+      details.manufacturers[manufacturer.name] = [manufacturer.name, ...manufacturer.aliases || []];
+    });
+  } catch (error) {
+    console.error(error);
+  }
+})();
 
-details.manufacturers = {
-  'dan sukker': ['dan sukker'],
-  'vitasia': ['vitasia'],
-  'pohjolanmeijeri': ['pohjolan meijeri', 'pohjolanmeijeri'],
-  'myllykivi': ['myllykivi'],
-  'milbona': ['milbona'],
-  'kanamestari': ['kanamestari'],
-  'kultamuna': ['kultamuna'],
-  'palmolive': ['palmolive'],
-  'goldensun': ['goldensun'],
-  'belbaka': ['belbaka'],
-  'freshona': ['freshona'],
-  'coquette': ['coquette'],
-  'oceansea': ['oceansea'],
-  'culinea': ['culinea'],
-  'kalaneuvos': ['kalaneuvos'],
-  'snellman': ['snellman'],
-  'isokari': ['isokari'],
-  'pirkka': ['pirkka'],
-  'k-menu': ['k-menu'],
-  'reilun kaupan': ['reilun kaupan'],
-  'gold&green': ['gold&green'],
-  'sandels': ['sandels'],
-  'knorr': ['knorr'],
-  'magners': ['magners'],
-  'trattoria alfredo': ['trattoria alfredo'],
-  'arla': ['arla'],
-  'serla': ['serla'],
-  'kotkot': ['kotkot'],
-  'marlene': ['marlene'],
-  'koskikylan': ['koskikylan'],
-  'italiamo': ['italiamo'],
-  'santa maria': ['santa maria'],
-  'oululainen': ['oululainen'],
-  'kotimaista': ['kotimaista'],
-  'rainbow': ['rainbow'],
-  'valio': ['valio'],
-  'vaasan': ['vaasan'],
-  'hyväapaja': ['hyvä apaja']
-};
 details.weighting = {
   weighted: ['punnittu'],
   stone: ['kivineen'],
   stoneless: ['kivetön'],
   withpeel: ['kuorineen'],
   peeled: ['kuorittu'],
-  average: ['tuotekeskiarvo', 'keskiarvo']
+  average: ['tuotekeskiarvo', 'keskiarvo'],
+  kilogram: ['kg']
 };
 details.cooking = {
   boiled: ['keitetty'],
@@ -83,20 +58,49 @@ details.type = {
   withfat: ['rasvaa'],
   nonfat: ['rasvaton'],
   lowfat: ['vähärasvainen'],
+  foam: ['vaahtoutuva'],
   sliced: ['paloiteltu', 'palat', 'pala'],
   nonlactose: ['laktoositon'],
   thickened: ['puuroutuva'],
   parboiled: ['kiehautettu', 'parboiled'],
-  lowlactose: ['vähälaktoosinen'],
+  lowlactose: ['vähälaktoosinen', 'hyla'],
+  uht: ['uht'],
   insaltwater: ['suolavedessä', 'suolaved'],
   frozenfood: ['pakasteateria', 'pakastettu', 'pakaste'],
   bag: ['pussi'],
   glutenfree: ['gluteeniton', 'gton'],
   vitamin: ['d-vitaminoitu', 'vitaminoitu'],
-  canned: ['säilyke']
+  canned: ['säilyke'],
+  fairtrade: ['reilun kaupan'],
+  vegan: ['vegaaninen', 'vegan'],
+  
+  sweetorange: ['sweet orange'],
+
+  grannysmith: ['granny smith'],
+  golden: ['golden'],
+  royalgala: ['royal gala'],
+
+  tarocco: ['tarocco'],
+  moro: ['moro'],
+  sanguinello: ['sanguinello'],
+
+  nadorcott: ['nadorcott'],
+  bruno: ['bruno'],
+
+  yellow: ['keltainen'],
+  red: ['punainen'],
+  green: ['vihreä'],
+
+  skin: ['kuorellinen'],
+  withoutskin: ['kuoreton'],
+  package: ['paperipakkaus']
 };
 details.origin = {
-  finnish: ['suomi', 'suomalainen', 'suomesta']
+  local: ['kotimainen'],
+  imported: ['ulkomainen'],
+  finnish: ['suomi', 'suomalainen', 'suomesta'],
+  californian: ['kalifornia', 'kalifornialainen'],
+  spanish: ['espanja', 'espanjalainen']
 };
 
 export function getNameLocale(name, locale, strict) {
@@ -227,26 +231,18 @@ export function stripDetails(name) {
   let token,
       accuracy,
       words;
-
+  name = name.replace(measureRegExp, '').replace(/[0-9.,]/g, '');
   for (let type in details) {
     for (let detailName in details[type]) {
       details[type][detailName].forEach(detail => {
         //token = similarSearch.getBestSubstring(name, detail);
         // Didn't work with compound words like ruukkutilli
-        token = natural.LevenshteinDistance(detail, name.toLowerCase(), {search: true});
+        token = natural.LevenshteinDistance(detail.toLowerCase(), name.toLowerCase(), {search: true});
         accuracy = (detail.length-token.distance)/detail.length;
         if (accuracy > 0.8) {
           //name = name.substring(0, token.start)+name.substring(token.end+1);
-          if (type === 'manufacturers') {
-            name = name.replace(new RegExp(token.substring, 'i'), '').trim();
-          }
-          else {
-            words = name.split(' ', 2);
-            if (words.length > 1) {
-              name = words[0]+' '+words[1].replace(new RegExp(token.substring, 'i'), '').trim();
-            }
-          }
-          console.log(detail, name, accuracy, token, type, detailName);
+          name = name.replace(new RegExp(token.substring, 'i'), '').trim();
+          console.log('detail', detail, 'name', name, 'accuracy', accuracy, 'token', token, 'type', type, 'detailName', detailName);
         }
       });
     }
