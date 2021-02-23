@@ -221,11 +221,11 @@ app.post('/api/transaction', async function(req, res) {
           console.log(item_categories[0]);
         }
 
-        if (!item.measure) {
+        if (!item.measure && !item.product.measure) {
           const itemCategory = item_categories.length && item_categories[0].category;
           const itemCategoryName = itemCategory && itemCategory.name && itemCategory.name['en-US'] || '';
-          console.log('get off product', `${trimmed_item_name} ${itemCategoryName}`);
           const offProduct = await getOpenFoodFactsProduct(`${trimmed_item_name} ${itemCategoryName}`);
+          console.log('get off product', `${trimmed_item_name} ${itemCategoryName}`, offProduct);
           if (offProduct && parseFloat(offProduct.product_quantity)) {
             item.product.measure = parseFloat(offProduct.product_quantity);
             item.product.unit = 'g';
