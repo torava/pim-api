@@ -10,7 +10,7 @@ export const details = {};
     
     const manufacturers = await Manufacturer.query();
     manufacturers.forEach(manufacturer => {
-      details.manufacturers[manufacturer.name] = [manufacturer.name, ...manufacturer.aliases || []];
+      details.manufacturers[manufacturer.name] = [manufacturer.name, ...manufacturer.aliases || []];
     });
   } catch (error) {
     console.error(error);
@@ -18,7 +18,7 @@ export const details = {};
 })();
 
 details.weighting = {
-  weighted: ['punnittu'],
+  weighed: ['punnittu'],
   stone: ['kivineen'],
   stoneless: ['kivetön'],
   withpeel: ['kuorineen'],
@@ -51,7 +51,7 @@ details.spicing = {
   flavored: ['maustettu'],
   nonflavored: ['maustamaton']
 };
-details.type = {
+details.type = {
   natural: ['luomu'],
   bulk: ['irto'],
   pott: ['ruukku'],
@@ -73,6 +73,7 @@ details.type = {
   canned: ['säilyke'],
   fairtrade: ['reilun kaupan'],
   vegan: ['vegaaninen', 'vegan'],
+  fresh: ['tuore'],
   
   sweetorange: ['sweet orange'],
 
@@ -88,8 +89,10 @@ details.type = {
   bruno: ['bruno'],
 
   yellow: ['keltainen'],
+  orange: ['orange'],
   red: ['punainen'],
   green: ['vihreä'],
+  white: ['valkoinen'],
 
   skin: ['kuorellinen'],
   withoutskin: ['kuoreton'],

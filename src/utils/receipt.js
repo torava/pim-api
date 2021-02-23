@@ -326,10 +326,14 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
 
           if (line_item_details && (line_item_details[6] || line_item_details[8])) {
             console.log(line, line_item_details);
-            items[items.length-1].item_number = line_item_details[2];
-            items[items.length-1].quantity = parseFloat(line_item_details[6]);
-            items[items.length-1].measure = parseFloat(line_item_details[8]);
-            items[items.length-1].unit = 'kg';
+            items[items.length-1] = {
+              ...items[items.length-1],
+              item_number: line_item_details[2],
+              quantity: parseFloat(line_item_details[6]),
+              measure: parseFloat(line_item_details[8]),
+              unit: 'kg'
+            };
+
             previous_line = 'details';
             continue;
           }

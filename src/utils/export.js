@@ -34,9 +34,12 @@ export const exportTransactions = (transactions, categories, groups) => {
       'Main category',
       'Category',
       'GHG category',
-      'Quantity',
-      'Weight',
-      'Volume',
+      'Product quantity',
+      'Item quantity',
+      'Product weight',
+      'Item weight',
+      'Product volume',
+      'Item volume',
       'Price',
       'Category GHG',
       'Category GHG unit',
@@ -48,15 +51,19 @@ export const exportTransactions = (transactions, categories, groups) => {
   Object.values(transactions).forEach(transaction => {
     items = items.concat(transaction.items.map(item => {
       const unit = getItemUnit(item);
-      const measure = convertMeasure(getItemMeasure(item), unit, 'kg');
-      const quantity = getItemQuantity(item);
+      const itemMeasure = convertMeasure(item.measure, unit, 'kg');
+      const productMeasure = convertMeasure(item.product.measure, unit, 'kg');
+      const itemQuantity = item.quantity;
+      const productQuantity = item.product.quantity;
 
-      let volume, weight;
+      let itemVolume, itemWeight, productVolume, productWeight;
 
       if (unit?.includes('g')) {
-        weight = measure;
+        itemWeight = itemMeasure;
+        productWeight = productMeasure;
       } else if (unit?.includes('l')) {
-        volume = measure;
+        itemVolume = itemMeasure;
+        productVolume = productMeasure;
       }
 
       const categoryWithGhg = getCategoryWithAttribute(categories, item.product.category?.id, 105);
@@ -79,9 +86,12 @@ export const exportTransactions = (transactions, categories, groups) => {
         rootCategory?.name,
         item.product.category?.name[categoryLocale],
         categoryWithGhg?.name,
-        quantity,
-        formatNumber(weight),
-        formatNumber(volume),
+        productQuantity,
+        itemQuantity,
+        formatNumber(productWeight),
+        formatNumber(itemWeight),
+        formatNumber(productVolume),
+        formatNumber(itemVolume),
         formatNumber(item.price),
         formatNumber(ghgAttribute?.value),
         ghgAttribute?.unit,
