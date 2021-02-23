@@ -3,20 +3,20 @@ import moment from 'moment';
 import { locale } from '../components/locale';
 import { convertMeasure, getRootEntity } from './entities';
 import { getCategoryWithAttribute } from './categories';
-import { getItemAttributeValue, getItemMeasure, getItemQuantity, getItemUnit } from './items';
+import { getItemAttributeValue, getItemUnit } from './items';
 
 export const exportTransactions = (transactions, categories, groups) => {
   const categoryLocale = locale.getLocale();
-  const numberLocale = locale.getLocale();
+  const formattingLocale = 'fi-FI';//locale.getLocale();
 
-  const formatNumber = (number) => number ? new Intl.NumberFormat(numberLocale).format(number) : undefined;
+  const formatNumber = (number) => number ? new Intl.NumberFormat(formattingLocale).format(number) : undefined;
   const formatDate = (date) => (
-    date ? new Intl.DateTimeFormat(locale.getLocale(), {
+    date ? new Intl.DateTimeFormat(formattingLocale, {
       year: 'numeric',
       month: 'numeric',
       day: 'numeric',
     }).format(new Date(date))+' '+
-    new Intl.DateTimeFormat(locale.getLocale(), {
+    new Intl.DateTimeFormat(formattingLocale, {
       hour: 'numeric',
       minute: 'numeric',
       hour12: false
@@ -67,7 +67,7 @@ export const exportTransactions = (transactions, categories, groups) => {
       }
 
       const categoryWithGhg = getCategoryWithAttribute(categories, item.product.category?.id, 105);
-      const ghgAttribute = Object.values(categoryWithGhg?.attributes || {}).find(attribute => attribute.attributeId === 105);
+      const ghgAttribute = Object.values(categoryWithGhg?.attributes || {}).find(attribute => attribute.attributeId === 105);
 
       let ghg = getItemAttributeValue(item, ghgAttribute);
 

@@ -423,18 +423,18 @@ class ReceiptService {
       .catch(error => reject(error));
     });
   }
-  upload(file) {
-    return new Promise(async (resolve, reject) => {
-      console.log(file);
+  async upload(file) {
+    console.log(file);
 
-      const result = [];
+    const result = [];
 
-      console.log('file', file);
+    console.log('file', file);
 
-      this.pipeline.file = file;
+    this.pipeline.file = file;
 
-      const reader = new FileReader();
-      reader.addEventListener('load', async () => {
+    const reader = new FileReader();
+    reader.addEventListener('load', async () => {
+      try {
         if (file.type === 'application/pdf') {
           this.pipeline.src = await getDataUrlFromPdf(reader.result);
           this.pipeline.crop = false;
@@ -456,29 +456,22 @@ class ReceiptService {
                                                     -> 4) save
         */
 
-        const transactions = await axios.post('/api/receipt')
-        .then(receipt => {
-          this.pipeline.receipt = receipt.data;
-          return Promise.all([this.processPipeline(), this.prepareReceiptPipeline()])
-          .then(() => (
-            this.saveTransactionPipeline()
-            .then(transactions => {
-              console.log(transactions);
-              console.log(this.pipeline);
-              return transactions;
-            })
-          ))
-        })
-        .catch(error => {
-          reject(error);
-        });
+        const receipt = await axios.post('/api/receipt')
+        this.pipeline.receipt = receipt.data;
+        await this.processPipeline();
+        await this.prepareReceiptPipeline();
+        const transactions = await this.saveTransactionPipeline();
+        console.log(transactions);
+        console.log(this.pipeline);
 
         result.push(transactions);
-      });
-      reader.readAsDataURL(this.pipeline.file);
-    
-      resolve(result);
+      } catch (error) {
+        console.error(error);
+      }
     });
+    reader.readAsDataURL(this.pipeline.file);
+  
+    return result;
   }
   saveReceipt(transactions) {
     return new Promise((resolve, reject) => {

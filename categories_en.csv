@@ -1,7 +1,7 @@
 "name[""en-US""]","name[""fi-FI""]",aliases,parent,attribute:CO₂e (kgCO₂e),attribute:CO₂e (kgCO₂e/kg),attribute:CO₂e (kgCO₂e/kWh),attribute:CO₂e (kgCO₂e/km),attribute:CO₂e (kgCO₂e/l),attribute:CO₂e (kgCO₂e/EUR),note,sourceId
 Almond,Manteli,,,,"1,54",,,,,"Almonds, median",1
 "Almond Drink, Unsweetened, Alrpo","Mantelijuoma, makeuttamaton, alpro","[""Mantelijuoma""]",,,,,,"0,42",,"Almond/coconut milk, median",1
-Animal feed,,"[""Kierretikku""]",Supplies,,,,,,"3,36",Products for domestic animals,2
+Animal feed,,"[""Kierretikku"", ""Softies herkkupala""]",Supplies,,,,,,"3,36",Products for domestic animals,2
 "Apple Juice, Unsweetened, Vitamin C",,"[""Omenatäysmehu""]",,,,,,"0,71",,Secondary source,7
 "Apple, Domestic, With Skin","Omena, kotimainen, kuorineen","[""Omena"", ""Granny Smith"", ""Golden omena"", ""Royal Gala"", ""Ida Red""]",,,"0,29",,,,,"Apples, median",1
 Appliances,Kodinkoneet,,Supplies,,,,,,"0,51",Kodinkoneet ja työkalut,2
@@ -44,7 +44,7 @@ Body lotion,Vartalovoide,,Skincare products,,,,,,,,
 "Breakfast Cereal, Chocolate Cereal, Weetos Choco, Weetabix",,"[""Suklaa vehnämuroke""]",,,,,,,,,
 Breakfast cereals,,,,,,,,,"0,7",Plant based groceries,2
 Broccoli,,"[""Parsakaali""]",,,"0,6",,,,,"Broccoli, median",1
-Brush,Sivellin,,Supplies,,,,,,"0,46",Factory products,2
+Brush,Sivellin,"[""Siveltimet""]",Supplies,,,,,,"0,46",Factory products,2
 Buffalo,Biisoni,,Beef,,"60,43",,,,,"Buffalo, median",1
 Buffalo milk,Biisonin maito,,Milks >2% fat,,"3,57",,,,,"Buffalo milk, median",1
 Buns,,,,,"2,5",,,,,"Pastry, including waste, secondary source",7
@@ -96,7 +96,7 @@ Chicken,Kana,,,,5,,,,,"Broileri, raaka",4
 Chicken,Kana,,,,"3,65",,,,,"Chicken, median",1
 Chicken,Kana,,,,"2,12",,,,,"Chicken, whole",1
 Chicken Breast With Skin,"Broileri, rintaleike, nahkoineen",,,,"2,77",,,,,Chicken breast,1
-Chicken eggs,Kananmunat,"[""Ulkomuna"", ""Kultamuna""]",,,"3,46",,,,,"Eggs, median",1
+Chicken eggs,Kananmunat,"[""Ulkomuna"", ""Kultamuna"", ""Vapaan kanan munat""]",,,"3,46",,,,,"Eggs, median",1
 Chicken eggs,Kananmunat,,,,"2,5",,,,,,10
 Children's supplies,Lastentarvikkeet,,Supplies,,,,,,,,
 "Chili, Green, Raw",,"[""Chili pepper""]",,,"1,1",,,,,"Peppers: passive and heated greenhouse, median",1
@@ -136,8 +136,8 @@ Cucumber,Kurkku,,,,"2,1",,,,,"Cucumbers and gherkins: heated greenhouse, median"
 Cucumber,Kurkku,,,,"0,23",,,,,"Cucumber/gherkins, median",1
 "Date, Dried, With Stone",,,,,"0,32",,,,,"Dates, median",1
 "Deep-Fried Vegetable Pasty, Hoviruoka",,"[""Vegaaninen piirakka""]",,,,,,,"0,7",Plant based groceries,2
-Dental care,Hammashoito,,Services,,,,,,,,
-Dental flosh,Hammaslanka,,Hygiene products,,,,,,,,
+Dental care products,Hammashoitotuotteet,"[""Dental flosh"", ""Hammaslanka"", ""Suuvesi""]",Hygiene products,,,,,,,,
+Dental care services,Hammashoitopalvelut,,Services,,,,,,"0,2",Health care services,2
 Deposit,Pantti,,Commerce,,,,,,,,
 Deposit return,Pullopalautus,,Commerce,,,,,,,,
 Dessert sauces,,,,,,,,,"1,1",Animal based groceries,2
@@ -160,7 +160,7 @@ Electricity,Sähkö,,Electricity,,,1,,,,,43
 Electronics,Elektroniikka,,Supplies,,,,,,"0,82",Elektroniikka,2
 Eraser,Pyyhemuovi,,Supplies,,,,,,"1,01",Plastic products,2
 "Fermented milk products, other",,,,,"1,31",,,,,"Yoghurt, median",1
-Ferry,,,Travel,,,,0.144,,,"Car ferry, 18 knots",19
+Ferry,,,Travel,,,,"0,144",,,"Car ferry, 18 knots",19
 Ferry,,,,,,,,,1.4,Boat trips,2
 Ferry 400km Helsinki-Stockholm,Autolautta 400 km Helsinki-Tukholma,,Travel,95,,,,,,Autolautta 400 km Helsinki-Tukholma,19
 Ferry 80km Helsinki-Tallinn,Autolautta 80 km Helsinki-Tallinna,,Travel,35,,,,,,Autolautta 80 km Helsinki-Tallinna,19
@@ -191,8 +191,10 @@ Flowers,Kukat,,Supplies,,,,,,"0,6",Garden supplies,2
 "Fresh Pasta, Contains Egg",,,,,,,,,"1,1",Animal based groceries,2
 Fried onions,Paahdettu sipulirouhe,,Spices,,,,,,,,
 "Fried potatoes, French fries",,,,,,,,,"0,7",Plant based groceries,2
+"Frozen Vegetable Mix, Pea-Sweet Corn-Sweet Pepper",,"[""Herne-maissi-paprika""]",,,,,,,,,
 "Frozen Vegetable Mix, Root Vegetables",,"[""Keittovihannekset""]",,,,,,,,,
 Fruit and berry dishes,,,,,,,,,"0,7",Plant based groceries,2
+"Fruit Puree, Unsweetened, 100 % Fruit",,"[""Päärynäsose""]",,,,,,,,,
 Fruits,Hedelmät,,,,"0,42",,,,,"Fruit (all field grown fruit), median",1
 Fruits,Hedelmät,,,,"0,2",,,,,"Hedelmät, marjat",4
 Fruits,,,,,,,,,"0,7",Plant based groceries,2
@@ -222,7 +224,7 @@ Honey,Hunaja,"[""Kuningatarhunaja""]",,,"0,75",,,,,"Honey, average, 140-1800 mil
 Housekeeping products,Kodinhoitotuotteet,,Supplies,,,,,,"0,4",Housekeeping products and services,2
 Housekeeping tools,Kodinhoitotyökalut,,,,,,,,"0,5",Tools and appliances for housekeeping and gardening,2
 "Hummus, Chick Pea Paste",,"[""Hummus""]",,,,,,,"0,7",Plant based groceries,2
-Hygiene products,Hygieniatuotteet,,Supplies,,,,,,"0,4",Personal hygiene and cosmetic care,2
+Hygiene products,Hygieniatuotteet,"[""Nestesaippua"", ""Käsisaippua""]",Supplies,,,,,,"0,4",Personal items,2
 "Ice Cream, Cream Based",,,,,,,,"4,2",,"Ice cream, vanilla regular",22
 Iceberg Lettuce,,"[""Jäävuorisalaatti"", ""Jääsalaatti""]",,,"0,56",,,,,Including waste,8
 Interior design,Sisustus,,Supplies,,,,,,"0,67","Kodintaloustekstiilit, sisustus, astiat keskiarvo",2
@@ -487,6 +489,7 @@ Wheat Tortilla,,"[""Tortilla""]",,,"1,55",,,,,"Bread, cradle-to-grave, 0.6-2.5 k
 Wheat Tortilla,,,,,,,,,"0,7",Plant based groceries,2
 Whiting,Valkoturska,,Fish,,"2,66",,,,,"Whiting, median",1
 Wines,,,,,,,,"1,70666667",,"1.28 kgCO₂e wine bottle, cradle-to-grave",42
+"Wok-Vegetables, Carrot-Pea-Water Chestnut-Bamboo Shoot-Sweet Pepper-Mushroom",,"[""Wok mix thai""]",,,,,,,,,
 Yarn,Lanka,"[""Arwetta"", ""Ompelulanka""]",Supplies,,,,,,"0,67",Textile yarn,2
 Yoghurt  <= 1 %,,,,,"1,31",,,,,"Yoghurt, median",1
 Yoghurt > 1 %,,,,,"1,31",,,,,"Yoghurt, median",1

@@ -49,7 +49,7 @@ details.spicing = {
   sugared: ['sokeroitu'],
   nonsugared: ['sokeroimaton'],
   flavored: ['maustettu'],
-  nonflavored: ['maustamaton']
+  nonflavored: ['maustamaton', 'naturel']
 };
 details.type = {
   natural: ['luomu'],
