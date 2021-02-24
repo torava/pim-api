@@ -75,17 +75,17 @@ Cereals,,,,,,,,,"0,7",Plant based groceries,2
 "Cheese, Hard Cheese, Goat Cheese, 20-25% Fat",,"[""Manchego""]",,,,,,,,,
 "Cheese, ripened cheese <= 17 %",,,,,"8,55",,,,,"Cheese, median",1
 "Cheese, ripened cheese <= 17 %",,,,,10,,,,,Juusto,9
-"Cheese, ripened cheese <= 17 %",,,,,,,,,"1,1",Animal based products,2
+"Cheese, ripened cheese <= 17 %",,,,,,,,,"2,44",Dairy products and ice cream,2
 "Cheese, ripened cheese > 17 %",,,,,"8,55",,,,,"Cheese, median",1
 "Cheese, ripened cheese > 17 %",,,,,10,,,,,Juusto,9
-"Cheese, ripened cheese > 17 %",,,,,,,,,"1,1",Animal based products,2
+"Cheese, ripened cheese > 17 %",,,,,,,,,"2,44",Dairy products and ice cream,2
 "Cheese, Turunmaa/Oltermanni, 30% Fat",,"[""Oltermanni"", ""Kärtner Rahmlaib"", ""Appenzeller Extra"", ""Vuorijuusto""]",,,,,,,,,
 "Cheese, unripened, fresh cheese <=15 %",,,,,"8,55",,,,,"Cheese, median",1
 "Cheese, unripened, fresh cheese <=15 %",,,,,10,,,,,Juusto,9
-"Cheese, unripened, fresh cheese <=15 %",,,,,,,,,"1,1",Animal based products,2
+"Cheese, unripened, fresh cheese <=15 %",,,,,,,,,"2,44",Dairy products and ice cream,2
 "Cheese, unripened, fresh cheese >15 %",,,,,"8,55",,,,,"Cheese, median",1
 "Cheese, unripened, fresh cheese >15 %",,,,,10,,,,,Juusto,9
-"Cheese, unripened, fresh cheese >15 %",,,,,,,,,"1,1",Animal based products,2
+"Cheese, unripened, fresh cheese >15 %",,,,,,,,,"2,44",Dairy products and ice cream,2
 Cherry With Stone,"Kirsikka, punnittu kivineen",,,,"0,39",,,,,"Cherries, median",1
 Cherry Without Stone,,,,,"0,39",,,,,"Cherries, median",1
 Chestnut,Kastanja,,,,"0,43",,,,,"Chestnuts, median",1
@@ -111,6 +111,7 @@ Cocoa powder with sugar,,,,,"3,35",,,,,Cocoa 2.04-4.66 kg,12
 "Cocoa Powder, Unsweetened",,,,,"3,35",,,,,Cocoa 2.04-4.66 kg,12
 Coconut Milk,,,,,"0,42",,,,,"Almond/coconut milk, median",1
 Coconut Oil,Kookosöljy,,,,"1,78",,,,,,13
+"Coconut Water, Unsweetened",,"[""Kookosvesi maustamaton luomu""]",,,,,,,,,
 Cod,Turska,,Fish,,"3,51",,,,,"Cod, median",1
 Coffee,,,,,"4,98",,,,,"Coffee from Costa-Rica, 2012",14
 Coffee,,,,,,,,"0,33",,,7
@@ -280,6 +281,7 @@ Milks >2% fat,,,,,"1,29",,,,,"Milk: world average, median",1
 Milks >2% fat,,,,,1,,,,,,26
 Milks skimmed,,,,,"1,29",,,,,"Milk: world average, median",1
 Milks skimmed,,,,,1,,,,,,26
+"Muesli, Basic",,"[""Luomumysli""]",,,,,,,,,
 "Multigrain Bread, Bread Roll",,"[""Petun ruudukas""]",,,,,,,,,
 "Multigrain Bread, Buttermilk Bread, Sour Milk, Wheat And Dark Wheat Flour",,"[""Herkkulimppu""]",,,,,,,,,
 "Multigrain Bread, Oat Bread, Water",,"[""Kauraleipä"", ""Kaurasydän""]",,,,,,,,,
@@ -291,7 +293,7 @@ Napkin,Nenäliina,,Hygiene products,"0,03",,,,,,Paper towel per piece,24
 Newspaper,Sanomalehti,,Supplies,"0,22",,,,,,Newspaper,24
 Non-chocolate confectionery,,,,,2.6,,,,,Including waste,7
 "Notebook, plastic cover","Vihko, muovikantinen",,Supplies,,,,,,"0,4","Sanomalehdet, kirjat ja paperitarvikkeet",2
-"Nut, Cashew Nut","Pähkinä, cashewpähkinä",,,,"1,44",,,,,"Cashew nut, median",1
+"Nut, Cashew Nut","Pähkinä, cashewpähkinä","[""Cashew naturel""]",,,"1,44",,,,,"Cashew nut, median",1
 "Nut, Hazelnut","Pähkinä, hasselpähkinä",,,,"0,97",,,,,"Hazelnuts, median",1
 "Nut, Peanut","Pähkinä, maapähkinä",,,,"0,99",,,,,"Ground nuts, median",1
 "Nut, Peanut","Pähkinä, maapähkinä",,,,"0,83",,,,,"Peanuts, median",1
@@ -316,7 +318,7 @@ Onion-family vegetables,,,,,"0,17",,,,,"Onion, median",1
 Other alcoholic beverages,,,,,,,,,"0,3",Alcohol drinks,2
 Palm Oil,Palmuöljy,,,,"2,23",,,,,,31
 Palm Oil,Palmuöljy,,,,,,,2,,Including iLUC,32
-Paper,Paperi,,Supplies,,,,,,"0,32","Paperitarvikkeet, kirjat, lehdet",1
+Paper,Paperi,"[""Akvarellipaperit""]",Supplies,,,,,,"0,32","Paperitarvikkeet, kirjat, lehdet",1
 Paper bag,Paperikassi,,Supplies,"0,01",,,,,,,33
 "Peach/Nectarine, Average, With Stone",,,,,"0,43",,,,,"Peaches and nectarines, median",1
 Peanut Butter Without Added Salt,,,,,"2,5",,,,,Maapähkinävoi,27
@@ -340,7 +342,7 @@ Plants,Kasvit,,Supplies,,,,,,"0,6",Garden supplies,2
 Plastic,,,Supplies,,,,,,"1,01",Plastic products,2
 Plastic bag,Muovikassi,"[""Muovipussi"", ""Pakastuspussi""]",Supplies,"0,035",,,,,,"Plastic bag, average",33
 "Plastic bag, biodegradable",Biohajoava pussi,,Supplies,"0,05",,,,,,"Biodegradable plastic bag, average",33
-"Plastic bag, recycled","Muovikassi, kierrätetty","[""Henkselikassi, recycling"", ""Muovipussi, recycled""]",Supplies,"0,01",,,,,,"Recyclable plastic bag, average",33
+"Plastic bag, recycled","Muovikassi, kierrätetty","[""Henkselikassi, recycling"", ""Muovipussi, recycled"", ""Muovikassi harmaa""]",Supplies,"0,01",,,,,,"Recyclable plastic bag, average",33
 Pollock,Lyyraturska,,Fish,,"1,6",,,,,"Pollock, median",1
 Pomelo,Pomelo,,Citrus fruit,,"0,51",,,,,"Grapefruit and pomelo, median",1
 Pomfret,Pomfretti,,Fish,,"6,63",,,,,"Pomfret, median",1
@@ -370,9 +372,9 @@ Quinces,Kvitteni,,Malaceous fruit,,"0,31",,,,,"Quinces, median",1
 Quinoa,"Kvinoa, siemen",,,,"1,15",,,,,"Quinoa, median",1
 "Quorn, Fillet, Pieces, Mince",,,,,,,,,"1,1",Animal based groceries,2
 Rabbit,Kani,,,,"4,7",,,,,"Rabbit, median",1
-Rapeseed Oil,Rypsiöljy,,,,,,,"2,09",,"Rape and mustard seed, median",1
-Rapeseed Oil,Rypsiöljy,,,,262,,,,,Including iLUC,
+Rapeseed Oil,Rypsiöljy,,,,2,,,,,154 g per 100 g of packaged rapeseed refined oil,44
 Raspberry,Vadelma,,,,"0,84",,,,,"Rasberries, median",1
+"Ravioli With Spinach Filling, Boiled",,"[""de Angelis tortell""]",,,,,,,"0,7",Plant based groceries,2
 Recreational products,Vapaa-ajan tuotteet,,,,,,,,"0,8",Large scale durable goods for recreational and cultural activities,2
 Recreational services,Vapaa-ajan palvelut,,Services,,,,,,"0,2",Recreational and culture services,2
 Renovation,Remontointi,,Construction,,,,,,"0,02",Remontointi,2
@@ -407,12 +409,14 @@ Shrimp,Katkarapu,,,,"7,8",,,,,"Prawns/shrimp, median",1
 Skincare products,Ihonhoitotuotteet,,Hygiene products,,,,,,,,
 "Slicing Sausage, Balkan, 21.5% Fat",,"[""Alpenfest lihaleikkele""]",,,,,,,,,
 Smartphone,Älypuhelin,,Electronics,,,,,,,,
+"Smoothie, Marli Smoothie, Fruit +Vitamins D&C",,"[""Voima smoothie""]",,,,,,,,,
 Snacks,Naposteltavat,"[""Snacksit""]",,,,,,,"0,7",Plant based groceries,1
 "Soft Drink, Lemonade",Virvoitusjuoma,"[""Coca-Cola"", ""Pepsi"", ""Fanta"", ""Sprite"", ""7up"", ""Jaffa""]",,,,,,"0,2",,Virvoitusjuomat,36
 Soil,Multa,"[""Kukkamulta""]",,,,,,,"0,6",Garden supplies,2
 Soup vegetables,Kuivatut keittovihannekset,"[""Kuivattu keittovihannes""]",Spices,,,,,,,,
 "Soy Product, Alpro Go On, Soured, Plain, Fat 3.6%",,"[""Go On Soijavalmiste Maustamaton""]",,,,,,,,,
-"Soy Product, Alpro Natural, Soured, Plain, Added Vitamin And Calcium",,"[""Soijavalmiste maustamaton""]",,,"0,7",,,,,,
+"Soy Product, Alpro Natural, Soured, Plain, Added Vitamin And Calcium",,"[""Soijavalmiste maustamaton""]",,,,,,,,,
+"Soy Product, Soured, 2% Fat, Calcium",,"[""Soijavalmiste vad-omena""]",,,,,,,,,
 Soy Sauce,,,,,,,,,"0,7",Plant based groceries,2
 "Soya Bean Patty, Fried",,"[""Grillatut kasvisfileet"", ""Vegaaninen Pihvi Soija- Ja Vehnäproteiinista""]",,,,,,,,,2
 "Soya Beans, Dried","Soijapapu, kuivattu","[""Soijapapu""]",,,"0,49",,,,,"Soybean, median",1
@@ -429,7 +433,7 @@ Sports equipment,Urheiluvälineet,,,,,,,,"0,52",,2
 Strawberry,Mansikka,,,,"1,64",,,,,"Strawberries: heated greenhouse, median",1
 Strawberry,Mansikka,,,,"0,58",,,,,"Strawberries, median",1
 Sugar,Sokeri,"[""Taloussokeri""]",,,"1,1",,,,,,10
-Sunflower Oil,Auringonkukkaöljy,,,,"0,76",,,,,"Sunflower oil, Including iLUC",
+Sunflower Oil,Auringonkukkaöljy,,,,"1,12",,,,,112 g per 100 g of packaged sunflower refined oil,44
 Sunflower Seed,"Auringonkukansiemen, kuorittu",,,,"1,41",,,,,"Sunflower seed, median",1
 Supplements,,,,,,,,,,,
 Supplies,Tarvikkeet,,,,,,,,"0,51","Kestokulutustavarat, terveydenhoitotuotteet keskiarvo",2
@@ -451,7 +455,7 @@ Textiles,Tekstiilit,,Supplies,,,,,,"0,67","Kodintaloustekstiilit, sisustus, asti
 "Thin Spinach Pancake, Spinach Crepes, Atria/Pirkka",,"[""Pinaattiohukainen""]",,,"2,5",,,,,"Pastry, including waste, secondary source",7
 "Tofu, Firm, Soya Product","Tofu, kova/kiinteä, soijavalmiste",,,,2,,,,,Tofu,27
 "Tofu, Soft, Soya Product","Tofu, pehmeä, soijavalmiste","[""Tofu""]",,,2,,,,,Tofu,27
-Toilet paper,Vessapaperi,"[""Wc-paperi""]",Hygiene products,"0,03",,,,,,Paper towel per piece,
+Toilet paper,Vessapaperi,"[""Wc-paperi"", ""Wcpaperi""]",Hygiene products,"0,03",,,,,,"Paper towel per piece, secondary source",24
 Tomato,Tomaatti,"[""Kirsikkatomaatti"", ""Luumutomaatti"", ""Miniluumutomaatti"", ""Terttutomaatti"", ""Tomaatti irto""]",,,5,,,,,"Tomaatti, kurkku (kasvihuone talvella)",4
 Tomato,Tomaatti,,,,"0,51",,,,,"Tomatoes: passive greenhouse, median",1
 Tomato,Tomaatti,,,,"0,45",,,,,"Tomatoes, median",1
@@ -481,6 +485,7 @@ Vegetarian Pea Soup,,"[""Hernekeitto luomu""]",,,,,,,,,
 Wasabi,"Maustekrassi, wasabi",,Spices,,,,,,,,
 Washing liquid,Pesuneste,,Hygiene products,,,,,,"0,6","Pesu-, puhdistus- ja kiillotusaineet, hajusteet ja toalettivalmisteet",2
 Water,,,,,,,,"0,1",,,7
+Watercolor paint,Vesivärit,"[""Akvarellivärit""]",Supplies,,,,,,"0,46",Factory products,2
 "Watermelon, With Skin",,,,,"0,32",,,,,"Water melons, median",1
 Wheat,,,,,"0,52",,,,,"Wheat, median",1
 Wheat,,,,,"0,5",,,,,"Vehnäjauhot, ryynit",4
