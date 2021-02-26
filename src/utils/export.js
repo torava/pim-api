@@ -5,7 +5,7 @@ import { convertMeasure, getRootEntity } from './entities';
 import { getCategoryWithAttribute } from './categories';
 import { getItemAttributeValue, getItemUnit } from './items';
 
-export const exportTransactions = (transactions, categories, groups) => {
+export const exportTransactions = (transactions, categories, groups = []) => {
   const categoryLocale = locale.getLocale();
   const formattingLocale = 'fi-FI';//locale.getLocale();
 

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 import DataStore from './DataStore';
-import {getTransactionsFromReceipt} from '../utils/receipt';
+import {blobToData, getTransactionsFromReceipt} from '../utils/receipt';
 import {getSrc, crop, getDataUrlFromPdf} from '../utils/imageProcessing';
 import ui from "./ui";
 
@@ -432,61 +432,53 @@ class ReceiptService {
 
     this.pipeline.file = file;
 
-    const reader = new FileReader();
-    reader.addEventListener('load', async () => {
-      try {
-        if (file.type === 'application/pdf') {
-          this.pipeline.src = await getDataUrlFromPdf(reader.result);
-          this.pipeline.crop = false;
-          this.pipeline.filter = false;
-          this.pipeline.threshold = false;
-        } else {
-          this.pipeline.src = reader.result;
-          this.pipeline.crop = false;
-          this.pipeline.filter = true;
-          this.pipeline.threshold = true;
-        }
-
-        console.time('process');
-
-        /*
-          1) image   -> 2) recognize
-          1) receipt ->               -> 3) edited
-                        2) original
-                                                    -> 4) save
-        */
-
-        const receipt = await axios.post('/api/receipt')
-        this.pipeline.receipt = receipt.data;
-        await this.processPipeline();
-        await this.prepareReceiptPipeline();
-        const transactions = await this.saveTransactionPipeline();
-        console.log(transactions);
-        console.log(this.pipeline);
-
-        result.push(transactions);
-      } catch (error) {
-        console.error(error);
+    try {
+      const readerResult = await blobToData(this.pipeline.file);
+      if (file.type === 'application/pdf') {
+        this.pipeline.src = await getDataUrlFromPdf(readerResult);
+        this.pipeline.crop = false;
+        this.pipeline.filter = false;
+        this.pipeline.threshold = false;
+      } else {
+        this.pipeline.src = readerResult;
+        this.pipeline.crop = false;
+        this.pipeline.filter = true;
+        this.pipeline.threshold = true;
       }
-    });
-    reader.readAsDataURL(this.pipeline.file);
+
+      console.time('process');
+
+      /*
+        1) image   -> 2) recognize
+        1) receipt ->               -> 3) edited
+                      2) original
+                                                  -> 4) save
+      */
+
+      const receipt = await axios.post('/api/receipt')
+      this.pipeline.receipt = receipt.data;
+      await this.processPipeline();
+      await this.prepareReceiptPipeline();
+      const transactions = await this.saveTransactionPipeline();
+      console.log(transactions);
+      console.log(this.pipeline);
+
+      result.push(transactions);
+    } catch (error) {
+      console.error(error);
+    }
   
     return result;
   }
-  saveReceipt(transactions) {
-    return new Promise((resolve, reject) => {
-      return axios.post('/api/transaction/', transactions)
-      .then(function(response) {
-        console.log(response);
-        return DataStore.getTransactions(true).then((transactions) => {
-          resolve(transactions);
-        });
-      })
-      .catch(function(error) {
-        console.error(error);
-        reject();
-      });
-    });
+  async saveReceipt(transactions) {
+    try {
+      const response = await axios.post('/api/transaction/', transactions);
+      console.log(response);
+      const updatedTransactions = await DataStore.getTransactions(true);
+      return updatedTransactions[updatedTransactions.length-1];
+    } catch(error) {
+      console.error(error);
+    }
   }
   getImageOrientation(file, callback) {
     var fileReader = new FileReader();

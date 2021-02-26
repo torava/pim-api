@@ -20,6 +20,16 @@ function toTitleCase(str) {
   return  str.replace(/([^\s:\-])([^\s:\-]*)/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
 
+// https://stackoverflow.com/a/63372663
+// Convert resBlob to base64
+export const blobToData = (blob) => {
+  return new Promise((resolve) => {
+    const reader = new FileReader()
+    reader.onloadend = () => resolve(reader.result)
+    reader.readAsDataURL(blob)
+  })
+};
+
 export function getTransactionsFromReceipt(result, text, locale, id) {
   text = text
   .replace(/ﬂ|»|'|´|`|‘|“|"|”|\|/g, '')

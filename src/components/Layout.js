@@ -1,14 +1,10 @@
 import React from 'react';
-import {Link} from 'react-router-dom';
 
 import {locale} from './locale';
 import ReceiptService from './ReceiptService';
 import DataStore from './DataStore';
 import ui from './ui';
-
-function confirmExit() {
-  return "You have attempted to leave this page. Are you sure?";
-}
+import { downloadString, exportTransactions } from '../utils/export';
 
 export default class Layout extends React.Component {
   constructor(props) {
@@ -22,7 +18,6 @@ export default class Layout extends React.Component {
       manufacturers: [],
       categories: [],
       parties: [],
-      groups: [],
       isReady: false
     }
 
@@ -36,17 +31,15 @@ export default class Layout extends React.Component {
       DataStore.getProducts(),
       DataStore.getManufacturers(),
       DataStore.getCategories(),
-      DataStore.getParties(),
-      DataStore.getGroups()
+      DataStore.getParties()
     ])
-    .then(([products, manufacturers, categories, parties, groups]) => {
+    .then(([products, manufacturers, categories, parties]) => {
       this.setState({
         isReady: true,
         products,
         manufacturers,
         categories,
-        parties,
-        groups
+        parties
       });
     });
   }
@@ -83,97 +76,64 @@ export default class Layout extends React.Component {
 
     if (!files[0]) return;
 
+    const transactions = [];
     for (let file of Array.from(files)) {
       try {
-        const transactions = await (new ReceiptService).upload(file);
-        console.log(transactions);
+        const receiptService = new ReceiptService;
+        const result = await receiptService.upload(file);
+        transactions.push(result[0]);
+        console.log(result);
       } catch (error) {
         console.error(error);
       }
     }
+    console.log(transactions);
+    const csv = exportTransactions(transactions, this.state.categories);
+    console.log(csv);
+    downloadString(csv, 'text/csv', 'items.csv');
     window.onbeforeunload = null;
   }
   render() {
     const {
-      isReady,
-      groups,
-      currentGroupId
+      isReady
     } = this.state;
     return (
       <div className="app-container">
         {!isReady ? 'Loading...' :
         <>
-          <header>
-            <div className="header-container">
-              <div className="logo" style={{float:'left'}}>
-                <Link to="/"></Link>
-              </div>
-              <div style={{float:'right'}}>
-                <select
-                  id="group"
-                  placeholder="Group"
-                  value={currentGroupId}
-                  onChange={event => this.onGroupChange(event.target.value)}>
-                  <option value="-1">All groups</option>
-                  <option value="">No group</option>
-                  {groups.map(group => (
-                    <option
-                      key={`group-${group.id}`}
-                      value={group.id}>
-                        {group.name}
-                    </option>
-                  ))}
-                </select>&nbsp;
-                <select 
-                  id="currency"
-                  placeholder="Currency"
-                  value={this.state.currency}
-                  onChange={this.onCurrencyChange.bind(this)}>
-                  <option value="EUR">EUR</option>
-                  <option value="USD">USD</option>
-                  <option value="CAD">CAD</option>
-                  <option value="ARS">ARS</option>
-                </select>&nbsp;
-                <select
-                  id="locale"
-                  placeholder="Locale"
-                  value={this.state.locale}
-                  onChange={this.onLocaleChange.bind(this)}>
-                  <option value="fi-FI">fi-FI</option>
-                  <option value="sv-SV">sv-SV</option>
-                  <option value="en-US">en-US</option>
-                  <option value="es-AR">es-AR</option>
-                </select>&nbsp;
-                <select
-                  id="energy"
-                  placeholder="Energy"
-                  value={locale.getAttributeUnit('energy,calculated')}
-                  onChange={this.onEnergyUnitChange.bind(this)}>
-                  <option value="kJ">kJ</option>
-                  <option value="kcal">kcal</option>
-                </select>
-                <Link to="/" className="button"><i className="fas fa-user"></i></Link>
-              </div>
-              <div style={{clear:'both'}}/>
-            </div>
-          </header>
-          <div className="app-content">{
-            this.props.children
-          }</div>
-          <footer>
-            <div className="footer-container">
-              <nav>
-                <Link to="/" className="button"><i className="fas fa-chart-area" title="Overview"></i></Link>
-                <Link to="/categories" className="button"><i className="fas fa-search" title="Categories"></i></Link>
-                <div className="button file-upload-wrapper">
-                  <i className="fas fa-plus" title="Upload"></i>
-                  <input type="file" name="upload-file" id="upload-file" multiple draggable onChange={this.onUpload}/>
-                </div>
-                <Link to="/transactions" className="button"><i className="fas fa-shopping-cart" title="Transactions"></i></Link>
-                <Link to="/items" className="button"><i className="fas fa-box-open" title="Items"></i></Link>
-              </nav>
-            </div>
-          </footer>
+          <p>
+            <select 
+              id="currency"
+              placeholder="Currency"
+              value={this.state.currency}
+              onChange={this.onCurrencyChange.bind(this)}>
+              <option value="EUR">EUR</option>
+              <option value="USD">USD</option>
+              <option value="CAD">CAD</option>
+              <option value="ARS">ARS</option>
+            </select>&nbsp;
+            <select
+              id="locale"
+              placeholder="Locale"
+              value={this.state.locale}
+              onChange={this.onLocaleChange.bind(this)}>
+              <option value="fi-FI">fi-FI</option>
+              <option value="sv-SV">sv-SV</option>
+              <option value="en-US">en-US</option>
+            </select>&nbsp;
+            <select
+              id="energy"
+              placeholder="Energy"
+              value={locale.getAttributeUnit('energy,calculated')}
+              onChange={this.onEnergyUnitChange.bind(this)}>
+              <option value="kJ">kJ</option>
+              <option value="kcal">kcal</option>
+            </select>
+          </p>
+          <label>
+            Upload:<br/>
+            <input type="file" name="upload-file" id="upload-file" multiple draggable onChange={this.onUpload}/>
+          </label>
         </>}
       </div>
     );
