@@ -202,7 +202,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
             if (current_party.name) {
               current_party.similarity = stringSimilarity(line, current_party.name);
               // K-Supermarket Kaisaniemi != K-Supermarket Kamppi
-              if (current_party.similarity > 0.7 && (!previous_party || !previous_party.similarity || previous_party.similarity < current_party.similarity)) {
+              if (current_party.similarity > 0.7 && (!previous_party || !previous_party.similarity || previous_party.similarity < current_party.similarity)) {
                 return current_party;
               }
             }
@@ -797,3 +797,9 @@ export function extractTextFromFile(filepath, locale) {
     });
   });
 }
+
+export const recognizeClientside = async (data, worker) => {
+  const { data: { text } } = await worker.recognize(data);
+
+  return text;
+};

@@ -1,109 +1,107 @@
-import natural from 'natural';
-import Manufacturer from '../models/Manufacturer';
-import mongo from './mongo';
+import { stringSimilarity } from "string-similarity-js";
+
+import { LevenshteinDistance } from "./levenshteinDistance";
 import { measureRegExp } from './receipt';
 
-export const details = {};
-(async () => {
-  try {
-    details.manufacturers = {};
-    
-    const manufacturers = await Manufacturer.query();
-    manufacturers.forEach(manufacturer => {
-      details.manufacturers[manufacturer.name] = [manufacturer.name, ...manufacturer.aliases || []];
-    });
-  } catch (error) {
-    console.error(error);
-  }
-})();
+const getDetails = manufacturers => {
+  const details = {};
 
-details.weighting = {
-  weighed: ['punnittu'],
-  stone: ['kivineen'],
-  stoneless: ['kivetön'],
-  withpeel: ['kuorineen'],
-  peeled: ['kuorittu'],
-  average: ['tuotekeskiarvo', 'keskiarvo'],
-  kilogram: ['kg']
-};
-details.cooking = {
-  boiled: ['keitetty'],
-  breaded: ['leivitetty'],
-  fried: ['paistettu'],
-  grilled: ['grillattu'],
-  fresh: ['tuore'],
-  dried: ['kuivattu'],
-  withegg: ['kananmunaa'],
-  thickened: ['suurustettu'],
-  nonthickened: ['suurustamaton'],
-  withoutsauce: ['ei kastiketta'],
-  coldsmoked: ['kylmäsavustettu', 'kylmäsavu'],
-  smoked: ['savustettu', 'savu'],
-  milk: ['kevytmaito', 'rasvaton maito']
-};
-details.spicing = {
-  salted: ['suolattu', 'suolaa'],
-  withoutsalt: ['suolaton'],
-  withtomato: ['tomaattinen'],
-  withchocolate: ['suklainen'],
-  sugared: ['sokeroitu'],
-  nonsugared: ['sokeroimaton'],
-  flavored: ['maustettu'],
-  nonflavored: ['maustamaton', 'naturel']
-};
-details.type = {
-  natural: ['luomu'],
-  bulk: ['irto'],
-  pott: ['ruukku'],
-  withfat: ['rasvaa'],
-  nonfat: ['rasvaton'],
-  lowfat: ['vähärasvainen'],
-  foam: ['vaahtoutuva'],
-  sliced: ['paloiteltu', 'palat', 'pala'],
-  nonlactose: ['laktoositon'],
-  thickened: ['puuroutuva'],
-  parboiled: ['kiehautettu', 'parboiled'],
-  lowlactose: ['vähälaktoosinen', 'hyla'],
-  uht: ['uht'],
-  insaltwater: ['suolavedessä', 'suolaved'],
-  frozenfood: ['pakasteateria', 'pakastettu', 'pakaste'],
-  bag: ['pussi'],
-  glutenfree: ['gluteeniton', 'gton'],
-  vitamin: ['d-vitaminoitu', 'vitaminoitu'],
-  canned: ['säilyke'],
-  fairtrade: ['reilun kaupan'],
-  vegan: ['vegaaninen', 'vegan'],
-  fresh: ['tuore'],
+  details.manufacturers = {};
   
-  sweetorange: ['sweet orange'],
+  manufacturers.forEach(manufacturer => {
+    details.manufacturers[manufacturer.name] = [manufacturer.name, ...manufacturer.aliases || []];
+  });
 
-  grannysmith: ['granny smith'],
-  golden: ['golden'],
-  royalgala: ['royal gala'],
+  details.weighting = {
+    weighed: ['punnittu'],
+    stone: ['kivineen'],
+    stoneless: ['kivetön'],
+    withpeel: ['kuorineen'],
+    peeled: ['kuorittu'],
+    average: ['tuotekeskiarvo', 'keskiarvo'],
+    kilogram: ['kg']
+  };
+  details.cooking = {
+    boiled: ['keitetty'],
+    breaded: ['leivitetty'],
+    fried: ['paistettu'],
+    grilled: ['grillattu'],
+    fresh: ['tuore'],
+    dried: ['kuivattu'],
+    withegg: ['kananmunaa'],
+    thickened: ['suurustettu'],
+    nonthickened: ['suurustamaton'],
+    withoutsauce: ['ei kastiketta'],
+    coldsmoked: ['kylmäsavustettu', 'kylmäsavu'],
+    smoked: ['savustettu', 'savu'],
+    milk: ['kevytmaito', 'rasvaton maito']
+  };
+  details.spicing = {
+    salted: ['suolattu', 'suolaa'],
+    withoutsalt: ['suolaton'],
+    withtomato: ['tomaattinen'],
+    withchocolate: ['suklainen'],
+    sugared: ['sokeroitu'],
+    nonsugared: ['sokeroimaton'],
+    flavored: ['maustettu'],
+    nonflavored: ['maustamaton', 'naturel']
+  };
+  details.type = {
+    natural: ['luomu'],
+    bulk: ['irto'],
+    pott: ['ruukku'],
+    withfat: ['rasvaa'],
+    nonfat: ['rasvaton'],
+    lowfat: ['vähärasvainen'],
+    foam: ['vaahtoutuva'],
+    sliced: ['paloiteltu', 'palat', 'pala'],
+    nonlactose: ['laktoositon'],
+    thickened: ['puuroutuva'],
+    parboiled: ['kiehautettu', 'parboiled'],
+    lowlactose: ['vähälaktoosinen', 'hyla'],
+    uht: ['uht'],
+    insaltwater: ['suolavedessä', 'suolaved'],
+    frozenfood: ['pakasteateria', 'pakastettu', 'pakaste'],
+    bag: ['pussi'],
+    glutenfree: ['gluteeniton', 'gton'],
+    vitamin: ['d-vitaminoitu', 'vitaminoitu'],
+    canned: ['säilyke'],
+    fairtrade: ['reilun kaupan'],
+    vegan: ['vegaaninen', 'vegan'],
+    fresh: ['tuore'],
+    
+    sweetorange: ['sweet orange'],
 
-  tarocco: ['tarocco'],
-  moro: ['moro'],
-  sanguinello: ['sanguinello'],
+    grannysmith: ['granny smith'],
+    golden: ['golden'],
+    royalgala: ['royal gala'],
 
-  nadorcott: ['nadorcott'],
-  bruno: ['bruno'],
+    tarocco: ['tarocco'],
+    moro: ['moro'],
+    sanguinello: ['sanguinello'],
 
-  yellow: ['keltainen'],
-  orange: ['orange'],
-  red: ['punainen'],
-  green: ['vihreä'],
-  white: ['valkoinen'],
+    nadorcott: ['nadorcott'],
+    bruno: ['bruno'],
 
-  skin: ['kuorellinen'],
-  withoutskin: ['kuoreton'],
-  package: ['paperipakkaus']
-};
-details.origin = {
-  local: ['kotimainen'],
-  imported: ['ulkomainen'],
-  finnish: ['suomi', 'suomalainen', 'suomesta'],
-  californian: ['kalifornia', 'kalifornialainen'],
-  spanish: ['espanja', 'espanjalainen']
+    yellow: ['keltainen'],
+    orange: ['orange'],
+    red: ['punainen'],
+    green: ['vihreä'],
+    white: ['valkoinen'],
+
+    skin: ['kuorellinen'],
+    withoutskin: ['kuoreton'],
+    package: ['paperipakkaus']
+  };
+  details.origin = {
+    local: ['kotimainen'],
+    imported: ['ulkomainen'],
+    finnish: ['suomi', 'suomalainen', 'suomesta'],
+    californian: ['kalifornia', 'kalifornialainen'],
+    spanish: ['espanja', 'espanjalainen']
+  };
+
+  return details;
 };
 
 export function getNameLocale(name, locale, strict) {
@@ -209,7 +207,8 @@ export function escapeRegExp(stringToGoIntoTheRegex) {
   return stringToGoIntoTheRegex.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
-export function stripName(name) {
+export function stripName(name, manufacturers) {
+  const details = getDetails(manufacturers);
   let strippedName = {};
   Object.entries(name).forEach(([locale, translation]) => {
     strippedName[locale] = translation;
@@ -230,17 +229,20 @@ export function stripName(name) {
   return strippedName;
 }
 
-export function stripDetails(name) {
+export function stripDetails(name, manufacturers) {
   let token,
       accuracy,
       words;
+
+  const details = getDetails(manufacturers);
+
   name = name.replace(measureRegExp, '').replace(/[0-9.,]/g, '');
   for (let type in details) {
     for (let detailName in details[type]) {
       details[type][detailName].forEach(detail => {
         //token = similarSearch.getBestSubstring(name, detail);
         // Didn't work with compound words like ruukkutilli
-        token = natural.LevenshteinDistance(detail.toLowerCase(), name.toLowerCase(), {search: true});
+        token = LevenshteinDistance(detail.toLowerCase(), name.toLowerCase(), {search: true});
         accuracy = (detail.length-token.distance)/detail.length;
         if (accuracy > 0.8) {
           //name = name.substring(0, token.start)+name.substring(token.end+1);
@@ -298,30 +300,123 @@ export function stringToSlug(str,  sep) {
   return str;
 }
 
-export function getOpenFoodFactsProduct(name) {
-  return new Promise((resolve, reject) => {
-    const db = mongo.getDB();
-    return db.collection('products').find({
-      $text: {
-        $search: name
+export const resolveCategories = async (transaction, items = [], categories = [], manufacturers = []) => {
+  try {
+    let trimmed_item_name,
+        distance,
+        item_categories;
+
+    console.log('items length', items.length);
+
+    console.log('categories length', categories.length);
+
+    let trimmed_categories = categories.filter(async category => {
+      if (category.attributes.length) {
+        let name = category.name;
+        category.trimmed_name = stripName(name, manufacturers);
+      } else {
+        category.trimmed_name = {};
       }
-    })
-    .project({
-      score: { 
-        $meta: "textScore"
-      }
-    })
-    .sort({
-      score: {
-        $meta: "textScore"
-      }
-    }).limit(1)
-    .toArray((error, results) => {
-      if (error) {
-        console.error(error);
-        resolve();
-      }
-      resolve(results[0]);
+      return category.attributes.length ? true : false;
     });
-  });
+    //fs.writeFileSync('./ner.json', JSON.stringify(manager.save()));
+
+    console.log('trimmed categories length', trimmed_categories.length);
+    
+    for (let item of transaction.items) {
+      if (!item) continue;
+      
+      item_categories = [];
+      trimmed_item_name = stripDetails(item.product.name, manufacturers);
+
+      console.log('trimmed item name', trimmed_item_name);
+  
+      items.forEach(comparable_item => {
+        if (comparable_item.product && comparable_item.product.category && comparable_item.text) {
+          const productName = item.product.name.toLowerCase() || '';
+          const itemName = comparable_item.text.toLowerCase() || '';
+          distance = stringSimilarity(productName, itemName);
+          
+          if (distance > 0.8) {
+            console.log('comparing product to items', productName, itemName, distance);
+            console.log(item.product.name, comparable_item.text, distance);
+            item_categories.push({
+              category: comparable_item.product.category,
+              item_name: item.product.name,
+              trimmed_item_name: trimmed_item_name,
+              distance: distance
+            });
+          }
+        }
+      });
+  
+      trimmed_categories.forEach((category, index) => {
+        Object.entries(category.trimmed_name).forEach(([locale, translation]) => {
+          if (category.trimmed_name && translation) {
+            distance = stringSimilarity(trimmed_item_name.toLowerCase() || '', translation.toLowerCase() || '');
+            distance = Math.max(distance, stringSimilarity(item.product.name.toLowerCase() || '', category.name[locale].toLowerCase() || '')+0.1);
+            category.aliases?.forEach(alias => {
+              distance = Math.max(distance, stringSimilarity(trimmed_item_name.toLowerCase() || '', alias.toLowerCase() || '')+0.1);
+              distance = Math.max(distance, stringSimilarity(item.product.name.toLowerCase() || '', alias.toLowerCase() || '')+0.1);
+            });
+            if (category.parent) {
+              distance = Math.max(distance, stringSimilarity(trimmed_item_name || '', category.parent.name[locale] || ''));
+            }
+            //accuracy = (trimmed_item_name.length-distance)/trimmed_item_name.length;
+    
+            if (distance > 0.4) {
+              console.log(
+                'comparing item to categories',
+                'product name', item.product.name,
+                'category name', category.name[locale],
+                'aliases', category.aliases,
+                'parent', category.parent?.name[locale],
+                'distance', distance
+              );
+              item_categories.push({
+                category,
+                item_name: item.product.name,
+                trimmed_item_name: trimmed_item_name,
+                name: translation,
+                distance: distance
+              });
+            }
+          }
+        });
+      });
+
+      if (item.product.category && item.product.category.name) {
+        trimmed_categories.forEach((category, index) => {
+          Object.entries(category.name).forEach(([locale, categoryTranslation]) => {
+            const productCategoryName = item.product.category.name[locale]?.toLowerCase();
+            const categoryName = categoryTranslation.toLowerCase();
+            distance = stringSimilarity(productCategoryName, categoryName);
+            //accuracy = (trimmed_item_name.length-distance)/trimmed_item_name.length;
+    
+            if (distance > 0.4) {
+              console.log('comparing product category to categories', productCategoryName, categoryName, distance);
+              item_categories.push({
+                category,
+                item_name: item.product.name,
+                trimmed_item_name: trimmed_item_name,
+                distance: distance
+              });
+            }
+          });
+        });
+      }
+      
+      if (item_categories.length) {
+        item_categories.sort((a, b) => b.distance-a.distance);
+  
+        item.product.category = {id: item_categories[0].category.id};
+
+        console.log(item_categories[0]);
+      }
+
+      //console.log(item_categories);
+    }
+  } catch (error) {
+    console.error(error);
+  }
 }

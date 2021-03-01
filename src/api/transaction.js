@@ -1,14 +1,9 @@
 import Transaction from '../models/Transaction';
 import Category from '../models/Category';
 import moment from 'moment';
-import fs from 'fs';
 import _ from 'lodash';
-import {NlpManager, SimilarSearch} from 'node-nlp';
-import { stringSimilarity } from "string-similarity-js";
 import Item from '../models/Item';
-import {details, stripDetails, escapeRegExp, getParentPath, CSVToArray, toTitleCase, stripName, getOpenFoodFactsProduct} from '../utils/transaction';
-
-const similarSearch = new SimilarSearch({normalize: true});
+import {CSVToArray, toTitleCase, resolveCategories} from '../utils/transaction';
 
 export default app => {
 
@@ -100,144 +95,6 @@ const CSV_COLUMN_WRAPPER = '"';
 app.post('/api/transaction', async function(req, res) {
   function getNumber(value) {
     return parseFloat(value.replace('−', '-').replace(',', '.'));
-  }
-  async function resolveCategories(transaction) {
-    try {
-      let trimmed_item_name,
-          distance,
-          item_categories;
-
-      const items = await Item.query()
-      .withGraphFetched('[product.[category]]');
-
-      console.log('items length', items.length);
-
-      let trimmed_categories = await Category.query()
-      .withGraphFetched('[children, parent]');
-
-      console.log('categories length', trimmed_categories.length);
-
-      trimmed_categories = trimmed_categories.filter(async category => {
-        if (!category.children.length) {
-          let name = category.name;
-          category.trimmed_name = stripName(name);
-        } else {
-          category.trimmed_name = {};
-        }
-        return !category.children.length;
-      });
-      //fs.writeFileSync('./ner.json', JSON.stringify(manager.save()));
-
-      console.log('trimmed categories length', trimmed_categories.length);
-      
-      for (let item of transaction.items) {
-        if (!item) continue;
-        
-        item_categories = [];
-        trimmed_item_name = stripDetails(item.product.name);
-
-        console.log('trimmed item name', trimmed_item_name);
-    
-        items.forEach(comparable_item => {
-          if (comparable_item.product && comparable_item.product.category && comparable_item.text) {
-            const productName = item.product.name.toLowerCase() || '';
-            const itemName = comparable_item.text.toLowerCase() || '';
-            distance = stringSimilarity(productName, itemName);
-            
-            if (distance > 0.8) {
-              console.log('comparing product to items', productName, itemName, distance);
-              console.log(item.product.name, comparable_item.text, distance);
-              item_categories.push({
-                category: comparable_item.product.category,
-                item_name: item.product.name,
-                trimmed_item_name: trimmed_item_name,
-                distance: distance
-              });
-            }
-          }
-        });
-    
-        trimmed_categories.forEach((category, index) => {
-          Object.entries(category.trimmed_name).forEach(([locale, translation]) => {
-            if (category.trimmed_name && translation) {
-              distance = stringSimilarity(trimmed_item_name.toLowerCase() || '', translation.toLowerCase() || '');
-              distance = Math.max(distance, stringSimilarity(item.product.name.toLowerCase() || '', category.name[locale].toLowerCase() || '')+0.1);
-              category.aliases?.forEach(alias => {
-                distance = Math.max(distance, stringSimilarity(trimmed_item_name.toLowerCase() || '', alias.toLowerCase() || '')+0.1);
-                distance = Math.max(distance, stringSimilarity(item.product.name.toLowerCase() || '', alias.toLowerCase() || '')+0.1);
-              });
-              if (category.parent) {
-                distance = Math.max(distance, stringSimilarity(trimmed_item_name || '', category.parent.name[locale] || ''));
-              }
-              //accuracy = (trimmed_item_name.length-distance)/trimmed_item_name.length;
-      
-              if (distance > 0.4) {
-                console.log(
-                  'comparing item to categories',
-                  'product name', item.product.name,
-                  'category name', category.name[locale],
-                  'aliases', category.aliases,
-                  'parent', category.parent?.name[locale],
-                  'distance', distance
-                );
-                item_categories.push({
-                  category,
-                  item_name: item.product.name,
-                  trimmed_item_name: trimmed_item_name,
-                  name: translation,
-                  distance: distance
-                });
-              }
-            }
-          });
-        });
-
-        if (item.product.category && item.product.category.name) {
-          trimmed_categories.forEach((category, index) => {
-            Object.entries(category.name).forEach(([locale, categoryTranslation]) => {
-              const productCategoryName = item.product.category.name[locale]?.toLowerCase();
-              const categoryName = categoryTranslation.toLowerCase();
-              distance = stringSimilarity(productCategoryName, categoryName);
-              //accuracy = (trimmed_item_name.length-distance)/trimmed_item_name.length;
-      
-              if (distance > 0.4) {
-                console.log('comparing product category to categories', productCategoryName, categoryName, distance);
-                item_categories.push({
-                  category,
-                  item_name: item.product.name,
-                  trimmed_item_name: trimmed_item_name,
-                  distance: distance
-                });
-              }
-            });
-          });
-        }
-        
-        if (item_categories.length) {
-          item_categories.sort((a, b) => b.distance-a.distance);
-    
-          item.product.category = {id: item_categories[0].category.id};
-
-          console.log(item_categories[0]);
-        }
-
-        if (!item.measure && !item.product.measure) {
-          const itemCategory = item_categories.length && item_categories[0].category;
-          const itemCategoryName = itemCategory && itemCategory.name && itemCategory.name['en-US'] || '';
-          const offProduct = await getOpenFoodFactsProduct(`${trimmed_item_name} ${itemCategoryName}`);
-          console.log('get off product', `${trimmed_item_name} ${itemCategoryName}`, offProduct);
-          if (offProduct && parseFloat(offProduct.product_quantity)) {
-            item.product.measure = parseFloat(offProduct.product_quantity);
-            item.product.unit = 'g';
-            console.log(item);
-          }
-        }
-
-        //console.log(item_categories);
-      }
-    } catch (error) {
-      console.error(error);
-    }
   }
   let transaction = {};
   if ('fromcsv' in req.query) {
@@ -356,7 +213,13 @@ app.post('/api/transaction', async function(req, res) {
     try {
       transaction = req.body[0];
 
-      await resolveCategories(transaction);
+      const items = await Item.query()
+      .withGraphFetched('[product.[category]]');
+
+      const categories = await Category.query()
+      .withGraphFetched('[children, parent]');
+
+      await resolveCategories(transaction, items, categories);
 
       console.dir(transaction, {depth:null});
 

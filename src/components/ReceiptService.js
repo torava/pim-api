@@ -1,9 +1,10 @@
 import axios from "axios";
 
 import DataStore from './DataStore';
-import {blobToData, getTransactionsFromReceipt} from '../utils/receipt';
+import {blobToData, getTransactionsFromReceipt, recognizeClientside} from '../utils/receipt';
 import {getSrc, crop, getDataUrlFromPdf} from '../utils/imageProcessing';
 import ui from "./ui";
+import { resolveCategories } from "../utils/transaction";
 
 const WAITING = -1;
 
@@ -35,8 +36,9 @@ function localeToLanguage(locale) {
 }
 
 class ReceiptService {
-  constructor() {
+  constructor(worker) {
     this.pipeline = {};
+    this.worker = worker;
 
     Promise.all([
       DataStore.getProducts(),
@@ -363,18 +365,7 @@ class ReceiptService {
           console.log('processed');
           console.timeLog('process');
     
-          const text = await fetch('/api/receipt/recognize', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              id,
-              src: imagedata
-            })
-          })
-          .then(response => response.json())
-          .then(response => response.result);
+          const text = await recognizeClientside(imagedata, this.worker);
 
           console.log('recognized', text);
           console.timeLog('process');
@@ -424,10 +415,6 @@ class ReceiptService {
     });
   }
   async upload(file) {
-    console.log(file);
-
-    const result = [];
-
     console.log('file', file);
 
     this.pipeline.file = file;
@@ -457,18 +444,16 @@ class ReceiptService {
 
       const receipt = await axios.post('/api/receipt')
       this.pipeline.receipt = receipt.data;
-      await this.processPipeline();
-      await this.prepareReceiptPipeline();
-      const transactions = await this.saveTransactionPipeline();
+      const transactions = await this.processPipeline();
       console.log(transactions);
       console.log(this.pipeline);
 
-      result.push(transactions);
+      resolveCategories(transactions[0], [], this.categories);
+
+      return transactions[0];
     } catch (error) {
       console.error(error);
     }
-  
-    return result;
   }
   async saveReceipt(transactions) {
     try {

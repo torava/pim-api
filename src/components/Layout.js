@@ -1,4 +1,5 @@
 import React from 'react';
+import { createWorker } from 'tesseract.js';
 
 import {locale} from './locale';
 import ReceiptService from './ReceiptService';
@@ -19,7 +20,24 @@ export default class Layout extends React.Component {
       categories: [],
       parties: [],
       isReady: false
-    }
+    };
+
+    const worker = createWorker({
+      logger: m => console.log(m)
+    });
+    
+    (async () => {
+      await worker.load();
+      await worker.loadLanguage('fin+eng');
+      await worker.initialize('fin+eng');
+      await worker.setParameters({
+        psm: 4,
+        tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890-,.:/% ',
+        textord_max_noise_size: 15
+      });
+    })();
+
+    this.worker = worker;
 
     this.onCurrencyChange = this.onCurrencyChange.bind(this);
     this.onLocaleChange = this.onLocaleChange.bind(this);
@@ -79,9 +97,9 @@ export default class Layout extends React.Component {
     const transactions = [];
     for (let file of Array.from(files)) {
       try {
-        const receiptService = new ReceiptService;
+        const receiptService = new ReceiptService(this.worker);
         const result = await receiptService.upload(file);
-        transactions.push(result[0]);
+        transactions.push(result);
         console.log(result);
       } catch (error) {
         console.error(error);
