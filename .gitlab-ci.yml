@@ -7,6 +7,7 @@ stages:
   - pre
   - build
   - release
+  - deploy
 
 variables:
   # Use TLS https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
@@ -54,5 +55,9 @@ release-image:
     - docker pull $CONTAINER_TEST_IMAGE
     - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
     - docker push $CONTAINER_RELEASE_IMAGE
-  only:
-    - master
+
+deploy-image:
+  stage: deploy
+  script:
+    - docker tag $CONTAINER_RELEASE_IMAGE AWS_REGISTRY_URL:latest
+    - docker push $AWS_REGISTRY_URL:latest
