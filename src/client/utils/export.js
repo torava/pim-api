@@ -66,7 +66,8 @@ export const exportTransactions = (transactions, categories, groups = []) => {
         productVolume = productMeasure;
       }
 
-      const [categoryWithGhg, ghgAttribute] = getCategoryWithAttribute(categories, item.product.category?.id, 105) || [undefined, undefined];
+      const categoryWithGhg = getCategoryWithAttribute(categories, item.product.category?.id, 105);
+      const ghgAttribute = Object.values(categoryWithGhg?.attributes || {}).find(attribute => attribute.attributeId === 105);
       
       const ghg = getItemAttributeValue(item, ghgAttribute);
 

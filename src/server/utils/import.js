@@ -38,9 +38,9 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
             6 = IGCLASSP ingredient class parent, text
             7 = FUCLASS food use class, text
             8 = FUCLASSP food use class parent, text*/
-    let food_rows = fs.readFileSync(__dirname+'/../../'+directory+'/food.csv', encoding).split('\n'),
+    let food_rows = fs.readFileSync(__dirname+'/../../../'+directory+'/food.csv', encoding).split('\n'),
     /* food use class in Finnish */
-        fuclass_rows = fs.readFileSync(__dirname+'/../../'+directory+'/fuclass_FI.csv', encoding).split('\n'),
+        fuclass_rows = fs.readFileSync(__dirname+'/../../../'+directory+'/fuclass_FI.csv', encoding).split('\n'),
     /* ingredient class */
         igclass_rows = fs.readFileSync(__dirname+'/../../'+directory+'/igclass_FI.csv', encoding).split('\n'),
     /* in English */
