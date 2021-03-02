@@ -1,3 +1,4 @@
+import fs from 'fs';
 const { Model } = require("objection");
 const { default: Category } = require("../src/server/models/Category");
 const { getCategoriesFromCsv } = require("../src/server/utils/categories");
@@ -8,7 +9,8 @@ exports.seed = async knex => {
   try {
     await getExternalCategoriesFineli('seeds/Fineli_Rel20__74_ravintotekij__');
 
-    const category = await getCategoriesFromCsv('categories_en.csv', 1);
+    const categoryCsv = fs.readFileSync(`${__dirname}/categories_en.csv`, 'utf8').split('\n');
+    const category = await getCategoriesFromCsv(categoryCsv, 1);
     await Category.query()
     .upsertGraph(category, {
       noDelete: true,
