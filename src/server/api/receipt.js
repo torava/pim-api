@@ -7,8 +7,8 @@ import fs from 'fs';
 import child_process from 'child_process';
 import _ from 'lodash';
 import Receipt from '../models/Receipt';
-import cv from '../static/lib/opencv';
-import { extractBarCode, getCVSrcFromBase64, rotate, getBufferFromCVSrc, decodeBase64Image } from '../utils/imageProcessing';
+import cv from '../../static/lib/opencv';
+import { extractBarCode, getCVSrcFromBase64, rotate, getBufferFromCVSrc, decodeBase64Image } from '../../utils/imageProcessing';
 
 export default app => {
 

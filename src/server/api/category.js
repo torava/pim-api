@@ -1,5 +1,6 @@
 import Category from '../models/Category';
-import { getCategoriesFromCsv, getClosestCategory, resolveCategories, resolveCategoryPrices } from '../utils/categories';
+import { resolveCategories, resolveCategoryPrices } from '../../utils/categories';
+import { getCategoriesFromCsv, getClosestCategory } from '../utils/categories';
 
 export default app => {
 app.get('/api/category', function(req, res) {

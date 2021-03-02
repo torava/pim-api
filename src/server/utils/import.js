@@ -1,9 +1,9 @@
 import parse from 'csv-parse/lib/sync';
 import fs from 'fs';
 import moment from 'moment';
+
 import Attribute from '../models/Attribute';
 import Category from '../models/Category';
-
 import CategoryContribution from '../models/CategoryContribution';
 import Source from '../models/Source';
 

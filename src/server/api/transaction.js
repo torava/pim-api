@@ -3,7 +3,7 @@ import Category from '../models/Category';
 import moment from 'moment';
 import _ from 'lodash';
 import Item from '../models/Item';
-import {CSVToArray, toTitleCase, resolveCategories} from '../utils/transaction';
+import {CSVToArray, toTitleCase, resolveCategories} from '../../utils/transaction';
 
 export default app => {
 

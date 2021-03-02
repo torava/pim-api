@@ -69,7 +69,7 @@ export const getItemAttributeValue = (item, attribute) => {
 
 export const findItemCategoryAttributeValue = (item, category, attributeId) => {
   let value, attribute;
-  Object.values(category.attributes || {}).forEach(currentAttribute => {
+  Object.values(category?.attributes || {}).forEach(currentAttribute => {
     if (currentAttribute.attributeId === attributeId) {
       const currentValue = getItemAttributeValue(item, currentAttribute);
       

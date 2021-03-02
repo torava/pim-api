@@ -1,7 +1,7 @@
 const { Model } = require("objection");
-const { default: Category } = require("../src/models/Category");
-const { getCategoriesFromCsv } = require("../src/utils/categories");
-const { getExternalCategoriesFineli } = require("../src/utils/import");
+const { default: Category } = require("../src/server/models/Category");
+const { getCategoriesFromCsv } = require("../src/server/utils/categories");
+const { getExternalCategoriesFineli } = require("../src/server/utils/import");
 
 exports.seed = async knex => {
   Model.knex(knex);

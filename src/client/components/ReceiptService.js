@@ -1,10 +1,11 @@
 import axios from "axios";
 
 import DataStore from './DataStore';
-import {blobToData, getTransactionsFromReceipt, recognizeClientside} from '../utils/receipt';
-import {getSrc, crop, getDataUrlFromPdf} from '../utils/imageProcessing';
+import {blobToData, getTransactionsFromReceipt} from '../../utils/receipt';
+import {getSrc, crop, getDataUrlFromPdf} from '../../utils/imageProcessing';
 import ui from "./ui";
-import { resolveCategories } from "../utils/transaction";
+import { resolveCategories } from "../../utils/transaction";
+import { recognizeClientside } from "../utils/receipts";
 
 const WAITING = -1;
 
@@ -428,7 +429,7 @@ class ReceiptService {
         this.pipeline.threshold = false;
       } else {
         this.pipeline.src = readerResult;
-        this.pipeline.crop = false;
+        this.pipeline.crop = true;
         this.pipeline.filter = true;
         this.pipeline.threshold = true;
       }

@@ -1,9 +1,9 @@
 import moment from 'moment';
 
 import { locale } from '../components/locale';
-import { convertMeasure, getRootEntity } from './entities';
-import { getCategoryWithAttribute } from './categories';
-import { getItemUnit, findItemCategoryAttributeValue } from './items';
+import { convertMeasure, getRootEntity } from '../../utils/entities';
+import { getCategoryAttribute, getCategoryWithAttribute } from '../../utils/categories';
+import { getItemUnit, findItemCategoryAttributeValue, getItemAttributeValue } from '../../utils/items';
 
 export const exportTransactions = (transactions, categories, groups = []) => {
   const categoryLocale = locale.getLocale();
@@ -66,9 +66,9 @@ export const exportTransactions = (transactions, categories, groups = []) => {
         productVolume = productMeasure;
       }
 
-      const categoryWithGhg = getCategoryWithAttribute(categories, item.product.category?.id, 105);
+      const [categoryWithGhg, ghgAttribute] = getCategoryWithAttribute(categories, item.product.category?.id, 105) || [undefined, undefined];
       
-      const [ghg, ghgAttribute] = findItemCategoryAttributeValue(item, categoryWithGhg, 105);
+      const ghg = getItemAttributeValue(item, ghgAttribute);
 
       const productCategory = categories.find(category => category.id === item.product.category?.id);
 

@@ -9,7 +9,7 @@ import crypto from 'crypto';
 
 import mongo from './utils/mongo';
 import knexConfig from '../knexfile';
-import registerApi from './api';
+import registerApi from './server/api';
 
 export const app = new Express();
 export const server = new Server(app);
