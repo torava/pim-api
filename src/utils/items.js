@@ -62,11 +62,27 @@ export const getItemAttributeValue = (item, attribute) => {
   } else if (!unit) {
     value = attribute?.value*quantity;  
   } else {
-    value = attribute?.value*measure*(quantity || 1);
+    value = attribute?.value*measure*(quantity || 1);
   }
-  return value || undefined;
+  return value || undefined;
 };
 
-export const getItemQuantity = item => item.quantity || item.product.quantity;
+export const findItemCategoryAttributeValue = (item, category, attributeId) => {
+  let value, attribute;
+  Object.values(category.attributes || {}).forEach(currentAttribute => {
+    if (currentAttribute.attributeId === attributeId) {
+      const currentValue = getItemAttributeValue(item, currentAttribute);
+      
+      if (typeof currentValue !== 'undefined') {
+        value = currentValue;
+        attribute = currentAttribute;
+        return false;
+      }
+    }
+  });
+  return [value, attribute];
+};
+
+export const getItemQuantity = item => item.quantity || item.product.quantity;
 export const getItemMeasure = item => item.measure || item.product.measure;
-export const getItemUnit = item => item.unit || item.product.unit;
+export const getItemUnit = item => item.unit || item.product.unit;

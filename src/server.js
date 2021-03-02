@@ -1,21 +1,26 @@
-'use strict';
-
-import {Server} from 'http';
+import {Server} from 'http';
 import Express from 'express';
 import bodyParser from 'body-parser';
-import registerApi from './api';
 import Knex from 'knex';
-import knexConfig from '../knexfile';
 import {Model} from 'objection';
 import {JSDOM} from 'jsdom';
-import mongo from './utils/mongo';
 import { Canvas, createCanvas, Image, ImageData } from 'canvas';
+import crypto from 'crypto';
+
+import mongo from './utils/mongo';
+import knexConfig from '../knexfile';
+import registerApi from './api';
 
 export const app = new Express();
 export const server = new Server(app);
 
 // define the folder that will be used for static assets
 app.use(Express.static('src/static'));
+
+app.etag = function(buf) {
+  console.log(buf);
+  return '"' + crypto.createHash('sha1').update(buf).digest('hex') + '"';
+};
 
 // Initialize knex.
 const knex = Knex(knexConfig.development);

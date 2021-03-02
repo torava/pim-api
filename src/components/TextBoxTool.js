@@ -1,8 +1,7 @@
 'use strict';
 
-import axios from 'axios';
 import React, {Component} from 'react';
-const {createWorker, PSM} = Tesseract;
+import {createWorker} from 'tesseract.js';
 
 function deskew( mat, angle, reqid = '0', drawGrid = false ) {
   angle = angle || computeSkew( mat.cvtColor(cv.COLOR_BGR2GRAY).bitwiseNot() );

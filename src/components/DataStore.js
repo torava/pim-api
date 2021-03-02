@@ -116,8 +116,7 @@ export default {
         resolve(this.categories);
       }
       else {
-        const currentLocale = locale.getLocale();
-        axios.get(`/api/category?attributes&locale=${currentLocale}`)
+        axios.get('/api/category?attributes')
         .then(response => {
           this.categories = response.data;
           resolve(this.categories);
@@ -134,8 +133,7 @@ export default {
         resolve(this.categories_attributes);
       }
       else {
-        const currentLocale = locale.getLocale();
-        axios.get(`/api/category?attributes&parent&locale=${currentLocale}`)
+        axios.get('/api/category?attributes&parent')
         .then(response => {
           this.categories_attributes = response.data;
           resolve(this.categories_attributes);

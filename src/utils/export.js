@@ -3,7 +3,7 @@ import moment from 'moment';
 import { locale } from '../components/locale';
 import { convertMeasure, getRootEntity } from './entities';
 import { getCategoryWithAttribute } from './categories';
-import { getItemAttributeValue, getItemUnit } from './items';
+import { getItemUnit, findItemCategoryAttributeValue } from './items';
 
 export const exportTransactions = (transactions, categories, groups = []) => {
   const categoryLocale = locale.getLocale();
@@ -67,11 +67,12 @@ export const exportTransactions = (transactions, categories, groups = []) => {
       }
 
       const categoryWithGhg = getCategoryWithAttribute(categories, item.product.category?.id, 105);
-      const ghgAttribute = Object.values(categoryWithGhg?.attributes || {}).find(attribute => attribute.attributeId === 105);
+      
+      const [ghg, ghgAttribute] = findItemCategoryAttributeValue(item, categoryWithGhg, 105);
 
-      let ghg = getItemAttributeValue(item, ghgAttribute);
+      const productCategory = categories.find(category => category.id === item.product.category?.id);
 
-      const categoryParentId = categories.find(category => category.id === item.product.category?.id)?.parentId;
+      const categoryParentId = productCategory?.parentId;
       const rootCategory = getRootEntity(categories, categoryParentId);
 
       const group = groups.find(group => group.id === transaction.groupId)?.name;
@@ -83,9 +84,9 @@ export const exportTransactions = (transactions, categories, groups = []) => {
         transaction.party.name,
         item.text,
         item.product.name,
-        rootCategory?.name,
-        item.product.category?.name[categoryLocale],
-        categoryWithGhg?.name,
+        rootCategory?.name[categoryLocale],
+        productCategory?.name[categoryLocale],
+        categoryWithGhg?.name[categoryLocale],
         productQuantity,
         itemQuantity,
         formatNumber(productWeight),
