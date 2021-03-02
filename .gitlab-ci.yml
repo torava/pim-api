@@ -26,6 +26,7 @@ test:
   image: node:12
   stage: pre
   script:
+    - echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
     - npm config set registry ${CI_NPM_REGISTRY}
     - npm ci
     - npm run build
