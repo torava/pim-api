@@ -4,7 +4,7 @@
   "description": "bookkeepr",
   "main": "src/server.js",
   "scripts": {
-    "test": "jest --watchAll",
+    "test": "jest",
     "build": "./node_modules/.bin/webpack --mode production",
     "build:dev": "./node_modules/.bin/webpack -d -w",
     "start": "npm run build && node src/server-compiled.js",
