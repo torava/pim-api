@@ -66,9 +66,8 @@ export const exportTransactions = (transactions, categories, groups = []) => {
         productVolume = productMeasure;
       }
 
-      const categoryWithGhg = getCategoryWithAttribute(categories, item.product.category?.id, 105);
-      const ghgAttribute = Object.values(categoryWithGhg?.attributes || {}).find(attribute => attribute.attributeId === 105);
-      
+      const result = getCategoryWithAttribute(categories, item.product.category?.id, 105);
+      const [categoryWithGhg, ghgAttribute] = result || [undefined, undefined];
       const ghg = getItemAttributeValue(item, ghgAttribute);
 
       const productCategory = categories.find(category => category.id === item.product.category?.id);
@@ -85,9 +84,9 @@ export const exportTransactions = (transactions, categories, groups = []) => {
         transaction.party.name,
         item.text,
         item.product.name,
-        rootCategory?.name[categoryLocale],
-        productCategory?.name[categoryLocale],
-        categoryWithGhg?.name[categoryLocale],
+        rootCategory?.name?.[categoryLocale],
+        productCategory?.name?.[categoryLocale],
+        categoryWithGhg?.name?.[categoryLocale],
         formatNumber(productQuantity),
         formatNumber(itemQuantity),
         formatNumber(productWeight),

@@ -29,6 +29,8 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
     console.log('dir', directory);
     console.log('files '+moment().format());
 
+    const fullPath = __dirname+'/../../../'+directory;
+
     /* food: 0 = FOODID food id, number
             1 = FOODNAME food name, text
             2 = FOODTYPE food type code, text;
@@ -38,40 +40,40 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
             6 = IGCLASSP ingredient class parent, text
             7 = FUCLASS food use class, text
             8 = FUCLASSP food use class parent, text*/
-    let food_rows = fs.readFileSync(__dirname+'/../../../'+directory+'/food.csv', encoding).split('\n'),
+    let food_rows = fs.readFileSync(fullPath+'/food.csv', encoding).split('\n'),
     /* food use class in Finnish */
-        fuclass_rows = fs.readFileSync(__dirname+'/../../../'+directory+'/fuclass_FI.csv', encoding).split('\n'),
+        fuclass_rows = fs.readFileSync(fullPath+'/fuclass_FI.csv', encoding).split('\n'),
     /* ingredient class */
-        igclass_rows = fs.readFileSync(__dirname+'/../../'+directory+'/igclass_FI.csv', encoding).split('\n'),
+        igclass_rows = fs.readFileSync(fullPath+'/igclass_FI.csv', encoding).split('\n'),
     /* in English */
-        fuclass_en_rows = fs.readFileSync(__dirname+'/../../'+directory+'/fuclass_EN.csv', encoding).split('\n'),
-        igclass_en_rows = fs.readFileSync(__dirname+'/../../'+directory+'/igclass_EN.csv', encoding).split('\n'),
+        fuclass_en_rows = fs.readFileSync(fullPath+'/fuclass_EN.csv', encoding).split('\n'),
+        igclass_en_rows = fs.readFileSync(fullPath+'/igclass_EN.csv', encoding).split('\n'),
     /* och samma på svenska */
-        fuclass_sv_rows = fs.readFileSync(__dirname+'/../../'+directory+'/fuclass_SV.csv', encoding).split('\n'),
-        igclass_sv_rows = fs.readFileSync(__dirname+'/../../'+directory+'/igclass_SV.csv', encoding).split('\n'),
+        fuclass_sv_rows = fs.readFileSync(fullPath+'/fuclass_SV.csv', encoding).split('\n'),
+        igclass_sv_rows = fs.readFileSync(fullPath+'/igclass_SV.csv', encoding).split('\n'),
     /* component value: 0 = FOODID food id, number
                         1 = EUFDNAME component id, number
                         2 = BESTLOC component value, number
                         3 = ACQTYPE acquisition type code, text
                         4 = METHTYPE method type code, text*/
-        component_value_rows = fs.readFileSync(__dirname+'/../../'+directory+'/component_value.csv', encoding).split('\n'),
+        component_value_rows = fs.readFileSync(fullPath+'/component_value.csv', encoding).split('\n'),
     /* component: 0 = EUFDNAME component id, text
                   1 = COMPUNIT unit code, text
                   2 = CMPCLASS component group code, text
                   3 = CMPCLASSP component group parent code, text*/
-        component_rows = fs.readFileSync(__dirname+'/../../'+directory+'/component.csv', encoding).split('\n'),
+        component_rows = fs.readFileSync(fullPath+'/component.csv', encoding).split('\n'),
     /* component group */
-        cmpclass_rows = fs.readFileSync(__dirname+'/../../'+directory+'/cmpclass_FI.csv', encoding).split('\n'),
+        cmpclass_rows = fs.readFileSync(fullPath+'/cmpclass_FI.csv', encoding).split('\n'),
     /* component names */
-        eufdname_rows = fs.readFileSync(__dirname+'/../../'+directory+'/eufdname_FI.csv', encoding).split('\n'),
-        cmpclass_en_rows = fs.readFileSync(__dirname+'/../../'+directory+'/cmpclass_EN.csv', encoding).split('\n'),
-        eufdname_en_rows = fs.readFileSync(__dirname+'/../../'+directory+'/eufdname_EN.csv', encoding).split('\n'),
-        cmpclass_sv_rows = fs.readFileSync(__dirname+'/../../'+directory+'/cmpclass_SV.csv', encoding).split('\n'),
-        eufdname_sv_rows = fs.readFileSync(__dirname+'/../../'+directory+'/eufdname_SV.csv', encoding).split('\n'),
+        eufdname_rows = fs.readFileSync(fullPath+'/eufdname_FI.csv', encoding).split('\n'),
+        cmpclass_en_rows = fs.readFileSync(fullPath+'/cmpclass_EN.csv', encoding).split('\n'),
+        eufdname_en_rows = fs.readFileSync(fullPath+'/eufdname_EN.csv', encoding).split('\n'),
+        cmpclass_sv_rows = fs.readFileSync(fullPath+'/cmpclass_SV.csv', encoding).split('\n'),
+        eufdname_sv_rows = fs.readFileSync(fullPath+'/eufdname_SV.csv', encoding).split('\n'),
     /* food names */
-        foodname_fi_rows = fs.readFileSync(__dirname+'/../../'+directory+'/foodname_FI.csv', encoding).split('\n'),
-        foodname_en_rows = fs.readFileSync(__dirname+'/../../'+directory+'/foodname_EN.csv', encoding).split('\n'),
-        foodname_sv_rows = fs.readFileSync(__dirname+'/../../'+directory+'/foodname_SV.csv', encoding).split('\n'),
+        foodname_fi_rows = fs.readFileSync(fullPath+'/foodname_FI.csv', encoding).split('\n'),
+        foodname_en_rows = fs.readFileSync(fullPath+'/foodname_EN.csv', encoding).split('\n'),
+        foodname_sv_rows = fs.readFileSync(fullPath+'/foodname_SV.csv', encoding).split('\n'),
     /* recipe foods
         0 = FOODID food id, number
         1 = CONFDID recipe row food id, number
@@ -80,7 +82,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
         4 = MASS mass, number
         5 = EVREMAIN remained after evaporation, percentage
         6 = RECYEAR recipe year, text*/
-        contribfood_rows = fs.readFileSync(__dirname+'/../../'+directory+'/contribfood.csv', encoding).split('\n'),
+        contribfood_rows = fs.readFileSync(fullPath+'/contribfood.csv', encoding).split('\n'),
         parent_ref, parent_name, second_parent_name, second_parent_ref, third_parent_ref,
         attr_ref,
         attr_refs = {},
