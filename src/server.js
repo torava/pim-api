@@ -7,7 +7,6 @@ import {JSDOM} from 'jsdom';
 import { Canvas, createCanvas, Image, ImageData } from 'canvas';
 import crypto from 'crypto';
 
-import mongo from './utils/mongo';
 import knexConfig from '../knexfile';
 import registerApi from './server/api';
 
@@ -81,11 +80,6 @@ installDOM();
 loadOpenCV();
 
 global.createCanvas = (width, height) => createCanvas(width, height);
-
-async function initializeMongoDB() {
-  await mongo.initialize();
-}
-initializeMongoDB();
 
 server.listen(port, (err) => {
   if (err) {
