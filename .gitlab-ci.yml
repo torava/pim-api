@@ -59,6 +59,5 @@ release-image:
 deploy-image:
   stage: deploy
   script:
-    - aws ecr get-login-password --region eu-north-1 | docker login --username AWS_USERNAME --password AWS_PASSWORD AWS_REGISTRY_URL
-    - docker tag $CONTAINER_RELEASE_IMAGE AWS_REGISTRY_URL/bookkeepr:latest
-    - docker push AWS_REGISTRY_URL/bookkeepr:latest
+    - docker tag $CONTAINER_RELEASE_IMAGE AWS_REGISTRY_URL:latest
+    - docker push AWS_REGISTRY_URL:latest
