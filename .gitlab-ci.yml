@@ -29,6 +29,8 @@ test:
     - npm config set registry ${CI_NPM_REGISTRY}
     - npm ci
     - npm run build
+    - npm run knex migrate:latest
+    - npm run knex seed:run
     - npm test
   cache:
     paths:
