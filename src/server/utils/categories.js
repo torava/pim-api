@@ -158,6 +158,7 @@ export const getCategoriesFromCsv = async (csv, sourceIdOffset = 0) => {
       });
       items.push(item);
     });
+    console.log(`read ${records.length} records and found ${items.length} items from ${csv}`);
     //console.dir(items, {depth: null, maxArrayLength: null});
     return items;
   } catch (error) {

@@ -12,8 +12,6 @@ const client = {
   devServer: {
     contentBase: path.join(__dirname, 'src', 'static'),
     port: 42808,
-    host: '0.0.0.0',
-    historyApiFallback: true,
     proxy: {
       "/api": "http://localhost:42809"
     },
@@ -43,7 +41,7 @@ const client = {
           // Translates CSS into CommonJS
           "css-loader",
           // Compiles Sass to CSS
-          "sass-loader",
+          "sass-loader"
         ],
       }
     ],
