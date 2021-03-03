@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const nodeExternals = require('webpack-node-externals');
 
 const client = {
-  entry: ['webpack/hot/dev-server', './src/app-client.js'],
+  entry: ['./src/app-client.js'],
   output: {
     path: path.join(__dirname, 'src', 'static', 'js'),
     filename: 'bundle.js',
@@ -12,7 +12,6 @@ const client = {
   devServer: {
     contentBase: path.join(__dirname, 'src', 'static'),
     port: 42808,
-    hot: true,
     host: '0.0.0.0',
     historyApiFallback: true,
     proxy: {
@@ -30,7 +29,6 @@ const client = {
           loader: 'babel-loader',
           options: {
             cacheDirectory: '.babel_cache',
-            plugins: ['react-hot-loader/babel'],
             presets: ['@babel/preset-env']
           }
         },

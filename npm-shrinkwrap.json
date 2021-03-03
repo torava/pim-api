@@ -17546,39 +17546,6 @@
       "resolved": "https://registry.npmjs.org/react-fast-compare/-/react-fast-compare-2.0.4.tgz",
       "integrity": "sha512-suNP+J1VU1MWFKcyt7RtjiSWUjvidmQSlqu+eHslq+342xCbGTYmC0mEhPCOHxlW0CywylOC1u2DFAT+bv4dBw=="
     },
-    "react-hot-loader": {
-      "version": "4.13.0",
-      "resolved": "https://registry.npmjs.org/react-hot-loader/-/react-hot-loader-4.13.0.tgz",
-      "integrity": "sha512-JrLlvUPqh6wIkrK2hZDfOyq/Uh/WeVEr8nc7hkn2/3Ul0sx1Kr5y4kOGNacNRoj7RhwLNcQ3Udf1KJXrqc0ZtA==",
-      "dev": true,
-      "requires": {
-        "fast-levenshtein": "^2.0.6",
-        "global": "^4.3.0",
-        "hoist-non-react-statics": "^3.3.0",
-        "loader-utils": "^1.1.0",
-        "prop-types": "^15.6.1",
-        "react-lifecycles-compat": "^3.0.4",
-        "shallowequal": "^1.1.0",
-        "source-map": "^0.7.3"
-      },
-      "dependencies": {
-        "hoist-non-react-statics": {
-          "version": "3.3.2",
-          "resolved": "https://registry.npmjs.org/hoist-non-react-statics/-/hoist-non-react-statics-3.3.2.tgz",
-          "integrity": "sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==",
-          "dev": true,
-          "requires": {
-            "react-is": "^16.7.0"
-          }
-        },
-        "source-map": {
-          "version": "0.7.3",
-          "resolved": "https://registry.npmjs.org/source-map/-/source-map-0.7.3.tgz",
-          "integrity": "sha512-CkCj6giN3S+n9qrYiBTX5gystlENnRW5jZeNLHpe6aue+SrHcG5VYwujhW9s4dY31mEGsxBDrHR6oI69fTXsaQ==",
-          "dev": true
-        }
-      }
-    },
     "react-input-autosize": {
       "version": "2.2.2",
       "resolved": "https://registry.npmjs.org/react-input-autosize/-/react-input-autosize-2.2.2.tgz",
@@ -18836,12 +18803,6 @@
       "version": "1.0.0",
       "resolved": "https://registry.npmjs.org/shallow-equal/-/shallow-equal-1.0.0.tgz",
       "integrity": "sha1-UI0YOLPeWQq4dXsBGyXkMJAJRfc="
-    },
-    "shallowequal": {
-      "version": "1.1.0",
-      "resolved": "https://registry.npmjs.org/shallowequal/-/shallowequal-1.1.0.tgz",
-      "integrity": "sha512-y0m1JoUZSlPAjXVtPPW70aZWfIL/dSP7AFkRnniLCrK/8MDKog3TySTBmckD+RObVxH0v4Tox67+F14PdED2oQ==",
-      "dev": true
     },
     "shebang-command": {
       "version": "1.2.0",

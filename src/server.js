@@ -1,4 +1,3 @@
-import {Server} from 'http';
 import Express from 'express';
 import bodyParser from 'body-parser';
 import Knex from 'knex';
@@ -11,10 +10,6 @@ import knexConfig from '../knexfile';
 import registerApi from './server/api';
 
 export const app = new Express();
-export const server = new Server(app);
-
-// define the folder that will be used for static assets
-app.use(Express.static('src/static'));
 
 app.etag = function(buf) {
   console.log(buf);
@@ -49,8 +44,16 @@ app.use(bodyParser.urlencoded({
 */
 app.use(bodyParser.json({limit: '50mb'}));
 
-const port = process.env.PORT || 42809;
-const env = process.env.NODE_ENV || 'production';
+const env = process.env.NODE_ENV || 'production';
+
+let port;
+if (env === 'production') {
+  port = process.env.PORT || 42808;
+  // define the folder that will be used for static assets
+  app.use(Express.static('src/static'));
+} else {
+  port = process.env.PORT || 42809;
+}
 
 registerApi(app);
 
@@ -81,7 +84,7 @@ loadOpenCV();
 
 global.createCanvas = (width, height) => createCanvas(width, height);
 
-server.listen(port, (err) => {
+app.listen(port, (err) => {
   if (err) {
     return console.error(err);
   }
