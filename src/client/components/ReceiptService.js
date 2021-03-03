@@ -37,8 +37,8 @@ function localeToLanguage(locale) {
 }
 
 class ReceiptService {
-  constructor(worker) {
-    this.pipeline = {};
+  constructor(worker, pipeline = {}) {
+    this.pipeline = pipeline;
     this.worker = worker;
 
     Promise.all([
@@ -429,7 +429,6 @@ class ReceiptService {
         this.pipeline.threshold = false;
       } else {
         this.pipeline.src = readerResult;
-        this.pipeline.crop = true;
         this.pipeline.filter = true;
         this.pipeline.threshold = true;
       }

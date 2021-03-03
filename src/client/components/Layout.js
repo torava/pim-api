@@ -21,7 +21,10 @@ export default class Layout extends React.Component {
       parties: [],
       attributes: [],
       isReady: false,
-      isWorkerReady: false
+      isWorkerReady: false,
+      pipeline: {
+        crop: true
+      }
     };
 
     this.onCurrencyChange = this.onCurrencyChange.bind(this);
@@ -78,7 +81,8 @@ export default class Layout extends React.Component {
     const {
       worker,
       categories,
-      attributes
+      attributes,
+      pipeline
     } = this.state;
 
     //event.preventDefault();
@@ -97,7 +101,7 @@ export default class Layout extends React.Component {
     const transactions = [];
     for (let file of Array.from(files)) {
       try {
-        const receiptService = new ReceiptService(worker);
+        const receiptService = new ReceiptService(worker, pipeline);
         const result = await receiptService.upload(file);
         transactions.push(result);
         console.log(result);
@@ -148,6 +152,13 @@ export default class Layout extends React.Component {
               <option value="kJ">kJ</option>
               <option value="kcal">kcal</option>
             </select>
+            <label>
+              <input
+                type="checkbox"
+                checked={this.state.pipeline.crop}
+                onChange={event => this.setState({pipeline: {crop: event.target.checked ? true : false}})}/>
+              Crop
+            </label>
           </p>
           <label>
             Upload:<br/>
