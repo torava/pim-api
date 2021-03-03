@@ -9,7 +9,7 @@ exports.seed = async knex => {
   try {
     await getExternalCategoriesFineli('seeds/Fineli_Rel20__74_ravintotekij__');
 
-    const categoryCsv = fs.readFileSync(`${__dirname}/categories_en.csv`, 'utf8').split('\n');
+    const categoryCsv = fs.readFileSync(`${__dirname}/categories_en.csv`, 'utf8');
     const category = await getCategoriesFromCsv(categoryCsv, 1);
     await Category.query()
     .upsertGraph(category, {
