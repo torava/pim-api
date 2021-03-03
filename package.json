@@ -21,6 +21,9 @@
     "setupFiles": [
       "<rootDir>/src/__mocks__/setupJestMock.js"
     ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/setupTests.js"
+    ],
     "moduleNameMapper": {
       "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/src/__mocks__/fileMock.js",
       "\\.(css|less|scss)$": "<rootDir>/src/__mocks__/styleMock.js"
@@ -91,6 +94,7 @@
     "@babel/preset-react": "^7.12.13",
     "@babel/register": "^7.12.13",
     "@babel/runtime": "^7.12.13",
+    "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.1",
     "@types/pdfjs-dist": "^2.1.7",
     "babel-loader": "^8.2.2",

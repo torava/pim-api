@@ -4,11 +4,8 @@
 sudo yum update -y
 sudo apt-get install 
 sudo yum install docker
-mkdir docker
-cd docker
-cd docker/
-mkdir bookkeepr
-cd bookkeepr/
+mkdir -p docker/bookkeepr
+cd docker/bookkeepr
 nano docker-compose.yml
 sudo service docker start
 sudo usermod -a -G docker ec2-user

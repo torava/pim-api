@@ -5,7 +5,7 @@ import { convertMeasure, getRootEntity } from '../../utils/entities';
 import { getCategoryAttribute, getCategoryWithAttribute } from '../../utils/categories';
 import { getItemUnit, findItemCategoryAttributeValue, getItemAttributeValue } from '../../utils/items';
 
-export const exportTransactions = (transactions, categories, groups = []) => {
+export const exportTransactions = (transactions, categories, attributes, groups = []) => {
   const categoryLocale = locale.getLocale();
   const formattingLocale = 'fi-FI';//locale.getLocale();
 
@@ -66,7 +66,8 @@ export const exportTransactions = (transactions, categories, groups = []) => {
         productVolume = productMeasure;
       }
 
-      const result = getCategoryWithAttribute(categories, item.product.category?.id, 105);
+      const attributeId = attributes.find(attribute => attribute.name['en-US'] === 'GHG');
+      const result = getCategoryWithAttribute(categories, item.product.category?.id, attributeId);
       const [categoryWithGhg, ghgAttribute] = result || [undefined, undefined];
       const ghg = getItemAttributeValue(item, ghgAttribute);
 
