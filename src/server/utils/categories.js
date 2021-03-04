@@ -125,22 +125,6 @@ export const getCategoriesFromCsv = async (csv, sourceIdOffset = 0) => {
             }
           }
         }
-        else if (['isä', 'parent'].indexOf(columnName.toLowerCase()) !== -1) {
-          if (column === '') return true;
-          for (let i in categories) {
-            if (categories[i].name && Object.values(categories[i].name).some(category => category.toLowerCase().trim() === column.toLowerCase().trim())) {
-              item.parent = {
-                id: categories[i].id
-              }
-              break;
-            }
-          }
-          if (!item.parent) {
-            item.parent = {};
-            ref = `category:${column}`;
-            item.parent['#ref'] = ref;
-          }      
-        }
         else if (columnName.toLowerCase() === 'aliases' && column !== '') {
           if (column === '') return true;
           try {
@@ -152,13 +136,71 @@ export const getCategoriesFromCsv = async (csv, sourceIdOffset = 0) => {
             console.log('Aliases parse error', column, error);
           }
         }
-        else if (columnName !== '' && column !== '') {
+        else if (['parent'].indexOf(columnName.toLowerCase()) === -1 & columnName !== '' && column !== '') {
           _.set(item, columnName, column);
         }
       });
       items.push(item);
     });
-    console.log(`read ${records.length} records and found ${items.length} items from ${csv}`);
+    console.log(`read ${records.length} records and found ${items.length} categories`);
+    //console.dir(items, {depth: null, maxArrayLength: null});
+    return items;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const getCategoryParentsFromCsv = async (csv) => {
+  try {
+    let items = [],
+        item,
+        categories = await Category.query(),
+        ref,
+        refs = {};
+
+    const records = parse(csv, {
+      columns: true,
+      skipEmptyLines: true
+    });
+
+    records.forEach(columns => {
+      item = {};
+      Object.entries(columns).forEach(([columnName, column]) => {
+        let nameMatch = columnName.match(/^(name|nimi)\["([a-z-]+)"\]$/i),
+            name,
+            locale;
+        if (nameMatch) {
+          name = nameMatch[1];
+          locale = nameMatch[2];
+        }
+        if (name && locale) {
+          if (column === '') return true;
+          if (!item.id) {
+            for (let i in categories) {
+              if (categories[i].name?.[locale] && categories[i].name[locale].toLowerCase().trim() === column?.toLowerCase().trim()) {
+                item.id = categories[i].id;
+                break;
+              }
+            }
+          }
+        }
+        else if (['parent'].indexOf(columnName.toLowerCase()) !== -1) {
+          if (column === '') return true;
+          for (let i in categories) {
+            if (categories[i].name && Object.values(categories[i].name).some(category => category.toLowerCase().trim() === column.toLowerCase().trim())) {
+              item.parent = {
+                id: categories[i].id
+              }
+              break;
+            }
+          }
+        }
+      });
+      if (item.parent) {
+        items.push(item);
+      }
+    });
+    console.log(`read ${records.length} records and found ${items.length} category parents`);
     //console.dir(items, {depth: null, maxArrayLength: null});
     return items;
   } catch (error) {
