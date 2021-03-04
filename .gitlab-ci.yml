@@ -59,5 +59,7 @@ release-image:
 deploy-image:
   stage: deploy
   script:
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - docker pull $CONTAINER_RELEASE_IMAGE
     - docker tag $CONTAINER_RELEASE_IMAGE $AWS_REGISTRY_URL:latest
     - docker push $AWS_REGISTRY_URL:latest
