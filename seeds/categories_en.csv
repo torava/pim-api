@@ -1,4 +1,4 @@
-"name[""en-US""]","name[""fi-FI""]",aliases,parent,attribute:GHG (kgCO₂e),attribute:GHG (kgCO₂e/kg),attribute:GHG (kgCO₂e/kWh),attribute:GHG (kgCO₂e/km),attribute:GHG (kgCO₂e/l),attribute:GHG (kgCO₂e/EUR),note,sourceId
+"name[""en-US""]","name[""fi-FI""]",aliases,parent,attribute:CO₂e (kgCO₂e),attribute:CO₂e (kgCO₂e/kg),attribute:CO₂e (kgCO₂e/kWh),attribute:CO₂e (kgCO₂e/km),attribute:CO₂e (kgCO₂e/l),attribute:CO₂e (kgCO₂e/EUR),note,sourceId
 Almond,Manteli,,,,"1,54",,,,,"Almonds, median",1
 "Almond Drink, Unsweetened, Alrpo","Mantelijuoma, makeuttamaton, alpro","[""Mantelijuoma""]",,,,,,"0,42",,"Almond/coconut milk, median",1
 Animal feed,,"[""Kierretikku"", ""Softies herkkupala""]",Supplies,,,,,,"3,36",Products for domestic animals,2
@@ -21,7 +21,7 @@ Barber,Parturi,,Recreational services,,,,,,,,
 "Barley, Rolled, Barley Flakes",,,,,"0,43",,,,,"Barley, median",1
 Bay leaf,Laakerinlehti,,Spices,,,,,,,,
 "Bean, Green Bean, String Bean","Papu, vihreä taitepapu, tuore",,,,"0,75",,,,,"Beans: french and runner, median",1
-"Bean, Green Bean, String Bean","Papu, vihreä taitepapu, tuore",,,,"0,31",,,,,"Beans: green, median",1
+"Bean, Green Bean, String Bean","Papu, vihreä taitepapu, tuore","[""Vihreä papu""]",,,"0,31",,,,,"Beans: green, median",1
 Beef,Nauta,,,,"26,61",,,,,"Beef: world average, median",1
 Beef,Nauta,,,,15,,,,,"Beef, raw",4
 "Beef Steak, Grilled",,,,,15,,,,,"Beef, raw",4
@@ -110,7 +110,7 @@ Clothes,Vaatteet,"[""Käsineet"", ""Sukat"", ""Tights""]",Supplies,,,,,,"0,4",Va
 Cocoa powder with sugar,,,,,"3,35",,,,,Cocoa 2.04-4.66 kg,12
 "Cocoa Powder, Unsweetened",,,,,"3,35",,,,,Cocoa 2.04-4.66 kg,12
 Coconut Milk,,,,,"0,42",,,,,"Almond/coconut milk, median",1
-Coconut Oil,Kookosöljy,,,,"1,78",,,,,,13
+Coconut Oil,Kookosöljy,,,,"1,78",,,,"0,7",Plant based groceries,2
 "Coconut Water, Unsweetened",,"[""Kookosvesi maustamaton luomu""]",,,,,,,,,
 Cod,Turska,,Fish,,"3,51",,,,,"Cod, median",1
 Coffee,,,,,"4,98",,,,,"Coffee from Costa-Rica, 2012",14
@@ -226,7 +226,7 @@ Housekeeping products,Kodinhoitotuotteet,,Supplies,,,,,,"0,4",Housekeeping produ
 Housekeeping tools,Kodinhoitotyökalut,,,,,,,,"0,5",Tools and appliances for housekeeping and gardening,2
 "Hummus, Chick Pea Paste",,"[""Hummus""]",,,,,,,"0,7",Plant based groceries,2
 Hygiene products,Hygieniatuotteet,"[""Nestesaippua"", ""Käsisaippua""]",Supplies,,,,,,"0,4",Personal items,2
-"Ice Cream, Cream Based",,,,,,,,"4,2",,"Ice cream, vanilla regular",22
+Services,,,,,,,,"4,2",,"Ice cream, vanilla regular",22
 Iceberg Lettuce,,"[""Jäävuorisalaatti"", ""Jääsalaatti""]",,,"0,56",,,,,Including waste,8
 Interior design,Sisustus,,Supplies,,,,,,"0,67","Kodintaloustekstiilit, sisustus, astiat keskiarvo",2
 iPhone 12 128GB,iPhone 12 128 Gt,,Smartphone,75,,,,,,,23
@@ -316,12 +316,11 @@ Onion-family vegetables,,,,,"0,17",,,,,"Onion, median",1
 "Orange Juice, Unsweetened, Vitamin C",,"[""Appelsiini-verigreippi-täysmehu""]",,,,,,"0,19",,"Orange juice, with resetting",30
 "Orange, Average, With Skin",,"[""Appelsiini"", ""Veriappelsiini""]",,,"0,33",,,,,"Orange, median",1
 Other alcoholic beverages,,,,,,,,,"0,3",Alcohol drinks,2
-Palm Oil,Palmuöljy,,,,"2,23",,,,,,31
-Palm Oil,Palmuöljy,,,,,,,2,,Including iLUC,32
+Palm Oil,Palmuöljy,,,,,,,,"0,7",Plant based groceries,2
 Paper,Paperi,"[""Akvarellipaperit""]",Supplies,,,,,,"0,32","Paperitarvikkeet, kirjat, lehdet",1
 Paper bag,Paperikassi,,Supplies,"0,01",,,,,,,33
 "Peach/Nectarine, Average, With Stone",,,,,"0,43",,,,,"Peaches and nectarines, median",1
-Peanut Butter Without Added Salt,,,,,"2,5",,,,,Maapähkinävoi,27
+Peanut Butter Without Added Salt,,"[""Maapähkinävoi smooth""]",,,"2,5",,,,,Maapähkinävoi,27
 Peanut Oil,Maapähkinäöljy,,,,,,,5,,Including iLUC,32
 "Pear, With Skin",Päärynä,,,,"0,31",,,,,"Pears, median",1
 "Peas, Green, Dried","Herne, vihreä, kuivattu",,,,"0,38",,,,,"Peas, median",1
@@ -341,7 +340,7 @@ Plakebean,Plakepapu,,Pulses vegetables,,"0,26",,,,,"Beans: blake, median",1
 Plants,Kasvit,,Supplies,,,,,,"0,6",Garden supplies,2
 Plastic,,,Supplies,,,,,,"1,01",Plastic products,2
 Plastic bag,Muovikassi,"[""Muovipussi"", ""Pakastuspussi""]",Supplies,"0,035",,,,,,"Plastic bag, average",33
-"Plastic bag, biodegradable",Biohajoava pussi,,Supplies,"0,05",,,,,,"Biodegradable plastic bag, average",33
+"Plastic bag, biodegradable",Biohajoava pussi,"[""Biohajoava muovikassi""]",Supplies,"0,05",,,,,,"Biodegradable plastic bag, average",33
 "Plastic bag, recycled","Muovikassi, kierrätetty","[""Henkselikassi, recycling"", ""Muovipussi, recycled"", ""Muovikassi harmaa""]",Supplies,"0,01",,,,,,"Recyclable plastic bag, average",33
 Pollock,Lyyraturska,,Fish,,"1,6",,,,,"Pollock, median",1
 Pomelo,Pomelo,,Citrus fruit,,"0,51",,,,,"Grapefruit and pomelo, median",1
@@ -500,3 +499,7 @@ Yoghurt  <= 1 %,,,,,"1,31",,,,,"Yoghurt, median",1
 Yoghurt > 1 %,,,,,"1,31",,,,,"Yoghurt, median",1
 "Zucchini, Summer Squash","Kesäkurpitsa, zucchini","[""Kesäkurpitsa""]",,,"1,77",,,,,"Zucchini: passive greenhouse, median",1
 "Zucchini, Summer Squash","Kesäkurpitsa, zucchini","[""Pattypan squash"", ""Button squash"", ""Kiekkokurpitsa""]",,,"0,21",,,,,"Zucchini/button squash, median",1
+Vöner Wheat Protein Strips,"Vöner, vehnäproteiini, suikale","[""Vöner Original suikale""]",Wheat,,,,,,"0,7",Plant based groceries,2
+"Seitan, Wheat Gluten","Seitan, vehnägluteeni",,Wheat,,,,,,"0,7",Plant based groceries,2
+Semolina,,"[""Bulgur""]",,,,,,,,,
+Delivery,Toimitus,"[""Utkörning""]",Services,,,,,,"0,4",Transportation services,2
