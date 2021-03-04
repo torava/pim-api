@@ -33,7 +33,7 @@ const manufacturers = [
   { name: 'Oululainen' },
   { name: 'Halva' },
   { name: 'My Best Veggie' },
-  { name: 'Sondey' },
+  { name: 'Sondey' },
   { name: 'Sun-Maid' },
   { name: 'Alpro' },
   { name: 'Valio' },

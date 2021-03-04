@@ -1,17 +1,5 @@
-import parse from 'csv-parse/lib/sync';
-
 import Source from '../models/Source';
-
-const getEntitiesFromCsv = (csv) => {
-  const records = parse(csv, {
-    columns: true,
-    skipEmptyLines: true
-  }).map(record => ({
-    ...record,
-    id: undefined
-  }));
-  return records;
-};
+import { getEntitiesFromCsv } from '../utils/import';
 
 export default app => {
   app.get('/api/source', function(req, res) {
