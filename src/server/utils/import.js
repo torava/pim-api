@@ -184,7 +184,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       value['en-US'] = convertFirstLetterCapital(row[1]);
       row = fuclass_sv_rows[i].trim().split(';');
       value['sv-SV'] = convertFirstLetterCapital(row[1]);
-      fuclass[row[0]] = value;
+      fuclass[`fuclass-${row[0]}`] = value;
     }
 
     for (let i in igclass_rows) {
@@ -195,7 +195,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       value['en-US'] = convertFirstLetterCapital(row[1]);
       row = igclass_sv_rows[i].trim().split(';');
       value['sv-SV'] = convertFirstLetterCapital(row[1]);
-      igclass[row[0]] = value;
+      igclass[`igclass-${row[0]}`] = value;
     }
 
     for (let i in component_rows) {
@@ -237,17 +237,17 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
 
       // is a dish
       if (food_row[6] == 'NONINGR') {
-        parent_ref = food_row[7];
+        parent_ref = `fuclass-${food_row[7]}`;
         parent_name = fuclass[parent_ref];
-        second_parent_ref = food_row[8];
+        second_parent_ref = `fuclass-${food_row[8]}`;
         second_parent_name = fuclass[second_parent_ref];
         third_parent_ref = base_categories[2].id; // dish
       }
       // is an ingredient
       else {
-        parent_ref = food_row[5];
+        parent_ref = `igclass-${food_row[5]}`;
         parent_name = igclass[parent_ref];
-        second_parent_ref = food_row[6];
+        second_parent_ref = `igclass-${food_row[6]}`;
         second_parent_name = igclass[second_parent_ref];
         third_parent_ref = base_categories[1].id; // ingredient
       }
@@ -299,6 +299,8 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       category_values.push(categories[i]);
     }
 
+    //console.dir(category_values, {depth: null, maxArrayLength: null});
+
     // add to database
     const category = await Category.query()
     .upsertGraph(category_values, {relate: true, allowRefs: true});
@@ -314,7 +316,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
     for (let i in contribfood_rows) {
       row = contribfood_rows[i].split(';');
 
-      if (!row[0] || row[0] == 'FOODID' || !row[2]) {
+      if (!row[0] || row[0] == 'FOODID' || !row[2]) {
         continue;
       }
 
@@ -327,9 +329,6 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
           contributionId: ref_id,
           amount: parseFloat(row[2].replace(',', '.')),
           unit: row[3].toLowerCase()
-        })
-        .then(category => {
-          
         })
         .catch(error => {
           console.error(error);
