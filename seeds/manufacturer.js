@@ -41,6 +41,10 @@ const manufacturers = [
   { name: 'Dentalux' }
 ];
 
-exports.seed = knex => (
-  knex('Manufacturer').insert(manufacturers)
-);
+exports.seed = knex => {
+  try {
+    knex('Manufacturer').insert(manufacturers);
+  } catch (error) {
+    console.error(error);
+  }
+};

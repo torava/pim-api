@@ -45,6 +45,10 @@ const parties = [
   }
 ];
 
-exports.seed = knex => (
-  knex('Party').insert(parties)
-);
+exports.seed = knex => {
+  try {
+    knex('Party').insert(parties)
+  } catch (error) {
+    console.error(error);
+  }
+};
