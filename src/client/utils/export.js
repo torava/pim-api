@@ -1,11 +1,9 @@
-import moment from 'moment';
-
 import { locale } from '../components/locale';
 import { convertMeasure, getRootEntity } from '../../utils/entities';
-import { getCategoryAttribute, getCategoryWithAttribute } from '../../utils/categories';
-import { getItemUnit, findItemCategoryAttributeValue, getItemAttributeValue } from '../../utils/items';
+import { getCategoryWithAttribute } from '../../utils/categories';
+import { getItemUnit, getItemAttributeValue } from '../../utils/items';
 
-export const exportTransactions = (transactions, categories, attributes, groups = []) => {
+export const exportTransactions = (transactions, categories, attributes) => {
   const categoryLocale = locale.getLocale();
   const formattingLocale = 'fi-FI';//locale.getLocale();
 
@@ -26,8 +24,6 @@ export const exportTransactions = (transactions, categories, attributes, groups 
   let csv = [
     [
       'Date',
-      'Week',
-      'Participant',
       'Vendor',
       'Item name',
       'Product name',
@@ -76,12 +72,8 @@ export const exportTransactions = (transactions, categories, attributes, groups 
       const categoryParentId = productCategory?.parentId;
       const rootCategory = getRootEntity(categories, categoryParentId);
 
-      const group = groups.find(group => group.id === transaction.groupId)?.name;
-
       return [
         formatDate(transaction.date),
-        moment(transaction.date).isoWeek(),
-        group,
         transaction.party.name,
         item.text,
         item.product.name,

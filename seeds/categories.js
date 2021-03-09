@@ -13,24 +13,13 @@ exports.seed = async knex => {
     console.error('error while adding Fineli categories', error);
   }
 
-  try {
-    const sourcesCsv = fs.readFileSync(`${__dirname}/sources.csv`, 'utf8');
-    const sources = getEntitiesFromCsv(sourcesCsv);
-    await Source.query().insert(sources);
-  } catch (error) {
-    console.error('error while adding sources', error);
-  }
+  const sourcesCsv = fs.readFileSync(`${__dirname}/sources.csv`, 'utf8');
+  const sources = getEntitiesFromCsv(sourcesCsv);
 
   let categoryCsv;
   try {
     categoryCsv = fs.readFileSync(`${__dirname}/categories_en.csv`, 'utf8');
-    const category = await getCategoriesFromCsv(categoryCsv, 1);
-    await Category.query()
-    .upsertGraph(category, {
-      noDelete: true,
-      relate: true,
-      allowRefs: true
-    });
+    await getCategoriesFromCsv(categoryCsv, sources);
   } catch (error) {
     console.error('error while adding CSV categories', error);
   }

@@ -4,26 +4,23 @@ import _ from 'lodash';
 import Attribute from '../models/Attribute';
 import Category from '../models/Category';
 
-export const getCategoriesFromCsv = async (csv, sourceIdOffset = 0) => {
+export const getCategoriesFromCsv = async (csv, sources) => {
   try {
-    let items = [],
-        item,
+    let item,
         found,
         attribute,
         note,
         attributes = await Attribute.query(),
         categories = await Category.query(),
         attributeObject,
-        value,
-        ref,
-        refs = {};
+        value;
 
     const records = parse(csv, {
       columns: true,
       skipEmptyLines: true
     });
 
-    records.forEach(columns => {
+    for (const columns of records) {
       item = {};
       note = '';
       Object.entries(columns).forEach(([columnName, column]) => {
@@ -49,22 +46,12 @@ export const getCategoriesFromCsv = async (csv, sourceIdOffset = 0) => {
               }
             }
             if (!found) {
-              ref = 'attribute:'+attribute[1];
-              if (ref in refs) {
-                attributeObject = {
-                  '#ref': ref
+              attributeObject = {
+                name: {
+                  'fi-FI': attribute[1],
+                  'en-US': attribute[1]
                 }
-              }
-              else {
-                refs[ref] = true;
-                attributeObject = {
-                  '#id': ref,
-                  name: {
-                    'fi-FI': attribute[1],
-                    'en-US': attribute[1]
-                  }
-                }
-              }
+              };
             }
             value = parseFloat(column.replace(',', '.'));
             Object.assign(item, {
@@ -110,18 +97,8 @@ export const getCategoriesFromCsv = async (csv, sourceIdOffset = 0) => {
               }
             }
             if (!item.id) {
-              ref = `category:${column}`;
-              if (ref in refs && !item['#id'] && !item['#ref']) {
-                item['#ref'] = ref;
-              }
-              else {
-                if (!item['#id'] && !item['#ref']) {
-                  refs[ref] = true;
-                  item['#id'] = ref;
-                }
-                if (!item.name) item.name = {};
-                item.name[locale] = column;
-              }
+              if (!item.name) item.name = {};
+              item.name[locale] = column;
             }
           }
         }
@@ -140,11 +117,20 @@ export const getCategoriesFromCsv = async (csv, sourceIdOffset = 0) => {
           _.set(item, columnName, column);
         }
       });
-      items.push(item);
-    });
-    console.log(`read ${records.length} records and found ${items.length} categories`);
+      
+      await Category.query().upsertGraph(item, {
+        relate: true
+      })
+      .catch(error => console.error(error));
+
+      categories = await Category.query()
+      .catch(error => console.error(error));
+
+      attributes = await Attribute.query()
+      .catch(error => console.error(error));
+    }
+    console.log(`read ${records.length} records`);
     //console.dir(items, {depth: null, maxArrayLength: null});
-    return items;
   } catch (error) {
     console.error(error);
   }
@@ -154,9 +140,7 @@ export const getCategoryParentsFromCsv = async (csv) => {
   try {
     let items = [],
         item,
-        categories = await Category.query(),
-        ref,
-        refs = {};
+        categories = await Category.query();
 
     const records = parse(csv, {
       columns: true,
