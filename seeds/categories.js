@@ -1,6 +1,7 @@
 import fs from 'fs';
-
+import parse from 'csv-parse/lib/sync';
 const { Model } = require("objection");
+
 const { default: Category } = require("../src/server/models/Category");
 const { getCategoriesFromCsv, getCategoryParentsFromCsv } = require("../src/server/utils/categories");
 const { getExternalCategoriesFineli, getEntitiesFromCsv } = require("../src/server/utils/import");
@@ -15,17 +16,20 @@ exports.seed = async knex => {
 
   const sourcesCsv = fs.readFileSync(`${__dirname}/sources.csv`, 'utf8');
   const sources = getEntitiesFromCsv(sourcesCsv);
+  
+  const categoryCsv = fs.readFileSync(`${__dirname}/categories_en.csv`, 'utf8');
+  const categoryRecords = parse(categoryCsv, {
+    columns: true,
+    skipEmptyLines: true
+  });
 
-  let categoryCsv;
   try {
-    categoryCsv = fs.readFileSync(`${__dirname}/categories_en.csv`, 'utf8');
-    // source id offset is 1 because Fineli source has id 1
-    await getCategoriesFromCsv(categoryCsv, sources, 1);
+    await getCategoriesFromCsv(categoryRecords, sources);
   } catch (error) {
     console.error('error while adding CSV categories', error);
   }
   try {
-    const categoryParents = await getCategoryParentsFromCsv(categoryCsv);
+    const categoryParents = await getCategoryParentsFromCsv(categoryRecords);
     await Category.query()
     .upsertGraph(categoryParents, {
       noDelete: true,

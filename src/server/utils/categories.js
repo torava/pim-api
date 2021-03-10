@@ -1,11 +1,10 @@
-import parse from 'csv-parse/lib/sync';
 import _ from 'lodash';
 
 import Attribute from '../models/Attribute';
 import Category from '../models/Category';
 import Source from '../models/Source';
 
-export const getCategoriesFromCsv = async (csv, sourceRecords) => {
+export const getCategoriesFromCsv = async (records, sourceRecords) => {
   try {
     let item,
         found,
@@ -16,11 +15,6 @@ export const getCategoriesFromCsv = async (csv, sourceRecords) => {
         sourceRecordIdMap = {},
         attributeObject,
         value;
-
-    const records = parse(csv, {
-      columns: true,
-      skipEmptyLines: true
-    });
 
     for (const columns of records) {
       item = {};
@@ -139,16 +133,11 @@ export const getCategoriesFromCsv = async (csv, sourceRecords) => {
   }
 };
 
-export const getCategoryParentsFromCsv = async (csv) => {
+export const getCategoryParentsFromCsv = async (records) => {
   try {
     let items = [],
         item,
         categories = await Category.query();
-
-    const records = parse(csv, {
-      columns: true,
-      skipEmptyLines: true
-    });
 
     records.forEach(columns => {
       item = {};
