@@ -3,8 +3,9 @@ import _ from 'lodash';
 
 import Attribute from '../models/Attribute';
 import Category from '../models/Category';
+import Source from '../models/Source';
 
-export const getCategoriesFromCsv = async (csv, sources) => {
+export const getCategoriesFromCsv = async (csv, sourceRecords) => {
   try {
     let item,
         found,
@@ -12,6 +13,7 @@ export const getCategoriesFromCsv = async (csv, sources) => {
         note,
         attributes = await Attribute.query(),
         categories = await Category.query(),
+        sourceRecordIdMap = {},
         attributeObject,
         value;
 
@@ -23,18 +25,18 @@ export const getCategoriesFromCsv = async (csv, sources) => {
     for (const columns of records) {
       item = {};
       note = '';
-      Object.entries(columns).forEach(([columnName, column]) => {
-        attribute = columnName.match(/^attribute:(.*)(\s\((.*)\))/i) ||
-                    columnName.match(/^attribute:(.*)/i);
-        let nameMatch = columnName.match(/^(name|nimi)\["([a-z-]+)"\]$/i),
-            name,
-            locale;
-        if (nameMatch) {
-          name = nameMatch[1];
-          locale = nameMatch[2];
-        }
-        if (attribute) {
-          if (column !== "") {
+      for (const [columnName, column] of Object.entries(columns)) {
+        if (columnName !== '' && column !== '') {
+          attribute = columnName.match(/^attribute:(.*)(\s\((.*)\))/i) ||
+                      columnName.match(/^attribute:(.*)/i);
+          let nameMatch = columnName.match(/^(name|nimi)\["([a-z-]+)"\]$/i),
+              name,
+              locale;
+          if (nameMatch) {
+            name = nameMatch[1];
+            locale = nameMatch[2];
+          }
+          if (attribute) {
             found = false;
             for (let m in attributes) {
               if (Object.values(attributes[m].name).includes(attribute[1])) {
@@ -63,60 +65,61 @@ export const getCategoriesFromCsv = async (csv, sources) => {
                 }
               ]
             });
-          }
-        }
-        else if (columnName.toLowerCase() === 'note') {
-          if (column !== '') {
+          } else if (columnName.toLowerCase() === 'note') {
             note = column;
-          }
-        }
-        else if (columnName.toLowerCase() === 'sourceid') {
-          if (column === '') return true;
-          for (let m in item.attributes) {
-            if (!item.attributes[m].sources) {
-              item.attributes[m].sources = [];
+          } else if (columnName.toLowerCase() === 'sourceid') {
+            const sourceRecord = sourceRecords.find(source => source.id === column);
+            if (sourceRecord) {
+              let source = sourceRecordIdMap[sourceRecord.id];
+              if (!source) {
+                const sourceRecordWithoutId = {
+                  ...sourceRecord,
+                  id: undefined
+                };
+                source = await Source.query().insertAndFetch(sourceRecordWithoutId).returning('*');
+                sourceRecordIdMap[sourceRecord.id] = {id: source.id};
+              }
+              
+              for (const m in item.attributes) {
+                if (!item.attributes[m].sources) {
+                  item.attributes[m].sources = [];
+                }
+                item.attributes[m].sources.push({
+                  source,
+                  note
+                });
+              }
+            } else {
+              console.error('Source not found for id', column);
             }
-            item.attributes[m].sources.push({
-              source: {
-                id: parseInt(column)+sourceIdOffset,
-              },
-              note
-            });
-          }
-        }
-        else if (name && locale) {
-          if (column === '') return true;
-          if (!item.id) {
-            for (let i in categories) {
-              if (categories[i].name?.[locale] && categories[i].name[locale].toLowerCase().trim() === column?.toLowerCase().trim()) {
-                item.id = categories[i].id;
-                delete item['#ref'];
-                delete item['#id'];
-                delete item.name;
-                break;
+          } else if (name && locale) {
+            if (!item.id) {
+              for (const i in categories) {
+                if (categories[i].name?.[locale] && categories[i].name[locale].toLowerCase().trim() === column?.toLowerCase().trim()) {
+                  item.id = categories[i].id;
+                  delete item.name;
+                  break;
+                }
+              }
+              if (!item.id) {
+                if (!item.name) item.name = {};
+                item.name[locale] = column;
               }
             }
-            if (!item.id) {
-              if (!item.name) item.name = {};
-              item.name[locale] = column;
+          } else if (columnName.toLowerCase() === 'aliases') {
+            try {
+              const aliases = JSON.parse(column);
+              if (aliases) {
+                _.set(item, columnName, aliases);
+              }
+            } catch (error) {
+              console.error('Aliases parse error', column, error);
             }
+          } else if (['parent'].indexOf(columnName.toLowerCase()) === -1) {
+            _.set(item, columnName, column);
           }
         }
-        else if (columnName.toLowerCase() === 'aliases' && column !== '') {
-          if (column === '') return true;
-          try {
-            const aliases = JSON.parse(column);
-            if (aliases) {
-              _.set(item, columnName, aliases);
-            }
-          } catch (error) {
-            console.log('Aliases parse error', column, error);
-          }
-        }
-        else if (['parent'].indexOf(columnName.toLowerCase()) === -1 & columnName !== '' && column !== '') {
-          _.set(item, columnName, column);
-        }
-      });
+      }
       
       await Category.query().upsertGraph(item, {
         relate: true
