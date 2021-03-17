@@ -8,6 +8,7 @@ const { getExternalCategoriesFineli, getEntitiesFromCsv } = require("../src/serv
 
 exports.seed = async knex => {
   Model.knex(knex);
+  
   try {
     await getExternalCategoriesFineli('seeds/Fineli_Rel20__74_ravintotekij__');
   } catch (error) {

@@ -14,8 +14,7 @@ export default class Category extends Model {
 			
 			properties: {
 				id: {type: 'integer'},
-				name: {type: 'object'},
-				aliases: {type: 'array'}
+				name: {type: 'object'}
 			}
 		}
 	}

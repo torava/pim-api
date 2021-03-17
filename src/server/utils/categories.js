@@ -70,8 +70,12 @@ export const getCategoriesFromCsv = async (records, sourceRecords) => {
                   ...sourceRecord,
                   id: undefined
                 };
-                source = await Source.query().insertAndFetch(sourceRecordWithoutId).returning('*');
-                sourceRecordIdMap[sourceRecord.id] = {id: source.id};
+                try {
+                  source = await Source.query().insertAndFetch(sourceRecordWithoutId).returning('*');
+                  sourceRecordIdMap[sourceRecord.id] = {id: source.id};
+                } catch (error) {
+                  console.error('Error while adding source', sourceRecord);
+                }
               }
               
               for (const m in item.attributes) {

@@ -109,11 +109,11 @@ export const getCategoryAttribute = (category, attributeId) => (
 );
 
 export const getCategoryWithAttribute = (categories, categoryId, attributeId) => {
-  if (!categoryId) return;
+  if (!categories.length || !categoryId || !attributeId) return;
 
   const category = getCategoryById(categories, categoryId);
   const attribute = getCategoryAttribute(category, attributeId);
-  
+
   if (attribute) {
     return [category, attribute];
   } else {

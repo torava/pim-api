@@ -4,6 +4,9 @@ import { getCategoryWithAttribute } from '../../utils/categories';
 import { getItemUnit, getItemAttributeValue } from '../../utils/items';
 
 export const exportTransactions = (transactions, categories, attributes) => {
+  console.log('transactions', JSON.stringify(transactions));
+  console.log('categories', JSON.stringify(categories));
+  console.log('attributes', JSON.stringify(attributes))
   const categoryLocale = locale.getLocale();
   const formattingLocale = 'fi-FI';//locale.getLocale();
 
@@ -62,8 +65,8 @@ export const exportTransactions = (transactions, categories, attributes) => {
         productVolume = productMeasure;
       }
 
-      const attributeId = attributes.find(attribute => attribute.name['en-US'] === 'GHG');
-      const result = getCategoryWithAttribute(categories, item.product.category?.id, attributeId);
+      const attribute = attributes.find(attribute => attribute.name['en-US'] === 'GHG');
+      const result = getCategoryWithAttribute(categories, item.product.category?.id, attribute?.id);
       const [categoryWithGhg, ghgAttribute] = result || [undefined, undefined];
       const ghg = getItemAttributeValue(item, ghgAttribute);
 
