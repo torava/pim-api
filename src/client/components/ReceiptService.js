@@ -1,13 +1,8 @@
-import axios from "axios";
-
 import DataStore from './DataStore';
 import {blobToData, getTransactionsFromReceipt} from '../../utils/receipt';
 import {getSrc, crop, getDataUrlFromPdf} from '../../utils/imageProcessing';
-import ui from "./ui";
 import { resolveCategories } from "../../utils/transaction";
 import { recognizeClientside } from "../utils/receipts";
-
-const WAITING = -1;
 
 const exif_rotation = {
   1: 0,
@@ -25,15 +20,6 @@ function _arrayBufferToBase64( buffer ) {
     binary += String.fromCharCode( bytes[ i ] )
   }
   return window.btoa( binary );
-}
-
-function localeToLanguage(locale) {
-  let ocr_languages = {
-    'fi-FI': 'fin',
-    'es-AR': 'spa'
-  }
-
-  return ocr_languages[locale];
 }
 
 class ReceiptService {
@@ -55,41 +41,6 @@ class ReceiptService {
       this.parties = parties;
     })
     .catch(error => console.error(error));
-  }
-  prepareReceiptPipeline() {
-    return new Promise((resolve, reject) => {
-      return Promise.all([
-        this.saveEditedPipeline(),
-        this.saveOriginalPipeline()
-      ])
-      .then(([edited, original]) => {
-        resolve([edited, original]);
-      })
-      .catch(error => reject(error));
-    });
-  }
-  saveOriginalPipeline() {
-    return new Promise((resolve, reject) => {
-      axios.post('/api/receipt/original', {
-        src: this.pipeline.src,
-        id: this.pipeline.receipt.id
-      })
-      .then(original => resolve(original))
-      .catch(error => reject(error));
-    });
-  }
-  saveEditedPipeline() {
-    return new Promise((resolve, reject) => {
-      if (this.pipeline.receipt && this.pipeline.imagedata) {
-        axios.post('/api/receipt/picture', {
-          src: this.pipeline.imagedata,
-          id: this.pipeline.receipt.id
-        })
-        .then(edited => resolve(edited))
-        .catch(error => reject(error));
-      }
-      else resolve(WAITING);
-    });
   }
   recognizePipeline() {
     return new Promise((resolve, reject) => {
@@ -361,7 +312,7 @@ class ReceiptService {
 
           let imagedata = getSrc(dst, true);
 
-          const id = this.pipeline.receipt.id;
+          const id = this.pipeline.receipt?.id;
 
           console.log('processed');
           console.timeLog('process');
@@ -402,19 +353,6 @@ class ReceiptService {
       img.src = this.pipeline.src;
     });
   }
-  saveTransactionPipeline() {
-    return new Promise((resolve, reject) => {
-      console.log(this.pipeline.transactions);
-      this.pipeline.transactions[0].groupId = ui.currentGroupId;
-      this.saveReceipt(this.pipeline.transactions).then((transactions) => {
-        console.log('saved');
-        console.timeEnd('process');
-        DataStore.getTransactions(true);
-        resolve(transactions);
-      })
-      .catch(error => reject(error));
-    });
-  }
   async upload(file) {
     console.log('file', file);
 
@@ -442,8 +380,6 @@ class ReceiptService {
                                                   -> 4) save
       */
 
-      const receipt = await axios.post('/api/receipt')
-      this.pipeline.receipt = receipt.data;
       const transactions = await this.processPipeline();
       console.log(transactions);
       console.log(this.pipeline);
@@ -452,16 +388,6 @@ class ReceiptService {
 
       return transactions[0];
     } catch (error) {
-      console.error(error);
-    }
-  }
-  async saveReceipt(transactions) {
-    try {
-      const response = await axios.post('/api/transaction/', transactions);
-      console.log(response);
-      const updatedTransactions = await DataStore.getTransactions(true);
-      return updatedTransactions[updatedTransactions.length-1];
-    } catch(error) {
       console.error(error);
     }
   }
