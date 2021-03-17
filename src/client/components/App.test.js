@@ -1,6 +1,6 @@
 import Axios from 'axios';
 import React from 'react';
-import { render, waitFor, within } from '@testing-library/react';
+import { render, within } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 
 import App from './App';
