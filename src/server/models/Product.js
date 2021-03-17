@@ -17,6 +17,7 @@ export default class Product extends Model {
 			properties: {
 				id: {type: 'integer'},
 				name: {type: 'string', minLength: 1, maxLength: 255},
+				aliases: {type: 'array'},
 				product_number: {type: ['string', 'null']},
 				quantity: {type: ['number', 'null']},
 				measure: {type: ['number', 'null']},

@@ -47,6 +47,7 @@ exports.up = (knex) => (
     table.increments('id').primary();
     table.string('product_number');
     table.string('name');
+    table.specificType('aliases', 'text ARRAY');
     table.integer('quantity');
     table.float('measure');
     table.string('unit');
