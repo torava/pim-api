@@ -93,7 +93,7 @@ export const exportTransactions = (transactions, categories, attributes) => {
         formatNumber(ghgAttribute?.value),
         ghgAttribute?.unit,
         formatNumber(ghg),
-        ghgAttribute ? 0 : 1
+        typeof ghg === 'undefined' ? 0 : 1
       ].join('\t');
     }));
   });
