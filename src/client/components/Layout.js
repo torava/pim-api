@@ -15,8 +15,6 @@ export default class Layout extends React.Component {
       currency: locale.getCurrency(),
       locale: locale.getLocale(),
       currentGroupId: ui.getCurrentGroup(),
-      products: [],
-      manufacturers: [],
       categories: [],
       parties: [],
       attributes: [],
@@ -24,7 +22,9 @@ export default class Layout extends React.Component {
       isWorkerReady: false,
       pipeline: {
         crop: true
-      }
+      },
+      receiptsProcessed: undefined,
+      receiptCount: undefined
     };
 
     this.onCurrencyChange = this.onCurrencyChange.bind(this);
@@ -40,19 +40,16 @@ export default class Layout extends React.Component {
     });
 
     Promise.all([
+      DataStore.getCategories(),
+      DataStore.getAttributes(),
       DataStore.getProducts(),
       DataStore.getManufacturers(),
-      DataStore.getCategories(),
-      DataStore.getParties(),
-      DataStore.getAttributes()
+      DataStore.getParties()
     ])
-    .then(([products, manufacturers, categories, parties, attributes]) => {
+    .then(([categories, attributes]) => {
       this.setState({
         isReady: true,
-        products,
-        manufacturers,
         categories,
-        parties,
         attributes,
         worker
       });
@@ -98,12 +95,20 @@ export default class Layout extends React.Component {
 
     if (!files[0]) return;
 
+    this.setState({
+      receiptsProcessed: 0,
+      receiptCount: files.length
+    });
+
     const transactions = [];
     for (let file of Array.from(files)) {
       try {
         const receiptService = new ReceiptService(worker, pipeline);
         const result = await receiptService.upload(file);
         transactions.push(result);
+        this.setState({
+          receiptsProcessed: transactions.length
+        });
         console.log(result);
       } catch (error) {
         console.error(error);
@@ -113,12 +118,14 @@ export default class Layout extends React.Component {
     const csv = exportTransactions(transactions, categories, attributes);
     console.log(csv);
     downloadString(csv, 'text/csv', 'items.csv');
-    window.onbeforeunload = null;
+    //window.onbeforeunload = null;
   }
   render() {
     const {
       isReady,
-      isWorkerReady
+      isWorkerReady,
+      receiptCount,
+      receiptsProcessed
     } = this.state;
     return (
       <div className="app-container">
@@ -131,6 +138,7 @@ export default class Layout extends React.Component {
               value={this.state.currency}
               onChange={this.onCurrencyChange.bind(this)}>
               <option value="EUR">EUR</option>
+              <option value="SEK">SEK</option>
               <option value="USD">USD</option>
               <option value="CAD">CAD</option>
               <option value="ARS">ARS</option>
@@ -164,6 +172,12 @@ export default class Layout extends React.Component {
             Upload:<br/>
             <input type="file" name="upload-file" id="upload-file" multiple draggable onChange={this.onUpload}/>
           </label>
+          {typeof this.state.receiptCount !== 'undefined' &&
+          <p>
+            {`${
+                receiptsProcessed < receiptCount ? 'Processing...' : ''
+              } ${receiptsProcessed}/${receiptCount} receipts processed succesfully`}
+          </p>}
         </>}
       </div>
     );
