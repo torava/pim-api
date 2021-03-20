@@ -176,7 +176,7 @@ export default class Layout extends React.Component {
           <p>
             {`${
                 receiptsProcessed < receiptCount ? 'Processing...' : ''
-              } ${receiptsProcessed}/${receiptCount} receipts processed succesfully`}
+              } ${receiptsProcessed}/${receiptCount} receipts processed`}
           </p>}
         </>}
       </div>
