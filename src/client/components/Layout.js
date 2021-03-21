@@ -4,7 +4,7 @@ import {locale} from './locale';
 import ReceiptService from './ReceiptService';
 import DataStore from './DataStore';
 import ui from './ui';
-import { downloadString, exportTransactions } from '../utils/export';
+import { downloadString, exportTransactions, getCsvFromObject, getXlsxFromObject } from '../utils/export';
 import { setupWorker } from '../utils/tesseractWorker';
 
 export default class Layout extends React.Component {
@@ -14,6 +14,7 @@ export default class Layout extends React.Component {
     this.state = {
       currency: locale.getCurrency(),
       locale: locale.getLocale(),
+      format: ui.getFormat(),
       currentGroupId: ui.getCurrentGroup(),
       categories: [],
       parties: [],
@@ -30,6 +31,7 @@ export default class Layout extends React.Component {
     this.onCurrencyChange = this.onCurrencyChange.bind(this);
     this.onLocaleChange = this.onLocaleChange.bind(this);
     this.onEnergyUnitChange = this.onEnergyUnitChange.bind(this);
+    this.onFormatChange = this.onFormatChange.bind(this);
     this.onUpload = this.onUpload.bind(this);
   }
   async componentDidMount() {
@@ -74,12 +76,19 @@ export default class Layout extends React.Component {
   onEnergyUnitChange(event) {
     locale.setAttributeUnit('energy,calculated', event.target.value);
   }
+  onFormatChange(event) {
+    ui.setFormat(event.target.value);
+    this.setState({format: event.target.value});
+  }
   async onUpload(event) {
+    const t0 = performance.now();
+
     const {
       worker,
       categories,
       attributes,
-      pipeline
+      pipeline,
+      format
     } = this.state;
 
     //event.preventDefault();
@@ -115,10 +124,19 @@ export default class Layout extends React.Component {
       }
     }
     console.log(transactions);
-    const csv = exportTransactions(transactions, categories, attributes);
-    console.log(csv);
-    downloadString(csv, 'text/csv', 'items.csv');
+    const rows = exportTransactions(transactions, categories, attributes);
+    if (format === 'text/csv') {
+      const csv = await getCsvFromObject(rows);
+      downloadString(csv, format, 'items.csv');
+    } else if (format === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+      const xlsx = await getXlsxFromObject(rows);
+      downloadString(xlsx, format, 'items.xlsx');
+    }
     //window.onbeforeunload = null;
+
+    const t1 = performance.now();
+
+    console.log(`Processed ${files.length} files in ${t1-t0} ms`);
   }
   render() {
     const {
@@ -159,6 +177,16 @@ export default class Layout extends React.Component {
               onChange={this.onEnergyUnitChange.bind(this)}>
               <option value="kJ">kJ</option>
               <option value="kcal">kcal</option>
+            </select>
+          </p>
+          <p>
+            <select
+              id="format"
+              placeholder="Format"
+              value={this.state.format}
+              onChange={this.onFormatChange.bind(this)}>
+              <option value="text/csv">CSV</option>
+              <option value="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">XLSX</option>
             </select>
             <label>
               <input

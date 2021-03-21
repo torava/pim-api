@@ -1,6 +1,8 @@
+import ExcelJS from 'exceljs';
+
 import { locale } from '../components/locale';
 import { convertMeasure, getRootEntity } from '../../utils/entities';
-import { getCategoryWithAttribute } from '../../utils/categories';
+import { getCategoriesWithAttribute } from '../../utils/categories';
 import { getItemUnit, getItemAttributeValue } from '../../utils/items';
 
 export const exportTransactions = (transactions, categories, attributes) => {
@@ -24,7 +26,7 @@ export const exportTransactions = (transactions, categories, attributes) => {
     }).format(new Date(date)) : undefined
   );
 
-  let csv = [
+  let rows = [
     [
       'Date',
       'Vendor',
@@ -44,8 +46,13 @@ export const exportTransactions = (transactions, categories, attributes) => {
       'Category GHG unit',
       'GHG',
       'Missing emissions',
-    ].join('\t')
+    ]
   ];
+
+  const attribute = attributes.find(attribute => attribute.name['en-US'] === 'GHG');
+
+  console.log('attribute', attribute);
+
   let items = [];
   Object.values(transactions).forEach(transaction => {
     items = items.concat(transaction.items.map(item => {
@@ -65,10 +72,11 @@ export const exportTransactions = (transactions, categories, attributes) => {
         productVolume = productMeasure;
       }
 
-      const attribute = attributes.find(attribute => attribute.name['en-US'] === 'GHG');
-      const result = getCategoryWithAttribute(categories, item.product.category?.id, attribute?.id);
-      const [categoryWithGhg, ghgAttribute] = result || [undefined, undefined];
+      const result = getCategoriesWithAttribute(categories, item.product.category, attribute?.id);
+      const [categoryWithGhg, ghgAttribute] = result?.[0] || [undefined, undefined];
       const ghg = getItemAttributeValue(item, ghgAttribute);
+
+      console.log('categories', result);
 
       const productCategory = categories.find(category => category.id === item.product.category?.id);
 
@@ -93,14 +101,13 @@ export const exportTransactions = (transactions, categories, attributes) => {
         formatNumber(ghgAttribute?.value),
         ghgAttribute?.unit,
         formatNumber(ghg),
-        typeof ghg === 'undefined' ? 0 : 1
-      ].join('\t');
+        typeof ghg === 'undefined' ? 1 : 0
+      ];
     }));
   });
-  csv = csv.concat(items);
+  rows = rows.concat(items);
 
-  csv = csv.join('\n');
-  return csv;
+  return rows;
 };
 
 // https://gist.github.com/danallison/3ec9d5314788b337b682
@@ -111,10 +118,25 @@ export const downloadString = (text, fileType, fileName) => {
   const a = document.createElement('a');
   a.download = fileName;
   a.href = URL.createObjectURL(blob);
-  a.dataset.downloadurl = [fileType, a.download, a.href].join(':');
   a.style.display = "none";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   setTimeout(function() { URL.revokeObjectURL(a.href); }, 1500);
-}
+};
+
+export const getXlsxFromObject = async (rows) => {
+  const workbook = new ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet();
+  sheet.addRows(rows);
+  const buffer = await workbook.xlsx.writeBuffer();
+  return buffer;
+};
+
+export const getCsvFromObject = async (rows) => {
+  const workbook = new ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet();
+  sheet.addRows(rows);
+  const buffer = await workbook.csv.writeBuffer();
+  return buffer;
+};

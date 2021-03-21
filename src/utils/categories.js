@@ -125,25 +125,26 @@ export const getCategoryWithAttribute = (categories, categoryId, attributeId) =>
   }
 };
 
-export const getCategoriesWithAttribute = (categories, categoryId, attributeId) => {
-  if (!categoryId) return;
+export const getCategoriesWithAttribute = (categories, category, attributeId) => {
+  if (!category) return;
 
   let results = [];
 
-  const result = getCategoryWithAttribute(categories, categoryId, attributeId);
+  const result = getCategoryWithAttribute(categories, category.id, attributeId);
   if (result) {
-    let [attribute, category] = result;
+    let [populatedCategory, attribute] = result;
+    results.push([populatedCategory, attribute]);
     while (attribute) {
-      results.push([category, attribute]);
-      const result = getCategoryWithAttribute(categories, categoryId, attributeId);
+      const result = getCategoryWithAttribute(categories, category.parentId, attributeId);
       if (result) {
-        [category, attribute] = result;
+        let [parentCategory, attribute] = result;
+        results.push([parentCategory, attribute]);
       } else {
         attribute = false;
       }
     }
-    return results;
   }
+  return results;
 };
 
 export function resolveCategories(items, locale) {
