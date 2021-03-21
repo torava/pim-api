@@ -36,6 +36,7 @@
     "corenlp": "^1.5.0",
     "crypto": "^1.0.1",
     "csv-parse": "^4.15.1",
+    "exceljs": "^4.2.1",
     "express": "^4.16.4",
     "fuse.js": "^3.4.4",
     "image-size": "^0.6.3",
