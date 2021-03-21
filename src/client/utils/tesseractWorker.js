@@ -2,6 +2,7 @@ import { createWorker } from 'tesseract.js';
 
 export const setupWorker = async logger => {
   const worker = createWorker({
+    langPath: `${window.location.origin}/lib/tesseract.js/tessdata/fast`,
     logger
   });
 
