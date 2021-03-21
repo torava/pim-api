@@ -22,23 +22,26 @@ export default class Layout extends React.Component {
       isReady: false,
       isWorkerReady: false,
       pipeline: {
-        crop: true
+        crop: ui.getCrop()
       },
       receiptsProcessed: undefined,
-      receiptCount: undefined
+      receiptCount: undefined,
+      receiptProcessingTime: undefined
     };
 
     this.onCurrencyChange = this.onCurrencyChange.bind(this);
     this.onLocaleChange = this.onLocaleChange.bind(this);
     this.onEnergyUnitChange = this.onEnergyUnitChange.bind(this);
     this.onFormatChange = this.onFormatChange.bind(this);
+    this.onCropChange = this.onCropChange.bind(this);
     this.onUpload = this.onUpload.bind(this);
   }
   async componentDidMount() {
     const worker = await setupWorker((m) => {
-        if (m.status === 'initialized api') {
-          this.setState({isWorkerReady: true});
-        }
+      console.log(m);
+      if (m.status === 'initialized api') {
+        this.setState({isWorkerReady: true});
+      }
     });
 
     Promise.all([
@@ -80,6 +83,11 @@ export default class Layout extends React.Component {
     ui.setFormat(event.target.value);
     this.setState({format: event.target.value});
   }
+  onCropChange(event) {
+    const crop = event.target.checked ? true : false;
+    ui.setCrop(crop);
+    this.setState({pipeline: {crop}});
+  }
   async onUpload(event) {
     const t0 = performance.now();
 
@@ -106,7 +114,8 @@ export default class Layout extends React.Component {
 
     this.setState({
       receiptsProcessed: 0,
-      receiptCount: files.length
+      receiptCount: files.length,
+      receiptProcessingTime: undefined
     });
 
     const transactions = [];
@@ -136,15 +145,29 @@ export default class Layout extends React.Component {
 
     const t1 = performance.now();
 
-    console.log(`Processed ${files.length} files in ${t1-t0} ms`);
+    this.setState({
+      receiptProcessingTime: t1-t0
+    });
   }
   render() {
     const {
       isReady,
       isWorkerReady,
       receiptCount,
-      receiptsProcessed
+      receiptsProcessed,
+      receiptProcessingTime
     } = this.state;
+
+    let message;
+    if (receiptsProcessed < receiptCount) {
+      message = `Processing... ${receiptsProcessed}/${receiptCount} receipts processed`;
+    } else {
+      message = `${receiptsProcessed}/${receiptCount} receipts processed successfully`;
+      if (typeof receiptProcessingTime !== 'undefined') {
+        message+= ` in ${Math.round(receiptProcessingTime/1000)} s`;
+      }
+    }
+
     return (
       <div className="app-container">
         {(!isReady || !isWorkerReady) ? 'Loading...' :
@@ -192,7 +215,7 @@ export default class Layout extends React.Component {
               <input
                 type="checkbox"
                 checked={this.state.pipeline.crop}
-                onChange={event => this.setState({pipeline: {crop: event.target.checked ? true : false}})}/>
+                onChange={this.onCropChange.bind(this)}/>
               Crop
             </label>
           </p>
@@ -201,11 +224,7 @@ export default class Layout extends React.Component {
             <input type="file" name="upload-file" id="upload-file" multiple draggable onChange={this.onUpload}/>
           </label>
           {typeof this.state.receiptCount !== 'undefined' &&
-          <p>
-            {`${
-                receiptsProcessed < receiptCount ? 'Processing...' : ''
-              } ${receiptsProcessed}/${receiptCount} receipts processed`}
-          </p>}
+          <p>{message}</p>}
         </>}
       </div>
     );
