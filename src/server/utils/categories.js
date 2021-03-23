@@ -50,15 +50,17 @@ export const getCategoriesFromCsv = async (records, sourceRecords) => {
               };
             }
             value = parseFloat(column.replace(',', '.'));
-            Object.assign(item, {
+            item = {
+              ...item || {},
               attributes: [
+                ...item.attributes || [],
                 {
                   attribute: attributeObject,
                   value,
                   unit: attribute[3]
                 }
               ]
-            });
+            };
           } else if (columnName.toLowerCase() === 'note') {
             note = column;
           } else if (columnName.toLowerCase() === 'sourceid') {
@@ -120,6 +122,7 @@ export const getCategoriesFromCsv = async (records, sourceRecords) => {
       }
       
       await Category.query().upsertGraph(item, {
+        noDelete: true,
         relate: true
       })
       .catch(error => console.error(error));
