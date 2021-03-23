@@ -104,43 +104,43 @@ export const aggregateCategoryPrice = (resolvedCategories, averageRate) => {
 
 export const getCategoryById = (categories, categoryId) => categories.find(c => c.id === categoryId);
 
-export const getCategoryAttribute = (category, attributeId) => (
-  Object.values(category?.attributes || {}).find(attribute => attribute.attributeId === attributeId)
+export const getCategoryAttributes = (category, attributeId) => (
+  Object.values(category?.attributes || {}).filter(attribute => attribute.attributeId === attributeId)
 );
 
-export const getCategoryWithAttribute = (categories, categoryId, attributeId) => {
+export const getCategoryWithAttributes = (categories, categoryId, attributeId) => {
   if (!categories.length || !categoryId || !attributeId) return;
 
   const category = getCategoryById(categories, categoryId);
-  const attribute = getCategoryAttribute(category, attributeId);
+  const attributes = getCategoryAttributes(category, attributeId);
 
-  if (attribute) {
-    return [category, attribute];
+  if (attributes.length) {
+    return [category, attributes];
   } else {
-    const result = getCategoryWithAttribute(categories, category?.parentId, attributeId);
+    const result = getCategoryWithAttributes(categories, category?.parentId, attributeId);
     if (result) {
-      const [parentCategory, parentAttribute] = result;
-      return [parentCategory, parentAttribute];
+      const [parentCategory, parentAttributes] = result;
+      return [parentCategory, parentAttributes];
     }
   }
 };
 
-export const getCategoriesWithAttribute = (categories, category, attributeId) => {
+export const getCategoriesWithAttributes = (categories, category, attributeId) => {
   if (!category) return;
 
   let results = [];
-
-  const result = getCategoryWithAttribute(categories, category.id, attributeId);
+  
+  const result = getCategoryWithAttributes(categories, category.id, attributeId);
   if (result) {
-    let [populatedCategory, attribute] = result;
-    results.push([populatedCategory, attribute]);
-    while (attribute) {
-      const result = getCategoryWithAttribute(categories, category.parentId, attributeId);
+    let [populatedCategory, attributes] = result;
+    results.push([populatedCategory, attributes]);
+    while (attributes.length) {
+      const result = getCategoryWithAttributes(categories, category.parentId, attributeId);
       if (result) {
-        let [parentCategory, attribute] = result;
-        results.push([parentCategory, attribute]);
+        let [parentCategory, attributes] = result;
+        results.push([parentCategory, attributes]);
       } else {
-        attribute = false;
+        attributes = false;
       }
     }
   }

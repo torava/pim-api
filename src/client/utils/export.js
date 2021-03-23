@@ -2,7 +2,7 @@ import ExcelJS from 'exceljs';
 
 import { locale } from '../components/locale';
 import { convertMeasure, getRootEntity } from '../../utils/entities';
-import { getCategoriesWithAttribute } from '../../utils/categories';
+import { getCategoriesWithAttributes } from '../../utils/categories';
 import { getItemUnit, getItemAttributeValue } from '../../utils/items';
 
 export const exportTransactions = (transactions, categories, attributes) => {
@@ -72,9 +72,9 @@ export const exportTransactions = (transactions, categories, attributes) => {
         productVolume = productMeasure;
       }
 
-      const result = getCategoriesWithAttribute(categories, item.product.category, attribute?.id);
-      const [categoryWithGhg, ghgAttribute] = result?.[0] || [undefined, undefined];
-      const ghg = getItemAttributeValue(item, ghgAttribute);
+      const result = getCategoriesWithAttributes(categories, item.product.category, attribute?.id);
+      const [categoryWithGhg, ghgAttributes] = result?.[0] || [undefined, undefined];
+      const [ghg, ghgAttribute] = getItemAttributeValue(item, ghgAttributes) || [undefined, undefined];
 
       console.log('categories', result);
 

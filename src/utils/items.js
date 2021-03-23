@@ -51,20 +51,24 @@ export const getItemNameByDepth = (item, depth) => {
   return {id, name};
 };
 
-export const getItemAttributeValue = (item, attribute) => {
-  const quantity = getItemQuantity(item);
-  const unit = getItemUnit(item);
-  const measure = convertMeasure(getItemMeasure(item), unit, 'kg');
-  
-  let value;
-  if (attribute?.unit?.split('/')?.[1] === 'EUR') {
-    value = attribute.value*item.price;
-  } else if (!unit) {
-    value = attribute?.value*quantity;  
-  } else {
-    value = attribute?.value*measure*(quantity || 1);
+export const getItemAttributeValue = (item, attributes = []) => {
+  for (const attribute in attributes) {
+    const quantity = getItemQuantity(item);
+    const unit = getItemUnit(item);
+    const measure = convertMeasure(getItemMeasure(item), unit, 'kg');
+    
+    let value;
+    if (attribute?.unit?.split('/')?.[1] === 'EUR') {
+      value = attribute.value*item.price;
+    } else if (!unit) {
+      value = attribute?.value*quantity;  
+    } else {
+      value = attribute?.value*measure*(quantity || 1);
+    }
+    if (value) {
+      return [value, attribute];
+    }
   }
-  return value || undefined;
 };
 
 export const findItemCategoryAttributeValue = (item, category, attributeId) => {
