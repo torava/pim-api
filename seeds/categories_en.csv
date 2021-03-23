@@ -203,9 +203,7 @@ Fuel,Polttoaine,,Travel,,,,,,,,
 Furniture,Huonekalut,,Interior design,,,,,,"0,42","Huonekalut, matot",2
 Garden Lettuce,,,,,"3,7",,,,,"Lettuce: heated greenhouse, median",1
 Garlic,Valkosipuli,,,,"0,57",,,,,"Garlic, median",1
-"Gasoline, petrol",Bensiini,,Fuel,,,,,2,,,17
-"Gasoline, petrol",,,,,,,,2,,,16
-"Gasoline, petrol",Bensiini,,,,,,,2,,,18
+"Gasoline, petrol",Bensiini,,Fuel,,,,,2,,,16
 "Ginger Root, Raw","Inkivääri, juurakko, raaka",,,,"0,88",,,,,"Ginger, median",1
 Glue stick,Liimapuikko,,Supplies,,,,,,"0,46",Factory products,2
 Gooseberry,Karviainen,,,,"0,84",,,,,"Currants and gooseberries, median",1
