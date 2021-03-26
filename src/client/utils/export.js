@@ -12,7 +12,7 @@ export const exportTransactions = (transactions, categories, attributes) => {
   const categoryLocale = locale.getLocale();
   const formattingLocale = 'fi-FI';//locale.getLocale();
 
-  const formatNumber = (number) => number ? new Intl.NumberFormat(formattingLocale).format(number) : undefined;
+  const formatNumber = (number) => !isNaN(number) ? new Intl.NumberFormat(formattingLocale).format(number) : undefined;
   const formatDate = (date) => (
     date ? new Intl.DateTimeFormat(formattingLocale, {
       year: 'numeric',
@@ -75,8 +75,6 @@ export const exportTransactions = (transactions, categories, attributes) => {
       const result = getCategoriesWithAttributes(categories, item.product.category, attribute?.id);
       const [categoryWithGhg, ghgAttributes] = result?.[0] || [undefined, undefined];
       const [ghg, ghgAttribute] = getItemAttributeValue(item, ghgAttributes) || [undefined, undefined];
-
-      console.log('categories', result);
 
       const productCategory = categories.find(category => category.id === item.product.category?.id);
 
