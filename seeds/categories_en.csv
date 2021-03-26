@@ -32,6 +32,7 @@ Beef,Nauta,,,,15,,,,,"Beef, raw",4
 Beers,,,,,,,,"0,54",,"Beer, cradle-to-grave",5
 "Beetroot, Red Beet",Punajuuri,,,,"0,24",,,,,"Beetroot, median",1
 Berries,,,,,,,,,"0,7",Plant based groceries,2
+"Berry, Average","[""Pakkasmarja marjaseos""]",,,,,,,,,,
 Biscuit,,"[""Sydänhyvä pikkuleipä""]",,,,,,,,,
 Blackcurrant,Mustaherukka,,,,"0,84",,,,,"Currants and gooseberries, median",1
 Blended spread >= 55 %,,,,,"9,25",,,,,"Butter, median",1
@@ -139,7 +140,7 @@ Cucumber,Kurkku,,,,"0,23",,,,,"Cucumber/gherkins, median",1
 "Deep-Fried Vegetable Pasty, Hoviruoka",,"[""Vegaaninen piirakka""]",,,,,,,"0,7",Plant based groceries,2
 Dental care products,Hammashoitotuotteet,"[""Dental flosh"", ""Hammaslanka"", ""Suuvesi""]",Hygiene products,,,,,,,,
 Dental care services,Hammashoitopalvelut,,Services,,,,,,"0,2",Health care services,2
-Deposit,Pantti,,Commerce,,,,,,,,
+Deposit,Pantti,"[""Pullopantti""]",Commerce,,,,,,,,
 Deposit return,Pullopalautus,,Commerce,,,,,,,,
 Dessert sauces,,,,,,,,,"1,1",Animal based groceries,2
 Diesel,Diesel,"[""Dieselöljy""]",Fuel,,,,,"2,68",,,3
@@ -314,8 +315,8 @@ Onion-family vegetables,,,,,"0,17",,,,,"Onion, median",1
 "Orange, Average, With Skin",,"[""Appelsiini"", ""Veriappelsiini""]",,,"0,33",,,,,"Orange, median",1
 Other alcoholic beverages,,,,,,,,,"0,3",Alcohol drinks,2
 Palm Oil,Palmuöljy,,,,,,,,"0,7",Plant based groceries,2
-Paper,Paperi,"[""Akvarellipaperit""]",Supplies,,,,,,"0,32","Paperitarvikkeet, kirjat, lehdet",1
-Paper bag,Paperikassi,,Supplies,"0,01",,,,,,,33
+Paper,Paperi,"[""Akvarellipaperit"", ""Kortti karto""]",Supplies,,,,,,"0,32","Paperitarvikkeet, kirjat, lehdet",1
+Paper bag,Paperikassi,"[""Lahjakassi karto""]",Supplies,"0,01",,,,,,,33
 "Peach/Nectarine, Average, With Stone",,,,,"0,43",,,,,"Peaches and nectarines, median",1
 Peanut Butter Without Added Salt,,"[""Maapähkinävoi smooth""]",,,"2,5",,,,,Maapähkinävoi,27
 Peanut Oil,Maapähkinäöljy,,,,,,,,"0,7",Plant based groceries,2
@@ -435,6 +436,7 @@ Supplies,Tarvikkeet,,,,,,,,"0,51","Kestokulutustavarat, terveydenhoitotuotteet k
 Surgical mask,Kiruginen suu-nenäsuojus,,Healthcare products,0.059,,,,,,,37
 "Swede, Rutabaga",Lanttu,,,,"0,29",,,,,Swedes/rutabage median,1
 Sweet Bakery,,,,,"2,5",,,,,"Pastry, including waste, secondary source",7
+Sweet Bakery,,,,,,,,,"1,1",Animal based groceries,2
 Sweet biscuits,,,,,"2,5",,,,,"Biscuit, including waste, secondary source",7
 Sweet Corn Kernels,,,,,"0,47",,,,,"Maize/corn, median",1
 "Sweet Corn, Corn On The Cob","Maissintähkä, kokonainen","[""Maissintähkä""]",,,"0,47",,,,,"Maize/corn, median",1
@@ -499,3 +501,5 @@ Vöner Wheat Protein Strips,"Vöner, vehnäproteiini, suikale","[""Vöner Origin
 "Seitan, Wheat Gluten","Seitan, vehnägluteeni",,Wheat,,,,,,"0,7",Plant based groceries,2
 Semolina,,"[""Bulgur""]",,,,,,,,,
 Delivery,Toimitus,"[""Utkörning""]",Services,,,,,,"0,4",Transportation services,2
+Nicotine products,Nikotiinituotteet,"[""Cigarette"", ""Tupakka"", ""Zonnic""]",Supplies,,,,,,"0,87",Beverages and cigarette,2
+"Meal Replacement, Protein Bar, Average, C. 40% Protein",,"[""Barebells proteiinipatukka""]",,,,,,,,,
