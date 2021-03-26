@@ -52,8 +52,8 @@ export const getItemNameByDepth = (item, depth) => {
 };
 
 export const getItemAttributeValue = (item, attributes = []) => {
-  for (const attribute in attributes) {
-    const quantity = getItemQuantity(item);
+  for (const attribute of attributes) {
+    const quantity = getItemQuantity(item) || 1;
     const unit = getItemUnit(item);
     const measure = convertMeasure(getItemMeasure(item), unit, 'kg');
     
@@ -61,11 +61,11 @@ export const getItemAttributeValue = (item, attributes = []) => {
     if (attribute?.unit?.split('/')?.[1] === 'EUR') {
       value = attribute.value*item.price;
     } else if (!unit) {
-      value = attribute?.value*quantity;  
+      value = attribute?.value*quantity;
     } else {
-      value = attribute?.value*measure*(quantity || 1);
+      value = attribute?.value*measure*quantity;
     }
-    if (value) {
+    if (!isNaN(value)) {
       return [value, attribute];
     }
   }
