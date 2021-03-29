@@ -1,5 +1,4 @@
 import fs from 'fs';
-import parse from 'csv-parse/lib/sync';
 const { Model } = require("objection");
 
 const { default: Category } = require("../src/server/models/Category");
@@ -18,19 +17,16 @@ exports.seed = async knex => {
   const sourcesCsv = fs.readFileSync(`${__dirname}/sources.csv`, 'utf8');
   const sources = getEntitiesFromCsv(sourcesCsv);
   
-  const categoryCsv = fs.readFileSync(`${__dirname}/categories_en.csv`, 'utf8');
-  const categoryRecords = parse(categoryCsv, {
-    columns: true,
-    skipEmptyLines: true
-  });
+  const categoriesCsv = fs.readFileSync(`${__dirname}/categories_en.csv`, 'utf8');
+  const categories = getEntitiesFromCsv(categoriesCsv);
 
   try {
-    await getCategoriesFromCsv(categoryRecords, sources);
+    await getCategoriesFromCsv(categories, sources);
   } catch (error) {
     console.error('error while adding CSV categories', error);
   }
   try {
-    const categoryParents = await getCategoryParentsFromCsv(categoryRecords);
+    const categoryParents = await getCategoryParentsFromCsv(categories);
     await Category.query()
     .upsertGraph(categoryParents, {
       noDelete: true,

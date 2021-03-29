@@ -19,6 +19,17 @@ export const getEntitiesFromCsv = (csv) => {
   return records;
 };
 
+export const insertFromRecords = async (records, model, recordIdMap = {}) => {
+  for (const record of records) {
+    const entity = await model.query().insertAndFetch({
+      ...record,
+      id: undefined
+    }).returning('*');
+    recordIdMap[record.id] = entity;
+  }
+  return recordIdMap;
+};
+
 export const getExternalCategoriesFineli = async (directory = 'fineli') => {
   try {
     let encoding = 'latin1';
