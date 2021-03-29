@@ -21,30 +21,4 @@ app.get('/api/item', function(req, res) {
     });
 });
 
-app.post('/api/item', async function(req, res) {
-  return Item.query()
-    .upsertGraph(req.body, {relate: true, unrelate: true})
-    .then(item => {
-      res.send(item);
-    })
-    .catch(error => {
-      console.error(error);
-      res.status(500).send(error);
-    });
-});
-
-app.delete('/api/item/:id', function(req, res) {
-  Item.query()
-    .delete()
-    .where('id', req.params.id)
-    .then(item => {
-      console.log(item);
-      res.send(String(item));
-    })
-    .catch(error => {
-      console.error(error);
-      throw new Error();
-    });
-});
-
 }
