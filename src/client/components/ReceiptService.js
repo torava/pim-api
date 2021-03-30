@@ -31,14 +31,16 @@ class ReceiptService {
       DataStore.getProducts(),
       DataStore.getManufacturers(),
       DataStore.getCategories(),
-      DataStore.getParties()
+      DataStore.getParties(),
+      DataStore.getItems()
     ])
-    .then(([products, manufacturers, categories, parties]) => {
+    .then(([products, manufacturers, categories, parties, items]) => {
       console.log(products);
       this.products = products;
       this.manufacturers = manufacturers;
       this.categories = categories;
       this.parties = parties;
+      this.items = items;
     })
     .catch(error => console.error(error));
   }
@@ -384,7 +386,7 @@ class ReceiptService {
       console.log(transactions);
       console.log(this.pipeline);
 
-      resolveCategories(transactions[0], [], this.categories);
+      resolveCategories(transactions[0], this.items, this.categories);
 
       return transactions[0];
     } catch (error) {

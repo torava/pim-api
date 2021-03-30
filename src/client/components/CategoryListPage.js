@@ -7,7 +7,7 @@ import tree from 'react-asterisk-table/lib/Tree';
 import sortable from 'react-asterisk-table/lib/Sortable';
 
 import { locale } from './locale';
-import config from '../config/default.json';
+import config from '../../config/default.json';
 import DataStore from './DataStore';
 
 const TreeTable = sortable(tree(AsteriskTable));
@@ -36,8 +36,6 @@ export default class CategoryList extends Component {
           attribute_selector_columns: this.getAttributeSelectorColumns()
         });
       });
-
-      document.title = "Categories";
     })
     .catch(error => {
       console.error(error);

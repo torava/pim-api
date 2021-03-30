@@ -10,6 +10,7 @@ export default {
     this.attributes = [];
     this.categories = [];
     this.categories_attributes = [];
+    this.items = [];
   },
   getManufacturers() {
     return new Promise((resolve, reject) => {
@@ -143,5 +144,22 @@ export default {
         });
       }
     });
-  }
+  },
+  getItems(fetch) {
+    return new Promise((resolve, reject) => {
+      if (this.items && !fetch) {
+        resolve(this.items);
+      }
+      else {
+        axios.get('/api/item')
+        .then(response => {
+          this.items = response.data;
+          resolve(this.items);
+        })
+        .catch(error => {
+          reject(error);
+        });
+      }
+    });
+  },
 }

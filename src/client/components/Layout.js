@@ -6,6 +6,7 @@ import DataStore from './DataStore';
 import ui from './ui';
 import { downloadString, exportTransactions, getCsvFromObject, getXlsxFromObject } from '../utils/export';
 import { setupWorker } from '../utils/tesseractWorker';
+import CategoryList from './CategoryListPage';
 
 export default class Layout extends React.Component {
   constructor(props) {
@@ -49,7 +50,8 @@ export default class Layout extends React.Component {
       DataStore.getAttributes(),
       DataStore.getProducts(),
       DataStore.getManufacturers(),
-      DataStore.getParties()
+      DataStore.getParties(),
+      DataStore.getItems()
     ])
     .then(([categories, attributes]) => {
       this.setState({
@@ -172,6 +174,8 @@ export default class Layout extends React.Component {
       <div className="app-container">
         {(!isReady || !isWorkerReady) ? 'Loading...' :
         <>
+          <h1>Bookkeeper</h1>
+          <h2>Upload</h2>
           <p>
             <select 
               id="currency"
@@ -225,6 +229,8 @@ export default class Layout extends React.Component {
           </label>
           {typeof this.state.receiptCount !== 'undefined' &&
           <p>{message}</p>}
+          <h2>Categories</h2>
+          <CategoryList/>
         </>}
       </div>
     );
