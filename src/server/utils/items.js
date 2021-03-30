@@ -54,10 +54,13 @@ export const getItemsFromCsv = async (itemRecords, productRecords, partyRecords,
       }
     }
 
-    const entity = await Product.query().insertAndFetch({
+    const entity = await Product.query().upsertGraphAndFetch({
       ...record,
       measure: Number(record.measure),
       id: undefined
+    }, {
+      noDelete: true,
+      relate: true
     }).returning('*');
     
     productRecordIdMap[record.id] = entity;
