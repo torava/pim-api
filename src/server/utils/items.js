@@ -13,6 +13,8 @@ export const getItemsFromCsv = async (itemRecords, productRecords, partyRecords,
 
   insertFromRecords(partyRecords, Party, partyRecordIdMap);
 
+  console.log(`${partyRecords.length} parties inserted`);
+
   for (const record of transactionRecords) {
     record.partyId = partyRecordIdMap[record.partyId]?.id;
     const entity = await Transaction.query().insertAndFetch({
@@ -22,10 +24,12 @@ export const getItemsFromCsv = async (itemRecords, productRecords, partyRecords,
     transactionRecordIdMap[record.id] = entity;
   }
 
+  console.log(`${transactionRecords.length} transactions inserted`)
+
   for (const record of productRecords) {
     for (const [columnName, column] of Object.entries(record)) {
       const categoryNameMatch = columnName.match(/^category:name\["([a-z-]+)"\]$/i);
-      const locale = categoryNameMatch?.[2];
+      const locale = categoryNameMatch?.[1];
       if (categoryNameMatch) {
         let found = false;
         let categoryEntity;
@@ -46,16 +50,20 @@ export const getItemsFromCsv = async (itemRecords, productRecords, partyRecords,
           };
         }
         record.category = categoryEntity;
+        delete record[columnName];
       }
-      delete record[columnName];
     }
 
     const entity = await Product.query().insertAndFetch({
       ...record,
+      measure: Number(record.measure),
       id: undefined
     }).returning('*');
+    
     productRecordIdMap[record.id] = entity;
   }
+
+  console.log(`${productRecords.length} products inserted`);
 
   for (const record of itemRecords) {
     record.productId = productRecordIdMap[record.productId]?.id;
@@ -65,4 +73,6 @@ export const getItemsFromCsv = async (itemRecords, productRecords, partyRecords,
       id: undefined
     }).returning('*');
   }
+
+  console.log(`${itemRecords.length} items inserted`);
 };
