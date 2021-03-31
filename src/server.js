@@ -1,20 +1,19 @@
 import Express from 'express';
+import compression from 'compression';
+import apicache from 'apicache';
 import bodyParser from 'body-parser';
 import Knex from 'knex';
 import {Model} from 'objection';
 import {JSDOM} from 'jsdom';
 import { Canvas, createCanvas, Image, ImageData } from 'canvas';
-import crypto from 'crypto';
 
 import knexConfig from '../knexfile';
 import registerApi from './server/api';
 
 export const app = new Express();
 
-app.etag = function(buf) {
-  console.log(buf);
-  return '"' + crypto.createHash('sha1').update(buf).digest('hex') + '"';
-};
+app.use(compression());
+app.use(apicache.middleware());
 
 // Initialize knex.
 const knex = Knex(knexConfig.development);
