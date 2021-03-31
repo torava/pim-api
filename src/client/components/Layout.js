@@ -7,6 +7,7 @@ import ui from './ui';
 import { downloadString, exportTransactions, getCsvFromObject, getXlsxFromObject } from '../utils/export';
 import { setupWorker } from '../utils/tesseractWorker';
 import CategoryList from './CategoryListPage';
+import Attributes from './shared/Attributes';
 
 export default class Layout extends React.Component {
   constructor(props) {
@@ -27,7 +28,8 @@ export default class Layout extends React.Component {
       },
       receiptsProcessed: undefined,
       receiptCount: undefined,
-      receiptProcessingTime: undefined
+      receiptProcessingTime: undefined,
+      attributeAggregates: []
     };
 
     this.onCurrencyChange = this.onCurrencyChange.bind(this);
@@ -97,6 +99,7 @@ export default class Layout extends React.Component {
       worker,
       categories,
       attributes,
+      attributeAggregates,
       pipeline,
       format
     } = this.state;
@@ -135,7 +138,7 @@ export default class Layout extends React.Component {
       }
     }
     console.log(transactions);
-    const rows = exportTransactions(transactions, categories, attributes);
+    const rows = exportTransactions(transactions, categories, attributes, attributeAggregates);
     if (format === 'text/csv') {
       const csv = await getCsvFromObject(rows);
       downloadString(csv, format, 'items.csv');
@@ -157,7 +160,9 @@ export default class Layout extends React.Component {
       isWorkerReady,
       receiptCount,
       receiptsProcessed,
-      receiptProcessingTime
+      receiptProcessingTime,
+      attributes,
+      attributeAggregates
     } = this.state;
 
     let message;
@@ -229,6 +234,11 @@ export default class Layout extends React.Component {
           </label>
           {typeof this.state.receiptCount !== 'undefined' &&
           <p>{message}</p>}
+          <h3>Attributes</h3>
+          <Attributes
+            attributes={attributes}
+            attributeAggregates={attributeAggregates}
+            setAttributeAggregates={(attributeAggregates) => this.setState({attributeAggregates})}/>
           <h2>Categories</h2>
           <CategoryList/>
         </>}

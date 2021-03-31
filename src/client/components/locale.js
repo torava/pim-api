@@ -1,7 +1,7 @@
 class Locale {
   constructor() {
     this.currency = 'EUR';
-    this.locale = 'en-us';
+    this.locale = 'en-US';
     this.attribute_units = '{}';
 
     if (typeof window !== 'undefined') {

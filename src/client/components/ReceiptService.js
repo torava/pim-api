@@ -386,7 +386,7 @@ class ReceiptService {
       console.log(transactions);
       console.log(this.pipeline);
 
-      resolveCategories(transactions[0], this.items, this.categories);
+      resolveCategories(transactions[0], this.items, this.products, this.categories, this.manufacturers);
 
       return transactions[0];
     } catch (error) {

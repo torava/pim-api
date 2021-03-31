@@ -5,12 +5,15 @@ import { convertMeasure, getRootEntity } from '../../utils/entities';
 import { getCategoriesWithAttributes } from '../../utils/categories';
 import { getItemUnit, getItemAttributeValue } from '../../utils/items';
 
-export const exportTransactions = (transactions, categories, attributes) => {
+export const exportTransactions = (transactions, categories, attributes, attributeAggregates) => {
   console.log('transactions', JSON.stringify(transactions));
   console.log('categories', JSON.stringify(categories));
   console.log('attributes', JSON.stringify(attributes))
+
   const categoryLocale = locale.getLocale();
   const formattingLocale = 'fi-FI';//locale.getLocale();
+
+  console.log('category locale', categoryLocale, 'formatting locale', formattingLocale);
 
   const formatNumber = (number) => !isNaN(number) ? new Intl.NumberFormat(formattingLocale).format(number) : undefined;
   const formatDate = (date) => (
@@ -26,6 +29,12 @@ export const exportTransactions = (transactions, categories, attributes) => {
     }).format(new Date(date)) : undefined
   );
 
+  const attributeHeaders = Object.keys(attributeAggregates).map(attributeId => (
+    attributes.find(a => a.id === Number(attributeId))?.name[categoryLocale]
+  ));
+
+  console.log('attribute aggregates', attributeAggregates, 'attribute headers', attributeHeaders);
+
   let rows = [
     [
       'Date',
@@ -34,7 +43,6 @@ export const exportTransactions = (transactions, categories, attributes) => {
       'Product name',
       'Main category',
       'Category',
-      'GHG category',
       'Product quantity',
       'Item quantity',
       'Product weight',
@@ -42,16 +50,9 @@ export const exportTransactions = (transactions, categories, attributes) => {
       'Product volume',
       'Item volume',
       'Price',
-      'Category GHG',
-      'Category GHG unit',
-      'GHG',
-      'Missing emissions',
+      ...attributeHeaders
     ]
   ];
-
-  const attribute = attributes.find(attribute => attribute.name['en-US'] === 'GHG');
-
-  console.log('attribute', attribute);
 
   let items = [];
   Object.values(transactions).forEach(transaction => {
@@ -72,14 +73,24 @@ export const exportTransactions = (transactions, categories, attributes) => {
         productVolume = productMeasure;
       }
 
-      const result = getCategoriesWithAttributes(categories, item.product.category, attribute?.id);
-      const [categoryWithGhg, ghgAttributes] = result?.[0] || [undefined, undefined];
-      const [ghg, ghgAttribute] = getItemAttributeValue(item, ghgAttributes) || [undefined, undefined];
+      const productCategory = categories.find(category => category.id === item.product.categoryId);
 
-      const productCategory = categories.find(category => category.id === item.product.category?.id);
+      console.log('product category', productCategory);
 
       const categoryParentId = productCategory?.parentId;
       const rootCategory = getRootEntity(categories, categoryParentId);
+
+      let attributeColumns = [];
+
+      Object.keys(attributeAggregates).forEach(attributeId => {
+        const result = getCategoriesWithAttributes(categories, productCategory, Number(attributeId));
+        const [, itemAttributes] = result?.[0] || [undefined, undefined];
+        const [attributeValue] = getItemAttributeValue(item, itemAttributes) || [undefined, undefined];
+
+        attributeColumns.push(formatNumber(attributeValue));
+      });
+
+      console.log('attribute columns', attributeColumns);
 
       return [
         formatDate(transaction.date),
@@ -88,7 +99,6 @@ export const exportTransactions = (transactions, categories, attributes) => {
         item.product.name,
         rootCategory?.name?.[categoryLocale],
         productCategory?.name?.[categoryLocale],
-        categoryWithGhg?.name?.[categoryLocale],
         formatNumber(productQuantity),
         formatNumber(itemQuantity),
         formatNumber(productWeight),
@@ -96,10 +106,7 @@ export const exportTransactions = (transactions, categories, attributes) => {
         formatNumber(productVolume),
         formatNumber(itemVolume),
         formatNumber(item.price),
-        formatNumber(ghgAttribute?.value),
-        ghgAttribute?.unit,
-        formatNumber(ghg),
-        typeof ghg === 'undefined' ? 1 : 0
+        ...attributeColumns
       ];
     }));
   });

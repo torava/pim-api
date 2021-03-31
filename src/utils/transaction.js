@@ -204,7 +204,7 @@ export function CSVToArray( strData, strDelimiter ){
 }
 
 export function escapeRegExp(stringToGoIntoTheRegex) {
-  return stringToGoIntoTheRegex.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+  return stringToGoIntoTheRegex.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
 export function stripName(name, manufacturers) {
@@ -229,7 +229,7 @@ export function stripName(name, manufacturers) {
   return strippedName;
 }
 
-export function stripDetails(name, manufacturers) {
+export function stripDetails(name, manufacturers = []) {
   let token,
       accuracy,
       words;
@@ -300,11 +300,10 @@ export function stringToSlug(str,  sep) {
   return str;
 }
 
-export const resolveCategories = async (transaction, items = [], categories = [], manufacturers = []) => {
+export const resolveCategories = async (transaction, items = [], products = [], categories = [], manufacturers = []) => {
   try {
     let trimmed_item_name,
-        distance,
-        item_categories;
+        distance;
 
     console.log('items length', items.length);
 
@@ -326,31 +325,60 @@ export const resolveCategories = async (transaction, items = [], categories = []
     for (let item of transaction.items) {
       if (!item) continue;
       
-      item_categories = [];
+      const itemCategories = [];
+      const itemProducts = [];
       trimmed_item_name = stripDetails(item.product.name, manufacturers);
 
       console.log('trimmed item name', trimmed_item_name);
   
-      items.forEach(comparable_item => {
-        if (comparable_item.product && comparable_item.product.category && comparable_item.text) {
+      items.forEach(comparableItem => {
+        if (comparableItem.product && comparableItem.product.category && comparableItem.text) {
           const productName = item.product.name.toLowerCase() || '';
-          const itemName = comparable_item.text.toLowerCase() || '';
-          distance = stringSimilarity(productName, itemName);
+          const itemName = comparableItem.text.toLowerCase() || '';
+          const comparableProductName = comparableItem.product?.name.toLowerCase() || '';
+          distance = Math.max(
+            stringSimilarity(productName, itemName),
+            stringSimilarity(productName, comparableProductName)
+          );
           
           if (distance > 0.8) {
             console.log('comparing product to items', productName, itemName, distance);
-            console.log(item.product.name, comparable_item.text, distance);
-            item_categories.push({
-              category: comparable_item.product.category,
+            console.log(item.product.name, comparableItem.text, distance);
+            itemProducts.push({
+              category: comparableItem.product.category,
               item_name: item.product.name,
               trimmed_item_name: trimmed_item_name,
-              distance: distance
+              distance: distance,
+              product: comparableItem.product
+            });
+          }
+        }
+      });
+
+      products.forEach(comparableProduct => {
+        if (comparableProduct && comparableProduct.categoryId) {
+          const productName = item.product.name.toLowerCase() || '';
+          const itemName = comparableProduct.name.toLowerCase() || '';
+          const comparableProductName = comparableProduct.name.toLowerCase() || '';
+          distance = Math.max(
+            stringSimilarity(productName, itemName),
+            stringSimilarity(productName, comparableProductName)
+          );
+          
+          if (distance > 0.8) {
+            console.log('comparing product to products', productName, itemName, distance);
+            console.log(item.product.name, comparableProduct.name, distance);
+            itemProducts.push({
+              item_name: item.product.name,
+              trimmed_item_name: trimmed_item_name,
+              distance: distance,
+              product: comparableProduct
             });
           }
         }
       });
   
-      trimmed_categories.forEach((category, index) => {
+      trimmed_categories.forEach((category) => {
         Object.entries(category.trimmed_name).forEach(([locale, translation]) => {
           if (category.trimmed_name && translation) {
             distance = stringSimilarity(trimmed_item_name.toLowerCase() || '', translation.toLowerCase() || '');
@@ -373,13 +401,26 @@ export const resolveCategories = async (transaction, items = [], categories = []
                 'parent', category.parent?.name[locale],
                 'distance', distance
               );
-              item_categories.push({
+              itemCategories.push({
                 category,
                 item_name: item.product.name,
                 trimmed_item_name: trimmed_item_name,
                 name: translation,
                 distance: distance
               });
+
+              const product = items.find(item => item.product?.categoryId === category.id);
+
+              if (product) {
+                itemProducts.push({
+                  category,
+                  item_name: product.name,
+                  trimmed_item_name: trimmed_item_name,
+                  name: translation,
+                  distance: distance,
+                  product: product
+                });
+              }
             }
           }
         });
@@ -395,23 +436,43 @@ export const resolveCategories = async (transaction, items = [], categories = []
     
             if (distance > 0.4) {
               console.log('comparing product category to categories', productCategoryName, categoryName, distance);
-              item_categories.push({
+              itemCategories.push({
                 category,
                 item_name: item.product.name,
                 trimmed_item_name: trimmed_item_name,
                 distance: distance
               });
+
+              const product = items.find(item => item.product?.categoryId === category.id);
+
+              if (product) {
+                itemProducts.push({
+                  category,
+                  item_name: product.name,
+                  trimmed_item_name: trimmed_item_name,
+                  distance: distance,
+                  product: product
+                });
+              }
             }
           });
         });
       }
       
-      if (item_categories.length) {
-        item_categories.sort((a, b) => b.distance-a.distance);
-  
-        item.product.category = {id: item_categories[0].category.id};
+      if (itemProducts.length) {
+        itemProducts.sort((a, b) => b.distance-a.distance);
+        item.product = itemProducts[0].product;
+        continue;
+      }
 
-        console.log(item_categories[0]);
+      if (itemCategories.length) {
+        itemCategories.sort((a, b) => b.distance-a.distance);
+  
+        const itemCategory = itemCategories[0];
+
+        item.product.categoryId = itemCategory.category.id;
+
+        console.log(itemCategory);
       }
 
       //console.log(item_categories);
