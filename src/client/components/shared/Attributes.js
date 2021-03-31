@@ -67,7 +67,7 @@ export default function Attributes(props) {
   return (
     <TreeTable
       flat
-      parent_id_key="parentId"
+      parentIdKey="parentId"
       columns={columns}
       items={attributes}/>
   );

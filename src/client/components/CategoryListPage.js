@@ -27,8 +27,8 @@ export default class CategoryList extends Component {
     ])
     .then(([attributes, categories]) => {
       this.setState({
-        categories: categories.data,
-        resolvedCategories: categories.data,
+        categories: categories,
+        resolvedCategories: categories,
         attributes: attributes
       }, () => {
         this.setState({
@@ -47,9 +47,14 @@ export default class CategoryList extends Component {
     this.setSearchCategoryName = this.setSearchCategoryName.bind(this);
   }
   setAttributeVisibility(attribute, visible) {
+    const {
+      attributes
+    } = this.state;
     function set(attribute, visible, selected_attributes) {
-      attribute.children.forEach(child => {
-        set(child, visible, selected_attributes);
+      attributes.forEach(a => {
+        if (a.parentId === attribute.id) {
+          set(a, visible, selected_attributes);
+        }
       });
       if (visible) selected_attributes[attribute.id] = attribute;
       else delete selected_attributes[attribute.id];
@@ -69,29 +74,30 @@ export default class CategoryList extends Component {
       this.setState({columns: this.getColumns()});
     });
   }
-  getAttributeColumns(attributes) {
+  getAttributeColumns(selectedAttributes) {
+    const {
+      attributes
+    } = this.state;
+
     let columns = [];
     let value;
-    for (let key in attributes) {
-      value = attributes[key];
+    for (let key in selectedAttributes) {
+      value = selectedAttributes[key];
       let column = {
         id: value.id,
-        label: value.name['fi-FI']+(value.unit ? " "+value.unit : ""),
-        property: 'attributes['+value.id+'].value'
+        label: value.name[locale.getLocale()]+(value.unit ? " "+value.unit : ""),
+        formatter: (value => (_, item) => item.attributes.find(a => a.attributeId === value?.id)?.value)(value)
       }
       let target_unit = locale.getAttributeUnit(value.name['en-US']);
       if (target_unit) {
         let rate = config.unit_conversions[value.unit][target_unit];
         if (rate) {
-          column.label = value.name['fi-FI']+" "+target_unit;
-          column.formatter = (v, i) => {
-            let result = rate*v;
+          column.label = value.name[locale.getLocale()]+" "+target_unit;
+          column.formatter = value => {
+            let result = rate*value;
             return result ? result.toFixed(2) : '';
           }
         }
-      }
-      if (value.children) {
-        column.columns = this.getAttributeColumns(value.children);
       }
       columns.push(column);
     }
@@ -124,25 +130,19 @@ export default class CategoryList extends Component {
   getColumns() {
     return [
       {
-        label: <input type="checkbox"
-                      onClick={event => this.selectCategory(null, event.target.checked)}/>,
-        formatter: (value, item) => <input type="checkbox"
-                                           onClick={event => this.selectCategory(item, event.target.checked)}/>,
-        class: 'nowrap'
-      },
-      {
         id: 'name',
         label: 'Name',
         property: 'name',
-        formatter: (value, item) => {
+        formatter: (name, item) => {
+          const translation = name[locale.getLocale()];
           const searchCategoryName = this.state.searchCategoryName;
-          const index = value.toLowerCase().indexOf(searchCategoryName.toLowerCase());
-          let content = value;
+          const index = translation.toLowerCase().indexOf(searchCategoryName.toLowerCase());
+          let content = translation;
           if (index !== -1) {
             content = <>
-              {value.slice(0, index)}
-              <b>{value.slice(index, index+searchCategoryName.length)}</b>
-              {value.slice(index+searchCategoryName.length)}
+              {translation.slice(0, index)}
+              <b>{translation.slice(index, index+searchCategoryName.length)}</b>
+              {translation.slice(index+searchCategoryName.length)}
             </>;
           }
           return <a href={"/category/"+item.id}>
@@ -189,8 +189,11 @@ export default class CategoryList extends Component {
     }, () => {
       if (searchCategoryName !== '') {
         const resolvedCategories = this.state.categories.filter(category => (
-          category.name.toLowerCase().indexOf(searchCategoryName.toLowerCase()) !== -1
-        ));
+          (category.name[locale.getLocale()] || '').toLowerCase().indexOf(searchCategoryName.toLowerCase()) !== -1
+        )).map(category => ({
+          ...category,
+          parentId: null
+        }));
         this.setState({
           resolvedCategories
         });
@@ -210,7 +213,7 @@ export default class CategoryList extends Component {
           flat
           columns={this.state.attribute_selector_columns}
           items={this.state.attributes}
-          parent_id_key="parentId"/>
+          parentIdKey="parentId"/>
         <p>
           <label>
             Search category:&nbsp;
@@ -224,7 +227,7 @@ export default class CategoryList extends Component {
           flat
           columns={this.state.columns}
           items={this.state.resolvedCategories}
-          parent_id_key="parentId"/>
+          parentIdKey="parentId"/>
       </div>
     );
   }
