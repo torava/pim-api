@@ -11,10 +11,11 @@ function convertFirstLetterCapital(text) {
   return text ? text.substring(0,1).toUpperCase()+text.substring(1).toLowerCase() : text;
 }
 
-export const getEntitiesFromCsv = (csv) => {
+export const getEntitiesFromCsv = (csv, options = {}) => {
   const records = parse(csv, {
     columns: true,
-    skipEmptyLines: true
+    skipEmptyLines: true,
+    ...options
   });
   return records;
 };
