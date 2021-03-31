@@ -23,7 +23,7 @@ export default class CategoryList extends Component {
 
     Promise.all([
       DataStore.getAttributes(),
-      axios.get('/api/category/?parent&locale='+locale.getLocale())
+      DataStore.getCategories()
     ])
     .then(([attributes, categories]) => {
       this.setState({
@@ -202,13 +202,15 @@ export default class CategoryList extends Component {
     });
   }
   render() {
-    if (!this.state || !this.state.columns || !this.state.attributes) return null;
+    if (!this.state || !this.state.columns || !this.state.attributes || !this.state.resolvedCategories) return null;
     return (
       <div>
         <button onClick={this.copyAttributes}>Copy Selected Attributes</button>
         <TreeTable
+          flat
           columns={this.state.attribute_selector_columns}
-          items={this.state.attributes}/>
+          items={this.state.attributes}
+          parent_id_key="parentId"/>
         <p>
           <label>
             Search category:&nbsp;
@@ -219,8 +221,10 @@ export default class CategoryList extends Component {
           </label>
         </p>
         <TreeTable
+          flat
           columns={this.state.columns}
-          items={this.state.resolvedCategories}/>
+          items={this.state.resolvedCategories}
+          parent_id_key="parentId"/>
       </div>
     );
   }

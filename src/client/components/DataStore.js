@@ -2,14 +2,13 @@ import axios from "axios";
 
 export default {
   constructor() {
-    this.manufacturers = [];
-    this.transactions = [];
-    this.parties = [];
-    this.groups = [];
-    this.attributes = [];
-    this.categories = [];
-    this.categories_attributes = [];
-    this.items = [];
+    this.manufacturers;
+    this.transactions;
+    this.parties;
+    this.groups;
+    this.attributes;
+    this.categories;
+    this.items;
   },
   getManufacturers() {
     return new Promise((resolve, reject) => {
@@ -99,7 +98,7 @@ export default {
         resolve(this.attributes);
       }
       else {
-        axios.get('/api/attribute?parent')
+        axios.get('/api/attribute')
         .then(response => {
           this.attributes = response.data;
           resolve(this.attributes);
@@ -120,23 +119,6 @@ export default {
         .then(response => {
           this.categories = response.data;
           resolve(this.categories);
-        })
-        .catch(error => {
-          reject(error);
-        });
-      }
-    });
-  },
-  getCategoriesWithAttributes(fetch) {
-    return new Promise((resolve, reject) => {
-      if (this.categories_attributes && !fetch) {
-        resolve(this.categories_attributes);
-      }
-      else {
-        axios.get('/api/category?attributes&parent')
-        .then(response => {
-          this.categories_attributes = response.data;
-          resolve(this.categories_attributes);
         })
         .catch(error => {
           reject(error);
