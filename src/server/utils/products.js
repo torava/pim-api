@@ -25,7 +25,6 @@ export const getProductsFromOpenFoodFactsRecords = async (records) => {
     const measureMatch = quantity.match(/([0-9]+)\s?([m|k]?[g|l])/);
     const measure = Number(measureMatch?.[1]);
     const unit = measureMatch?.[2];
-    console.log('adding product', product_name, measure, unit);
     if (measure && unit && product_name !== '') {
 
       const brand = brands.split(',')[0];
@@ -62,6 +61,8 @@ export const getProductsFromOpenFoodFactsRecords = async (records) => {
         unit,
         categoryId
       });
+
+      console.log('added', records.length, 'products');
     }
   }
 };
