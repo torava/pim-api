@@ -16,6 +16,8 @@ export const getProductsFromOpenFoodFactsRecords = async (records) => {
     return category;
   });
 
+  let n = 0;
+
   for (const record of records) {
     const {
       quantity,
@@ -61,8 +63,9 @@ export const getProductsFromOpenFoodFactsRecords = async (records) => {
         unit,
         categoryId
       });
-
-      console.log('added', records.length, 'products');
+      n++;
     }
   }
+
+  console.log('added', n, 'products');
 };
