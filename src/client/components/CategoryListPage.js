@@ -75,10 +75,6 @@ export default class CategoryList extends Component {
     });
   }
   getAttributeColumns(selectedAttributes) {
-    const {
-      attributes
-    } = this.state;
-
     let columns = [];
     let value;
     for (let key in selectedAttributes) {

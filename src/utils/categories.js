@@ -135,10 +135,10 @@ export const getCategoriesWithAttributes = (categories, category, attributeId) =
     let [populatedCategory, attributes] = result;
     results.push([populatedCategory, attributes]);
     while (attributes.length) {
-      const result = getCategoryWithAttributes(categories, category.parentId, attributeId);
+      const result = getCategoryWithAttributes(categories, populatedCategory.parentId, attributeId);
       if (result) {
-        let [parentCategory, attributes] = result;
-        results.push([parentCategory, attributes]);
+        [populatedCategory, attributes] = result;
+        results.push([populatedCategory, attributes]);
       } else {
         attributes = false;
       }

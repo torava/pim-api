@@ -75,7 +75,6 @@ export const exportTransactions = (transactions, categories, attributes, attribu
 
       const productCategory = categories.find(category => category.id === item.product.categoryId);
 
-      console.log('product category', productCategory);
 
       const categoryParentId = productCategory?.parentId;
       const rootCategory = getRootEntity(categories, categoryParentId);
@@ -89,8 +88,6 @@ export const exportTransactions = (transactions, categories, attributes, attribu
 
         attributeColumns.push(formatNumber(attributeValue));
       });
-
-      console.log('attribute columns', attributeColumns);
 
       return [
         formatDate(transaction.date),

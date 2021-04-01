@@ -5,7 +5,7 @@ export const getRootEntity = (entities, parentId) => {
 
   const parentsParent = getRootEntity(entities, parent.parentId);
 
-  return parentsParent || parent;
+  return parentsParent || parent;
 };
 
 export const convertMeasure = (measure, from_unit, to_unit) => {
