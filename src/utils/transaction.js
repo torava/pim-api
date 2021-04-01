@@ -247,7 +247,7 @@ export function stripDetails(name, manufacturers = []) {
         if (accuracy > 0.8) {
           //name = name.substring(0, token.start)+name.substring(token.end+1);
           name = name.replace(new RegExp(token.substring, 'i'), '').trim();
-          console.log('detail', detail, 'name', name, 'accuracy', accuracy, 'token', token, 'type', type, 'detailName', detailName);
+          //console.log('detail', detail, 'name', name, 'accuracy', accuracy, 'token', token, 'type', type, 'detailName', detailName);
         }
       });
     }
