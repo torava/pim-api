@@ -34,7 +34,7 @@ export const getItemsFromCsv = async (itemRecords, productRecords, partyRecords,
         let found = false;
         let categoryEntity;
         for (const c of categories) {
-          if (Object.values(c.name).includes(column)) {
+          if (Object.values(c.name).some(name => name.toLowerCase() === column.toLowerCase())) {
             categoryEntity = {
               id: c.id
             }
@@ -56,7 +56,8 @@ export const getItemsFromCsv = async (itemRecords, productRecords, partyRecords,
 
     const entity = await Product.query().upsertGraphAndFetch({
       ...record,
-      measure: Number(record.measure),
+      quantity: Number(record.quantity) || null,
+      measure: Number(record.measure) || null,
       id: undefined
     }, {
       noDelete: true,
@@ -73,6 +74,7 @@ export const getItemsFromCsv = async (itemRecords, productRecords, partyRecords,
     record.transactionId = transactionRecordIdMap[record.transactionId]?.id;
     await Item.query().insertAndFetch({
       ...record,
+      price: Number(record.price) || null,
       id: undefined
     }).returning('*');
   }
