@@ -56,14 +56,15 @@ export const getItemAttributeValue = (item, attributes = []) => {
     const quantity = getItemQuantity(item) || 1;
     const unit = getItemUnit(item);
     const measure = convertMeasure(getItemMeasure(item), unit, 'kg');
+    const perUnit = attribute?.unit?.split('/')?.[1];
     
     let value;
-    if (attribute?.unit?.split('/')?.[1] === 'EUR') {
+    if (perUnit === 'EUR') {
       value = attribute.value*item.price;
+    } else if (perUnit && ['l', 'g'].includes(perUnit.substring(1))) {
+      value = attribute?.value*convertMeasure(measure, 'kg', perUnit)*quantity;
     } else if (!unit) {
       value = attribute?.value*quantity;
-    } else {
-      value = attribute?.value*measure*quantity;
     }
     if (!isNaN(value)) {
       return [value, attribute];

@@ -429,20 +429,24 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       }
 
       // set attribute value and source
-      if (row[2] != "")
-      attributes[row[0]].attributes.push({
-        attribute,
-        value: parseFloat(row[2].replace(',', '.')),
-        unit: component[attr_ref][1].toLowerCase(),
-        sources: [
+      if (row[2] != "") {
+        const value = parseFloat(row[2].replace(',', '.'));
+        const unit = `${component[attr_ref][1].toLowerCase()}/hg`;
+        const sources = [
           {
-            reference_url: 'https://fineli.fi/fineli/en/elintarvikkeet/'+row[0],
+            reference_url: `https://fineli.fi/fineli/en/elintarvikkeet/${row[0]}`,
             source: {
               id: base_sources[0].id
             }
           }
-        ]
-      });
+        ];
+        attributes[row[0]].attributes.push({
+          attribute,
+          value,
+          unit,
+          sources
+        });
+      }
 
       attribute_count++;
     }
