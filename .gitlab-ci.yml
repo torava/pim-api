@@ -57,6 +57,7 @@ release-image:
     - docker push $CONTAINER_RELEASE_IMAGE
 
 development:
+  image: node:14
   stage: deploy
   before_script:
     - npm config set prefix /usr/local
