@@ -406,7 +406,7 @@ export const resolveCategories = async (transaction, items = [], products = [], 
                 item_name: item.product.name,
                 trimmed_item_name: trimmed_item_name,
                 name: translation,
-                distance: distance
+                distance
               });
 
               const product = items.find(item => item.product?.categoryId === category.id);
@@ -417,8 +417,8 @@ export const resolveCategories = async (transaction, items = [], products = [], 
                   item_name: product.name,
                   trimmed_item_name: trimmed_item_name,
                   name: translation,
-                  distance: distance,
-                  product: product
+                  distance,
+                  product
                 });
               }
             }
@@ -459,17 +459,19 @@ export const resolveCategories = async (transaction, items = [], products = [], 
         });
       }
       
-      if (itemProducts.length) {
-        itemProducts.sort((a, b) => b.distance-a.distance);
-        item.product = itemProducts[0].product;
+      itemProducts.sort((a, b) => b.distance-a.distance);
+      itemCategories.sort((a, b) => b.distance-a.distance);
+
+      const itemProduct = itemProducts[0];
+      const itemCategory = itemCategories[0];
+
+      if (itemProduct?.distance > itemCategory?.distance) {
+        
+        item.product = itemProduct.product;
+
+        console.log(itemProduct);
         continue;
-      }
-
-      if (itemCategories.length) {
-        itemCategories.sort((a, b) => b.distance-a.distance);
-  
-        const itemCategory = itemCategories[0];
-
+      } else if (itemCategory) {
         item.product.categoryId = itemCategory.category.id;
 
         console.log(itemCategory);
