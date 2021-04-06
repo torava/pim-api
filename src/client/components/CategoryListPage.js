@@ -130,16 +130,18 @@ export default class CategoryList extends Component {
         label: 'Name',
         property: 'name',
         formatter: (name, item) => {
-          const translation = name[locale.getLocale()];
-          const searchCategoryName = this.state.searchCategoryName;
-          const index = translation.toLowerCase().indexOf(searchCategoryName.toLowerCase());
+          const translation = name[locale.getLocale()] || name['en-US'];
           let content = translation;
-          if (index !== -1) {
-            content = <>
-              {translation.slice(0, index)}
-              <b>{translation.slice(index, index+searchCategoryName.length)}</b>
-              {translation.slice(index+searchCategoryName.length)}
-            </>;
+          const searchCategoryName = this.state.searchCategoryName;
+          if (searchCategoryName.length) {
+            const index = translation.toLowerCase().indexOf(searchCategoryName.toLowerCase());
+            if (index !== -1) {
+              content = <>
+                {translation.slice(0, index)}
+                <b>{translation.slice(index, index+searchCategoryName.length)}</b>
+                {translation.slice(index+searchCategoryName.length)}
+              </>;
+            }
           }
           return <a href={"/category/"+item.id}>
             {content}
