@@ -1,6 +1,3 @@
-'use strict';
-
-import axios from 'axios';
 import React, {Component} from 'react';
 import AsteriskTable from 'react-asterisk-table';
 import tree from 'react-asterisk-table/lib/Tree';
@@ -43,7 +40,6 @@ export default class CategoryList extends Component {
 
     this.setAttributeVisibility = this.setAttributeVisibility.bind(this);
     this.selectCategory = this.selectCategory.bind(this);
-    this.copyAttributes = this.copyAttributes.bind(this);
     this.setSearchCategoryName = this.setSearchCategoryName.bind(this);
   }
   setAttributeVisibility(attribute, visible) {
@@ -165,22 +161,6 @@ export default class CategoryList extends Component {
     }
     this.setState({selected_categories});
   }
-  copyAttributes() {
-    axios.post('/api/category/attribute/copy', {
-      attributes: Object.keys(this.state.selected_attributes),
-      categories: Object.keys(this.state.selected_categories)
-    })
-    .then(result => {
-      console.log(result);
-      DataStore.getCategoriesWithAttributes(true)
-      .then(categories => {
-        this.setState({categories});
-      });
-    })
-    .catch(error => {
-      console.error(error);
-    });
-  }
   setSearchCategoryName(searchCategoryName) {
     this.setState({
       searchCategoryName
@@ -206,7 +186,6 @@ export default class CategoryList extends Component {
     if (!this.state || !this.state.columns || !this.state.attributes || !this.state.resolvedCategories) return null;
     return (
       <div>
-        <button onClick={this.copyAttributes}>Copy Selected Attributes</button>
         <TreeTable
           flat
           columns={this.state.attribute_selector_columns}
