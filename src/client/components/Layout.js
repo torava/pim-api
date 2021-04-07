@@ -81,7 +81,7 @@ export default class Layout extends React.Component {
     this.setState({currentGroupId});
   }
   onEnergyUnitChange(event) {
-    locale.setAttributeUnit('energy,calculated', event.target.value);
+    locale.setAttributeUnit('Energy,calculated', event.target.value);
   }
   onFormatChange(event) {
     ui.setFormat(event.target.value);
@@ -205,10 +205,10 @@ export default class Layout extends React.Component {
             <select
               id="energy"
               placeholder="Energy"
-              value={locale.getAttributeUnit('energy,calculated')}
+              value={locale.getAttributeUnit('Energy,calculated')}
               onChange={this.onEnergyUnitChange.bind(this)}>
-              <option value="kJ">kJ</option>
-              <option value="kcal">kcal</option>
+              <option value="kj/hg">kJ</option>
+              <option value="kcal/hg">kcal</option>
             </select>
           </p>
           <p>

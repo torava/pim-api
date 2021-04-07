@@ -7,7 +7,7 @@ import tree from 'react-asterisk-table/lib/Tree';
 import sortable from 'react-asterisk-table/lib/Sortable';
 
 import { locale } from './locale';
-import config from '../../config/default.json';
+import config from '../../config/default';
 import DataStore from './DataStore';
 
 const TreeTable = sortable(tree(AsteriskTable));
@@ -86,7 +86,7 @@ export default class CategoryList extends Component {
       }
       let target_unit = locale.getAttributeUnit(value.name['en-US']);
       if (target_unit) {
-        let rate = config.unit_conversions[value.unit][target_unit];
+        let rate = config.unitConversionRates[value.unit][target_unit];
         if (rate) {
           column.label = value.name[locale.getLocale()]+" "+target_unit;
           column.formatter = value => {

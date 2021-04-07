@@ -1,4 +1,6 @@
+import { locale } from "../client/components/locale";
 import { convertMeasure } from "./entities";
+import config from '../config/default';
 
 export const getItemNameByDepth = (item, depth) => {
   let name,
@@ -51,23 +53,34 @@ export const getItemNameByDepth = (item, depth) => {
   return {id, name};
 };
 
-export const getItemAttributeValue = (item, attributes = []) => {
-  for (const attribute of attributes) {
+export const getItemAttributeValue = (item, categoryAttributes = [], attributes = []) => {
+  for (const categoryAttribute of categoryAttributes) {
+    const attribute = attributes.find(a => a.id === categoryAttribute.attributeId);
+
     const quantity = getItemQuantity(item) || 1;
     const unit = getItemUnit(item);
     const measure = convertMeasure(getItemMeasure(item), unit, 'kg');
-    const perUnit = attribute?.unit?.split('/')?.[1];
+    const perUnit = categoryAttribute?.unit?.split('/')?.[1];
     
-    let value;
+    let value,
+        rate = 1;
+    
+    const currentAttributeUnit = locale.getAttributeUnit(attribute?.name['en-US']);
+
+    console.log('attribute', attribute, 'currentAttributeUnit', currentAttributeUnit, 'unit', categoryAttribute.unit, 'attribute unit', currentAttributeUnit);
+    if (currentAttributeUnit) {
+      rate = config.unitConversionRates[categoryAttribute.unit]?.[currentAttributeUnit] || 1;
+    }
+
     if (perUnit === 'EUR') {
-      value = attribute.value*item.price;
+      value = rate*categoryAttribute.value*item.price;
     } else if (perUnit && ['l', 'g'].includes(perUnit.substring(1))) {
-      value = attribute?.value*convertMeasure(measure, 'kg', perUnit)*quantity;
+      value = rate*categoryAttribute?.value*convertMeasure(measure, 'kg', perUnit)*quantity;
     } else if (!unit) {
-      value = attribute?.value*quantity;
+      value = rate*categoryAttribute?.value*quantity;
     }
     if (!isNaN(value)) {
-      return [value, attribute];
+      return [value, categoryAttribute];
     }
   }
 };
