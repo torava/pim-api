@@ -1,2 +1,12 @@
-id,name,"category:name[""en-US""]",measure,unit
-1,Sondey Bio Organic Rice Cakes,Rice Cake,130,g
+id,name,"category:name[""en-US""]",measure,unit,quantity
+1,Sondey Bio Organic Rice Cakes,Rice cake,130,g,
+2,Nixe Tuna Filet In Sunflower Oil,"Tuna, in oil, canned",140,g,
+3,PohjolanMeijeri Kaurajuoma Kahvi,"Oat drink without milk, with added calcium and vitamins",1,l,
+4,Halva Vanhat Autot Salmiakki 15g,Salty liqourice,15,g,
+5,Valio Oivariini 550g vähärasvaisempi,"Blended spread 60%, Oivariini, less fat, low-lactose",550,g,
+6,LordNelson Rooibos Orange,Tea,,,
+7,OceanSea Fish Fingers from Alaska pollock fillet,"Fish fingers, oven-baked, industrial",450,g,
+8,Koskikylän pinaattiohukaiset,"Thin spinach pancake, spinach crepes, Lidl",400,g,
+9,Koskikylän veriohukaiset,"Blood pancake, Atria/Kartanon, Lidl",400,g,
+10,Luomu peruna 1kg,"Potato, unpeeled, avarage, raw",1,kg,
+11,Piltti Mango Kuutoset 6x125g 4kk,"Exotic Fruit, Average, Mango/Papaya, Without Skin",125,g,6
