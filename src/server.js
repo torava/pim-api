@@ -1,4 +1,5 @@
 import Express from 'express';
+import serverless from 'serverless-http';
 import compression from 'compression';
 import apicache from 'apicache';
 import bodyParser from 'body-parser';
@@ -55,6 +56,8 @@ if (env === 'production') {
 }
 
 registerApi(app);
+
+export const handler = serverless(app);
 
 // Using jsdom and node-canvas we define some global variables to emulate HTML DOM.
 // Although a complete emulation can be archived, here we only define those globals used
