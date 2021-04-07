@@ -12,3 +12,10 @@ functions:
     events:
       - http: ANY /
       - http: 'ANY /{proxy+}'
+
+plugins:
+  - serverless-webpack
+
+package:
+  exclude:
+    - node_modules/**
