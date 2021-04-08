@@ -1,4 +1,4 @@
-"name[""en-US""]","name[""fi-FI""]",aliases,parent,attribute:GHG (kgCO₂e),attribute:GHG (kgCO₂e/kg),attribute:GHG (kgCO₂e/kWh),attribute:GHG (kgCO₂e/km),attribute:GHG (kgCO₂e/l),attribute:GHG (kgCO₂e/EUR),note,sourceId
+pa,"name[""fi-FI""]",aliases,parent,attribute:GHG (kgCO₂e),attribute:GHG (kgCO₂e/kg),attribute:GHG (kgCO₂e/kWh),attribute:GHG (kgCO₂e/km),attribute:GHG (kgCO₂e/l),attribute:GHG (kgCO₂e/EUR),note,sourceId
 Almond,Manteli,,,,"1,54",,,,,"Almonds, median",1
 "Almond Drink, Unsweetened, Alrpo","Mantelijuoma, makeuttamaton, alpro","[""Mantelijuoma""]",,,,,,"0,42",,"Almond/coconut milk, median",1
 Animal feed,,"[""Kierretikku"", ""Softies herkkupala""]",Supplies,,,,,,"3,36",Products for domestic animals,2
@@ -140,7 +140,7 @@ Cucumber,Kurkku,,,,"0,23",,,,,"Cucumber/gherkins, median",1
 "Deep-Fried Vegetable Pasty, Hoviruoka",,"[""Vegaaninen piirakka""]",,,,,,,"0,7",Plant based groceries,2
 Dental care products,Hammashoitotuotteet,"[""Dental flosh"", ""Hammaslanka"", ""Suuvesi""]",Hygiene products,,,,,,,,
 Dental care services,Hammashoitopalvelut,,Services,,,,,,"0,2",Health care services,2
-Deposit,Pantti,"[""Pullopantti""]",Commerce,,,,,,,,
+Deposit,Pantti,"[""Pullopantti"", ""Panttipalautus""]",Commerce,,,,,,,,
 Deposit return,Pullopalautus,,Commerce,,,,,,,,
 Dessert sauces,,,,,,,,,"1,1",Animal based groceries,2
 Diesel,Diesel,"[""Dieselöljy""]",Fuel,,,,,"2,68",,,3
@@ -396,6 +396,8 @@ Saucepan,Kasari,,Housekeeping tools,,,,,,,,
 Sausages,,,,,"5,64",,,,,"Grilled sausage, high meat content, life cycle, cradle to grave, approximate value",28
 Savoury bakery,,,,,,,,,"1,1",Animal based groceries,2
 Savoury bakery,,,,,"2,5",,,,,"Pastry, including waste, secondary source",7
+"Pizza Crust, Basic Pizza Dough",,,,,,,,,"1,1",Animal based groceries,2
+"Pizza Crust, Basic Pizza Dough",,,,,"2,5",,,,,"Pastry, including waste, secondary source",7
 Savoury biscuits,,,,,,,,,"0,7",Plant based groceries,2
 Sea bass,Meriahven,,Fish,,"3,27",,,,,"Sea bass, median",1
 Services,Palvelut,,,,,,,,0.3,Muut palvelut,2
