@@ -161,7 +161,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
           // 1.1.12 1:12
           line_date = line.match(/((\d{1,2})[\.|\,|\/](\d{1,2})[\.|\,|\/](\d{2,4}))(\s)?((\d{1,2})[:|,|\.|\s|z]?((\d{2})[:|,|\.|\s|z]?)?(\d{2})?)?/);
           date = line_date && parseYear(line_date[4])+'-'+line_date[3]+'-'+line_date[2]+' '+line_date[7]+':'+line_date[9];//+':'+line_date[10];
-          if (date && moment(date).isValid()) {
+          if (date && moment(date, 'YYYY-MM-DD hh:mm').isValid()) {
             console.log(line_date, date);
             data.date = date;
 
@@ -172,7 +172,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
             // 1:12 1-1-12
             line_date = line.match(/((\d{1,2}[:|,|\.|1]?)(\d{2}[:|,|\.]?)?(\d{1,2})?)?(\s)?((\d{1,2})[\-|\.](\d{1,2})[\-|\.](\d{2,4}))/);
             date = line_date && parseYear(line_date[9])+'-'+line_date[8]+'-'+line_date[7]+' '+line_date[1];
-            if (date && moment(date).isValid()) {
+            if (date && moment(date, 'YYYY-MM-DD hh:mm').isValid()) {
               console.log(line_date, date);
               data.date = date;
 
@@ -334,14 +334,16 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
           */
           line_item_details = line_number_format.replace(/-/g, '').match(/((\d+)\s)?((((\d+)|((\d+\.\d{2,3})(\s?kg)?))\s?x\s?)?((\d+\.\d{2})\s?)(\s?EUR\/kg)?)/i);
 
-          if (line_item_details && (line_item_details[6] || line_item_details[8])) {
+          if (line_item_details && (line_item_details[6] || line_item_details[8])) {
             console.log(line, line_item_details);
+            const quantity = parseFloat(line_item_details[6]) || undefined;
+            const measure = parseFloat(line_item_details[8]) || undefined;
             items[items.length-1] = {
               ...items[items.length-1],
               item_number: line_item_details[2],
-              quantity: parseFloat(line_item_details[6]),
-              measure: parseFloat(line_item_details[8]),
-              unit: 'kg'
+              quantity,
+              measure,
+              unit: measure ? 'kg' : undefined
             };
 
             previous_line = 'details';
