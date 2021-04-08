@@ -120,7 +120,6 @@ export const getCategoriesFromCsv = async (records, sourceRecords) => {
           }
         }
       }
-      
       await Category.query().upsertGraph(item, {
         noDelete: true,
         relate: true
