@@ -341,7 +341,7 @@ export const resolveCategories = async (transaction, items = [], products = [], 
             stringSimilarity(productName, comparableProductName)
           );
           
-          if (distance > 0.8) {
+          if (distance > 0.7) {
             console.log('comparing product to items', productName, itemName, distance);
             console.log(item.product.name, comparableItem.text, distance);
             itemProducts.push({
@@ -365,7 +365,7 @@ export const resolveCategories = async (transaction, items = [], products = [], 
             stringSimilarity(productName, comparableProductName)
           );
           
-          if (distance > 0.8) {
+          if (distance > 0.7) {
             console.log('comparing product to products', productName, itemName, distance);
             console.log(item.product.name, comparableProduct.name, distance);
             itemProducts.push({
