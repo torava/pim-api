@@ -27,7 +27,8 @@
     }
   },
   "author": "Teemu Orava",
-  "license": "ISC",
+  "license": "UNLICENSED",
+  "private": true,
   "dependencies": {
     "apicache": "^1.6.2",
     "axios": "^0.21.1",

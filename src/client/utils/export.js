@@ -11,7 +11,7 @@ export const exportTransactions = (transactions, categories, attributes, attribu
   console.log('attributes', JSON.stringify(attributes))
 
   const categoryLocale = locale.getLocale();
-  const formattingLocale = 'fi-FI';//locale.getLocale();
+  const formattingLocale = locale.getLocale();
 
   console.log('category locale', categoryLocale, 'formatting locale', formattingLocale);
 
@@ -96,11 +96,12 @@ export const exportTransactions = (transactions, categories, attributes, attribu
         item.product.name,
         rootCategory?.name?.[categoryLocale],
         productCategory?.name?.[categoryLocale],
-        formatNumber(productQuantity),
+        // TODO: fix in resolving
+        productQuantity ? formatNumber(productQuantity) : '',
         formatNumber(itemQuantity),
         formatNumber(productWeight),
         formatNumber(itemWeight),
-        formatNumber(productVolume),
+        productVolume ? formatNumber(productVolume) : '',
         formatNumber(itemVolume),
         formatNumber(item.price),
         ...attributeColumns

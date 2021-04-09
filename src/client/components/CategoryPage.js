@@ -1,9 +1,5 @@
-'use strict';
-
 import axios from 'axios';
 import React, {Component} from 'react';
-import Autosuggest from 'react-autosuggest';
-import CreatableSelect from 'react-select/lib/Creatable';
 import AsteriskTable from 'react-asterisk-table';
 
 export default class Category extends Component {
@@ -87,69 +83,21 @@ export default class Category extends Component {
     ]
   }
   getAttributeColumns() {
-    const that = this;
-
-    // When suggestion is clicked, Autosuggest needs to populate the input
-    // based on the clicked suggestion. Teach Autosuggest how to calculate the
-    // input value for every given suggestion.
-    const getAttributeSuggestionValue = suggestion => {
-      console.log(suggestion);
-      return suggestion.name[that.state.locale] || '';
-    }
-
-    // Use your imagination to render suggestions.
-    const renderAttributeSuggestion = suggestion => (
-      <div>
-        {getAttributeSuggestionValue(suggestion)}
-      </div>
-    );
-
-    const attributeNameInputProps = (value, item, index) => ({
-      placeholder: 'Name',
-      value: value || '',
-      onChange: that.onAttributeNameChange.bind(that, index)
-    });
-
-    const attributeParentInputProps = (value, item, index) => ({
-      placeholder: 'Parent',
-      value: value || '',
-      onChange: that.onAttributeParentChange.bind(that, index)
-    });
-
     return [
       {
         id: 'name',
         label: 'Name',
-        property: 'attribute.name.'+that.state.locale,
-        formatter: (value, item, index) => (
-          this.state.editable ?
-          <Autosuggest
-            suggestions={that.state.attributeSuggestions}
-            onSuggestionsFetchRequested={that.onAttributeSuggestionsFetchRequested}
-            onSuggestionsClearRequested={that.onAttributeSuggestionsClearRequested}
-            getSuggestionValue={getAttributeSuggestionValue}
-            renderSuggestion={renderAttributeSuggestion}
-            inputProps={attributeNameInputProps(value, item, index)}
-          /> :
+        property: 'attribute.name.'+this.state.locale,
+        formatter: (value) => (
           <span>{value}</span>
-          )
+        )
       },
       {
         id: 'parent',
         label: 'Parent',
         //property: 'attribute.parent.name.'+that.state.locale,
-        formatter: (value, item, index) => (
-          this.state.editable ?
-          <CreatableSelect
-            isMulti
-            filterOption={this.filterOption}
-            options={that.state.attributes}
-            onChange={that.onAttributeParentChange.bind(that, index)}
-            value={that.getParents(item.attribute)}
-            getOptionLabel={(option) => option.name[this.state.locale]}
-            getOptionValue={(option) => option.id}
-          /> :
-          <ul class="path">
+        formatter: (value, item) => (
+         <ul class="path">
             {this.getParentPath(item.attribute).map(parent => (
               <li>{parent.name[this.state.locale]}</li>
             ))}
@@ -164,10 +112,10 @@ export default class Category extends Component {
           <span>
             <input type="number"
                    value={value}
-                   onChange={this.onAttributeValueChange.bind(that, index)}/>
+                   onChange={this.onAttributeValueChange.bind(this, index)}/>
             <input type="text"
                    value={item.attribute.unit}
-                   onChange={this.onAttributeUnitChange.bind(that, index)}/>
+                   onChange={this.onAttributeUnitChange.bind(this, index)}/>
           </span> :
           <span>{value}{item.attribute.unit ? ' '+item.attribute.unit : ''}</span>
         )
@@ -182,25 +130,11 @@ export default class Category extends Component {
         id: 'name',
         label: 'Name',
         property: 'contribution.name.'+that.state.locale,
-        formatter: (value, item, index) => {
+        formatter: (value, item) => {
           if (item._aggregate) {
             return <strong>{item._aggregate}</strong>;
-          }
-          else if (this.state.editable) {
-            return (
-              <CreatableSelect
-                isMulti
-                filterOption={this.filterOption}
-                options={that.state.attributes}
-                onChange={that.onContributionNameChange.bind(that, index)}
-                value={value}
-                getOptionLabel={(option) => option.name[this.state.locale]}
-                getOptionValue={(option) => option.id}
-              />
-            );
-          }
-          else {
-            <span><a href="/category/{item.id}">{value}</a></span>
+          } else {
+            return <span><a href="/category/{item.id}">{value}</a></span>;
           }
         }
       },
@@ -262,41 +196,13 @@ export default class Category extends Component {
       category
     });
   }
-  getSourceColumns(attribute_index) {
-    const that = this;
-
-    const getSourceSuggestionValue = suggestion => suggestion.name || '';
-
-    // Use your imagination to render suggestions.
-    const renderSourceSuggestion = suggestion => (
-      <div>
-        {getSourceSuggestionValue(suggestion)}
-      </div>
-    );
-
-    const sourceInputProps = (value, item, source_index) => {
-      return {
-        placeholder: 'Source',
-        value: value || '',
-        onChange: that.onSourceNameChange.bind(this, attribute_index, source_index)
-      }
-    };
-
+  getSourceColumns() {
     return [
       {
         id: 'name',
         label: 'Name',
         property: 'source.name',
-        formatter: (value, item, index) => (
-          that.state.editable ?
-          <Autosuggest
-            suggestions={that.state.sourceSuggestions}
-            onSuggestionsFetchRequested={that.onSourceSuggestionsFetchRequested}
-            onSuggestionsClearRequested={that.onSourceSuggestionsClearRequested}
-            getSuggestionValue={getSourceSuggestionValue}
-            renderSuggestion={renderSourceSuggestion}
-            inputProps={sourceInputProps(value, item, index)}
-          /> :
+        formatter: (value) => (
           <span>{value}</span>
         )
       },
@@ -304,8 +210,8 @@ export default class Category extends Component {
         id: 'publication_date',
         label: 'Publication date',
         property: 'source.publication_date',
-        formatter: (value, item) => (
-          that.state.editable ?
+        formatter: (value) => (
+          this.state.editable ?
           <input value={value}/> :
           <span>{value}</span>
         )
@@ -314,8 +220,8 @@ export default class Category extends Component {
         id: 'publication_url',
         label: 'Publication URL',
         property: 'source.publication_url',
-        formatter: (value, item) => (
-          that.state.editable ?
+        formatter: (value) => (
+          this.state.editable ?
           <input value={value}/> :
           <span>{value}</span>
         )
@@ -323,8 +229,8 @@ export default class Category extends Component {
       {
         id: 'reference_date',
         label: 'Reference date',
-        formatter: (value, item) => (
-          that.state.editable ?
+        formatter: (value) => (
+          this.state.editable ?
           <input value={value}/> :
           <span>{value}</span>
         )
@@ -332,8 +238,8 @@ export default class Category extends Component {
       {
         id: 'reference_url',
         label: 'Reference URL',
-        formatter: (value, item) => (
-          that.state.editable ?
+        formatter: (value) => (
+          this.state.editable ?
           <input value={value}/> :
           <span>{value}</span>
         )
@@ -369,8 +275,7 @@ export default class Category extends Component {
   onCategoryParentChange(event, val) {
     let category = Object.assign({}, this.state.category),
         categories = this.state.categories,
-        name = val && val.newValue || event.target.value,
-        id;
+        name = val && val.newValue || event.target.value;
     
     for (let i in categories) {
       if (categories[i].name[this.state.locale] == name) {
@@ -391,21 +296,10 @@ export default class Category extends Component {
     });
   }
 
-  onContributionNameChange(index, event, val) {
-
-  }
-  onContributionAmountChange(index, event, val) {
-
-  }
-  onContributionUnitChange(index, event, val) {
-
-  }
-
   onAttributeNameChange(index, event, val) {
     let category = Object.assign({}, this.state.category),
         attributes = this.state.attributes,
-        name = val && val.newValue || event.target.value,
-        id;
+        name = val && val.newValue || event.target.value;
 
     // is new
 
@@ -685,23 +579,7 @@ export default class Category extends Component {
   }
 
   render() {
-    if (!this.state || !this.state.category || !this.state.attributes) return null;
-
-    let that = this;
-
-    const getCategorySuggestionValue = suggestion => suggestion.name[that.state.locale];
-    const renderCategorySuggestion = suggestion => (
-      <div>
-        {getCategorySuggestionValue(suggestion)}
-      </div>
-    );
-
-    const getCategoryParentSuggestionValue = suggestion => suggestion.parent.name[that.state.locale];
-    const renderCategoryParentSuggestion = suggestion => (
-      <div>
-        {getCategoryParentSuggestionValue(suggestion)}
-      </div>
-    );
+    if (!this.state || !this.state.category || !this.state.attributes) return null;
 
     return (
       <div>
@@ -713,39 +591,13 @@ export default class Category extends Component {
           <a href="#" onClick={this.save} style={{float:"right"}}>Save</a>
         </div>
         <div style={{clear:"both"}}/>
-          {that.state.editable ? 
-            <CreatableSelect
-              isMulti
-              //filterOption={this.filterOption}
-              options={this.state.categories}
-              onChange={this.onCategoryParentChange}
-              value={this.getParents(that.state.category)}
-              matchPos="start"
-              getOptionLabel={(option) => option.name[this.state.locale] || ""}
-              getOptionValue={(option) => option.id}
-            /> :
-            <ul class="path">
-              {that.getParentPath(that.state.category).map((parent) => (
-                <li><a href={parent.id}>{parent.name[this.state.locale]}</a></li>
-              ))}
-            </ul>
-          }
+          <ul class="path">
+            {this.getParentPath(this.state.category).map((parent) => (
+              <li><a href={parent.id}>{parent.name[this.state.locale]}</a></li>
+            ))}
+          </ul>
         <h1>
-          {this.state.editable ?
-            <Autosuggest
-              suggestions={that.state.categorySuggestions}
-              onSuggestionsFetchRequested={that.onCategorySuggestionsFetchRequested}
-              onSuggestionsClearRequested={that.onCategorySuggestionsClearRequested}
-              getSuggestionValue={getCategorySuggestionValue}
-              renderSuggestion={renderCategorySuggestion}
-              inputProps={{
-                placeholder: 'Category',
-                value: this.state.category.name.hasOwnProperty(this.state.locale) ? this.state.category.name[that.state.locale] : '',
-                onChange: this.onCategoryChange.bind(this)
-              }}
-            /> :
-            this.state.category.name[this.state.locale]
-          }
+          {this.state.category.name[this.state.locale]}
         </h1>
         <h2>Contributions</h2>
         <AsteriskTable
@@ -754,7 +606,7 @@ export default class Category extends Component {
             _aggregate: "Total",
             amount: function() {
               let total = 0;
-              that.state.category.contributions.map((item) => {
+              this.state.category.contributions.map((item) => {
                 total+= item.amount || 0;
               })
               return total;

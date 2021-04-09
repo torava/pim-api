@@ -46,6 +46,9 @@ class Locale {
   getLanguage() {
     return this.locale.substring(0, 2);
   }
+  getAttributeUnits() {
+    return this.attribute_units;
+  }
   getAttributeUnit(attribute) {
     return this.attribute_units[attribute];
   }
