@@ -231,29 +231,28 @@ export function stripName(name, manufacturers) {
 
 export function stripDetails(name, manufacturers = []) {
   let token,
-      accuracy,
-      words;
+      accuracy;
 
   const details = getDetails(manufacturers);
 
-  name = name.replace(measureRegExp, '').replace(/[0-9.,]/g, '');
+  let strippedName = name.replace(measureRegExp, '').replace(/[0-9.,]/g, '');
   for (let type in details) {
     for (let detailName in details[type]) {
       details[type][detailName].forEach(detail => {
         //token = similarSearch.getBestSubstring(name, detail);
         // Didn't work with compound words like ruukkutilli
-        token = LevenshteinDistance(detail.toLowerCase(), name.toLowerCase(), {search: true});
+        token = LevenshteinDistance(detail.toLowerCase(), strippedName.toLowerCase(), {search: true});
         accuracy = (detail.length-token.distance)/detail.length;
         if (accuracy > 0.8) {
           //name = name.substring(0, token.start)+name.substring(token.end+1);
-          name = name.replace(new RegExp(token.substring, 'i'), '').trim();
+          strippedName = strippedName.replace(new RegExp(token.substring, 'i'), '').trim();
           //console.log('detail', detail, 'name', name, 'accuracy', accuracy, 'token', token, 'type', type, 'detailName', detailName);
         }
       });
     }
   }
-  name = name.trim().replace(/,|\s{2,}/g, '');
-  return name;
+  strippedName = strippedName.trim().replace(/,|\s{2,}/g, '');
+  return strippedName;
 }
 
 export function toTitleCase(str) {
@@ -341,7 +340,7 @@ export const resolveCategories = async (transaction, items = [], products = [], 
             stringSimilarity(productName, comparableProductName)
           );
           
-          if (distance > 0.7) {
+          if (distance > 0.4) {
             console.log('comparing product to items', productName, itemName, distance);
             console.log(item.product.name, comparableItem.text, distance);
             itemProducts.push({
@@ -365,7 +364,7 @@ export const resolveCategories = async (transaction, items = [], products = [], 
             stringSimilarity(productName, comparableProductName)
           );
           
-          if (distance > 0.7) {
+          if (distance > 0.4) {
             console.log('comparing product to products', productName, itemName, distance);
             console.log(item.product.name, comparableProduct.name, distance);
             itemProducts.push({
