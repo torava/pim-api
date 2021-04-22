@@ -1,12 +1,14 @@
 import axios from 'axios';
 import React, {Component} from 'react';
 import AsteriskTable from 'react-asterisk-table';
+import { getAttributeColumns } from '../utils/ui';
+import DataStore from './DataStore';
+import { locale } from './locale';
+import Attributes from './shared/Attributes';
 
 export default class Category extends Component {
   constructor(props) {
     super(props);
-
-    let that = this;
 
     this.edit = this.edit.bind(this);
     this.cancel = this.cancel.bind(this);
@@ -34,34 +36,34 @@ export default class Category extends Component {
     };
 
     Promise.all([
-      axios.get('/api/attribute/'),
-      axios.get('/api/category/'),
+      DataStore.getAttributes(),
+      DataStore.getCategories(),
       axios.get('/api/source/'),
-      axios.get('/api/category/?id='+that.props.match.params.id)
+      axios.get('/api/category/'+this.props.match.params.id)
     ])
     .then(([attributes, categories, sources, category]) => {
-      that.setState({
+      this.setState({
         editable: false,
-        attributes: attributes.data,
-        categories: categories.data,
+        attributes,
+        categories,
         sources: sources.data,
         category: category.data[0],
-        product_columns: that.getProductColumns(),
-        attribute_columns: that.getAttributeColumns(),
-        contribution_columns: that.getContributionColumns(),
-        source_columns: that.getSourceColumns,
+        product_columns: this.getProductColumns(),
+        attribute_columns: this.getAttributeColumns(),
+        source_columns: this.getSourceColumns,
         attributeSuggestions: [],
         categorySuggestions: [],
-        sourceSuggestions: []
+        sourceSuggestions: [],
+        attributeAggregates: {}
       });
 
       document.title = "Category - "+this.state.category.name[this.state.locale];
 
-      that.addNewCategoryAttribute();
-      that.addNewCategoryContribution();
+      this.addNewCategoryAttribute();
+      this.addNewCategoryContribution();
 
-      for (let i in that.state.category.attributes) {
-        that.addNewCategoryAttributeSource(i);
+      for (let i in this.state.category.attributes) {
+        this.addNewCategoryAttributeSource(i);
       }
     })
     .catch(error => {
@@ -114,27 +116,25 @@ export default class Category extends Component {
                    value={value}
                    onChange={this.onAttributeValueChange.bind(this, index)}/>
             <input type="text"
-                   value={item.attribute.unit}
+                   value={item.attribute?.unit}
                    onChange={this.onAttributeUnitChange.bind(this, index)}/>
           </span> :
-          <span>{value}{item.attribute.unit ? ' '+item.attribute.unit : ''}</span>
+          <span>{value}{item.attribute?.unit ? ' '+item.attribute.unit : ''}</span>
         )
       }
     ]
   }
   getContributionColumns() {
-    const that = this;
-
     return [
       {
         id: 'name',
         label: 'Name',
-        property: 'contribution.name.'+that.state.locale,
+        property: 'contribution.name.'+this.state.locale,
         formatter: (value, item) => {
           if (item._aggregate) {
             return <strong>{item._aggregate}</strong>;
           } else {
-            return <span><a href="/category/{item.id}">{value}</a></span>;
+            return <span><a href={`/category/${item.id}`}>{value}</a></span>;
           }
         }
       },
@@ -149,10 +149,10 @@ export default class Category extends Component {
             return (<span>
               <input type="number"
                     value={value}
-                    onChange={this.onContributionAmountChange.bind(that, index)}/>
+                    onChange={this.onContributionAmountChange.bind(this, index)}/>
               <input type="text"
                     value={item.unit}
-                    onChange={this.onContributionUnitChange.bind(that, index)}/>
+                    onChange={this.onContributionUnitChange.bind(this, index)}/>
             </span>);
           }
           else {
@@ -160,7 +160,7 @@ export default class Category extends Component {
           }
         }
       }
-    ]
+    ].concat(getAttributeColumns(this.state.attributeAggregates, this.state.categories, locale.getAttributeUnits()));
   }
   addNewCategoryAttribute() {
     let category = Object.assign({}, this.state.category);
@@ -579,41 +579,57 @@ export default class Category extends Component {
   }
 
   render() {
-    if (!this.state || !this.state.category || !this.state.attributes) return null;
+    const {
+      category,
+      attributes,
+      locale,
+      editable,
+      product_columns,
+      attributeAggregates
+    } = this.state;
+
+    if (!category || !attributes) return null;
 
     return (
       <div>
-        <div id="viewing-nav" style={{display: !this.state.editable ? "block" : "none"}}>
+        <div id="viewing-nav" style={{display: !editable ? "block" : "none"}}>
           <a href="#" onClick={this.edit} style={{float:"right"}}>Edit</a>
         </div>
-        <div id="editing-nav" style={{display: this.state.editable ? "block" : "none"}}>
+        <div id="editing-nav" style={{display: editable ? "block" : "none"}}>
           <a href="#" onClick={this.cancel} style={{float:"left"}}>Cancel</a>
           <a href="#" onClick={this.save} style={{float:"right"}}>Save</a>
         </div>
         <div style={{clear:"both"}}/>
-          <ul class="path">
-            {this.getParentPath(this.state.category).map((parent) => (
-              <li><a href={parent.id}>{parent.name[this.state.locale]}</a></li>
+          <ul className="path">
+            {this.getParentPath(category).map((parent) => (
+              <li key={`path-${parent.id}`}>
+                <a href={parent.id}>{parent.name[locale]}</a>
+              </li>
             ))}
           </ul>
         <h1>
-          {this.state.category.name[this.state.locale]}
+          {category.name[locale]}
         </h1>
         <h2>Contributions</h2>
         <AsteriskTable
-          columns={this.state.contribution_columns}
-          items={[...this.state.category.contributions, {
+          columns={this.getContributionColumns()}
+          items={[...category.contributions, {
             _aggregate: "Total",
-            amount: function() {
+            amount: (() => {
               let total = 0;
-              this.state.category.contributions.map((item) => {
+              category.contributions.map((item) => {
                 total+= item.amount || 0;
               })
               return total;
-            }(),
+            })(),
             unit: 'g'
           }]}
         />
+        <h3>Contribution Attributes</h3>
+        <Attributes
+          attributes={attributes}
+          attributeAggregates={attributeAggregates}
+          setAttributeAggregates={(attributeAggregates) => this.setState({attributeAggregates})}/>
         <h2>Attributes</h2>
         <AsteriskTable
           columns={this.state.attribute_columns}
@@ -630,8 +646,8 @@ export default class Category extends Component {
         />
         <h2>Products</h2>
         <AsteriskTable
-          columns={this.state.product_columns}
-          items={this.state.category.products}
+          columns={product_columns}
+          items={category.products}
         />
         {/*this.state.category.attributes.map((attribute, i) => (
           <div>

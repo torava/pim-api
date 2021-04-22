@@ -115,7 +115,7 @@ export default {
         resolve(this.categories);
       }
       else {
-        axios.get('/api/category?attributes')
+        axios.get('/api/category')
         .then(response => {
           this.categories = response.data;
           resolve(this.categories);

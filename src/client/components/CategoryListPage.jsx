@@ -4,9 +4,8 @@ import tree from 'react-asterisk-table/lib/Tree';
 import sortable from 'react-asterisk-table/lib/Sortable';
 
 import { locale } from './locale';
-import config from '../../config/default';
 import DataStore from './DataStore';
-import {getCategoryWithAttributes} from '../../utils/categories';
+import { getAttributeColumns } from '../utils/ui';
 
 const TreeTable = sortable(tree(AsteriskTable));
 
@@ -41,56 +40,6 @@ export default class CategoryList extends Component {
     this.selectCategory = this.selectCategory.bind(this);
     this.setSearchCategoryName = this.setSearchCategoryName.bind(this);
   }
-  getAttributeColumns(selectedAttributes) {
-    const {
-      categories
-    } = this.state;
-
-    const {
-      attributeUnits
-    } = this.props;
-
-    let columns = [];
-    let selectedAttribute;
-    for (let key in selectedAttributes) {
-      selectedAttribute = selectedAttributes[key];
-      let column = {
-        id: selectedAttribute.id,
-        label: selectedAttribute.name[locale.getLocale()],
-        formatter: (attribute => (
-          (_, category) => {
-            const [categoryWithAttribute, attributes] = getCategoryWithAttributes(categories, category.id, attribute.id) || [undefined, [{}]];
-            const {
-              value,
-              unit
-            } = attributes[0];
-
-            let rate = 1;
-
-            const targetUnit = attributeUnits[selectedAttribute.name['en-US']];
-            if (targetUnit) {
-              rate = config.unitConversionRates?.[unit]?.[targetUnit] || 1;
-            }
-            
-            if (!categoryWithAttribute) {
-              return '';
-            } else {
-              return (
-                <span style={{
-                  color: categoryWithAttribute.id !== category.id ? 'gray' : 'inherit',
-                  whiteSpace: 'nowrap'
-                }}>
-                  {`${new Intl.NumberFormat(locale.getLocale()).format(rate*value)} ${targetUnit || unit}`}
-                </span>
-              );
-            }
-          }
-        ))(selectedAttribute)
-      };
-      columns.push(column);
-    }
-    return columns;
-  }
   getColumns() {
     return [
       {
@@ -100,9 +49,9 @@ export default class CategoryList extends Component {
         formatter: (name, item) => {
           const translation = name[locale.getLocale()] || name['en-US'] || '';
           let content = translation;
-          const searchCategoryName = this.state.searchCategoryName;
+          const searchCategoryName = this.state.searchCategoryName || '';
           if (searchCategoryName.length) {
-            const index = translation.toLowerCase().indexOf(searchCategoryName.toLowerCase());
+            const index = translation?.toLowerCase().indexOf(searchCategoryName.toLowerCase());
             if (index !== -1) {
               content = <>
                 {translation.slice(0, index)}
@@ -121,7 +70,7 @@ export default class CategoryList extends Component {
         id: 'price',
         label: 'Price'
       },
-    ].concat(this.getAttributeColumns(this.props.selectedAttributes));
+    ].concat(getAttributeColumns(this.props.selectedAttributes));
   }
   selectCategory(category, selected) {
     let selected_categories = {...this.state.selected_categories};
@@ -141,7 +90,7 @@ export default class CategoryList extends Component {
     this.searchTimeout = setTimeout(() => {
       if (searchCategoryName !== '') {
         const resolvedCategories = this.state.categories.filter(category => (
-          (category.name[locale.getLocale()] || '').toLowerCase().indexOf(searchCategoryName.toLowerCase()) !== -1
+          (category.name[locale.getLocale()] || '').toLowerCase().indexOf(searchCategoryName?.toLowerCase()) !== -1
         )).map(category => ({
           ...category,
           parentId: null
