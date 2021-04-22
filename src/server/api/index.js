@@ -1,6 +1,5 @@
 "use strict";
 
-import importApi from './import';
 import product from './product';
 import transaction from './transaction';
 import item from './item';
@@ -12,7 +11,6 @@ import party from './party';
 import group from './group';
 
 export default api => {
-  importApi(api);
   product(api);
   transaction(api);
   item(api);

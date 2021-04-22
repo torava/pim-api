@@ -1,9 +1,27 @@
 import Category from '../models/Category';
 import { resolveCategories, resolveCategoryPrices } from '../../utils/categories';
-import { getCategoriesFromCsv, getClosestCategory } from '../utils/categories';
+import { getClosestCategory } from '../utils/categories';
 
 export default app => {
+
+app.get('/api/category/:id', (req, res) => {
+  console.log(req.query, req.params);
+  return Category.query()
+    .where('id', req.params.id)
+    .modify('getAttributes')
+    .withGraphFetched('[products.[items], contributions.[contribution], attributes.[attribute.[parent.^], sources.[source]], parent.^, children(getAttributes)]')
+    .then(categories => {
+      resolveCategories(categories, req.query.locale);
+      return res.send(categories);
+    })
+    .catch(error => {
+      console.error(error);
+      return res.sendStatus(500);
+    });
+});
+
 app.get('/api/category', function(req, res) {
+  console.log(req.query);
   /*if (req.query.nested) {
     res.send(getCategories(req.query.parent || -1));
   }
@@ -61,35 +79,9 @@ app.get('/api/category', function(req, res) {
       return res.sendStatus(500);
     });
   }
-  else if (req.query.hasOwnProperty('attributes')) {
-    return Category.query()
-    //.limit(200)
-    .withGraphFetched('[attributes]')
-    .then(categories => {
-      resolveCategories(categories, req.query.locale);
-      return res.send(categories);
-    })
-    .catch(error => {
-      console.error(error);
-      return res.sendStatus(500);
-    });
-  }
-  else if ('id' in req.query) {
-    return Category.query()
-    .where('id', req.query.id)
-    .modify('getAttributes')
-    .withGraphFetched('[products.[items], contributions.[contribution], attributes.[attribute.[parent.^], sources.[source]], parent.^, children(getAttributes)]')
-    .then(categories => {
-      resolveCategories(categories, req.query.locale);
-      return res.send(categories);
-    })
-    .catch(error => {
-      console.error(error);
-      return res.sendStatus(500);
-    });
-  }
   else {
     return Category.query()
+    .withGraphFetched('[attributes]')
     .then(categories => {
       resolveCategories(categories, req.query.locale);
       return res.send(categories);

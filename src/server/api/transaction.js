@@ -4,20 +4,6 @@ import Transaction from '../models/Transaction';
 
 export default app => {
 
-app.delete('/api/transaction/:id', function(req, res) {
-  return Transaction.query()
-    .delete()
-    .where('id', req.params.id)
-    .then(transaction => {
-      console.log(transaction);
-      res.send(String(transaction));
-    })
-    .catch(error => {
-      console.error(error);
-      res.sendStatus(500);
-    });
-});
-
 const TRANSACTION_CSV_COLUMNS = {
   sryhma: i => [
     'date_fi_FI',
