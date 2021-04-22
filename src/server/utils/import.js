@@ -4,6 +4,7 @@ import moment from 'moment';
 
 import Attribute from '../models/Attribute';
 import Category from '../models/Category';
+import CategoryAttribute from '../models/CategoryAttribute';
 import CategoryContribution from '../models/CategoryContribution';
 import Source from '../models/Source';
 
@@ -83,6 +84,16 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
         foodname_fi_rows = fs.readFileSync(fullPath+'/foodname_FI.csv', encoding).split('\n'),
         foodname_en_rows = fs.readFileSync(fullPath+'/foodname_EN.csv', encoding).split('\n'),
         foodname_sv_rows = fs.readFileSync(fullPath+'/foodname_SV.csv', encoding).split('\n'),
+    /* food units: FOODID;FOODUNIT;MASS */
+        foodaddunitCsv = fs.readFileSync(`${fullPath}/foodaddunit.csv`, encoding),
+        foodaddunitRecords = getEntitiesFromCsv(foodaddunitCsv),
+    /* THSCODE;DESCRIPT;LANG */
+        foodunitEnCsv = fs.readFileSync(`${fullPath}/foodunit_EN.csv`, encoding),
+        foodunitEnRecords = getEntitiesFromCsv(foodunitEnCsv),
+        foodunitFiCsv = fs.readFileSync(`${fullPath}/foodunit_FI.csv`, encoding),
+        foodunitFiRecords = getEntitiesFromCsv(foodunitFiCsv),
+        foodunitSvCsv = fs.readFileSync(`${fullPath}/foodunit_SV.csv`, encoding).split('\n'),
+        foodunitSvRecords = getEntitiesFromCsv(foodunitSvCsv),
     /* recipe foods
         0 = FOODID food id, number
         1 = CONFDID recipe row food id, number
@@ -451,22 +462,55 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       attribute_count++;
     }
 
-    n = 0;
     // put attributes to array
     for (let i in attributes) {
       attribute_values.push(attributes[i]);
 
-      // add attribute values to database in 20 item chunks
-      //if (i % 20 == 0 || n == attribute_count-1) {
       await Category.query()
       .upsertGraph(attributes[i], {relate: true});
 
       attribute_values = [];
-      //}
-      n++;
+    }
+    
+    console.log('attributes '+attribute_count+'/'+attribute_count+' '+moment().format());
+
+    const foodUnits = {};
+    for (const [enName, index] of foodunitEnRecords) {
+      const fiName = foodunitFiRecords[index];
+      const svName = foodunitSvRecords[index];
+      const foodUnit = {
+        name: {
+          'en-US': enName.DESCRIPT,
+          'fi-FI': fiName.DESCRIPT,
+          'sv-SV': svName.DESCRIPT
+        }
+      };
+      const foodUnitWithId = await Attribute.query().insertAndFetch(Object.values(foodUnit));
+      foodUnits[enName.THSCODE] = foodUnitWithId;
     }
 
-    console.log('all done '+attribute_count+'/'+attribute_count+' '+moment().format());
+    for (const unit of foodaddunitRecords) {
+      const sources = [
+        {
+          reference_url: `https://fineli.fi/fineli/en/elintarvikkeet/${row[0]}`,
+          source: {
+            id: base_sources[0].id
+          }
+        }
+      ];
+      const categoryFoodUnit = {
+        categoryId: categories[unit.FOODID].id,
+        attributeId: foodUnits[unit.FOODUNIT].id,
+        value: unit.MASS,
+        unit: 'g',
+        sources
+      };
+      await CategoryAttribute.query().insertGraph(categoryFoodUnit);
+    }
+
+    console.log('food units', moment().format());
+
+    console.log('all done');
 
     /* macbook benchmark in 20 chunks
 
