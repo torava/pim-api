@@ -11,6 +11,7 @@ const client = {
   },
   devServer: {
     contentBase: path.join(__dirname, 'src', 'static'),
+    historyApiFallback: true,
     port: 42808,
     proxy: {
       "/api": "http://localhost:42809"
