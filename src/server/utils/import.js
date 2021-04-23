@@ -496,7 +496,8 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
           'en-US': enName.DESCRIPT,
           'fi-FI': fiName.DESCRIPT,
           'sv-SV': svName.DESCRIPT
-        }
+        },
+        parentId: baseAttributesWithId[0].id
       };
       const foodUnitWithId = await Attribute.query().insertAndFetch(foodUnit);
       foodUnits[enName.THSCODE] = foodUnitWithId;
@@ -515,7 +516,6 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       const categoryFoodUnit = {
         categoryId: categories[unit.FOODID].id,
         attributeId: foodUnits[unit.FOODUNIT].id,
-        parentId: baseAttributesWithId[0].id,
         value,
         unit: 'g',
         sources
