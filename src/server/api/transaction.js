@@ -1,4 +1,9 @@
 import _ from 'lodash';
+import { resolveCategories } from '../../utils/transaction';
+import Category from '../models/Category';
+import Item from '../models/Item';
+import Manufacturer from '../models/Manufacturer';
+import Product from '../models/Product';
 
 import Transaction from '../models/Transaction';
 
@@ -184,6 +189,28 @@ app.get('/api/transaction', function(req, res) {
     .catch(error => {
       console.error(error);
     });
+  }
+});
+
+app.post('/api/transaction', async (req, res) => {
+  const transaction = req.body[0];
+  try {
+    const items = await Item.query()
+    .withGraphFetched('[product.[category]]');
+    const categories = await Category.query()
+    .withGraphFetched('[children, parent]');
+    const products = await Product.query();
+    const manufacturers = await Manufacturer.query();
+
+    await resolveCategories(transaction, items, products, categories, manufacturers);
+
+    console.dir(transaction, {depth:null});
+
+    return res.send(transaction);
+  } catch (error) {
+    console.dir(transaction, {depth:null});
+    console.error(error);
+    return res.sendStatus(500);
   }
 });
 
