@@ -86,14 +86,14 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
         foodname_sv_rows = fs.readFileSync(fullPath+'/foodname_SV.csv', encoding).split('\n'),
     /* food units: FOODID;FOODUNIT;MASS */
         foodaddunitCsv = fs.readFileSync(`${fullPath}/foodaddunit.csv`, encoding),
-        foodaddunitRecords = getEntitiesFromCsv(foodaddunitCsv),
+        foodaddunitRecords = getEntitiesFromCsv(foodaddunitCsv, {delimiter: ';'}),
     /* THSCODE;DESCRIPT;LANG */
         foodunitEnCsv = fs.readFileSync(`${fullPath}/foodunit_EN.csv`, encoding),
-        foodunitEnRecords = getEntitiesFromCsv(foodunitEnCsv),
+        foodunitEnRecords = getEntitiesFromCsv(foodunitEnCsv, {delimiter: ';'}),
         foodunitFiCsv = fs.readFileSync(`${fullPath}/foodunit_FI.csv`, encoding),
-        foodunitFiRecords = getEntitiesFromCsv(foodunitFiCsv),
-        foodunitSvCsv = fs.readFileSync(`${fullPath}/foodunit_SV.csv`, encoding).split('\n'),
-        foodunitSvRecords = getEntitiesFromCsv(foodunitSvCsv),
+        foodunitFiRecords = getEntitiesFromCsv(foodunitFiCsv, {delimiter: ';'}),
+        foodunitSvCsv = fs.readFileSync(`${fullPath}/foodunit_SV.csv`, encoding),
+        foodunitSvRecords = getEntitiesFromCsv(foodunitSvCsv, {delimiter: ';'}),
     /* recipe foods
         0 = FOODID food id, number
         1 = CONFDID recipe row food id, number
@@ -475,7 +475,8 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
     console.log('attributes '+attribute_count+'/'+attribute_count+' '+moment().format());
 
     const foodUnits = {};
-    for (const [enName, index] of foodunitEnRecords) {
+    for (const index in foodunitEnRecords) {
+      const enName = foodunitEnRecords[index];
       const fiName = foodunitFiRecords[index];
       const svName = foodunitSvRecords[index];
       const foodUnit = {
@@ -485,7 +486,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
           'sv-SV': svName.DESCRIPT
         }
       };
-      const foodUnitWithId = await Attribute.query().insertAndFetch(Object.values(foodUnit));
+      const foodUnitWithId = await Attribute.query().insertAndFetch(foodUnit);
       foodUnits[enName.THSCODE] = foodUnitWithId;
     }
 
@@ -498,14 +499,15 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
           }
         }
       ];
+      const value = parseFloat(unit.MASS.replace(',', '.'));
       const categoryFoodUnit = {
         categoryId: categories[unit.FOODID].id,
         attributeId: foodUnits[unit.FOODUNIT].id,
-        value: unit.MASS,
+        value,
         unit: 'g',
         sources
       };
-      await CategoryAttribute.query().insertGraph(categoryFoodUnit);
+      await CategoryAttribute.query().insertGraph(categoryFoodUnit, {relate: true});
     }
 
     console.log('food units', moment().format());
