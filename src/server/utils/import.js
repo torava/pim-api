@@ -176,6 +176,16 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
             }
           }
         ];
+      
+    const baseAttributes = [
+      {
+        name: {
+          'fi-FI': 'Elintarvikkeiden yksiköt',
+          'en-US': 'Food units',
+          'sv-SV': 'Livsmedelsenheter'
+        }
+      }
+    ];
 
     console.log('meta '+moment().format());
 
@@ -184,6 +194,8 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
 
     base_categories = await Category.query()
     .insertGraph(base_categories, {allowRefs: true});
+
+    const baseAttributesWithId = await Attribute.query().insertGraph(baseAttributes);
 
     for (let i in foodname_fi_rows) {
       value = {};
@@ -503,6 +515,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       const categoryFoodUnit = {
         categoryId: categories[unit.FOODID].id,
         attributeId: foodUnits[unit.FOODUNIT].id,
+        parentId: baseAttributesWithId[0].id,
         value,
         unit: 'g',
         sources
