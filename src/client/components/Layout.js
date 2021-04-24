@@ -257,6 +257,7 @@ export default class Layout extends React.Component {
             </div>
           </div>
         </>}
+        <p>v{process.env.VERSION}</p>
       </div>
     );
   }
