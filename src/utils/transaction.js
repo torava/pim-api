@@ -300,7 +300,6 @@ export function stringToSlug(str,  sep) {
 }
 
 export const resolveCategories = async (transaction, items = [], products = [], categories = [], manufacturers = []) => {
-  console.log('transaction', transaction);
   try {
     let trimmed_item_name,
         distance;
@@ -381,58 +380,32 @@ export const resolveCategories = async (transaction, items = [], products = [], 
       trimmed_categories.forEach((category) => {
         Object.entries(category.trimmed_name).forEach(([locale, translation]) => {
           if (category.trimmed_name && translation) {
-            const strippedCategoryNameAndTranslationToken = LevenshteinDistance(trimmed_item_name.toLowerCase(), translation.toLowerCase(), {search: true});
-            const productNameAndCategoryNameToken = LevenshteinDistance(item.product.name.toLowerCase(), category.name[locale].toLowerCase(), {search: true});
-            distance = Math.max(distance, productNameAndCategoryNameToken?.distance+0.1);
-            let strippedItemNameAndAliasToken, productNameAndAliasToken;
+            distance = stringSimilarity(trimmed_item_name.toLowerCase() || '', translation.toLowerCase() || '');
+            distance = Math.max(distance, stringSimilarity(item.product.name.toLowerCase() || '', category.name[locale].toLowerCase() || '')+0.1);
             category.aliases?.forEach(alias => {
-              strippedItemNameAndAliasToken = LevenshteinDistance(trimmed_item_name.toLowerCase(), alias.toLowerCase(), {search: true});
-              productNameAndAliasToken = LevenshteinDistance(item.product.name.toLowerCase(), alias.toLowerCase(), {search: true});
-              distance = Math.max(distance, LevenshteinDistance(trimmed_item_name.toLowerCase(), alias.toLowerCase(), {search: true})?.distance+0.1);
-              distance = Math.max(distance, LevenshteinDistance(item.product.name.toLowerCase(), alias.toLowerCase(), {search: true})?.distance+0.1);
+              distance = Math.max(distance, stringSimilarity(trimmed_item_name.toLowerCase() || '', alias.toLowerCase() || '')+0.1);
+              distance = Math.max(distance, stringSimilarity(item.product.name.toLowerCase() || '', alias.toLowerCase() || '')+0.1);
             });
-            const strippedItemNameAndCategoryParentNameToken = LevenshteinDistance(trimmed_item_name, category.parent?.name[locale], {search: true});
+            if (category.parent) {
+              distance = Math.max(distance, stringSimilarity(trimmed_item_name || '', category.parent.name[locale] || ''));
+            }
             //accuracy = (trimmed_item_name.length-distance)/trimmed_item_name.length;
-
-            const tokens = [
-              strippedCategoryNameAndTranslationToken,
-              productNameAndCategoryNameToken && {
-                substring: productNameAndCategoryNameToken.substring,
-                distance: productNameAndCategoryNameToken.distance+0.1
-              },
-              strippedItemNameAndAliasToken && {
-                substring: strippedItemNameAndAliasToken.substring,
-                distance: strippedItemNameAndAliasToken.distance+0.1
-              },
-              productNameAndAliasToken && {
-                substring: productNameAndAliasToken.substring,
-                distance: productNameAndAliasToken.distance+0.1
-              },
-              strippedItemNameAndCategoryParentNameToken
-            ];
-
-            let token;
-            tokens.forEach(t => {
-              if (t?.distance > token?.distance) {
-                token = t;
-              }
-            });
     
-            if (token?.distance > 0.4) {
+            if (distance > 0.4) {
               console.log(
                 'comparing item to categories',
                 'product name', item.product.name,
                 'category name', category.name[locale],
                 'aliases', category.aliases,
                 'parent', category.parent?.name[locale],
-                'token', token
+                'distance', distance
               );
               itemCategories.push({
                 category,
                 item_name: item.product.name,
                 trimmed_item_name: trimmed_item_name,
                 name: translation,
-                token
+                distance
               });
 
               const product = items.find(item => item.product?.categoryId === category.id);
@@ -443,7 +416,7 @@ export const resolveCategories = async (transaction, items = [], products = [], 
                   item_name: product.name,
                   trimmed_item_name: trimmed_item_name,
                   name: translation,
-                  token,
+                  distance,
                   product
                 });
               }
@@ -457,16 +430,16 @@ export const resolveCategories = async (transaction, items = [], products = [], 
           Object.entries(category.name).forEach(([locale, categoryTranslation]) => {
             const productCategoryName = item.product.category.name[locale]?.toLowerCase();
             const categoryName = categoryTranslation.toLowerCase();
-            const token = LevenshteinDistance(productCategoryName, categoryName);
+            distance = stringSimilarity(productCategoryName, categoryName);
             //accuracy = (trimmed_item_name.length-distance)/trimmed_item_name.length;
     
-            if (token?.distance > 0.4) {
-              console.log('comparing product category to categories', productCategoryName, categoryName, token);
+            if (distance > 0.4) {
+              console.log('comparing product category to categories', productCategoryName, categoryName, distance);
               itemCategories.push({
                 category,
                 item_name: item.product.name,
-                trimmed_item_name,
-                token
+                trimmed_item_name: trimmed_item_name,
+                distance: distance
               });
 
               const product = items.find(item => item.product?.categoryId === category.id);
@@ -475,9 +448,9 @@ export const resolveCategories = async (transaction, items = [], products = [], 
                 itemProducts.push({
                   category,
                   item_name: product.name,
-                  trimmed_item_name,
-                  token,
-                  product
+                  trimmed_item_name: trimmed_item_name,
+                  distance: distance,
+                  product: product
                 });
               }
             }
@@ -485,8 +458,8 @@ export const resolveCategories = async (transaction, items = [], products = [], 
         });
       }
       
-      itemProducts.sort((a, b) => b.token?.distance-a.token?.distance);
-      itemCategories.sort((a, b) => b.token?.distance-a.token?.distance);
+      itemProducts.sort((a, b) => b.distance-a.distance);
+      itemCategories.sort((a, b) => b.distance-a.distance);
 
       const itemProduct = itemProducts[0];
       const itemCategory = itemCategories[0];
@@ -496,6 +469,7 @@ export const resolveCategories = async (transaction, items = [], products = [], 
         item.product = itemProduct.product;
 
         console.log(itemProduct);
+        continue;
       } else if (itemCategory) {
         item.product.categoryId = itemCategory.category.id;
 
