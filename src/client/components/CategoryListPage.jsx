@@ -41,6 +41,15 @@ export default class CategoryList extends Component {
     this.setSearchCategoryName = this.setSearchCategoryName.bind(this);
   }
   getColumns() {
+    const {
+      categories
+    } = this.state;
+
+    const {
+      selectedAttributes,
+      attributeUnits
+    } = this.props;
+
     return [
       {
         id: 'name',
@@ -70,7 +79,7 @@ export default class CategoryList extends Component {
         id: 'price',
         label: 'Price'
       },
-    ].concat(getAttributeColumns(this.props.selectedAttributes));
+    ].concat(getAttributeColumns(selectedAttributes, categories, attributeUnits));
   }
   selectCategory(category, selected) {
     let selected_categories = {...this.state.selected_categories};

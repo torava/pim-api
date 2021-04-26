@@ -169,7 +169,11 @@ export default class Layout extends React.Component {
       receiptProcessingTime,
       attributes,
       attributeAggregates,
-      attributeUnits
+      attributeUnits,
+      pipeline,
+      format,
+      locale,
+      currency
     } = this.state;
 
     let message;
@@ -196,7 +200,7 @@ export default class Layout extends React.Component {
                 <select 
                   id="currency"
                   placeholder="Currency"
-                  value={this.state.currency}
+                  value={currency}
                   onChange={this.onCurrencyChange.bind(this)}>
                   <option value="EUR">EUR</option>
                   <option value="SEK">SEK</option>
@@ -207,7 +211,7 @@ export default class Layout extends React.Component {
                 <select
                   id="locale"
                   placeholder="Locale"
-                  value={this.state.locale}
+                  value={locale}
                   onChange={this.onLocaleChange.bind(this)}>
                   <option value="fi-FI">fi-FI</option>
                   <option value="sv-SV">sv-SV</option>
@@ -216,7 +220,7 @@ export default class Layout extends React.Component {
                 <select
                   id="energy"
                   placeholder="Energy"
-                  value={this.state.attributeUnits['Energy,calculated']}
+                  value={attributeUnits['Energy,calculated']}
                   onChange={this.onEnergyUnitChange.bind(this)}>
                   <option value="kj/hg">kJ</option>
                   <option value="kcal/hg">kcal</option>
@@ -226,7 +230,7 @@ export default class Layout extends React.Component {
                 <select
                   id="format"
                   placeholder="Format"
-                  value={this.state.format}
+                  value={format}
                   onChange={this.onFormatChange.bind(this)}>
                   <option value="text/csv">CSV</option>
                   <option value="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">XLSX</option>
@@ -234,7 +238,7 @@ export default class Layout extends React.Component {
                 <label>
                   <input
                     type="checkbox"
-                    checked={this.state.pipeline.crop}
+                    checked={pipeline.crop}
                     onChange={this.onCropChange.bind(this)}/>
                   Crop
                 </label>
@@ -243,7 +247,7 @@ export default class Layout extends React.Component {
                 Upload:<br/>
                 <input type="file" name="upload-file" id="upload-file" multiple draggable onChange={this.onUpload}/>
               </label>
-              {typeof this.state.receiptCount !== 'undefined' &&
+              {typeof receiptCount !== 'undefined' &&
               <p>{message}</p>}
               <h2>Attributes</h2>
                 <Attributes

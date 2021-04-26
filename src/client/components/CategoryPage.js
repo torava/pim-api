@@ -1,7 +1,8 @@
 import axios from 'axios';
 import React, {Component} from 'react';
 import AsteriskTable from 'react-asterisk-table';
-import { getAttributeColumns } from '../utils/ui';
+
+import { getCategoryWithAttributes } from '../../utils/categories';
 import DataStore from './DataStore';
 import { locale } from './locale';
 import Attributes from './shared/Attributes';
@@ -124,6 +125,49 @@ export default class Category extends Component {
       }
     ]
   }
+  getContributionAttributeColumns(selectedAttributes, categories = [], attributeUnits = {}) {
+    let columns = [];
+    let selectedAttribute;
+    for (let key in selectedAttributes) {
+      selectedAttribute = selectedAttributes[key];
+      let column = {
+        id: selectedAttribute.id,
+        label: selectedAttribute.name[locale.getLocale()],
+        formatter: (attribute => (
+          (_, category) => {
+            console.log('category', category);
+            const [categoryWithAttribute, attributes] = getCategoryWithAttributes(categories, category.contribution?.id, attribute.id) || [undefined, [{}]];
+            const {
+              value,
+              unit
+            } = attributes[0];
+  
+            let rate = 1;
+  
+            const targetUnit = attributeUnits[selectedAttribute.name['en-US']];
+            if (targetUnit) {
+              rate = config.unitConversionRates?.[unit]?.[targetUnit] || 1;
+            }
+            
+            if (!categoryWithAttribute) {
+              return '';
+            } else {
+              return (
+                <span style={{
+                  color: categoryWithAttribute.id !== category.id ? 'gray' : 'inherit',
+                  whiteSpace: 'nowrap'
+                }}>
+                  {`${new Intl.NumberFormat(locale.getLocale()).format(rate*value)} ${targetUnit || unit}`}
+                </span>
+              );
+            }
+          }
+        ))(selectedAttribute)
+      };
+      columns.push(column);
+    }
+    return columns;
+  }
   getContributionColumns() {
     return [
       {
@@ -134,7 +178,7 @@ export default class Category extends Component {
           if (item._aggregate) {
             return <strong>{item._aggregate}</strong>;
           } else {
-            return <span><a href={`/category/${item.id}`}>{value}</a></span>;
+            return <span><a href={`/category/${item.contribution?.id}`}>{value}</a></span>;
           }
         }
       },
@@ -160,7 +204,7 @@ export default class Category extends Component {
           }
         }
       }
-    ].concat(getAttributeColumns(this.state.attributeAggregates, this.state.categories, locale.getAttributeUnits()));
+    ].concat(this.getContributionAttributeColumns(this.state.attributeAggregates, this.state.categories, locale.getAttributeUnits()));
   }
   addNewCategoryAttribute() {
     let category = Object.assign({}, this.state.category);

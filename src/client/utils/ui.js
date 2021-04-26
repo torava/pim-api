@@ -45,4 +45,4 @@ export const getAttributeColumns = (selectedAttributes, categories = [], attribu
     columns.push(column);
   }
   return columns;
-}
+};
