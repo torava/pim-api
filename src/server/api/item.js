@@ -1,10 +1,7 @@
-import winkTokenizer from 'wink-tokenizer';
-
 import { getClosestCategory, getStrippedCategories } from '../../utils/categories';
 import Category from '../models/Category';
 import Item from '../models/Item';
 import Manufacturer from '../models/Manufacturer';
-import { NER } from '../utils/categories';
 
 export default app => {
 
@@ -39,13 +36,13 @@ app.post('/api/item', async (req, res) => {
     let category,
         contributionList = item.product.contributionList;
     if (contributionList) {
-      let contributions = [];
-
-      const tokens = winkTokenizer().tokenize(contributionList);
-      const recognizedTokens = NER.recognize(tokens);
-      
-      console.log(recognizedTokens);
-      
+      let contributions = [],
+          [contribution, token] = getClosestCategory(contributionList, strippedCategories) || [undefined, undefined];
+      while (contribution) {
+        contributionList = contributionList.replace(new RegExp(token.substring, 'i'), '');
+        contributions.push(contribution);
+        [contribution, token] = getClosestCategory(contributionList, strippedCategories) || [undefined, undefined];
+      }
       console.log(contributionList);
       category = {
         contributions

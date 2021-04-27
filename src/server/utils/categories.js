@@ -3,47 +3,6 @@ import _ from 'lodash';
 import Attribute from '../models/Attribute';
 import Category from '../models/Category';
 import Source from '../models/Source';
-import Manufacturer from '../models/Manufacturer';
-import { getStrippedCategories } from '../../utils/categories';
-import moment from 'moment';
-import ner from 'wink-ner';
-
-export const NER = ner();
-
-(async () => {
-  try {
-    console.log('NER learning started', moment().format());
-
-    const categories = await Category.query().withGraphFetched('[attributes, parent]');
-    const manufacturers = await Manufacturer.query();
-    const strippedCategories = getStrippedCategories(categories, manufacturers);
-
-    let trainingData = [];
-
-    strippedCategories.forEach((category) => {
-      Object.entries(category.name).forEach(([, translation]) => {
-        trainingData.push({
-          text: translation,
-          entityType: 'category',
-          uid: category.id
-        });
-      });
-
-      Object.entries(category.strippedName).forEach(([, translation]) => {
-        trainingData.push({
-          text: translation,
-          entityType: 'category',
-          uid: category.id
-        });
-      });
-    });
-
-    NER.learn(trainingData);
-    console.log('NER learning done with', strippedCategories.length, 'categories', moment().format());
-  } catch (error) {
-    console.error(error);
-  }
-})();
 
 export const getCategoriesFromCsv = async (records, sourceRecords) => {
   try {
