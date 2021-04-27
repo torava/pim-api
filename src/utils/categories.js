@@ -5,7 +5,6 @@ import { convertMeasure } from './entities';
 import { getTranslation } from '../utils/entities';
 import { stripName, stripDetails } from './transaction';
 import { LevenshteinDistance } from './levenshteinDistance';
-import { inRange } from 'lodash';
 
 export const getAverageRate = (filter, average_range) => {
   const {start_date, end_date} = filter;
