@@ -29,13 +29,17 @@ app.post('/api/item', async (req, res) => {
   const item = req.body;
 
   try {
-    const categories = await Category.query().withGraphFetched('[attributes, parent]');
+    const categories = (await Category.query()
+    .withGraphFetched('[children, parent]'))
+    .filter(category => !category.children?.length);
     const manufacturers = await Manufacturer.query();
-    const strippedCategories = getStrippedCategories(categories, manufacturers).sort((a, b) => b.name['en-US'].length-b.name['en-US'].length);
+    const strippedCategories = getStrippedCategories(categories, manufacturers);
     
     let category,
-        contributionList = item.product.contributionList;
+        contributionList = item.product.contributionList
+        .replace(/,\s|\sja\s/gi, ' ');
     if (contributionList) {
+      console.log(contributionList);
       let contributions = [],
           [contribution, token] = getClosestCategory(contributionList, strippedCategories) || [undefined, undefined];
       while (contribution) {

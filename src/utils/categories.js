@@ -5,7 +5,6 @@ import { convertMeasure } from './entities';
 import { getTranslation } from '../utils/entities';
 import { stripName, stripDetails } from './transaction';
 import { LevenshteinDistance } from './levenshteinDistance';
-import { inRange } from 'lodash';
 
 export const getAverageRate = (filter, average_range) => {
   const {start_date, end_date} = filter;
@@ -205,9 +204,7 @@ export function resolveCategoryPrices(categories) {
 }
 
 export const getStrippedCategories = (categories, manufacturers = []) => {
-  return categories.filter(category => (
-    category.attributes?.length ? true : false
-  )).map(category => {
+  return categories.map(category => {
     const name = category.name;
     category.strippedName = stripName(name, manufacturers);
     return category;
@@ -219,6 +216,8 @@ export const getClosestCategory = (name, categories) => {
 
   let bestToken, bestCategory;
 
+  console.log('strippedName', strippedName);
+
   categories.forEach((category) => {
     Object.entries(category.strippedName).forEach(([locale, translation]) => {
       if (translation) {
@@ -229,7 +228,7 @@ export const getClosestCategory = (name, categories) => {
           strippedItemNameAndAliasToken = LevenshteinDistance(alias.toLowerCase(), strippedName.toLowerCase(), {search: true});
           productNameAndAliasToken = LevenshteinDistance(alias.toLowerCase(), name.toLowerCase(), {search: true});
         });
-        const strippedItemNameAndCategoryParentNameToken = LevenshteinDistance(category.parent?.name[locale] || '', strippedName, {search: true});
+        const strippedItemNameAndCategoryParentNameToken = LevenshteinDistance(category.parent?.name[locale]?.toLowerCase() || '', strippedName.toLowerCase(), {search: true});
 
         const tokens = [
           strippedCategoryNameAndTranslationToken,
@@ -251,14 +250,16 @@ export const getClosestCategory = (name, categories) => {
         let token;
         tokens.forEach(t => {
           if (t?.distance) {
-            t.accuracy = t.substring.length/name.length;
-            if (t?.accuracy > (token?.accuracy || 0)) {
+            t.accuracy = (name.length-t.distance)/name.length;
+            if (t?.distance < 1 && t?.distance < (token?.distance || Infinity)) {
               token = t;
             }
           }
         });
 
-        if (token?.accuracy > (bestToken?.accuracy || 0)) {
+        if (token?.substring.length > (bestToken?.substring.length || 0) && token?.distance <= (bestToken?.distance || Infinity)) {
+          console.log(tokens);
+          console.log(translation, token);
           bestCategory = category;
           bestToken = token;
         }
