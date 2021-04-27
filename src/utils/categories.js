@@ -3,6 +3,9 @@ import moment from 'moment';
 import { locale } from "../client/components/locale";
 import { convertMeasure } from './entities';
 import { getTranslation } from '../utils/entities';
+import { stripName, stripDetails } from './transaction';
+import { LevenshteinDistance } from './levenshteinDistance';
+import { inRange } from 'lodash';
 
 export const getAverageRate = (filter, average_range) => {
   const {start_date, end_date} = filter;
@@ -200,3 +203,74 @@ export function resolveCategoryPrices(categories) {
     return sum+(category.price_sum || 0);
   }, 0);
 }
+
+export const getStrippedCategories = (categories, manufacturers = []) => {
+  return categories.filter(category => (
+    category.attributes?.length ? true : false
+  )).map(category => {
+    const name = category.name;
+    category.strippedName = stripName(name, manufacturers);
+    return category;
+  });
+};
+
+export const getClosestCategory = (name, categories) => {
+  const strippedName = stripDetails(name);
+
+  let bestToken, bestCategory;
+
+  categories.forEach((category) => {
+    Object.entries(category.strippedName).forEach(([locale, translation]) => {
+      if (translation) {
+        const strippedCategoryNameAndTranslationToken = LevenshteinDistance(translation.toLowerCase(), strippedName.toLowerCase(), {search: true});
+        const productNameAndCategoryNameToken = LevenshteinDistance(category.name[locale].toLowerCase(), name.toLowerCase(), {search: true});
+        let strippedItemNameAndAliasToken, productNameAndAliasToken;
+        category.aliases?.forEach(alias => {
+          strippedItemNameAndAliasToken = LevenshteinDistance(alias.toLowerCase(), strippedName.toLowerCase(), {search: true});
+          productNameAndAliasToken = LevenshteinDistance(alias.toLowerCase(), name.toLowerCase(), {search: true});
+        });
+        const strippedItemNameAndCategoryParentNameToken = LevenshteinDistance(category.parent?.name[locale] || '', strippedName, {search: true});
+
+        const tokens = [
+          strippedCategoryNameAndTranslationToken,
+          productNameAndCategoryNameToken && {
+            substring: productNameAndCategoryNameToken.substring,
+            distance: productNameAndCategoryNameToken.distance+0.1
+          },
+          strippedItemNameAndAliasToken && {
+            substring: strippedItemNameAndAliasToken.substring,
+            distance: strippedItemNameAndAliasToken.distance+0.1
+          },
+          productNameAndAliasToken && {
+            substring: productNameAndAliasToken.substring,
+            distance: productNameAndAliasToken.distance+0.1
+          },
+          strippedItemNameAndCategoryParentNameToken
+        ];
+
+        let token;
+        tokens.forEach(t => {
+          if (t?.distance) {
+            t.accuracy = t.substring.length/name.length;
+            if (t?.accuracy > (token?.accuracy || 0)) {
+              token = t;
+            }
+          }
+        });
+
+        if (token?.accuracy > (bestToken?.accuracy || 0)) {
+          bestCategory = category;
+          bestToken = token;
+        }
+      }
+    });
+  });
+  console.log(
+    'closest category for name',
+    'name', name,
+    'stripped name', strippedName,
+    'category name', bestCategory?.name,
+    'token', bestToken
+  );
+  return [bestCategory, bestToken];
+};

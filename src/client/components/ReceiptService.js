@@ -383,7 +383,7 @@ class ReceiptService {
       */
 
       const transactions = await this.processPipeline();
-      console.log(transactions);
+
       console.log(this.pipeline);
 
       resolveCategories(transactions[0], this.items, this.products, this.categories, this.manufacturers);
