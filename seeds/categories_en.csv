@@ -115,7 +115,7 @@ Cleaning Services,Siivouspalvelut,,Services,,,,,,"0,1",Siivouspalvelut arvio,2
 Clothes,Vaatteet,"[""Käsineet"", ""Sukat"", ""Tights""]",Supplies,,,,,,"0,4",Vaatteet,2
 Cocoa powder with sugar,,,,,"3,35",,,,,Cocoa 2.04-4.66 kg,12
 "Cocoa Powder, Unsweetened",,,,,"3,35",,,,,Cocoa 2.04-4.66 kg,12
-Coconut Milk,,"[""Kookoskerma""]",,,"0,42",,,,,"Almond/coconut milk, median",1
+Coconut Milk,,"[""Kookoskerma"", ""Kookoskermaisessa""]",,,"0,42",,,,,"Almond/coconut milk, median",1
 Coconut Oil,Kookosöljy,,,,"1,78",,,,"0,7",Plant based groceries,2
 "Coconut Water, Unsweetened",,"[""Kookosvesi maustamaton luomu""]",,,,,,,,,
 Cod,Turska,,Fish,,"3,51",,,,,"Cod, median",1
@@ -296,7 +296,7 @@ Milks skimmed,,,,,"1,29",,,,,"Milk: world average, median",1
 Milks skimmed,,,,,1,,,,,,26
 Motor fuel,Ajoneuvojen polttoaine,,Travel,,,,,,,,
 "Muesli, Basic",,"[""Luomumysli""]",,,,,,,,,
-"Multigrain Bread, Bread Roll",,"[""Petun ruudukas""]",,,,,,,,,
+"Multigrain Bread, Bread Roll",,,,,,,,,,,
 "Multigrain Bread, Buttermilk Bread, Sour Milk, Wheat And Dark Wheat Flour",,"[""Herkkulimppu""]",,,,,,,,,
 "Multigrain Bread, Oat Bread, Water",,"[""Kauraleipä"", ""Kaurasydän""]",,,,,,,,,
 "Multigrain Bread, Tummempi Tuhatjyvä, Linkosuo",,"[""Rouhepatonki""]",,,,,,,,,
@@ -374,7 +374,7 @@ Potato,,,,,,,,,"0,7",Plant based groceries,2
 "Potato Crisps, Potato Chips, Potato Snack",,,,,"2,25",,,,,"Cradle-to-grave, Svenska Lantchips, Transportation to Helsinki taken into consideration, in 200 gramms packets",35
 Potato dishes,,,,,,,,,"1,1",Plant based groceries,2
 "Potato Wedges, Oven-Baked",,,,,,,,,"0,7",Plant based groceries,2
-"Potato, Unpeeled, Avarage, Raw",,"[""Peruna"", ""Varhaisperuna"", ""Ruokaperuna"", ""Ruokaperunapussi""]",,,,,,,,,
+"Potato, Unpeeled, Avarage, Raw",,"[""Peruna"", ""Perunaa"", ""Varhaisperuna"", ""Ruokaperuna"", ""Ruokaperunapussi""]",,,,,,,,,
 Potatoes,,,,,,,,,"0,7",Plant based groceries,2
 Printer paper,Tulostuspaperi,,Office supplies,,,,,,"0,32","Paperitarvikkeet, kirjat, lehdet",1
 Processed cheese <= 17%,,,,,10,,,,,Juusto,9
@@ -532,3 +532,4 @@ Yoghurt  <= 1 %,,,,,"1,31",,,,,"Yoghurt, median",1
 Yoghurt > 1 %,,,,,"1,31",,,,,"Yoghurt, median",1
 "Zucchini, Summer Squash","Kesäkurpitsa, zucchini","[""Kesäkurpitsa""]",,,"1,77",,,,,"Zucchini: passive greenhouse, median",1
 "Zucchini, Summer Squash","Kesäkurpitsa, zucchini","[""Pattypan squash"", ""Button squash"", ""Kiekkokurpitsa""]",,,"0,21",,,,,"Zucchini/button squash, median",1
+"Bamboo Shoots, Canned",,"[""Bambu"", ""Bambuja""]",,,,,,,,,
