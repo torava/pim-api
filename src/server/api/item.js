@@ -36,17 +36,22 @@ app.post('/api/item', async (req, res) => {
     const strippedCategories = getStrippedCategories(categories, manufacturers);
     
     let category,
-        contributionList = item.product.contributionList
-        .replace(/,\s|\sja\s/gi, ' ');
+        contributionList = item.product.contributionList.split(/,\s|\sja\s/gi);
     if (contributionList) {
       console.log(contributionList);
-      let contributions = [],
-          [contribution, token] = getClosestCategory(contributionList, strippedCategories) || [undefined, undefined];
-      while (contribution) {
-        contributionList = contributionList.replace(new RegExp(token.substring, 'i'), '');
-        contributions.push(contribution);
-        [contribution, token] = getClosestCategory(contributionList, strippedCategories) || [undefined, undefined];
-      }
+      let contributions = [];
+      contributionList.forEach(contributionListPart => {
+        let [contribution, token] = getClosestCategory(contributionListPart, strippedCategories);
+        if (contributionListPart.split(' ').length > 2) {
+          while (contribution && contributionListPart) {
+            contributionListPart = contributionListPart.replace(new RegExp(token.substring, 'i'), '').trim();
+            contributions.push(contribution);
+            [contribution, token] = getClosestCategory(contributionListPart, strippedCategories);
+          }
+        } else if (contribution) {
+          contributions.push(contribution);
+        }
+      });
       console.log(contributionList);
       category = {
         contributions

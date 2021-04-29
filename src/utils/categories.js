@@ -212,6 +212,8 @@ export const getStrippedCategories = (categories, manufacturers = []) => {
 };
 
 export const getClosestCategory = (name, categories) => {
+  if (!name) return [undefined, undefined];
+
   const strippedName = stripDetails(name);
 
   let bestToken, bestCategory;
@@ -220,46 +222,25 @@ export const getClosestCategory = (name, categories) => {
 
   categories.forEach((category) => {
     Object.entries(category.strippedName).forEach(([locale, translation]) => {
+      if (locale !== 'fi-FI') return true;
       if (translation) {
-        const strippedCategoryNameAndTranslationToken = LevenshteinDistance(translation.toLowerCase(), strippedName.toLowerCase(), {search: true});
-        const productNameAndCategoryNameToken = LevenshteinDistance(category.name[locale].toLowerCase(), name.toLowerCase(), {search: true});
-        let strippedItemNameAndAliasToken, productNameAndAliasToken;
+        const tokens = [];
+        tokens.push(LevenshteinDistance(translation.toLowerCase(), strippedName.toLowerCase(), {search: true}));
+        tokens.push(LevenshteinDistance(category.name[locale].toLowerCase(), name.toLowerCase(), {search: true}));
         category.aliases?.forEach(alias => {
-          strippedItemNameAndAliasToken = LevenshteinDistance(alias.toLowerCase(), strippedName.toLowerCase(), {search: true});
-          productNameAndAliasToken = LevenshteinDistance(alias.toLowerCase(), name.toLowerCase(), {search: true});
+          tokens.push(LevenshteinDistance(alias.toLowerCase(), strippedName.toLowerCase(), {search: true}));
+          tokens.push(LevenshteinDistance(alias.toLowerCase(), name.toLowerCase(), {search: true}));
         });
-        const strippedItemNameAndCategoryParentNameToken = LevenshteinDistance(category.parent?.name[locale]?.toLowerCase() || '', strippedName.toLowerCase(), {search: true});
-
-        const tokens = [
-          strippedCategoryNameAndTranslationToken,
-          productNameAndCategoryNameToken && {
-            substring: productNameAndCategoryNameToken.substring,
-            distance: productNameAndCategoryNameToken.distance+0.1
-          },
-          strippedItemNameAndAliasToken && {
-            substring: strippedItemNameAndAliasToken.substring,
-            distance: strippedItemNameAndAliasToken.distance+0.1
-          },
-          productNameAndAliasToken && {
-            substring: productNameAndAliasToken.substring,
-            distance: productNameAndAliasToken.distance+0.1
-          },
-          strippedItemNameAndCategoryParentNameToken
-        ];
+        tokens.push(LevenshteinDistance(category.parent?.name[locale]?.toLowerCase() || '', strippedName.toLowerCase(), {search: true}));
 
         let token;
         tokens.forEach(t => {
-          if (t?.distance) {
-            t.accuracy = (name.length-t.distance)/name.length;
-            if (t?.distance < 1 && t?.distance < (token?.distance || Infinity)) {
-              token = t;
-            }
+          if (t.distance <= 1 && t.distance < (token ? token.distance : Infinity)) {
+            token = t;
           }
         });
 
-        if (token?.substring.length > (bestToken?.substring.length || 0) && token?.distance <= (bestToken?.distance || Infinity)) {
-          console.log(tokens);
-          console.log(translation, token);
+        if (token?.distance <= (bestToken ? bestToken.distance : Infinity)) {
           bestCategory = category;
           bestToken = token;
         }
@@ -273,5 +254,5 @@ export const getClosestCategory = (name, categories) => {
     'category name', bestCategory?.name,
     'token', bestToken
   );
-  return [bestCategory, bestToken];
+  return bestToken?.substring.length ? [bestCategory, bestToken] : [undefined, undefined];
 };
