@@ -654,6 +654,9 @@ export default class Category extends Component {
         <h1>
           {category.name[locale]}
         </h1>
+        <small>
+          {category.aliases?.join(', ')}
+        </small>
         <h2>Contributions</h2>
         <AsteriskTable
           columns={this.getContributionColumns()}
