@@ -5,7 +5,7 @@ import Layout from './Layout';
 import CategoryPage from './CategoryPage';
 import NotFoundPage from './NotFoundPage';
 
-import './App.css';
+import './App.scss';
 
 const App = () => (
   <Switch>
