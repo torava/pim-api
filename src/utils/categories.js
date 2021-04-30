@@ -225,22 +225,24 @@ export const getClosestCategory = (name, categories) => {
       if (locale !== 'fi-FI') return true;
       if (translation) {
         const tokens = [];
-        tokens.push(LevenshteinDistance(translation.toLowerCase(), strippedName.toLowerCase(), {search: true}));
-        tokens.push(LevenshteinDistance(category.name[locale].toLowerCase(), name.toLowerCase(), {search: true}));
+        tokens.push([LevenshteinDistance(translation.toLowerCase(), strippedName.toLowerCase(), {search: true}), translation.toLowerCase()]);
+        tokens.push([LevenshteinDistance(category.name[locale].toLowerCase(), name.toLowerCase(), {search: true}), category.name[locale].toLowerCase()]);
         category.aliases?.forEach(alias => {
-          tokens.push(LevenshteinDistance(alias.toLowerCase(), strippedName.toLowerCase(), {search: true}));
-          tokens.push(LevenshteinDistance(alias.toLowerCase(), name.toLowerCase(), {search: true}));
+          tokens.push([LevenshteinDistance(alias.toLowerCase(), strippedName.toLowerCase(), {search: true}), alias.toLowerCase()]);
+          tokens.push([LevenshteinDistance(alias.toLowerCase(), name.toLowerCase(), {search: true}), alias.toLowerCase()]);
         });
-        tokens.push(LevenshteinDistance(category.parent?.name[locale]?.toLowerCase() || '', strippedName.toLowerCase(), {search: true}));
+        tokens.push([LevenshteinDistance(category.parent?.name[locale]?.toLowerCase() || '', strippedName.toLowerCase(), {search: true}), category.parent?.name[locale]?.toLowerCase() || '']);
 
         let token;
         tokens.forEach(t => {
-          if (t.distance <= 1 && t.distance < (token ? token.distance : Infinity)) {
-            token = t;
+          t[0].accuracy = (t[0].substring.length-t[0].distance)/name.length;
+          if (t[0].distance <= 1 && t[0].accuracy >= (token ? token.accuracy : 0)) {
+            token = t[0];
+            console.log(name, translation, t);
           }
         });
 
-        if (token?.distance <= (bestToken ? bestToken.distance : Infinity)) {
+        if (token?.accuracy > (bestToken ? bestToken.accuracy : 0)) {
           bestCategory = category;
           bestToken = token;
         }
