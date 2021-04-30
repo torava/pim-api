@@ -1,7 +1,6 @@
 import Express from 'express';
 import serverless from 'serverless-http';
 import compression from 'compression';
-import apicache from 'apicache';
 import bodyParser from 'body-parser';
 import Knex from 'knex';
 import {Model} from 'objection';
@@ -14,7 +13,6 @@ import registerApi from './server/api';
 export const app = new Express();
 
 app.use(compression());
-app.use(apicache.middleware());
 
 // Initialize knex.
 const knex = Knex(knexConfig.development);

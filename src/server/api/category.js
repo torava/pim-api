@@ -1,6 +1,9 @@
+import apicache from 'apicache';
+
 import Category from '../models/Category';
 import { resolveCategories, resolveCategoryPrices } from '../../utils/categories';
-import { getClosestCategory } from '../utils/categories';
+
+let cache = apicache.middleware;
 
 export default app => {
 
@@ -20,7 +23,7 @@ app.get('/api/category/:id', (req, res) => {
     });
 });
 
-app.get('/api/category', function(req, res) {
+app.get('/api/category', cache(), (req, res) => {
   console.log(req.query);
   if ('parent' in req.query) {
     return Category.query()
