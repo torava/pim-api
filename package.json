@@ -1,6 +1,6 @@
 {
   "name": "bookkeepr",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "bookkeepr",
   "main": "src/server.js",
   "scripts": {
@@ -94,7 +94,7 @@
     "serverless-webpack": "^5.4.0",
     "style-loader": "^2.0.0",
     "wait-on": "^4.0.1",
-    "webpack": "^5.24.2",
+    "webpack": "^5.36.2",
     "webpack-cli": "^4.5.0",
     "webpack-dev-server": "^3.11.2",
     "webpack-node-externals": "^2.5.2"
