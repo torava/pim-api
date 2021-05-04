@@ -1,11 +1,11 @@
 import Express from 'express';
 import serverless from 'serverless-http';
 import compression from 'compression';
-import bodyParser from 'body-parser';
 import Knex from 'knex';
 import {Model} from 'objection';
 import {JSDOM} from 'jsdom';
 import { Canvas, createCanvas, Image, ImageData } from 'canvas';
+import path from 'path';
 
 import knexConfig from '../knexfile';
 import registerApi from './server/api';
@@ -28,20 +28,6 @@ types.setTypeParser(1700, function(val) {
     return parseFloat(val);
 });
 
-/** bodyParser.urlencoded(options)
- * Parses the text as URL encoded data (which is how browsers tend to send form data from regular forms set to POST)
- * and exposes the resulting object (containing the keys and values) on req.body
- */
-app.use(bodyParser.urlencoded({
-  extended: true,
-  limit: '50mb'
-}));
-
-/**bodyParser.json(options)
-* Parses the text as JSON and exposes the resulting object on req.body.
-*/
-app.use(bodyParser.json({limit: '50mb'}));
-
 const env = process.env.NODE_ENV || 'production';
 
 let port;
@@ -49,6 +35,34 @@ if (env === 'production') {
   port = process.env.PORT || 42808;
   // define the folder that will be used for static assets
   app.use(Express.static('src/static'));
+
+  app.get('/*', (req, res, next) => {
+    const {
+      USER,
+      PASSWORD
+    } = process.env;
+
+    // parse login and password from headers
+    const b64auth = (req.headers.authorization || '').split(' ')[1] || ''
+    const strauth = Buffer.from(b64auth, 'base64').toString();
+    const [, user, password] = strauth.match(/(.*?):(.*)/) || [];
+
+    // Verify login and password are set and correct
+    if (user !== USER || password !== PASSWORD) {
+      // Access denied...
+      res.set('WWW-Authenticate', 'Basic realm="401"') // change this
+      res.status(401).send('Authentication required.') // custom message
+    } else if (req.originalUrl.match(/^\/api\//)) {
+      next();
+    } else {
+      res.sendFile(path.resolve(__dirname, 'static', 'index.html'), error => {
+        console.error(error);
+        if (error) {
+          res.status(500);
+        }
+      });
+    }
+  });
 } else {
   port = process.env.PORT || 42809;
 }
