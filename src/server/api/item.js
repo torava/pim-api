@@ -8,12 +8,7 @@ export default app => {
 app.get('/api/item', async (req, res) => {
   const items = await Item.query()
     .eager('[product.[category.[parent.^], manufacturer], transaction.[party]]');
-  if (req.body.category) {
-    const filteredItems = items.filter(item => item.product.category.id === req.body.category);
-    res.send(filteredItems);
-  } else {
-    res.send(items);
-  }
+  res.send(items);
 });
 
 /*
