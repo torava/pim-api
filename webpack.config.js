@@ -24,6 +24,11 @@ const client = {
   module: {
     rules: [
       {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/
+      },
+      {
         test: /\.jsx?$/,
         use: {
           loader: 'babel-loader',
@@ -49,7 +54,7 @@ const client = {
     ],
   },
   resolve: {
-    extensions: [".js", ".jsx", ".css"]
+    extensions: [".ts", ".tsx", ".js", ".jsx", ".css"]
   },
   externals: {
     knex: 'commonjs knex'
