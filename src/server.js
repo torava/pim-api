@@ -6,6 +6,7 @@ import {Model} from 'objection';
 import {JSDOM} from 'jsdom';
 import { Canvas, createCanvas, Image, ImageData } from 'canvas';
 import path from 'path';
+import bodyParser from 'body-parser';
 
 import knexConfig from '../knexfile';
 import registerApi from './server/api';
@@ -28,6 +29,20 @@ types.setTypeParser(1700, function(val) {
     return parseFloat(val);
 });
 
+/** bodyParser.urlencoded(options)
+ * Parses the text as URL encoded data (which is how browsers tend to send form data from regular forms set to POST)
+ * and exposes the resulting object (containing the keys and values) on req.body
+ */
+ app.use(bodyParser.urlencoded({
+  extended: true,
+  limit: '50mb'
+}));
+
+/**bodyParser.json(options)
+* Parses the text as JSON and exposes the resulting object on req.body.
+*/
+app.use(bodyParser.json({limit: '50mb'}));
+
 const env = process.env.NODE_ENV || 'production';
 
 let port;
@@ -43,7 +58,7 @@ if (env === 'production') {
     } = process.env;
 
     // parse login and password from headers
-    const b64auth = (req.headers.authorization || '').split(' ')[1] || ''
+    const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
     const strauth = Buffer.from(b64auth, 'base64').toString();
     const [, user, password] = strauth.match(/(.*?):(.*)/) || [];
 
