@@ -34,7 +34,7 @@ export const getProductsFromOpenFoodFactsRecords = async (records) => {
       const productNameWithBrand = `${brand} ${product_name}`;
       const strippedProductName = stripDetails(product_name);
 
-      let bestDistance = 0,
+      let bestDistance = 0.4,
           categoryId;
       strippedCategories.forEach((category) => {
         Object.entries(category.strippedName).forEach(([locale, translation]) => {
