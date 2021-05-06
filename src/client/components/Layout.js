@@ -10,6 +10,7 @@ import CategoryList from './CategoryListPage';
 import Attributes from './shared/Attributes';
 
 import './Layout.scss';
+import TransactionList from './TransactionList';
 
 export default class Layout extends React.Component {
   constructor(props) {
@@ -23,6 +24,7 @@ export default class Layout extends React.Component {
       categories: [],
       parties: [],
       attributes: [],
+      transactions: window.localStorage.getItem('transactions') || [],
       isReady: false,
       isWorkerReady: false,
       pipeline: {
@@ -59,6 +61,7 @@ export default class Layout extends React.Component {
       DataStore.getItems()
     ])
     .then(([categories, attributes]) => {
+      console.log('done', categories, attributes);
       this.setState({
         isReady: true,
         categories,
@@ -156,8 +159,13 @@ export default class Layout extends React.Component {
 
     const t1 = performance.now();
 
+    const updatedTransactions = [...this.state.transactions, ...transactions];
+
+    window.localStorage.setItem('transactions', updatedTransactions);
+
     this.setState({
-      receiptProcessingTime: t1-t0
+      receiptProcessingTime: t1-t0,
+      transactions: updatedTransactions
     });
   }
   render() {
@@ -170,6 +178,8 @@ export default class Layout extends React.Component {
       attributes,
       attributeAggregates,
       attributeUnits,
+      transactions,
+      categories,
       pipeline,
       format,
       locale,
@@ -249,11 +259,17 @@ export default class Layout extends React.Component {
               </label>
               {typeof receiptCount !== 'undefined' &&
               <p>{message}</p>}
+              <h2>Transactions</h2>
+              <TransactionList
+                transactions={transactions}
+                categories={categories}
+                attributes={attributes}
+                attributeAggregates={attributeAggregates}/>
               <h2>Attributes</h2>
-                <Attributes
-                  attributes={attributes}
-                  attributeAggregates={attributeAggregates}
-                  setAttributeAggregates={(attributeAggregates) => this.setState({attributeAggregates})}/>
+              <Attributes
+                attributes={attributes}
+                attributeAggregates={attributeAggregates}
+                setAttributeAggregates={(attributeAggregates) => this.setState({attributeAggregates})}/>
               <h2>Categories</h2>
               <CategoryList
                 selectedAttributes={attributeAggregates}
