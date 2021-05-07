@@ -26,7 +26,6 @@ export default class Attribute extends Model {
 	static get tableName() {
 		return 'Attribute';
 	}
-
 	static get jsonSchema() {
 		return {
 			type: 'object',
@@ -36,7 +35,6 @@ export default class Attribute extends Model {
 			}
 		}
 	}
-	
 	static get relationMappings() {
 		return {
 			children: {

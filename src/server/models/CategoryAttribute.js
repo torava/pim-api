@@ -29,7 +29,13 @@ export default class CategoryAttribute extends Model {
 	static get tableName() {
 		return 'CategoryAttribute';
 	}
-
+	static get modifiers() {
+		return {
+			filterByAttributeIds(builder, attributeIds) {
+        builder.whereIn('attributeId', attributeIds);
+      }
+		}
+	}
 	static get jsonSchema() {
 		return {
 			type: 'object',
@@ -41,7 +47,6 @@ export default class CategoryAttribute extends Model {
 			}
 		}
   }
-  
   static get relationMappings() {
 		return {
 			category: {

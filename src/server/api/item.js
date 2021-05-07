@@ -20,28 +20,36 @@ app.get('/api/item', async (req, res) => {
   "price": 17
 }
 */
-app.post('/api/item', async (req, res) => {
-  const item = req.body;
 
+app.post('/api/item', async (req, res) => {
+  const {
+    item,
+    attributeIds,
+    acceptLocale
+  } = req.body;
+  console.log(req.body);
   try {
     const categories = (await Category.query()
-    .withGraphFetched('[children, parent]'))
+    .withGraphFetched('[children, parent, attributes(filterByGivenAttributeIds).[attribute]]')
+    .modifiers({
+      filterByGivenAttributeIds: query => query.modify('filterByAttributeIds', attributeIds)
+    }))
     .filter(category => !category.children?.length);
     const manufacturers = await Manufacturer.query();
     const strippedCategories = getStrippedCategories(categories, manufacturers);
     
     let category,
-        contributionList = item.product.contributionList.split(/,\s|\sja\s/gi);
+        contributionList = item.product.contributionList.split(/,\s|\sja\s|\sand\s|\soch\s/gi);
     if (contributionList) {
       console.log(contributionList);
       let contributions = [];
       contributionList.forEach(contributionListPart => {
-        let [contribution, token] = getClosestCategory(contributionListPart, strippedCategories);
+        let [contribution, token] = getClosestCategory(contributionListPart, strippedCategories, acceptLocale);
         if (contributionListPart.split(' ').length > 2) {
           while (contribution && contributionListPart) {
             contributionListPart = contributionListPart.replace(new RegExp(token.substring, 'i'), '').trim();
             contributions.push(contribution);
-            [contribution, token] = getClosestCategory(contributionListPart, strippedCategories);
+            [contribution, token] = getClosestCategory(contributionListPart, strippedCategories, acceptLocale);
           }
         } else if (contribution) {
           contributions.push(contribution);
