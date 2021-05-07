@@ -1,4 +1,4 @@
-import * as moment from "moment";
+import moment from "moment";
 import stringSimilarity from "string-similarity-js";
 import { stripDetails, stripName } from "../../utils/transaction";
 import Category from "../models/Category";
