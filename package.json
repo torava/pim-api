@@ -1,6 +1,6 @@
 {
   "name": "bookkeepr",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "bookkeepr",
   "main": "src/server.js",
   "scripts": {
@@ -43,12 +43,12 @@
     "jimp": "^0.12.1",
     "jsdom": "^13.2.0",
     "knex": "^0.21.17",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "match-sorter": "^2.3.0",
     "moment": "^2.22.2",
     "mysql": "^2.18.1",
     "natural": "^0.6.3",
-    "objection": "^2.2.14",
+    "objection": "^2.2.15",
     "path": "^0.12.7",
     "pdfjs-dist": "^2.6.347",
     "pg": "^8.5.1",
