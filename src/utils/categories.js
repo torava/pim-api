@@ -211,7 +211,7 @@ export const getStrippedCategories = (categories, manufacturers = []) => {
   });
 };
 
-export const getClosestCategory = (name, categories) => {
+export const getClosestCategory = (name, categories, acceptLocale) => {
   if (!name) return [undefined, undefined];
 
   const strippedName = stripDetails(name);
@@ -222,7 +222,7 @@ export const getClosestCategory = (name, categories) => {
 
   categories.forEach((category) => {
     Object.entries(category.strippedName).forEach(([locale, translation]) => {
-      if (locale !== 'fi-FI') return true;
+      if (acceptLocale && locale !== acceptLocale) return true;
       if (translation) {
         const tokens = [];
         tokens.push([LevenshteinDistance(translation.toLowerCase(), strippedName.toLowerCase(), {search: true}), translation.toLowerCase()]);
@@ -231,12 +231,12 @@ export const getClosestCategory = (name, categories) => {
           tokens.push([LevenshteinDistance(alias.toLowerCase(), strippedName.toLowerCase(), {search: true}), alias.toLowerCase()]);
           tokens.push([LevenshteinDistance(alias.toLowerCase(), name.toLowerCase(), {search: true}), alias.toLowerCase()]);
         });
-        tokens.push([LevenshteinDistance(category.parent?.name[locale]?.toLowerCase() || '', strippedName.toLowerCase(), {search: true}), category.parent?.name[locale]?.toLowerCase() || '']);
+        //tokens.push([LevenshteinDistance(category.parent?.name[locale]?.toLowerCase() || '', strippedName.toLowerCase(), {search: true}), category.parent?.name[locale]?.toLowerCase() || '']);
 
         let token;
         tokens.forEach(t => {
           t[0].accuracy = (t[0].substring.length-t[0].distance)/name.length;
-          if (t[0].distance <= 1 && t[0].accuracy >= (token ? token.accuracy : 0)) {
+          if (t[0].distance <= 1 && t[0].accuracy > 0.2 && t[0].accuracy >= (token ? token.accuracy : 0)) {
             token = t[0];
             console.log(name, translation, t);
           }
