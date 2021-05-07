@@ -1,3 +1,4 @@
+import * as moment from "moment";
 import Category from "../models/Category";
 import Item from "../models/Item";
 import Party from "../models/Party";
@@ -13,7 +14,7 @@ export const getItemsFromCsv = async (itemRecords, productRecords, partyRecords,
 
   insertFromRecords(partyRecords, Party, partyRecordIdMap);
 
-  console.log(`${partyRecords.length} parties inserted`);
+  console.log(`${partyRecords.length} parties inserted`, moment().format());
 
   for (const record of transactionRecords) {
     record.partyId = partyRecordIdMap[record.partyId]?.id;
@@ -24,7 +25,7 @@ export const getItemsFromCsv = async (itemRecords, productRecords, partyRecords,
     transactionRecordIdMap[record.id] = entity;
   }
 
-  console.log(`${transactionRecords.length} transactions inserted`)
+  console.log(`${transactionRecords.length} transactions inserted`, moment().format());
 
   for (const record of productRecords) {
     for (const [columnName, column] of Object.entries(record)) {
@@ -67,7 +68,7 @@ export const getItemsFromCsv = async (itemRecords, productRecords, partyRecords,
     productRecordIdMap[record.id] = entity;
   }
 
-  console.log(`${productRecords.length} products inserted`);
+  console.log(`${productRecords.length} products inserted`, moment().format());
 
   for (const record of itemRecords) {
     record.productId = productRecordIdMap[record.productId]?.id;
@@ -79,5 +80,5 @@ export const getItemsFromCsv = async (itemRecords, productRecords, partyRecords,
     }).returning('*');
   }
 
-  console.log(`${itemRecords.length} items inserted`);
+  console.log(`${itemRecords.length} items inserted`, moment().format());
 };

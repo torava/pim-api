@@ -525,7 +525,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
 
     console.log('food units', moment().format());
 
-    console.log('all done');
+    console.log('all food done');
 
     /* macbook benchmark in 20 chunks
 

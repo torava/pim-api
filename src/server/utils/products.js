@@ -1,3 +1,4 @@
+import * as moment from "moment";
 import stringSimilarity from "string-similarity-js";
 import { stripDetails, stripName } from "../../utils/transaction";
 import Category from "../models/Category";
@@ -67,5 +68,5 @@ export const getProductsFromOpenFoodFactsRecords = async (records) => {
     }
   }
 
-  console.log('added', n, 'products');
+  console.log('added', n, 'products', moment().format());
 };
