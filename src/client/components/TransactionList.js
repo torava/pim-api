@@ -4,10 +4,10 @@ import tree from 'react-asterisk-table/lib/Tree';
 import sortable from 'react-asterisk-table/lib/Sortable';
 import {Link} from 'react-router-dom';
 
-import { downloadString, exportTransactions } from '../utils/export';
+import { downloadString, exportTransactions, getCsvFromObject, getXlsxFromObject } from '../utils/export';
 import { convertMeasure } from '../../utils/entities';
 import { locale } from './locale';
-import { getCategoryWithAttributes } from '../../utils/categories';
+import { getCategoriesWithAttributes } from '../../utils/categories';
 import { getItemAttributeValue } from '../../utils/items';
 
 import './TransactionList.scss';
@@ -19,7 +19,8 @@ export default function TransactionList({
   transactions,
   categories,
   attributes,
-  attributeAggregates
+  attributeAggregates,
+  format
 }) {
   const selectItemFormatter = (value, item) => (
     <input
@@ -68,7 +69,7 @@ export default function TransactionList({
       label: 'Price',
       property: item => {
         //let currency = localStorage.getItem('currency');
-        return item.price;
+        return item.price.toLocaleString();
       }
     },
     {
@@ -129,12 +130,22 @@ export default function TransactionList({
     }
   ];
   
-  const exportSelected = () => {
+  const exportSelected = async () => {
     console.log(transactions);
     const selectedTransactions = transactions.filter(transaction => selectedTransactionIds[transaction.id]);
-    const csv = exportTransactions(selectedTransactions, categories, attributes, attributeAggregates);
+    
+    /*const csv = exportTransactions(selectedTransactions, categories, attributes, attributeAggregates);
     console.log(csv);
-    downloadString(csv, 'text/csv', 'items.csv');
+    downloadString(csv, 'text/csv', 'items.csv');*/
+
+    const rows = exportTransactions(selectedTransactions, categories, attributes, attributeAggregates);
+    if (format === 'text/csv') {
+      const csv = await getCsvFromObject(rows);
+      downloadString(csv, format, 'items.csv');
+    } else if (format === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+      const xlsx = await getXlsxFromObject(rows);
+      downloadString(xlsx, format, 'items.xlsx');
+    }
   };
 
   const selectTransaction = useCallback((transaction, selected) => {
@@ -172,26 +183,35 @@ export default function TransactionList({
   const filteredItemColumns = itemColumns.filter(column => attributeAggregates[column.id]);
   const attributeColumns = Object.entries(attributeAggregates)
   .filter(([id]) => !itemColumns.some(column => column.id === id))
-  .map(([, attribute]) => ({
+  .map(([attributeId, attribute]) => ({
     label: locale.getNameLocale(attribute.name),
     property: item => {
-      const category = getCategoryWithAttributes(categories, item.product.category?.id, attribute.id);
+      /*const category = getCategoryWithAttributes(categories, item.product.category?.id, attribute.id);
       const categoryAttribute = Object.values(category?.attributes || {}).find(a => a.attributeId === attribute.id);
-      return getItemAttributeValue(item, categoryAttribute);
+      return getItemAttributeValue(item, categoryAttribute, attributes);*/
+
+      const result = getCategoriesWithAttributes(categories, item.product.category, Number(attributeId));
+      const [, itemAttributes] = result?.[0] || [undefined, undefined];
+      const [attributeValue] = getItemAttributeValue(item, itemAttributes, attributes) || [undefined, undefined];
+      return attributeValue?.toLocaleString();
     }
   }));
 
   if (!transactions || !categories) return null;
   else return (
-    <TreeTable
-      columns={transactionColumns()}
-      items={transactions}
-      childView={transaction => (
-        <Table
-          columns={[...filteredItemColumns, ...attributeColumns]}
-          items={transaction.items}
-        />
-      )}
-    />
+    <>
+      <button onClick={exportSelected}>Export Selected</button>
+      <TreeTable
+        columns={transactionColumns()}
+        items={transactions}
+        childView={transaction => {
+          console.log(transaction, transaction.items);
+          return <Table
+            columns={[...itemColumns, ...attributeColumns]}
+            items={transaction.items}
+          />;
+        }}
+      />
+    </>
   );
 }

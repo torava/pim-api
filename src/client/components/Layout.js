@@ -24,7 +24,7 @@ export default class Layout extends React.Component {
       categories: [],
       parties: [],
       attributes: [],
-      transactions: window.localStorage.getItem('transactions') || [],
+      transactions: JSON.parse(window.localStorage.getItem('transactions')) || [],
       isReady: false,
       isWorkerReady: false,
       pipeline: {
@@ -161,7 +161,7 @@ export default class Layout extends React.Component {
 
     const updatedTransactions = [...this.state.transactions, ...transactions];
 
-    window.localStorage.setItem('transactions', updatedTransactions);
+    window.localStorage.setItem('transactions', JSON.stringify(updatedTransactions));
 
     this.setState({
       receiptProcessingTime: t1-t0,
@@ -205,7 +205,7 @@ export default class Layout extends React.Component {
           </div>
           <div className="transactions__container">
             <div className="transactions__content">
-              <h2>Upload</h2>
+              <h2>Settings</h2>
               <p>
                 <select 
                   id="currency"
@@ -253,6 +253,7 @@ export default class Layout extends React.Component {
                   Crop
                 </label>
               </p>
+              <h2>Upload</h2>
               <label>
                 Upload:<br/>
                 <input type="file" name="upload-file" id="upload-file" multiple draggable onChange={this.onUpload}/>
@@ -264,7 +265,8 @@ export default class Layout extends React.Component {
                 transactions={transactions}
                 categories={categories}
                 attributes={attributes}
-                attributeAggregates={attributeAggregates}/>
+                attributeAggregates={attributeAggregates}
+                format={format}/>
               <h2>Attributes</h2>
               <Attributes
                 attributes={attributes}

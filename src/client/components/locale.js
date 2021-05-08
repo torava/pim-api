@@ -5,8 +5,8 @@ class Locale {
     this.attribute_units = '{}';
 
     if (typeof window !== 'undefined') {
-      this.currency = window.localStorage.getItem('currency') || 'EUR';
-      this.locale = window.localStorage.getItem('locale') || window.navigator.language;
+      this.currency = window.localStorage.getItem('currency') || 'EUR';
+      this.locale = window.localStorage.getItem('locale') || window.navigator.language;
       this.attribute_units = JSON.parse(window.localStorage.getItem('attribute_units') || '{}');
     }
   }
