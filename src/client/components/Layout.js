@@ -10,6 +10,7 @@ import CategoryList from './CategoryListPage';
 import Attributes from './shared/Attributes';
 
 import './Layout.scss';
+import TransactionList from './TransactionList';
 
 export default class Layout extends React.Component {
   constructor(props) {
@@ -23,6 +24,7 @@ export default class Layout extends React.Component {
       categories: [],
       parties: [],
       attributes: [],
+      transactions: JSON.parse(window.localStorage.getItem('transactions')) || [],
       isReady: false,
       isWorkerReady: false,
       pipeline: {
@@ -59,6 +61,7 @@ export default class Layout extends React.Component {
       DataStore.getItems()
     ])
     .then(([categories, attributes]) => {
+      console.log('done', categories, attributes);
       this.setState({
         isReady: true,
         categories,
@@ -156,8 +159,13 @@ export default class Layout extends React.Component {
 
     const t1 = performance.now();
 
+    const updatedTransactions = [...this.state.transactions, ...transactions];
+
+    window.localStorage.setItem('transactions', JSON.stringify(updatedTransactions));
+
     this.setState({
-      receiptProcessingTime: t1-t0
+      receiptProcessingTime: t1-t0,
+      transactions: updatedTransactions
     });
   }
   render() {
@@ -170,6 +178,8 @@ export default class Layout extends React.Component {
       attributes,
       attributeAggregates,
       attributeUnits,
+      transactions,
+      categories,
       pipeline,
       format,
       locale,
@@ -195,7 +205,7 @@ export default class Layout extends React.Component {
           </div>
           <div className="transactions__container">
             <div className="transactions__content">
-              <h2>Upload</h2>
+              <h2>Settings</h2>
               <p>
                 <select 
                   id="currency"
@@ -243,17 +253,25 @@ export default class Layout extends React.Component {
                   Crop
                 </label>
               </p>
+              <h2>Upload</h2>
               <label>
                 Upload:<br/>
                 <input type="file" name="upload-file" id="upload-file" multiple draggable onChange={this.onUpload}/>
               </label>
               {typeof receiptCount !== 'undefined' &&
               <p>{message}</p>}
+              <h2>Transactions</h2>
+              <TransactionList
+                transactions={transactions}
+                categories={categories}
+                attributes={attributes}
+                attributeAggregates={attributeAggregates}
+                format={format}/>
               <h2>Attributes</h2>
-                <Attributes
-                  attributes={attributes}
-                  attributeAggregates={attributeAggregates}
-                  setAttributeAggregates={(attributeAggregates) => this.setState({attributeAggregates})}/>
+              <Attributes
+                attributes={attributes}
+                attributeAggregates={attributeAggregates}
+                setAttributeAggregates={(attributeAggregates) => this.setState({attributeAggregates})}/>
               <h2>Categories</h2>
               <CategoryList
                 selectedAttributes={attributeAggregates}
