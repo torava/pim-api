@@ -7,7 +7,7 @@ export default app => {
 
 app.get('/api/item', async (req, res) => {
   const items = await Item.query()
-    .eager('[product.[category.[parent.^], manufacturer], transaction.[party]]');
+    .withGraphFetched('[product.[category.[parent.^], manufacturer], transaction.[party]]');
   res.send(items);
 });
 

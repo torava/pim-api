@@ -24,7 +24,6 @@ app.get('/api/category/:id', (req, res) => {
 });
 
 app.get('/api/category', cache(), (req, res) => {
-  console.log(req.query);
   if ('parent' in req.query) {
     return Category.query()
     .where('parentId', req.query.parent || null)
@@ -39,7 +38,7 @@ app.get('/api/category', cache(), (req, res) => {
       return res.sendStatus(500);
     });
   }
-  else if (req.query.hasOwnProperty('transactions')) {
+  else if (req.query.transactions) {
     return Category.query()
     .where('parentId', null)
     .modify('getTransactions')
