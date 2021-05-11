@@ -63,6 +63,7 @@ footer .button {
   border: 0;
   border-collapse: separate;
   border-spacing: 0;
+  table-layout: auto;
   & > thead > tr,
   & > tbody > tr {
     & > th,
@@ -105,22 +106,22 @@ footer .button {
   /* top-left border-radius */
   & > thead > tr:first-child {
     & > th:first-child {
-      border-top-left-radius: 35px;
+      border-top-left-radius: 1em;
     }
     /* top-right border-radius */
     & > th:last-child {
-      border-top-right-radius: 35px;
+      border-top-right-radius: 1em;
     }
   }
 
   /* bottom-left border-radius */
   & > tbody > tr:last-child {
     & > td:first-child {
-      border-bottom-left-radius: 35px;
+      border-bottom-left-radius: 1em;
     }
     /* bottom-right border-radius */
     & > td:last-child {
-      border-bottom-right-radius: 35px;
+      border-bottom-right-radius: 1em;
     }
   }
 }
