@@ -40,11 +40,6 @@ export default function TransactionList({
       property: item => item.product.name
     },
     {
-      id: 'manufacturer',
-      label: 'Manufacturer',
-      property: item => item.product.manufacturer && item.product.manufacturer.name
-    },
-    {
       id: 'quantity',
       label: 'Quantity',
       property: item => item.product.quantity || item.quantity
@@ -62,7 +57,10 @@ export default function TransactionList({
     {
       id: 'category',
       label: 'Category',
-      property: item => item.product.category && item.product.category.name['fi-FI']
+      property: item => (
+        item.product.categoryId &&
+        categories.find(category => category.id === item.product.categoryId)?.name[locale.getLocale()]
+      )
     },
     {
       id: 'price',
@@ -190,7 +188,8 @@ export default function TransactionList({
       const categoryAttribute = Object.values(category?.attributes || {}).find(a => a.attributeId === attribute.id);
       return getItemAttributeValue(item, categoryAttribute, attributes);*/
 
-      const result = getCategoriesWithAttributes(categories, item.product.category, Number(attributeId));
+      const productCategory = categories.find(category => category.id === item.product.categoryId);
+      const result = getCategoriesWithAttributes(categories, productCategory, Number(attributeId));
       const [, itemAttributes] = result?.[0] || [undefined, undefined];
       const [attributeValue] = getItemAttributeValue(item, itemAttributes, attributes) || [undefined, undefined];
       return attributeValue?.toLocaleString();
