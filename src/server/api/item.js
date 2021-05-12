@@ -61,11 +61,25 @@ app.post('/api/item', async (req, res) => {
       };
     } else {
       category = getClosestCategory(item.product?.name, strippedCategories);
-    } 
+    }
+    const attributes = attributeIds.map(attributeId => {
+      let value = 0;
+      category.contributions?.forEach(contribution => {
+        const attribute = contribution.attributes.find(a => a.attributeId === attributeId);
+        if (attribute) {
+          value+= attribute.value;
+        }
+      });
+      return {
+        value,
+        attributeId
+      }
+    });
     const itemWithCategory = {
       ...item,
       product: {
         ...item.product,
+        attributes,
         category
       }
     };

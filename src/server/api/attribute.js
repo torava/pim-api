@@ -14,12 +14,12 @@ function resolveAttributes(attributes) {
 }
 
 app.get('/api/attribute', function(req, res) {
-  if (req.query.hasOwnProperty('parent')) {
+  if (req.query.parent) {
     return Attribute.query()
     .where('parentId', req.query.parent || null)
     .eager('[children.^]')
     .then(attributes => {
-      if (req.query.hasOwnProperty('indexed')) {
+      if ('indexed' in req.query) {
         attributes = resolveAttributes(attributes);
       }
       res.send(attributes);
