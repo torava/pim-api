@@ -83,8 +83,8 @@ export const exportTransactions = (transactions, categories, attributes, attribu
 
       Object.keys(attributeAggregates).forEach(attributeId => {
         const result = getCategoriesWithAttributes(categories, productCategory, Number(attributeId));
-        const [, itemAttributes] = result?.[0] || [undefined, undefined];
-        const [attributeValue] = getItemAttributeValue(item, itemAttributes, attributes) || [undefined, undefined];
+        const [, categoryAttributes] = result?.[0] || [undefined, undefined];
+        const [attributeValue] = getItemAttributeValue(item, categoryAttributes, attributes) || [undefined, undefined];
 
         attributeColumns.push(formatNumber(attributeValue));
       });

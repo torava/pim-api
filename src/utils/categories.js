@@ -62,18 +62,18 @@ export const aggregateCategoryAttribute = (resolvedCategories, attributeAggregat
 export const aggregateCategoryPrice = (resolvedCategories, averageRate) => {
   let categories = [...resolvedCategories];
   categories.reduce(function resolver(sum, category) {
-    if (category.hasOwnProperty('products') && category.products.length) {
+    if (category.products?.length) {
       let item_prices = 0,
           item_weights = 0,
           item_volumes = 0;
       category.products.map(product => {
         product.items.map(item => {
           item_prices+= item.price;
-          if (item.unit == 'l' || product.unit == 'l') {
-            item_volumes+= (product.quantity || item.quantity || 1)*(product.measure || item.measure || 0);
+          if (item.unit == 'l' || product.unit == 'l') {
+            item_volumes+= (product.quantity || item.quantity || 1)*(product.measure || item.measure || 0);
           }
           else {
-            item_weights+= (product.quantity || item.quantity || 1)*convertMeasure(product.measure || item.measure, product.unit || item.unit, 'kg');
+            item_weights+= (product.quantity || item.quantity || 1)*convertMeasure(product.measure || item.measure, product.unit || item.unit, 'kg');
           }
         });
       });
@@ -81,7 +81,7 @@ export const aggregateCategoryPrice = (resolvedCategories, averageRate) => {
       category.weight_sum = item_weights*averageRate;
       category.volume_sum = item_volumes*averageRate;
     }
-    if (category.hasOwnProperty('children') && category.children.length) {
+    if (category.children?.length) {
       let sum = category.children.reduce(resolver, {
         price_sum: 0,
         volume_sum: 0,
@@ -187,19 +187,19 @@ export function resolveCategories(items, locale) {
 
 export function resolveCategoryPrices(categories) {
   categories && categories.reduce(function resolver(sum, category) {
-    if (category.hasOwnProperty('products') && category.products.length) {
+    if (category.products?.length) {
       let item_prices = 0;
       category.products.map(product => {
         product.items.map(item => {
           item_prices+= item.price;
         });
       });
-      category.price_sum = (category.price_sum || 0)+item_prices; 
+      category.price_sum = (category.price_sum || 0)+item_prices; 
     }
-    if (category.hasOwnProperty('children') && category.children.length) {
-      category.price_sum = (category.price_sum || 0)+category.children.reduce(resolver, 0);
+    if (category.children?.length) {
+      category.price_sum = (category.price_sum || 0)+category.children.reduce(resolver, 0);
     }
-    return sum+(category.price_sum || 0);
+    return sum+(category.price_sum || 0);
   }, 0);
 }
 

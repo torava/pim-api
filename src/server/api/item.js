@@ -1,4 +1,6 @@
-import { getClosestCategory, getStrippedCategories } from '../../utils/categories';
+import { getCategoriesWithAttributes, getClosestCategory, getStrippedCategories } from '../../utils/categories';
+import { getAttributeValue } from '../../utils/items';
+import Attribute from '../models/Attribute';
 import Category from '../models/Category';
 import Item from '../models/Item';
 import Manufacturer from '../models/Manufacturer';
@@ -21,6 +23,60 @@ app.get('/api/item', async (req, res) => {
 }
 */
 
+
+/*
+REST API JSON request
+const exampleRequest = {
+  "product": {
+    "name": "Mayur Special Tarkari",
+    "contributionList": "Cooked vegetables, potatoes, cashew nuts and bamboo in coconut creamy tomato sauce"
+  },
+  "price": 17
+}
+
+REST API JSON response
+const exampleResponse = {
+  "product": {
+    "name": "Mayur Special Tarkari",
+    "measure": 0.598,
+    "unit": "kg",
+    "attributes": [
+      {
+        "name": "GHG min per portion",
+        "unit": "kgCO₂eq/portion",
+        "value": 0.322824
+      },
+      {
+        "name": "GHG max per portion",
+        "unit": "kgCO₂eq/portion",
+        "value": 0.71004
+      },
+      {
+        "name": "GHG min per kg",
+        "unit": "kgCO₂eq/kg",
+        "value": 0.5398394649
+      },
+      {
+        "name": "GHG max per kg",
+        "unit": "kgCO₂eq/kg",
+        "value": 1.18735786
+      },
+      {
+        "name": "Energy per 100 g",
+        "unit": "kcal/hg",
+        "value": 149.3244147
+      },
+      {
+        "name": "Energy per portion",
+        "unit": "kcal/portion",
+        "value": 892.96
+      }
+    ]
+  }
+}
+*/
+
+
 app.post('/api/item', async (req, res) => {
   const {
     item,
@@ -30,13 +86,17 @@ app.post('/api/item', async (req, res) => {
   console.log(req.body);
   try {
     const categories = (await Category.query()
-    .withGraphFetched('[children, parent, attributes(filterByGivenAttributeIds).[attribute]]')
+    .withGraphFetched('[children, parent, contributions, attributes(filterByGivenAttributeIds).[attribute]]')
     .modifiers({
       filterByGivenAttributeIds: query => query.modify('filterByAttributeIds', attributeIds)
     }))
-    .filter(category => !category.children?.length);
+    const childCategories = categories.filter(category => !category.children?.length);
     const manufacturers = await Manufacturer.query();
-    const strippedCategories = getStrippedCategories(categories, manufacturers);
+    const attributes = await Attribute.query();
+    const strippedCategories = getStrippedCategories(childCategories, manufacturers);
+
+    // TODO: change to enum
+    const foodUnitAttribute = attributes.find(a => a.name['en-US'] === 'Food units');
     
     let category,
         contributionList = item.product.contributionList.split(/,\s|\sja\s|\sand\s|\soch\s/gi);
@@ -60,14 +120,26 @@ app.post('/api/item', async (req, res) => {
         contributions
       };
     } else {
-      category = getClosestCategory(item.product?.name, strippedCategories);
+      category = getClosestCategory(item.product?.name, strippedCategories, acceptLocale);
     }
-    const attributes = attributeIds.map(attributeId => {
+    const productAttributes = attributeIds.map(attributeId => {
       let value = 0;
+      console.log('attributeId', attributeId);
       category.contributions?.forEach(contribution => {
-        const attribute = contribution.attributes.find(a => a.attributeId === attributeId);
-        if (attribute) {
-          value+= attribute.value;
+        const portionAttribute = contribution.attributes.find(a => a.attribute.parentId === foodUnitAttribute.id);
+        if (!portionAttribute) {
+          throw 'No food unit attribute provided';
+        }
+        console.log('contribution', contribution);
+        console.log('portionAttribute', portionAttribute);
+        const result = getCategoriesWithAttributes(categories, contribution, Number(attributeId));
+        console.log('result', result?.[0]);
+        const [, categoryAttributes] = result?.[0] || [undefined, undefined];
+        const [attributeValue, categoryAttribute] = getAttributeValue(portionAttribute.unit, portionAttribute.value, 1, null, categoryAttributes, attributes) || [undefined, undefined];
+        console.log('categoryAttribute', categoryAttribute);
+        console.log('attribute', attributeValue);
+        if (attributeValue) {
+          value+= attributeValue;
         }
       });
       return {
@@ -79,7 +151,7 @@ app.post('/api/item', async (req, res) => {
       ...item,
       product: {
         ...item.product,
-        attributes,
+        attributes: productAttributes,
         category
       }
     };

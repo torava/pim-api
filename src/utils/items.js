@@ -5,7 +5,7 @@ import config from '../config/default';
 export const getItemNameByDepth = (item, depth) => {
   let name,
       id = false;
-  if (!item || !item.product) {
+  if (!item || !item.product) {
     id = 0;
     name = 'Uncategorized';
     return {id, name};
@@ -53,13 +53,10 @@ export const getItemNameByDepth = (item, depth) => {
   return {id, name};
 };
 
-export const getItemAttributeValue = (item, categoryAttributes = [], attributes = []) => {
+export const getAttributeValue = (unit, measure, quantity = 1, price = undefined, categoryAttributes = [], attributes = []) => {
   for (const categoryAttribute of categoryAttributes) {
     const attribute = attributes.find(a => a.id === categoryAttribute.attributeId);
 
-    const quantity = getItemQuantity(item) || 1;
-    const unit = getItemUnit(item);
-    const measure = convertMeasure(getItemMeasure(item), unit, 'kg');
     const perUnit = categoryAttribute?.unit?.split('/')?.[1];
     
     let value,
@@ -72,10 +69,10 @@ export const getItemAttributeValue = (item, categoryAttributes = [], attributes 
       rate = config.unitConversionRates[categoryAttribute.unit]?.[currentAttributeUnit] || 1;
     }
 
-    if (perUnit === 'EUR') {
-      value = rate*categoryAttribute.value*item.price;
+    if (perUnit === 'EUR' && !isNaN(price)) {
+      value = rate*categoryAttribute.value;
     } else if (perUnit && ['l', 'g'].includes(perUnit.substring(1))) {
-      value = rate*categoryAttribute?.value*convertMeasure(measure, 'kg', perUnit)*quantity;
+      value = rate*categoryAttribute?.value*convertMeasure(measure, unit, perUnit)*quantity;
     } else if (!unit) {
       value = rate*categoryAttribute?.value*quantity;
     }
@@ -83,6 +80,14 @@ export const getItemAttributeValue = (item, categoryAttributes = [], attributes 
       return [value, categoryAttribute];
     }
   }
+};
+
+export const getItemAttributeValue = (item, categoryAttributes = [], attributes = []) => {
+  const quantity = getItemQuantity(item) || 1;
+  const unit = getItemUnit(item);
+  const measure = convertMeasure(getItemMeasure(item), unit, 'kg');
+
+  return getAttributeValue(unit, measure, quantity, item.price, categoryAttributes, attributes);
 };
 
 export const findItemCategoryAttributeValue = (item, category, attributeId) => {
