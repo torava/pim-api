@@ -1,5 +1,5 @@
 import { getCategoriesWithAttributes, getClosestCategory, getStrippedCategories } from '../../utils/categories';
-import { getAttributeValue } from '../../utils/items';
+import { getAttributeValues } from '../../utils/items';
 import Attribute from '../models/Attribute';
 import Category from '../models/Category';
 import Item from '../models/Item';
@@ -122,8 +122,10 @@ app.post('/api/item', async (req, res) => {
     } else {
       category = getClosestCategory(item.product?.name, strippedCategories, acceptLocale);
     }
-    const productAttributes = attributeIds.map(attributeId => {
-      let value = 0;
+    const productAttributes = [];
+    attributeIds.forEach(attributeId => {
+      let minValue = 0,
+          maxValue = 0;
       console.log('attributeId', attributeId);
       category.contributions?.forEach(contribution => {
         const portionAttribute = contribution.attributes.find(a => a.attribute.parentId === foodUnitAttribute.id);
@@ -136,31 +138,60 @@ app.post('/api/item', async (req, res) => {
           const totalAmount = contribution.contributions.reduce((previousValue, currentValue) => previousValue.amount+currentValue.amount, 0);
           contribution.contributions.forEach(contributionContribution => {
             const result = getCategoriesWithAttributes(categories, contributionContribution.contributionId, Number(attributeId));
+            console.log('result', result);
             const [, categoryAttributes] = result?.[0] || [undefined, undefined];
-            const [attributeValue, categoryAttribute] = getAttributeValue(portionAttribute.unit, portionAttribute.value*contributionContribution.amount/totalAmount, 1, undefined, categoryAttributes, attributes) || [undefined, undefined];
-            console.log('result', result?.[0]);
-            console.log('categoryAttribute', categoryAttribute);
-            console.log('attribute', attributeValue);
-            if (attributeValue) {
-              value+= attributeValue;
+            const attributeResult = getAttributeValues(portionAttribute.unit, portionAttribute.value*contributionContribution.amount/totalAmount, 1, undefined, categoryAttributes, attributes);
+            if (attributeResult.length) {
+              console.log('attributeResult', attributeResult);
+              const minAttributeResult = attributeResult.reduce((a, b) => a[0] < b[0] ? a : b, [undefined, undefined]);
+              const maxAttributeResult = attributeResult.reduce((a, b) => a[0] > b[0] ? a : b, [undefined, undefined]);
+              const [minAttributeValue, minCategoryAttribute] = minAttributeResult || [undefined, undefined];
+              const [maxAttributeValue, maxCategoryAttribute] = maxAttributeResult || [undefined, undefined];
+              console.log('minCategoryAttribute', minCategoryAttribute);
+              console.log('minAttributeValue', minAttributeValue);
+              console.log('maxCategoryAttribute', maxCategoryAttribute);
+              console.log('maxAttributeValue', maxAttributeValue);
+              minValue+= minAttributeValue || 0;
+              maxValue+= maxAttributeValue || 0;
             }
           });
         } else {
           const result = getCategoriesWithAttributes(categories, contribution.id, Number(attributeId));
+          console.log('result', result);
           const [, categoryAttributes] = result?.[0] || [undefined, undefined];
-          const [attributeValue, categoryAttribute] = getAttributeValue(portionAttribute.unit, portionAttribute.value, 1, undefined, categoryAttributes, attributes) || [undefined, undefined];
-          console.log('result', result?.[0]);
-          console.log('categoryAttribute', categoryAttribute);
-          console.log('attribute', attributeValue);
-          if (attributeValue) {
-            value+= attributeValue;
+          const attributeResult = getAttributeValues(portionAttribute.unit, portionAttribute.value, 1, undefined, categoryAttributes, attributes);
+          if (attributeResult.length) {
+            console.log('attributeResult', attributeResult);
+            const minAttributeResult = attributeResult.reduce((a, b) => a[0] < b[0] ? a : b);
+            const maxAttributeResult = attributeResult.reduce((a, b) => a[0] > b[0] ? a : b);
+            const [minAttributeValue, minCategoryAttribute] = minAttributeResult || [undefined, undefined];
+            const [maxAttributeValue, maxCategoryAttribute] = maxAttributeResult || [undefined, undefined];
+            console.log('minCategoryAttribute', minCategoryAttribute);
+            console.log('minAttributeValue', minAttributeValue);
+            console.log('maxCategoryAttribute', maxCategoryAttribute);
+            console.log('maxAttributeValue', maxAttributeValue);
+            minValue+= minAttributeValue || 0;
+            maxValue+= maxAttributeValue || 0;
           }
         }
       });
       const attribute = attributes.find(a => a.id === attributeId);
-      return {
-        value,
-        attribute
+      if (minValue === maxValue) {
+        productAttributes.push({
+          value: minValue,
+          attribute
+        });
+      } else {
+        productAttributes.push({
+          value: minValue,
+          type: 'MIN_VALUE',
+          attribute
+        });
+        productAttributes.push({
+          value: maxValue,
+          type: 'MAX_VALUE',
+          attribute
+        });
       }
     });
     const itemWithCategory = {
