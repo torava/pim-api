@@ -38,7 +38,8 @@ const manufacturers = [
   { name: 'Alpro' },
   { name: 'Valio' },
   { name: 'God Morgon' },
-  { name: 'Dentalux' }
+  { name: 'Dentalux' },
+  { name: 'Kotipizza' }
 ];
 
 exports.seed = knex => (
