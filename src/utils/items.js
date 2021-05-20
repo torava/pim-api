@@ -53,33 +53,36 @@ export const getItemNameByDepth = (item, depth) => {
   return {id, name};
 };
 
-export const getAttributeValue = (unit, measure, quantity = 1, price = undefined, categoryAttributes = [], attributes = []) => {
+export const getAttributeValues = (unit, measure, quantity = 1, price = undefined, categoryAttributes = [], attributes = []) => {
+  const result = [];
   for (const categoryAttribute of categoryAttributes) {
-    const attribute = attributes.find(a => a.id === categoryAttribute.attributeId);
+    const foundAttributes = attributes.filter(a => a.id === categoryAttribute.attributeId);
+    foundAttributes.forEach(attribute => {
+      const perUnit = categoryAttribute?.unit?.split('/')?.[1];
+      
+      let value,
+          rate = 1;
+      
+      const currentAttributeUnit = locale.getAttributeUnit(attribute?.name['en-US']);
 
-    const perUnit = categoryAttribute?.unit?.split('/')?.[1];
-    
-    let value,
-        rate = 1;
-    
-    const currentAttributeUnit = locale.getAttributeUnit(attribute?.name['en-US']);
+      console.log('attribute', attribute, 'currentAttributeUnit', currentAttributeUnit, 'unit', categoryAttribute.unit, 'attribute unit', currentAttributeUnit);
+      if (currentAttributeUnit) {
+        rate = config.unitConversionRates[categoryAttribute.unit]?.[currentAttributeUnit] || 1;
+      }
 
-    console.log('attribute', attribute, 'currentAttributeUnit', currentAttributeUnit, 'unit', categoryAttribute.unit, 'attribute unit', currentAttributeUnit);
-    if (currentAttributeUnit) {
-      rate = config.unitConversionRates[categoryAttribute.unit]?.[currentAttributeUnit] || 1;
-    }
-
-    if (perUnit === 'EUR' && !isNaN(price)) {
-      value = rate*categoryAttribute.value;
-    } else if (perUnit && ['l', 'g'].includes(perUnit.substring(1))) {
-      value = rate*categoryAttribute?.value*convertMeasure(measure, unit, perUnit)*quantity;
-    } else if (!unit) {
-      value = rate*categoryAttribute?.value*quantity;
-    }
-    if (!isNaN(value)) {
-      return [value, categoryAttribute];
-    }
+      if (perUnit === 'EUR' && !isNaN(price)) {
+        value = rate*categoryAttribute.value;
+      } else if (perUnit && ['l', 'g'].includes(perUnit.substring(1))) {
+        value = rate*categoryAttribute?.value*convertMeasure(measure, unit, perUnit)*quantity;
+      } else if (!unit) {
+        value = rate*categoryAttribute?.value*quantity;
+      }
+      if (!isNaN(value)) {
+        result.push([value, categoryAttribute]);
+      }
+    });
   }
+  return result;
 };
 
 export const getItemAttributeValue = (item, categoryAttributes = [], attributes = []) => {
@@ -87,7 +90,7 @@ export const getItemAttributeValue = (item, categoryAttributes = [], attributes 
   const unit = getItemUnit(item);
   const measure = convertMeasure(getItemMeasure(item), unit, 'kg');
 
-  return getAttributeValue(unit, measure, quantity, item.price, categoryAttributes, attributes);
+  return getAttributeValues(unit, measure, quantity, item.price, categoryAttributes, attributes)?.[0];
 };
 
 export const findItemCategoryAttributeValue = (item, category, attributeId) => {
