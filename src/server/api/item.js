@@ -1,4 +1,6 @@
-import { getClosestCategory, getStrippedCategories } from '../../utils/categories';
+import { getCategoriesWithAttributes, getClosestCategory, getStrippedCategories } from '../../utils/categories';
+import { getAttributeValues } from '../../utils/items';
+import Attribute from '../models/Attribute';
 import Category from '../models/Category';
 import Item from '../models/Item';
 import Manufacturer from '../models/Manufacturer';
@@ -21,6 +23,60 @@ app.get('/api/item', async (req, res) => {
 }
 */
 
+
+/*
+REST API JSON request
+const exampleRequest = {
+  "product": {
+    "name": "Mayur Special Tarkari",
+    "contributionList": "Cooked vegetables, potatoes, cashew nuts and bamboo in coconut creamy tomato sauce"
+  },
+  "price": 17
+}
+
+REST API JSON response
+const exampleResponse = {
+  "product": {
+    "name": "Mayur Special Tarkari",
+    "measure": 0.598,
+    "unit": "kg",
+    "attributes": [
+      {
+        "name": "GHG min per portion",
+        "unit": "kgCO₂eq/portion",
+        "value": 0.322824
+      },
+      {
+        "name": "GHG max per portion",
+        "unit": "kgCO₂eq/portion",
+        "value": 0.71004
+      },
+      {
+        "name": "GHG min per kg",
+        "unit": "kgCO₂eq/kg",
+        "value": 0.5398394649
+      },
+      {
+        "name": "GHG max per kg",
+        "unit": "kgCO₂eq/kg",
+        "value": 1.18735786
+      },
+      {
+        "name": "Energy per 100 g",
+        "unit": "kcal/hg",
+        "value": 149.3244147
+      },
+      {
+        "name": "Energy per portion",
+        "unit": "kcal/portion",
+        "value": 892.96
+      }
+    ]
+  }
+}
+*/
+
+
 app.post('/api/item', async (req, res) => {
   const {
     item,
@@ -30,13 +86,17 @@ app.post('/api/item', async (req, res) => {
   console.log(req.body);
   try {
     const categories = (await Category.query()
-    .withGraphFetched('[children, parent, attributes(filterByGivenAttributeIds).[attribute]]')
+    .withGraphFetched('[children, parent, contributions, attributes(filterByGivenAttributeIds).[attribute]]')
     .modifiers({
       filterByGivenAttributeIds: query => query.modify('filterByAttributeIds', attributeIds)
     }))
-    .filter(category => !category.children?.length);
+    const childCategories = categories.filter(category => !category.children?.length);
     const manufacturers = await Manufacturer.query();
-    const strippedCategories = getStrippedCategories(categories, manufacturers);
+    const attributes = await Attribute.query();
+    const strippedCategories = getStrippedCategories(childCategories, manufacturers);
+
+    // TODO: change to enum
+    const foodUnitAttribute = attributes.find(a => a.name['en-US'] === 'Food units');
     
     let category,
         contributionList = item.product.contributionList.split(/,\s|\sja\s|\sand\s|\soch\s/gi);
@@ -60,12 +120,85 @@ app.post('/api/item', async (req, res) => {
         contributions
       };
     } else {
-      category = getClosestCategory(item.product?.name, strippedCategories);
-    } 
+      category = getClosestCategory(item.product?.name, strippedCategories, acceptLocale);
+    }
+    const productAttributes = [];
+    attributeIds.forEach(attributeId => {
+      let minValue = 0,
+          maxValue = 0;
+      console.log('attributeId', attributeId);
+      category.contributions?.forEach(contribution => {
+        const portionAttribute = contribution.attributes.find(a => a.attribute.parentId === foodUnitAttribute.id);
+        if (!portionAttribute) {
+          throw 'No food unit attribute provided';
+        }
+        console.log('contribution', contribution);
+        console.log('portionAttribute', portionAttribute);
+        if (contribution.contributions?.length) {
+          const totalAmount = contribution.contributions.reduce((previousValue, currentValue) => previousValue.amount+currentValue.amount, 0);
+          contribution.contributions.forEach(contributionContribution => {
+            const result = getCategoriesWithAttributes(categories, contributionContribution.contributionId, Number(attributeId));
+            console.log('result', result);
+            const [, categoryAttributes] = result?.[0] || [undefined, undefined];
+            const attributeResult = getAttributeValues(portionAttribute.unit, portionAttribute.value*contributionContribution.amount/totalAmount, 1, undefined, categoryAttributes, attributes);
+            if (attributeResult.length) {
+              console.log('attributeResult', attributeResult);
+              const minAttributeResult = attributeResult.reduce((a, b) => a[0] < b[0] ? a : b, [undefined, undefined]);
+              const maxAttributeResult = attributeResult.reduce((a, b) => a[0] > b[0] ? a : b, [undefined, undefined]);
+              const [minAttributeValue, minCategoryAttribute] = minAttributeResult || [undefined, undefined];
+              const [maxAttributeValue, maxCategoryAttribute] = maxAttributeResult || [undefined, undefined];
+              console.log('minCategoryAttribute', minCategoryAttribute);
+              console.log('minAttributeValue', minAttributeValue);
+              console.log('maxCategoryAttribute', maxCategoryAttribute);
+              console.log('maxAttributeValue', maxAttributeValue);
+              minValue+= minAttributeValue || 0;
+              maxValue+= maxAttributeValue || 0;
+            }
+          });
+        } else {
+          const result = getCategoriesWithAttributes(categories, contribution.id, Number(attributeId));
+          console.log('result', result);
+          const [, categoryAttributes] = result?.[0] || [undefined, undefined];
+          const attributeResult = getAttributeValues(portionAttribute.unit, portionAttribute.value, 1, undefined, categoryAttributes, attributes);
+          if (attributeResult.length) {
+            console.log('attributeResult', attributeResult);
+            const minAttributeResult = attributeResult.reduce((a, b) => a[0] < b[0] ? a : b);
+            const maxAttributeResult = attributeResult.reduce((a, b) => a[0] > b[0] ? a : b);
+            const [minAttributeValue, minCategoryAttribute] = minAttributeResult || [undefined, undefined];
+            const [maxAttributeValue, maxCategoryAttribute] = maxAttributeResult || [undefined, undefined];
+            console.log('minCategoryAttribute', minCategoryAttribute);
+            console.log('minAttributeValue', minAttributeValue);
+            console.log('maxCategoryAttribute', maxCategoryAttribute);
+            console.log('maxAttributeValue', maxAttributeValue);
+            minValue+= minAttributeValue || 0;
+            maxValue+= maxAttributeValue || 0;
+          }
+        }
+      });
+      const attribute = attributes.find(a => a.id === attributeId);
+      if (minValue === maxValue) {
+        productAttributes.push({
+          value: minValue,
+          attribute
+        });
+      } else {
+        productAttributes.push({
+          value: minValue,
+          type: 'MIN_VALUE',
+          attribute
+        });
+        productAttributes.push({
+          value: maxValue,
+          type: 'MAX_VALUE',
+          attribute
+        });
+      }
+    });
     const itemWithCategory = {
       ...item,
       product: {
         ...item.product,
+        attributes: productAttributes,
         category
       }
     };
