@@ -229,7 +229,7 @@ Guava,Guava,,,,"0,28",,,,,"Guavas, median",1
 Haddock,Kolja,,Fish,,"3,41",,,,,"Haddock, median",1
 Hair products,Hiustuotteet,"[""Hiuslenkki""]",Supplies,,,,,,"0,4",Personal items,2
 Hairdresser,Kampaamo,,Recreational services,,,,,,"0,2",,
-"Ham, Cooked, 2% Fat",,"[""Ylikypsä kinkku""]",,,"5,77",,,,,Ham,1
+"Ham, Cooked, 2% Fat",,"[""Ham"", ""Ylikypsä kinkku""]",,,"5,77",,,,,Ham,1
 Headphones,Kuulokkeet,,Electronics,,,,,,,,
 Healthcare products,Terveydenhoitotuotteet,,Supplies,,,,,,"0,51","Kestokulutustavarat, terveydenhoitotuotteet keskiarvo",2
 Healthcare services,Terveydenhuoltopalvelut,,Services,,,,,,"0,2",Terveydenhuolto- ja eläinlääkintäpalvelut,2
@@ -347,8 +347,8 @@ Phone,Puhelin,,Electronics,,,,,,,,
 Phone case,Puhelimen suojakotelo,,Electronics,,,,,,,,
 Phone screen protector,Puhelimen näytönsuoja,,Electronics,,,,,,,,
 "Pineapple, Canned, In Own Juice",,,,,"0,5",,,,,"Pineapples, median",1
-"Pineapple, With Skin",,"[""Ananas""]",,,"0,5",,,,,"Pineapples, median",1
-"Pineapple, without skin",,,,,"0,5",,,,,"Pineapples, median",1
+"Pineapple, With Skin",,,,,"0,5",,,,,"Pineapples, median",1
+"Pineapple, without skin",,"[""Pineapple"", ""Ananas""]",,,"0,5",,,,,"Pineapples, median",1
 Pinto bean,Pintopapu,,Pulses vegetables,,"0,73",,,,,"Beans: pinto USA dried, median",1
 "Pizza Crust, Basic Pizza Dough",,,,,,,,,"1,1",Animal based groceries,2
 "Pizza Crust, Basic Pizza Dough",,,,,"2,5",,,,,"Pastry, including waste, secondary source",7
