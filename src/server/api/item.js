@@ -132,19 +132,35 @@ app.post('/api/item', async (req, res) => {
         }
         console.log('contribution', contribution);
         console.log('portionAttribute', portionAttribute);
-        const result = getCategoriesWithAttributes(categories, contribution, Number(attributeId));
-        console.log('result', result?.[0]);
-        const [, categoryAttributes] = result?.[0] || [undefined, undefined];
-        const [attributeValue, categoryAttribute] = getAttributeValue(portionAttribute.unit, portionAttribute.value, 1, null, categoryAttributes, attributes) || [undefined, undefined];
-        console.log('categoryAttribute', categoryAttribute);
-        console.log('attribute', attributeValue);
-        if (attributeValue) {
-          value+= attributeValue;
+        if (contribution.contributions?.length) {
+          const totalAmount = contribution.contributions.reduce((previousValue, currentValue) => previousValue.amount+currentValue.amount, 0);
+          contribution.contributions.forEach(contributionContribution => {
+            const result = getCategoriesWithAttributes(categories, contributionContribution.contributionId, Number(attributeId));
+            const [, categoryAttributes] = result?.[0] || [undefined, undefined];
+            const [attributeValue, categoryAttribute] = getAttributeValue(portionAttribute.unit, portionAttribute.value*contributionContribution.amount/totalAmount, 1, undefined, categoryAttributes, attributes) || [undefined, undefined];
+            console.log('result', result?.[0]);
+            console.log('categoryAttribute', categoryAttribute);
+            console.log('attribute', attributeValue);
+            if (attributeValue) {
+              value+= attributeValue;
+            }
+          });
+        } else {
+          const result = getCategoriesWithAttributes(categories, contribution.id, Number(attributeId));
+          const [, categoryAttributes] = result?.[0] || [undefined, undefined];
+          const [attributeValue, categoryAttribute] = getAttributeValue(portionAttribute.unit, portionAttribute.value, 1, undefined, categoryAttributes, attributes) || [undefined, undefined];
+          console.log('result', result?.[0]);
+          console.log('categoryAttribute', categoryAttribute);
+          console.log('attribute', attributeValue);
+          if (attributeValue) {
+            value+= attributeValue;
+          }
         }
       });
+      const attribute = attributes.find(a => a.id === attributeId);
       return {
         value,
-        attributeId
+        attribute
       }
     });
     const itemWithCategory = {

@@ -127,12 +127,12 @@ export const getCategoryWithAttributes = (categories, categoryId, attributeId) =
   }
 };
 
-export const getCategoriesWithAttributes = (categories, category, attributeId) => {
-  if (!category) return;
+export const getCategoriesWithAttributes = (categories, categoryId, attributeId) => {
+  if (!categoryId) return;
 
   let results = [];
   
-  const result = getCategoryWithAttributes(categories, category.id, attributeId);
+  const result = getCategoryWithAttributes(categories, categoryId, attributeId);
   if (result) {
     let [populatedCategory, attributes] = result;
     results.push([populatedCategory, attributes]);
