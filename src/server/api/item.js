@@ -130,7 +130,8 @@ app.post('/api/item', async (req, res) => {
     const productAttributes = [];
     attributeIds.forEach(attributeId => {
       let minValue = 0,
-          maxValue = 0;
+          maxValue = 0,
+          unit;
       console.log('attributeId', attributeId);
       category.contributions?.forEach(contribution => {
         const portionAttribute = contribution.attributes.find(a => a.attribute.parentId === foodUnitAttribute.id);
@@ -156,6 +157,7 @@ app.post('/api/item', async (req, res) => {
           console.log('maxAttributeValue', maxAttributeValue);
           minValue+= minAttributeValue || 0;
           maxValue+= maxAttributeValue || 0;
+          unit = minCategoryAttribute.unit.split('/')[0];
         }
 
         if (!minValue && !maxValue && contribution.contributions?.length) {
@@ -177,6 +179,7 @@ app.post('/api/item', async (req, res) => {
               console.log('maxAttributeValue', maxAttributeValue);
               minValue+= minAttributeValue || 0;
               maxValue+= maxAttributeValue || 0;
+              unit = minCategoryAttribute.unit.split('/')[0];
             }
           });
         }
@@ -185,17 +188,20 @@ app.post('/api/item', async (req, res) => {
       if (minValue === maxValue) {
         productAttributes.push({
           value: minValue,
+          unit,
           attribute
         });
       } else {
         productAttributes.push({
           value: minValue,
           type: 'MIN_VALUE',
+          unit,
           attribute
         });
         productAttributes.push({
           value: maxValue,
           type: 'MAX_VALUE',
+          unit,
           attribute
         });
       }
