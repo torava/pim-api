@@ -26,7 +26,7 @@ const getDetails = manufacturers => {
     breaded: ['leivitetty'],
     fried: ['paistettu'],
     grilled: ['grillattu'],
-    fresh: ['tuore'],
+    fresh: ['fresh', 'tuore'],
     dried: ['kuivattu'],
     withegg: ['kananmunaa'],
     thickened: ['suurustettu'],
@@ -34,7 +34,11 @@ const getDetails = manufacturers => {
     withoutsauce: ['ei kastiketta'],
     coldsmoked: ['kylmäsavustettu', 'kylmäsavu'],
     smoked: ['savustettu', 'savu'],
-    milk: ['kevytmaito', 'rasvaton maito']
+    milk: ['kevytmaito', 'rasvaton maito'],
+    overcooked: ['ylikypsä', 'overcooked']
+  };
+  details.serving = {
+    servedWith: ['served with', 'kanssa']
   };
   details.spicing = {
     salted: ['suolattu', 'suolaa'],
