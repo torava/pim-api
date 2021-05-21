@@ -1,53 +1,53 @@
 THSCODE;DESCRIPT;LANG
-FRUITTOT;Hedelm‰t;FI
-APPLE;Omenahedelm‰t;FI
-CITRUS;Sitrushedelm‰t;FI
-FRUITOTH;Muut hedelm‰t;FI
+FRUITTOT;Hedelm√§t;FI
+APPLE;Omenahedelm√§t;FI
+CITRUS;Sitrushedelm√§t;FI
+FRUITOTH;Muut hedelm√§t;FI
 BERRY;Marjat;FI
-FRUITCAN;Hedelm‰s‰ilykkeet;FI
-JUICE;T‰ysmehut;FI
+FRUITCAN;Hedelm√§s√§ilykkeet;FI
+JUICE;T√§ysmehut;FI
 FBDRINK;Mehujuomat;FI
 VEGTOT;Kasvikset;FI
 VEGLEAF;Lehtivihannekset;FI
-VEGFRU;Vihanneshedelm‰t;FI
+VEGFRU;Vihanneshedelm√§t;FI
 CABBAGE;Kaalit;FI
 VEGONI;Sipulikasvikset;FI
 ROOT;Juuri- ja mukulakasvit;FI
 MUSHRO;Sienet;FI
 VEGJUICE;Kasvisjuomat;FI
-VEGCANN;Kasviss‰ilykkeet;FI
-LEGUTOT;Palkokasvit ja p‰hkin‰t;FI
+VEGCANN;Kasviss√§ilykkeet;FI
+LEGUTOT;Palkokasvit ja p√§hkin√§t;FI
 PEABEAN;Palkokasvit;FI
-NUTSEED;P‰hkin‰t, siemenet;FI
+NUTSEED;P√§hkin√§t, siemenet;FI
 LEGUPROD;Palkokasvituotteet;FI
 SOYAPROD;Soijavalmisteet;FI
-LEGULIQ;Juomat palkokasveista, p‰hkinˆist‰ ja siemenist‰;FI
+LEGULIQ;Juomat palkokasveista, p√§hkin√∂ist√§ ja siemenist√§;FI
 POTATOT;Perunat;FI
 POTATO;Peruna;FI
 POTAPROD;Perunavalmisteet;FI
 CERTOT;Viljat;FI
-WHEAT;Vehn‰;FI
+WHEAT;Vehn√§;FI
 RYE;Ruis;FI
 OAT;Kaura ja kauratuotteet;FI
 BARLEY;Ohra ja ohratuotteet;FI
 RICE;Riisi;FI
 CEROTH;Muu vilja;FI
 CERBAR;Viljapatukat;FI
-OATLIQ;Kaurajuomat, nestem‰iset kauratuotteet;FI
-CEROTLIQ;Viljajuomat, nestem‰iset viljatuotteet;FI
-STARCH;T‰rkkelykset;FI
+OATLIQ;Kaurajuomat, nestem√§iset kauratuotteet;FI
+CEROTLIQ;Viljajuomat, nestem√§iset viljatuotteet;FI
+STARCH;T√§rkkelykset;FI
 OATBAR;POISTETTU_Kaura, ohra;FI
 PASTA;POISTETTU_Pasta, makaroni;FI
-BRHARD;POISTETTU_Kuiva leip‰;FI
+BRHARD;POISTETTU_Kuiva leip√§;FI
 BISCUIT;POISTETTU_Keksit;FI
 MILKTOT;Maito;FI
 CREAM;Kerma/ creme;FI
-ICECREAM;J‰‰telˆ;FI
+ICECREAM;J√§√§tel√∂;FI
 MILKFF;Rasvaton maito ;FI
-MILKLF;V‰h‰rasvainen maito, rasvaa <= 2 %;FI
+MILKLF;V√§h√§rasvainen maito, rasvaa <= 2 %;FI
 MILKHF;Rasvainen maito, rasvaa > 2 % ;FI
 MILKINGR;Maitojauheet;FI
-SOURMILK;Piim‰;FI
+SOURMILK;Piim√§;FI
 YOGHURHI;Jogurtit, rasvaa > 1 %;FI
 YOGHURLO;Jogurtit, rasvaa <= 1 %;FI
 MILKCURL;Viili;FI
@@ -65,8 +65,8 @@ SMILK;POISTETTU_Hapanmaitotuotteet;FI
 CHEESE;POISTETTU_Juusto;FI
 MILKOTH;POISTETTU_Muu maito;FI
 FATTOT;Ravintorasvat;FI
-OIL;÷ljy;FI
-FATANIM;El‰inrasva;FI
+OIL;√ñljy;FI
+FATANIM;El√§inrasva;FI
 BUTTER;Voi, maitorasva;FI
 BUTTHIGH;Rasvaseos>= 55 %;FI
 BUTTLOW;Rasvaseokset < 55 %;FI
@@ -85,8 +85,8 @@ EGGOTH;Muiden lintujen munat;FI
 FISHTOT;Kala;FI
 FISH;Kalat;FI
 FISHPROD;Kalavalmisteet;FI
-SHELLFIS;ƒyri‰iset ja nilvi‰iset;FI
-INSECT;Syˆt‰v‰t hyˆnteiset;FI
+SHELLFIS;√Ñyri√§iset ja nilvi√§iset;FI
+INSECT;Sy√∂t√§v√§t hy√∂nteiset;FI
 MEATTOT;Lihat;FI
 BEEF;Naudanliha;FI
 PORK;Sianliha;FI
@@ -111,7 +111,7 @@ ALCTOT;Alkoholijuomat;FI
 BEER;Oluet;FI
 CIDER;Siiderit;FI
 WINE;Viinit;FI
-SPIRIT;V‰kev‰t viinat;FI
+SPIRIT;V√§kev√§t viinat;FI
 ALCOTH;Muut alkoholijuomat;FI
 SUGARTOT;Sokerit ja makeiset;FI
 SUGARSYR;Sokerit, siirapit;FI
@@ -132,20 +132,20 @@ SNACK;POISTETTU_Naposteltavat;FI
 INDMEAL;POISTETTU_Teollinen ruoka;FI
 DIETTOT;Ravintovalmisteet;FI
 BABYFOOD;Lastenruoat;FI
-MMILK;ƒidinmaitokorvikkeet ja ‰idinmaito;FI
+MMILK;√Ñidinmaitokorvikkeet ja √§idinmaito;FI
 VITSUPPL;Vitamiinivalmiste;FI
-VITMISUP;Vitamiini-kivenn‰isainevalmiste;FI
-MINSUPPL;Kivenn‰isainevalmiste;FI
+VITMISUP;Vitamiini-kivenn√§isainevalmiste;FI
+MINSUPPL;Kivenn√§isainevalmiste;FI
 FATSUPPL;Rasvavalmiste (sis. lesitiinivalmisteet);FI
 FIBSUPPL;Kuituvalmiste;FI
 ENZYMES;Entsyymivalmiste;FI
-HERBSUP;Yrttivalmiste (sis. mehil‰isvalmiste);FI
+HERBSUP;Yrttivalmiste (sis. mehil√§isvalmiste);FI
 HERBVIT;Yrttivalmiste, jossa vitamiineja;FI
-HERBMIN;Yrttivalmiste, jossa kivenn‰isaineita;FI
+HERBMIN;Yrttivalmiste, jossa kivenn√§isaineita;FI
 HOMEOS;Homeopaattinen valmiste;FI
 PROBPREB;Probiootti- ja bakteerivalmiste;FI
 YEAST;Hiivavalmiste;FI
-SUPPLOTH;Ravintolis‰, muu;FI
+SUPPLOTH;Ravintolis√§, muu;FI
 ANTROPOS;POISTETTU_Antroposofiset valmisteet;FI
 SPECFOOD;Kliiniset ravintovalmisteet;FI
 MEALREP;Ateriankorvikkeet;FI

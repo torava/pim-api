@@ -34,7 +34,7 @@ export const insertFromRecords = async (records, model, recordIdMap = {}) => {
 
 export const getExternalCategoriesFineli = async (directory = 'fineli') => {
   try {
-    let encoding = 'utf8';
+    const encoding = 'utf8';
 
     console.log('dir', directory);
     console.log('files '+moment().format());

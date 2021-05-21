@@ -1,13 +1,13 @@
 THSCODE;DESCRIPT;LANG
-ENERC;energi, ber‰knad;SV
-XENERC;energi, ber‰knad utan fiber;SV
+ENERC;energi, ber√§knad;SV
+XENERC;energi, ber√§knad utan fiber;SV
 FAT;fett, totalt;SV
 CHOAVL;kolhydrater, digererbara;SV
 CHOCDF;kolhydrater, differensmetod;SV
 CHOAVLM;kolhydrater, monosackaridekvivalenter;SV
 PROT;protein, totalt;SV
 ALC;alkohol;SV
-ASH;aska (mineral‰mnen);SV
+ASH;aska (mineral√§mnen);SV
 WATER;vatten (fuktighet);SV
 OA;organiska syror, totalt;SV
 SUGOH;sockeralkoholer;SV
@@ -19,15 +19,15 @@ LACS;laktos;SV
 MALS;maltos;SV
 SUCS;sackaros;SV
 OLSAC;oligosackarider;SV
-STARCH;st‰rkelse, totalt;SV
+STARCH;st√§rkelse, totalt;SV
 FIBC;fiber, totalt;SV
 FIBT;fiber, totalt;SV
-FIBINS;fiber, olˆslig;SV
-STARES;st‰rkelse, resistent;SV
+FIBINS;fiber, ol√∂slig;SV
+STARES;st√§rkelse, resistent;SV
 CELLU;cellulosa;SV
 LIGN;lignin;SV
-PSACNCS;polysackarider, icke-cellulosa, lˆsliga;SV
-PSACNCI;polysackarider, icke-cellulosa, olˆsliga;SV
+PSACNCS;polysackarider, icke-cellulosa, l√∂sliga;SV
+PSACNCI;polysackarider, icke-cellulosa, ol√∂sliga;SV
 PSACNC;polysackarider, icke-cellulosa;SV
 AGAR;agar;SV
 GLUCNB;beta-glukan;SV
@@ -109,7 +109,7 @@ CO;kobolt;SV
 CR;krom;SV
 CU;koppar;SV
 FD;fluorid (fluor);SV
-FE;j‰rn;SV
+FE;j√§rn;SV
 HG;kvicksilver;SV
 ID;jodid (jod);SV
 K;kalium;SV
@@ -119,7 +119,7 @@ MO;molybden;SV
 NA;natrium;SV
 NACL;salt;SV
 NI;nickel;SV
-NT;kv‰ve, totalt;SV
+NT;kv√§ve, totalt;SV
 P;fosfor;SV
 PB;bly;SV
 RB;rubidium;SV
@@ -129,23 +129,23 @@ SI;kisel;SV
 SR;strontium;SV
 ZN;zink;SV
 FAFRE;fettsyror, totalt;SV
-FACIDCTG;fettsyror, totalt, ber‰knade som TAG ekvivalenter;SV
-FAPU;fettsyror, flerom‰ttade;SV
-FAMCIS;fettsyror, enkelom‰ttade cis;SV
-FASAT;fettsyror, m‰ttade;SV
+FACIDCTG;fettsyror, totalt, ber√§knade som TAG ekvivalenter;SV
+FAPU;fettsyror, flerom√§ttade;SV
+FAMCIS;fettsyror, enkelom√§ttade cis;SV
+FASAT;fettsyror, m√§ttade;SV
 FATRN;fettsyror, trans;SV
 FAUN;fettysyror, oidentifierade;SV
-FAPUN3;fettsyror, n-3 flerom‰ttade;SV
-FAPUN3FI;fettsyror, n-3 fisk flerom‰ttade;SV
-FAPUN3VE;fettsyror, n-3 v‰xt flerom‰ttade;SV
-FAPUN6;fettsyror, n-6 flerom‰ttade;SV
+FAPUN3;fettsyror, n-3 flerom√§ttade;SV
+FAPUN3FI;fettsyror, n-3 fisk flerom√§ttade;SV
+FAPUN3VE;fettsyror, n-3 v√§xt flerom√§ttade;SV
+FAPUN6;fettsyror, n-6 flerom√§ttade;SV
 FAS4T11;fettsyror 4:0-11:0;SV
 FAS12T17;fettsyror 12:0-17:0;SV
 FAS18;fettsyra isomerer 18:0;SV
 FAS19T26;fettsyror 19:0-26:0;SV
-FAMSCXR;fettsyror enkelom‰ttade cis rest;SV
-FAMSTXR;fettsyror, enkelom‰ttade, trans, rest;SV
-F4D0;fettsyra 4:0 (smˆrsyra/butansyra);SV
+FAMSCXR;fettsyror enkelom√§ttade cis rest;SV
+FAMSTXR;fettsyror, enkelom√§ttade, trans, rest;SV
+F4D0;fettsyra 4:0 (sm√∂rsyra/butansyra);SV
 F6D0;fettsyra 6:0 (kapronsyra);SV
 F8D0;fettsyra 8:0 (kaprylsyra);SV
 F9D0;fettsyra 9:0;SV
@@ -269,7 +269,7 @@ F20D2TN;fettsyra 20:2 trans;SV
 F22D1TN;fettsyra trans 22:1;SV
 F16D1;fettsyra 16:1 (palmitoljesyra);SV
 F16DUN;fettsyra 16:oidentifierad;SV
-FAPUCXR;fettsyror flerom‰ttade cis rest;SV
+FAPUCXR;fettsyror flerom√§ttade cis rest;SV
 CHOLE;kolesterol (GC);SV
 CHORL;kolesterol (enzymatisk);SV
 STERT;steroler, totalt;SV
@@ -284,9 +284,9 @@ NITRA;nitrat;SV
 NITRI;nitrit;SV
 CINNAC;kanelsyra;SV
 CITAC;citronsyra;SV
-LACAC;mjˆlksyra;SV
-MALAC;‰ppelsyra;SV
-ACEAC;‰ttiksyra;SV
+LACAC;mj√∂lksyra;SV
+MALAC;√§ppelsyra;SV
+ACEAC;√§ttiksyra;SV
 BENZAC;p-hydroxibensoesyra;SV
 FERAC;ferulasyra;SV
 GALLAC;gallinsyra;SV
