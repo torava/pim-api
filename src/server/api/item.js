@@ -218,7 +218,7 @@ app.post('/api/item', async (req, res) => {
         measure,
         unit: 'kg',
         attributes: productAttributes,
-        category
+        //category
       }
     };
     res.send(itemWithCategory);
