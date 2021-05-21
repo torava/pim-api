@@ -488,6 +488,7 @@ Tomato,Tomaatti,"[""Kirsikkatomaatti"", ""Luumutomaatti"", ""Miniluumutomaatti""
 Tomato,Tomaatti,,,,"0,51",,,,,"Tomatoes: passive greenhouse, median",1
 Tomato,Tomaatti,,,,"0,45",,,,,"Tomatoes, median",1
 Tomato Sauce,,"[""Tomaattikastikkeessa""]",,,,,,,,,
+Tomato Puree,,,,,"0,868",,,,,"1 kg packed product, processed and canned",48
 "Tomatoes, Crushed, Canned",,,,,"0,868",,,,,"1 kg packed product, processed and canned",48
 Tools,Työkalut,,Supplies,,,,,,"0,51",Kodinkoneet ja työkalut,2
 Tooth brush,Hammasharja,,Hygiene products,,,,,,,,
@@ -525,6 +526,7 @@ Wheat,,,,,"0,5",,,,,"Vehnäjauhot, ryynit",4
 Wheat bread,,,,,"1,55",,,,,"Bread, cradle-to-grave, 0.6-2.5 kg",6
 Wheat Tortilla,,"[""Tortilla""]",,,"1,55",,,,,"Bread, cradle-to-grave, 0.6-2.5 kg",6
 Wheat Tortilla,,,,,,,,,"0,7",Plant based groceries,2
+"Tortilla Chips, Taco Shell",,"[""Tacos"", ""Taco""]",,,"1,55",,,,,"Bread, cradle-to-grave, 0.6-2.5 kg",6
 Whiting,Valkoturska,,Fish,,"2,66",,,,,"Whiting, median",1
 Wines,,,,,,,,"1,70666667",,"1.28 kgCO₂e wine bottle, cradle-to-grave",42
 "Wok-Vegetables, Carrot-Pea-Water Chestnut-Bamboo Shoot-Sweet Pepper-Mushroom",,"[""Wok mix thai""]",,,,,,,,,
