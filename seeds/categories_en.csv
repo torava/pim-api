@@ -14,12 +14,13 @@ Aubergine,Munakoiso,,,,"1,35",,,,,"Eggplants (aubergines), median",1
 Avocado  with skin and stone,,"[""Avokadopussi""]",,,"1,3",,,,,"Avocados, median",1
 "Avocado Sauce, Guacamole, Industrial",,,,,,,,,"0,7",Plant based groceries,2
 B20 biodiesel,B20 biodiesel,,Motor fuel,,,,,"2,14",,,3
-"B20 biodiesel, small engine","B20 biodiesel, pienkone",,Small engine fuel,,,,,"2,14",,,3
 B20 biodiesel,,,Motor fuel,,,,,"2,62",,,16
+"B20 biodiesel, small engine","B20 biodiesel, pienkone",,Small engine fuel,,,,,"2,14",,,3
 "B20 biodiesel, small engine",,,Small engine fuel,,,,,"2,62",,,16
 Baby toy,Vauvanlelu,"[""Vauvan- Ja Kehityslelut""]",Children's supplies,,,,,,,,
 Baking paper,Leivinpaperi,,Kitchen,,,,,,"0,72","Paper, carton and cardboard products",2
 "Baking Yeast, Fresh",,"[""Kuivahiiva""]",,,,,,,"0,7",Plant based groceries,2
+"Bamboo Shoots, Canned",,"[""Bamboo"", ""Bambu"", ""Bambuja""]",,,,,,,,,
 "Banana, With Skin",,"[""Banaani""]",,,"0,72",,,,,"Musa, bananas, median",1
 Barber,Parturi,,Recreational services,,,,,,,,
 "Barley, Rolled, Barley Flakes",,,,,"0,43",,,,,"Barley, median",1
@@ -75,6 +76,7 @@ Ceramics,Keramiikka,,Supplies,,,,,,0.65,Ceramic products for other than construc
 Cereals,,,,,,,,,"0,7",Plant based groceries,2
 "Champignon, Fresh",Herkkusieni,,,,"0,27",,,,,"Mushrooms, median",1
 "Cheese Pasty, Vaasan Kotiuunin",,"[""Mozzarella pasteija""]",,,,,,,,,
+"Cheese, average",,"[""Juusto"", ""Juustoa""]",,,,,,,,,
 "Cheese, Emmental, 27-30% Fat, Red-Label",,"[""Maasdam""]",,,,,,,,,
 "Cheese, Gouda, Average, 28-30% Fat",,"[""Gouda"", ""Vanha gouda""]",,,,,,,,,
 "Cheese, Hard Cheese, Goat Cheese, 20-25% Fat",,"[""Manchego""]",,,,,,,,,
@@ -91,7 +93,6 @@ Cereals,,,,,,,,,"0,7",Plant based groceries,2
 "Cheese, unripened, fresh cheese >15 %",,,,,"8,55",,,,,"Cheese, median",1
 "Cheese, unripened, fresh cheese >15 %",,,,,10,,,,,Juusto,9
 "Cheese, unripened, fresh cheese >15 %",,,,,,,,,"2,44",Dairy products and ice cream,2
-"Cheese, average",,"[""Juusto"", ""Juustoa""]",,,,,,,,,
 Cherry With Stone,"Kirsikka, punnittu kivineen",,,,"0,39",,,,,"Cherries, median",1
 Cherry Without Stone,,,,,"0,39",,,,,"Cherries, median",1
 Chestnut,Kastanja,,,,"0,43",,,,,"Chestnuts, median",1
@@ -149,24 +150,24 @@ Dental care services,Hammashoitopalvelut,,Services,,,,,,"0,2",Health care servic
 Deposit,Pantti,"[""Pullopantti"", ""Panttipalautus""]",Commerce,,,,,,,,
 Deposit return,Pullopalautus,,Commerce,,,,,,,,
 Dessert sauces,,,,,,,,,"1,1",Animal based groceries,2
-"Diesel, small engine","Diesel, pienkone","[""Dieselöljy""]",Small engine fuel,,,,,"2,68",,,3
-"Diesel, small engine",,,Small engine fuel,,,,,"2,66",,,16
-"Diesel, small engine",,,Small engine fuel,,,,,"2,64",,,17
-"Diesel, small engine",,,Small engine fuel,,,,,3,,,18
 Diesel,Diesel,"[""Dieselöljy""]",Motor fuel,,,,,"2,68",,,3
 Diesel,,,Motor fuel,,,,,"2,66",,,16
 Diesel,,,Motor fuel,,,,,"2,64",,,17
 Diesel,,,Motor fuel,,,,,3,,,18
+"Diesel, small engine","Diesel, pienkone","[""Dieselöljy""]",Small engine fuel,,,,,"2,68",,,3
+"Diesel, small engine",,,Small engine fuel,,,,,"2,66",,,16
+"Diesel, small engine",,,Small engine fuel,,,,,"2,64",,,17
+"Diesel, small engine",,,Small engine fuel,,,,,3,,,18
 "Dipmix, Milk-Free",,,,,,,,,"0,7",Plant based groceries,2
 Discount,Alennus,,Commerce,,,,,,,,
 Disposable Dish,Kertakäyttöastiat,"[""Kertak.kattaustuott.""]",Kitchen,,,,,,,,
 Duck,Ankka,,Birds,,"3,09",,,,,"Duck, median",1
-"E10 fuel, small engine","E10 bensiini, pienkone",,Small engine fuel,,,,,"2,26",,With ethanol combustion,3
-"E10 fuel, small engine",,,Small engine fuel,,,,,"2,21",,,16
 E10 fuel,E10 bensiini,,Motor fuel,,,,,"2,26",,With ethanol combustion,3
 E10 fuel,,,Motor fuel,,,,,"2,21",,,16
-"E85 fuel, small engine","E85 bensiini, pienkone",,Small engine fuel,,,,,"1,61",,,16
+"E10 fuel, small engine","E10 bensiini, pienkone",,Small engine fuel,,,,,"2,26",,With ethanol combustion,3
+"E10 fuel, small engine",,,Small engine fuel,,,,,"2,21",,,16
 E85 fuel,E85 bensiini,,Motor fuel,,,,,"1,61",,,16
+"E85 fuel, small engine","E85 bensiini, pienkone",,Small engine fuel,,,,,"1,61",,,16
 Earbuds,Nappikuulokkeet,,Electronics,,,,,,,,
 Eel,Ankerias,,Fish,,"3,88",,,,,"Eel, median",1
 Egg,,,,,,,,,"1,1",Animal based groceries,2
@@ -217,8 +218,8 @@ Fruits,,,,,,,,,"0,7",Plant based groceries,2
 Furniture,Huonekalut,,Interior design,,,,,,"0,42","Huonekalut, matot",2
 Garden Lettuce,,,,,"3,7",,,,,"Lettuce: heated greenhouse, median",1
 Garlic,Valkosipuli,,,,"0,57",,,,,"Garlic, median",1
-"Gasoline, petrol, small engine","Bensiini, pienkone",,Small engine fuel,,,,,2,,,16
 "Gasoline, petrol",Bensiini,,Motor fuel,,,,,2,,,16
+"Gasoline, petrol, small engine","Bensiini, pienkone",,Small engine fuel,,,,,2,,,16
 "Ginger Root, Raw","Inkivääri, juurakko, raaka",,,,"0,88",,,,,"Ginger, median",1
 Glue stick,Liimapuikko,,Supplies,,,,,,"0,46",Factory products,2
 Gooseberry,Karviainen,,,,"0,84",,,,,"Currants and gooseberries, median",1
@@ -239,6 +240,7 @@ Housekeeping products,Kodinhoitotuotteet,,Supplies,,,,,,"0,4",Housekeeping produ
 Housekeeping tools,Kodinhoitotyökalut,,Supplies,,,,,,"0,5",Tools and appliances for housekeeping and gardening,2
 "Hummus, Chick Pea Paste",,"[""Hummus""]",,,,,,,"0,7",Plant based groceries,2
 Hygiene products,Hygieniatuotteet,"[""Nestesaippua"", ""Käsisaippua""]",Supplies,,,,,,"0,4",Personal items,2
+"Ice Cream, Cream Based",,,,,,,,"4,2",,"Ice cream, vanilla regular",22
 Iceberg Lettuce,,"[""Jäävuorisalaatti"", ""Jääsalaatti""]",,,"0,56",,,,,Including waste,8
 Interior design,Sisustus,,Supplies,,,,,,"0,67","Kodintaloustekstiilit, sisustus, astiat keskiarvo",2
 iPhone 12 128GB,iPhone 12 128 Gt,,Smartphone,75,,,,,,,23
@@ -422,7 +424,6 @@ Savoury biscuits,,,,,,,,,"0,7",Plant based groceries,2
 Sea bass,Meriahven,,Fish,,"3,27",,,,,"Sea bass, median",1
 "Seitan, Wheat Gluten","Seitan, vehnägluteeni",,Wheat,,,,,,"0,7",Plant based groceries,2
 Semolina,,"[""Bulgur""]",,,,,,,,,
-"Ice Cream, Cream Based",,,,,,,,"4,2",,"Ice cream, vanilla regular",22
 Services,Palvelut,,,,,,,,"0,3",Muut palvelut,2
 "Sesame Seed, White, Without Hull","Seesaminsiemen, valkoinen, kokonainen, kuorittu",,,,"0,88",,,,,"Sesame seed, median",1
 "Sesame Seed, With Hull","Seesaminsiemen, kuorineen",,,,"0,88",,,,,"Sesame seed, median",1
@@ -446,7 +447,7 @@ Soy Sauce,,,,,,,,,"0,7",Plant based groceries,2
 "Soya drink,  calcium",,,,,"0,75",,,,,"Soy-milk, median",1
 "Soya Drink, Plain, Average Of Industrial Products",,,,,"0,75",,,,,"Soy-milk, median",1
 "Soya mince, white or dark",,,,,"0,49",,,,,"Soybean, median",1
-Spices,,"[""Spice Mix"", ""Mausteseos"", ""Sipulijauhe""]",,,,,,,"0,7",Plant based groceries,2
+Spices,,"[""Spice Mix"", ""Mausteseos"", ""Sipulijauhe"", ""Chipotle""]",,,,,,,"0,7",Plant based groceries,2
 Spinach,Pinaatti,"[""Lehtipinaatti""]",,,"0,54",,,,,"Spinach, median",1
 "Sport Beverage, Carbohydrate Drink, Powerade, Gatorade",,"[""Gatorade""]",,,,,,,,,
 Sport food,,,,,,,,,"0,84",Other groceries,2
@@ -467,12 +468,12 @@ Sweet Corn Kernels,,,,,"0,47",,,,,"Maize/corn, median",1
 "Sweet Corn, Corn On The Cob","Maissintähkä, kokonainen","[""Maissintähkä""]",,,"0,47",,,,,"Maize/corn, median",1
 "Sweet Pepper, Average",,,,,"1,1",,,,,"Peppers: passive and heated greenhouse, median",1
 "Sweet Pepper, Average",,,,,"0,66",,,,,"Capsicum/peppers, median",1
+"Sweet Pepper, Green",,,,,"1,1",,,,,"Peppers: passive and heated greenhouse, median",1
+"Sweet Pepper, Green",,,,,"0,66",,,,,"Capsicum/peppers, median",1
 "Sweet Pepper, Red",,,,,"1,1",,,,,"Peppers: passive and heated greenhouse, median",1
 "Sweet Pepper, Red",,,,,"0,66",,,,,"Capsicum/peppers, median",1
 "Sweet Pepper, Yellow",,,,,"1,1",,,,,"Peppers: passive and heated greenhouse, median",1
 "Sweet Pepper, Yellow",,,,,"0,66",,,,,"Capsicum/peppers, median",1
-"Sweet Pepper, Green",,,,,"1,1",,,,,"Peppers: passive and heated greenhouse, median",1
-"Sweet Pepper, Green",,,,,"0,66",,,,,"Capsicum/peppers, median",1
 Tableware,Astiat,,Kitchen,"0,67",,,,,"0,67","Kodintaloustekstiilit, sisustus, astiat keskiarvo",2
 Tangerine,Tangeriini,,Citrus fruit,,"0,51",,,,,"Tangerines/mandarins, median",1
 Taxi,,,Public transport,,,,,,"0,8",Taxi trips,2
@@ -481,18 +482,21 @@ Tea,,,,,,,,"0,33",,,7
 Telecommunication services,Tietoliikennepalvelut,,Services,,,,,,"0,28","Telephone, the internet, etc. (communication)",2
 Textiles,Tekstiilit,,Supplies,,,,,,"0,67","Kodintaloustekstiilit, sisustus, astiat keskiarvo",2
 "Thin Spinach Pancake, Spinach Crepes, Atria/Pirkka",,"[""Pinaattiohukainen""]",,,"2,5",,,,,"Pastry, including waste, secondary source",7
+"Tikka Masala, Uncle Ben'S",,"[""Masalakastike""]",,,,,,,,,
 "Tofu, Firm, Soya Product","Tofu, kova/kiinteä, soijavalmiste",,,,2,,,,,Tofu,27
 "Tofu, Soft, Soya Product","Tofu, pehmeä, soijavalmiste","[""Tofu""]",,,2,,,,,Tofu,27
 Toilet paper,Vessapaperi,"[""Wc-paperi"", ""Wcpaperi""]",Hygiene products,"0,03",,,,,,"Paper towel per piece, secondary source",24
 Tomato,Tomaatti,"[""Kirsikkatomaatti"", ""Luumutomaatti"", ""Miniluumutomaatti"", ""Terttutomaatti"", ""Tomaatti irto""]",,,5,,,,,"Tomaatti, kurkku (kasvihuone talvella)",4
 Tomato,Tomaatti,,,,"0,51",,,,,"Tomatoes: passive greenhouse, median",1
 Tomato,Tomaatti,,,,"0,45",,,,,"Tomatoes, median",1
-Tomato Sauce,,"[""Tomaattikastikkeessa""]",,,,,,,,,
 Tomato Puree,,,,,"0,868",,,,,"1 kg packed product, processed and canned",48
+Tomato Salsa,,"[""Salsa"", ""Pico de gallo""]",,,,,,,,,
+Tomato Sauce,,"[""Tomaattikastikkeessa""]",,,,,,,,,
 "Tomatoes, Crushed, Canned",,,,,"0,868",,,,,"1 kg packed product, processed and canned",48
 Tools,Työkalut,,Supplies,,,,,,"0,51",Kodinkoneet ja työkalut,2
 Tooth brush,Hammasharja,,Hygiene products,,,,,,,,
 Toothpaste,Hammastahna,,Hygiene products,,,,,,,,
+"Tortilla Chips, Taco Shell",,"[""Tacos"", ""Taco""]",,,"1,55",,,,,"Bread, cradle-to-grave, 0.6-2.5 kg",6
 "Train, local",Lähijuna,,Public transport,,,,"0,001",,,,39
 "Train, local",Lähijuna,,Public transport,,,,,,"0,6","Train, tram, subway trips",2
 "Train, long-distance",Kaukojuna,,Public transport,,,,"0,001",,,,40
@@ -526,7 +530,6 @@ Wheat,,,,,"0,5",,,,,"Vehnäjauhot, ryynit",4
 Wheat bread,,,,,"1,55",,,,,"Bread, cradle-to-grave, 0.6-2.5 kg",6
 Wheat Tortilla,,"[""Tortilla""]",,,"1,55",,,,,"Bread, cradle-to-grave, 0.6-2.5 kg",6
 Wheat Tortilla,,,,,,,,,"0,7",Plant based groceries,2
-"Tortilla Chips, Taco Shell",,"[""Tacos"", ""Taco""]",,,"1,55",,,,,"Bread, cradle-to-grave, 0.6-2.5 kg",6
 Whiting,Valkoturska,,Fish,,"2,66",,,,,"Whiting, median",1
 Wines,,,,,,,,"1,70666667",,"1.28 kgCO₂e wine bottle, cradle-to-grave",42
 "Wok-Vegetables, Carrot-Pea-Water Chestnut-Bamboo Shoot-Sweet Pepper-Mushroom",,"[""Wok mix thai""]",,,,,,,,,
@@ -535,5 +538,3 @@ Yoghurt  <= 1 %,,,,,"1,31",,,,,"Yoghurt, median",1
 Yoghurt > 1 %,,,,,"1,31",,,,,"Yoghurt, median",1
 "Zucchini, Summer Squash","Kesäkurpitsa, zucchini","[""Kesäkurpitsa""]",,,"1,77",,,,,"Zucchini: passive greenhouse, median",1
 "Zucchini, Summer Squash","Kesäkurpitsa, zucchini","[""Pattypan squash"", ""Button squash"", ""Kiekkokurpitsa""]",,,"0,21",,,,,"Zucchini/button squash, median",1
-"Bamboo Shoots, Canned",,"[""Bamboo"", ""Bambu"", ""Bambuja""]",,,,,,,,,
-"Tikka Masala, Uncle Ben'S",,"[""Masalakastike""]",,,,,,,,,
