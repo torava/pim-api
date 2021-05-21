@@ -8,7 +8,7 @@ export const getRootEntity = (entities, parentId) => {
   return parentsParent || parent;
 };
 
-export const convertMeasure = (measure, from_unit, to_unit) => {
+export const convertMeasure = (measure, fromUnit, toUnit) => {
   const factors = {
     y: -24,
     z: -21,
@@ -33,24 +33,24 @@ export const convertMeasure = (measure, from_unit, to_unit) => {
     Y: 24
   }
   // assumes that 1 l = 1 kg
-  if (from_unit === 'l') {
-    from_unit = 'kg';
+  if (fromUnit === 'l') {
+    fromUnit = 'kg';
   }
-  if (from_unit && from_unit.length > 1) {
-    from_unit = from_unit.substring(0,1);
-    from_unit = from_unit.toLowerCase();
-  }
-  else {
-    from_unit = '';
-  }
-  if (to_unit && to_unit.length > 1) {
-    to_unit = to_unit.substring(0,1);
-    to_unit = to_unit.toLowerCase();
+  if (fromUnit && fromUnit.length > 1) {
+    fromUnit = fromUnit.substring(0,1);
+    fromUnit = fromUnit.toLowerCase();
   }
   else {
-    to_unit = '';
+    fromUnit = '';
   }
-  let conversion = factors[from_unit]-factors[to_unit];
+  if (toUnit && toUnit.length > 1) {
+    toUnit = toUnit.substring(0,1);
+    toUnit = toUnit.toLowerCase();
+  }
+  else {
+    toUnit = '';
+  }
+  let conversion = factors[fromUnit]-factors[toUnit];
   return measure*Math.pow(10, conversion);
 }
 
