@@ -23,7 +23,7 @@ const getDetails = manufacturers => {
   };
   details.cooking = {
     boiled: ['keitetty'],
-    breaded: ['leivitetty'],
+    battered: ['battered', 'leivitetty'],
     fried: ['paistettu'],
     grilled: ['grillattu'],
     fresh: ['fresh', 'tuore'],
@@ -35,7 +35,8 @@ const getDetails = manufacturers => {
     coldsmoked: ['kylmäsavustettu', 'kylmäsavu'],
     smoked: ['savustettu', 'savu'],
     milk: ['kevytmaito', 'rasvaton maito'],
-    overcooked: ['ylikypsä', 'overcooked']
+    overcooked: ['ylikypsä', 'overcooked'],
+    deepFried: ['deep fried', 'uppopaistettu']
   };
   details.serving = {
     servedWith: ['served with', 'kanssa']
@@ -220,7 +221,7 @@ export function stripName(name, manufacturers) {
       for (const j in details[i]) {
         details[i][j].forEach(detail => {
           strippedName[locale] = strippedName[locale]
-          .replace(new RegExp(escapeRegExp(detail)), '')
+          .replace(new RegExp(escapeRegExp(detail)), ' ')
         });
       }
     }
@@ -249,13 +250,13 @@ export function stripDetails(name, manufacturers = []) {
         accuracy = (detail.length-token.distance)/detail.length;
         if (accuracy > 0.8) {
           //name = name.substring(0, token.start)+name.substring(token.end+1);
-          strippedName = strippedName.replace(new RegExp(token.substring, 'i'), '').trim();
+          strippedName = strippedName.replace(new RegExp(token.substring, 'i'), ' ').trim();
           //console.log('detail', detail, 'name', name, 'accuracy', accuracy, 'token', token, 'type', type, 'detailName', detailName);
         }
       });
     }
   }
-  strippedName = strippedName.trim().replace(/,|\s{2,}/g, '');
+  strippedName = strippedName.trim().replace(/,|\s{2,}/g, ' ');
   return strippedName;
 }
 
