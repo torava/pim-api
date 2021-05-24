@@ -1,10 +1,11 @@
 import {Model} from 'objection';
 
 import Category from './Category';
+import Product from './Product';
 
-export default class CategoryContribution extends Model {
+export default class ProductContribution extends Model {
 	static get tableName() {
-		return 'CategoryContribution';
+		return 'ProductContribution';
 	}
 
 	static get jsonSchema() {
@@ -23,17 +24,17 @@ export default class CategoryContribution extends Model {
 		return {
 			category: {
 				relation: Model.BelongsToOneRelation,
-				modelClass: Category,
+				modelClass: Product,
 				join: {
-					from: 'CategoryContribution.categoryId',
-					to: 'Category.id'
+					from: 'ProductContribution.productId',
+					to: 'Product.id'
 				}
 			},
 			contribution: {
 				relation: Model.BelongsToOneRelation,
 				modelClass: Category,
 				join: {
-					from: 'CategoryContribution.contributionId',
+					from: 'ProductContribution.contributionId',
 					to: 'Category.id'
 				}
 			}

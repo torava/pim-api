@@ -3,6 +3,7 @@ import Item from './Item';
 import ProductAttribute from './ProductAttribute';
 import Category from './Category';
 import Manufacturer from './Manufacturer';
+import ProductContribution from './ProductContribution';
 
 export default class Product extends Model {
 	static get tableName() {
@@ -17,6 +18,7 @@ export default class Product extends Model {
 			properties: {
 				id: {type: 'integer'},
 				name: {type: 'string', minLength: 1, maxLength: 255},
+				contributionList: {type: 'string'},
 				aliases: {type: 'array'},
 				product_number: {type: ['string', 'null']},
 				quantity: {type: ['number', 'null']},
@@ -58,6 +60,14 @@ export default class Product extends Model {
 				join: {
 					from: 'Product.manufacturerId',
 					to: 'Manufacturer.id'
+				}
+			},
+			contributions: {
+				relation: Model.HasManyRelation,
+				modelClass: ProductContribution,
+				join: {
+					from: 'Product.id',
+					to: 'ProductContribution.productId'
 				}
 			}
 		}

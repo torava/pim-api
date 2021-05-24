@@ -34,7 +34,10 @@ export default class ProductAttribute extends Model {
 			type: 'object',
 
 			properties: {
-				value: {type: 'float'}
+				id: {type: 'integer'},
+				value: {type: 'float'},
+				unit: {type: 'string'},
+				type: {type: 'string'}
 			}
 		}
   }

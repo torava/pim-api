@@ -47,6 +47,7 @@ exports.up = (knex) => (
     table.increments('id').primary();
     table.string('product_number');
     table.string('name');
+    table.string('contributionList');
     table.specificType('aliases', 'text ARRAY');
     table.integer('quantity');
     table.float('measure');
@@ -103,10 +104,27 @@ exports.up = (knex) => (
       .inTable('Category');
     table.unique(['categoryId', 'contributionId']);
   }))
+  .then(() => createTableIfNotExists(knex, 'ProductContribution', table => {
+    table.increments('id').primary();
+    table.float('amount');
+    table.string('unit');
+    table
+      .integer('productId')
+      .unsigned()
+      .references('id')
+      .inTable('Product');
+    table
+      .integer('contributionId')
+      .unsigned()
+      .references('id')
+      .inTable('Category');
+    table.unique(['productId', 'contributionId']);
+  }))
   .then(() => createTableIfNotExists(knex, 'ProductAttribute', table => {
     table.increments('id').primary();
     table.float('value');
     table.string('unit');
+    table.string('type');
     table
       .integer('productId')
       .unsigned()
@@ -118,12 +136,13 @@ exports.up = (knex) => (
       .references('id')
       .inTable('Attribute')
       .onDelete('CASCADE');
-    table.unique(['value', 'unit', 'productId', 'attributeId']);
+    table.unique(['value', 'unit', 'type', 'productId', 'attributeId']);
   }))
   .then(() => createTableIfNotExists(knex, 'CategoryAttribute', table => {
     table.increments('id').primary();
     table.float('value');
     table.string('unit');
+    table.string('type');
     table
       .integer('categoryId')
       .unsigned()
@@ -136,7 +155,7 @@ exports.up = (knex) => (
       .references('id')
       .inTable('Attribute')
       .onDelete('CASCADE');
-    table.unique(['value', 'unit', 'categoryId', 'attributeId']);
+    table.unique(['value', 'unit', 'type', 'categoryId', 'attributeId']);
   }))
   .then(() => createTableIfNotExists(knex, 'Conversion', table => {
     table.increments('id').primary();
@@ -160,6 +179,7 @@ exports.up = (knex) => (
     table.string('reference_date');
     table.string('reference_url');
     table.string('note');
+    table.string('country_code');
     table
       .integer('attributeId')
       .unsigned()
@@ -188,6 +208,8 @@ exports.down = knex => (
     .dropTableIfExists('ProductAttribute')
     .dropTableIfExists('CategoryAttribute')
     .dropTableIfExists('Attribute')
+    .dropTableIfExists('CategoryContribution')
+    .dropTableIfExists('ProductContribution')
     .dropTableIfExists('Conversion')
     .dropTableIfExists('Source')
     .dropTableIfExists('CategoryAttributeSource')
