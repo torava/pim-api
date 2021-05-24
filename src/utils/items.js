@@ -65,7 +65,6 @@ export const getAttributeValues = (unit, measure, quantity = 1, price = undefine
       
       const currentAttributeUnit = locale.getAttributeUnit(attribute?.name['en-US']);
 
-      console.log('attribute', attribute, 'currentAttributeUnit', currentAttributeUnit, 'unit', categoryAttribute.unit, 'attribute unit', currentAttributeUnit);
       if (currentAttributeUnit) {
         rate = config.unitConversionRates[categoryAttribute.unit]?.[currentAttributeUnit] || 1;
       }

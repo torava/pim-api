@@ -1,3 +1,5 @@
+import apicache from 'apicache';
+
 import Product from '../models/Product';
 import { getCategoriesWithAttributes, getClosestCategory, getStrippedCategories } from '../../utils/categories';
 import { convertMeasure } from '../../utils/entities';
@@ -6,9 +8,11 @@ import Attribute from '../models/Attribute';
 import Category from '../models/Category';
 import Manufacturer from '../models/Manufacturer';
 
+let cache = apicache.middleware;
+
 export default app => {
 
-app.get('/api/product/:id', async (req, res) => {
+app.get('/api/product/:id', cache(), async (req, res) => {
   const attributeIds = req.query.attributeIds.split(',').map(id => Number(id));
   const foodUnitAttributeId = Number(req.query.foodUnitAttributeId);
   const {
@@ -41,23 +45,15 @@ app.get('/api/product/:id', async (req, res) => {
           if (!portionAttribute) {
             return true;
           }
-          console.log('contribution', contribution);
-          console.log('portionAttribute', portionAttribute);
 
           const result = getCategoriesWithAttributes(categories, contribution.id, Number(attributeId));
-          console.log('result', result);
           const [, categoryAttributes] = result?.[0] || [undefined, undefined];
           const attributeResult = getAttributeValues(portionAttribute.unit, portionAttribute.value, 1, undefined, categoryAttributes, attributes);
           if (attributeResult.length) {
-            console.log('attributeResult', attributeResult);
             const minAttributeResult = attributeResult.reduce((a, b) => a[0] < b[0] ? a : b);
             const maxAttributeResult = attributeResult.reduce((a, b) => a[0] > b[0] ? a : b);
             const [minAttributeValue, minCategoryAttribute] = minAttributeResult || [undefined, undefined];
-            const [maxAttributeValue, maxCategoryAttribute] = maxAttributeResult || [undefined, undefined];
-            console.log('minCategoryAttribute', minCategoryAttribute);
-            console.log('minAttributeValue', minAttributeValue);
-            console.log('maxCategoryAttribute', maxCategoryAttribute);
-            console.log('maxAttributeValue', maxAttributeValue);
+            const [maxAttributeValue] = maxAttributeResult || [undefined, undefined];
             minValue+= minAttributeValue || 0;
             maxValue+= maxAttributeValue || 0;
             unit = minCategoryAttribute.unit.split('/')[0];
@@ -67,19 +63,13 @@ app.get('/api/product/:id', async (req, res) => {
             const totalAmount = contribution.contributions.reduce((previousValue, currentValue) => previousValue.amount+currentValue.amount, 0);
             contribution.contributions.forEach(contributionContribution => {
               const result = getCategoriesWithAttributes(categories, contributionContribution.contributionId, Number(attributeId));
-              console.log('result', result);
               const [, categoryAttributes] = result?.[0] || [undefined, undefined];
               const attributeResult = getAttributeValues(portionAttribute.unit, portionAttribute.value*contributionContribution.amount/totalAmount, 1, undefined, categoryAttributes, attributes);
               if (attributeResult.length) {
-                console.log('attributeResult', attributeResult);
                 const minAttributeResult = attributeResult.reduce((a, b) => a[0] < b[0] ? a : b, [undefined, undefined]);
                 const maxAttributeResult = attributeResult.reduce((a, b) => a[0] > b[0] ? a : b, [undefined, undefined]);
                 const [minAttributeValue, minCategoryAttribute] = minAttributeResult || [undefined, undefined];
-                const [maxAttributeValue, maxCategoryAttribute] = maxAttributeResult || [undefined, undefined];
-                console.log('minCategoryAttribute', minCategoryAttribute);
-                console.log('minAttributeValue', minAttributeValue);
-                console.log('maxCategoryAttribute', maxCategoryAttribute);
-                console.log('maxAttributeValue', maxAttributeValue);
+                const [maxAttributeValue] = maxAttributeResult || [undefined, undefined];
                 minValue+= minAttributeValue || 0;
                 maxValue+= maxAttributeValue || 0;
                 unit = minCategoryAttribute.unit.split('/')[0];
@@ -109,23 +99,21 @@ app.get('/api/product/:id', async (req, res) => {
           });
         }
       });
-      console.log('productAttributes', productAttributes);
       measure = product.contributions.reduce((total, productContribution) => {
         const contribution = categories.find(category => category.id === productContribution.contributionId);
         const portionAttribute = contribution.attributes.find(a => a.attribute.id === foodUnitAttribute.id);
-        console.log('portionAttribute', portionAttribute);
         return total+convertMeasure(portionAttribute.value, portionAttribute.unit, 'kg');
       }, 0);
     }
 
     const resolvedProduct = {
-      ...product,
+      id: product.id,
+      name: product.name,
+      contributionList: product.contributionList,
       measure,
       unit: measure ? 'kg' : null,
       attributes: productAttributes
     };
-
-    console.log('resolvedProduct', resolvedProduct);
     
     res.send(resolvedProduct);
   } catch (error) {
@@ -268,7 +256,7 @@ app.post('/api/product', async (req, res) => {
     const upsertedProduct = await Product.query().upsertGraph(resolvedProduct, {
       relate: true
     });
-    res.send(upsertedProduct);
+    res.status(201).send(upsertedProduct);
   } catch (error) {
     console.error(error);
     res.sendStatus(500);
