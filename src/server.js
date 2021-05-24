@@ -7,9 +7,11 @@ import {JSDOM} from 'jsdom';
 import { Canvas, createCanvas, Image, ImageData } from 'canvas';
 import path from 'path';
 import bodyParser from 'body-parser';
+import swaggerUi from 'swagger-ui-express';
 
 import knexConfig from '../knexfile';
 import registerApi from './server/api';
+import swaggerDocument from '../swagger.json';
 
 export const app = new Express();
 
@@ -42,6 +44,12 @@ types.setTypeParser(1700, function(val) {
 * Parses the text as JSON and exposes the resulting object on req.body.
 */
 app.use(bodyParser.json({limit: '50mb'}));
+
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument)
+);
 
 const env = process.env.NODE_ENV || 'production';
 

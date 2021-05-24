@@ -1,0 +1,22 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0"
+  },
+  "host": "localhost:42808",
+  "paths": {
+    "/api/item": {
+      "post": {
+        "parameters": {
+          "name": "item",
+          "in": "body"
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        }
+      }
+    }
+  }
+}
