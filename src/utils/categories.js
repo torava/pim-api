@@ -25,8 +25,8 @@ export const aggregateCategoryAttribute = (resolvedCategories, attributeAggregat
       if (category.hasOwnProperty('products') && category.products.length) {
         category.products.map(product => {
           product.items.map(item => {
-            measure = convertMeasure(product.measure || item.measure, product.unit || item.unit, 'kg');
-            itemMeasure+=(product.quantity || item.quantity || 1)*measure;
+            measure = convertMeasure(product.measure || item.measure, product.unit || item.unit, 'kg');
+            itemMeasure+=(product.quantity || item.quantity || 1)*measure;
           });
         });
       }
@@ -236,7 +236,7 @@ export const getClosestCategory = (name, categories, acceptLocale) => {
         let token;
         tokens.forEach(t => {
           t[0].accuracy = (t[0].substring.length-t[0].distance)/name.length;
-          if (t[0].distance <= 1 && t[0].accuracy > 0.2 && t[0].accuracy >= (token ? token.accuracy : 0)) {
+          if (t[0].distance < 1 && t[0].accuracy > 0.1 && t[0].accuracy >= (token ? token.accuracy : 0)) {
             token = t[0];
             console.log(name, translation, t);
           }
