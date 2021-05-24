@@ -32,7 +32,7 @@ Beef,Nauta,,,,15,,,,,"Beef, raw",4
 "Beef Steak, Grilled",,,,,15,,,,,"Beef, raw",4
 "Beef, Cured, 2.8% Fat",,"[""Paahtopaisti""]",,,15,,,,,"Beef, raw",4
 "Beer, Alcohol-Free, 0.0% Volume",,"[""Pils alkoholiton"", ""Crisp IPA""]",,,,,,"0,54",,"Beer, cradle-to-grave",5
-"Beer, Lager, Medium Strength, 4.5% Volume",,"[""Olut"", ""Lager"", ""Pils""]",,,,,,,,,
+"Beer, Lager, Medium Strength, 4.5% Volume",,"[""Beer"", ""Olut"", ""Lager"", ""Pils""]",,,,,,,,,
 "Beer, Lager, Strong, 5-5.5% Volume",,"[""NEIPA""]",,,,,,,,,
 Beers,,,,,,,,"0,54",,"Beer, cradle-to-grave",5
 "Beetroot, Red Beet",Punajuuri,,,,"0,24",,,,,"Beetroot, median",1
@@ -188,6 +188,8 @@ Fish,,,,,,,,,"1,1",Animal based groceries,2
 Fish dishes,,,,,,,,,"1,1",Animal based groceries,2
 Fish oil,Kalaöljy,,Supplies,,,,,,"1,1",Animal based groceries,2
 Fishing equipment,Kalastustarvikkeet,"[""Jäänaskali"", ""Jigger"", ""Kuusamo Sinfonia"", ""Viehe"", ""Onkivapa"", ""Pilkkivapa"", ""Unyl Winter Line""]",Supplies,,,,,,"1,31",Fishing products and services,2
+"Fish, Weighted Average",,"[""Fish""]",,,"3,49",,,,,"Fish: all species, median",1
+"Fish, Weighted Average",,"[""Fish""]",,,"1,5",,,,,"Kala, raaka",20
 Flight 1603km Helsinki-Düsseldorf,Lento 1603 km Helsinki-Düsseldorf,,Public transport,255,,,,,,Lento 1603 km Helsinki-Düsseldorf,21
 Flight 4700km Helsinki-Las Palmas,Lento 4700 km Helsinki-Las Palmas,,Public transport,747,,,,,,Lento 4700 km Helsinki-Las Palmas,21
 Flight 515km Helsinki-Oulu,Lento 515 km Helsinki-Oulu,,Public transport,98,,,,,,Lento 515 km Helsinki-Oulu,21
@@ -276,7 +278,8 @@ Magazine paper,,,,"0,83",,,,,,National Geographic magazine,24
 "Mandarin, Average, With Skin",,"[""Mandariini""]",,,"0,45",,,,,"Mandarin, median",1
 Margarine and fat spread  < 55%,,,,,"1,75",,,,,"Margarine, 60% fat, including waste",7
 Margarine and fat spread >= 55%,,,,,"1,75",,,,,"Margarine, 60% fat, including waste",7
-"Mayonnaise, 60% Fat",,"[""American dressing""]",,,,,,,,,
+"Mayonnaise, 60% Fat",,"[""American dressing""]",,,,,,"4,23",,2.0 kgCO₂eq per 473 mL pot of mayonnaise,49
+"Mayonnaise, 80% Fat",,"[""Mayonnaise"", ""Majoneesi""]",,,,,,"4,23",,2.0 kgCO₂eq per 473 mL pot of mayonnaise,49
 "Meal Replacement, Protein Bar, Average, C. 20% Protein",,,,,,,,,"0,7",Plant based groceries,2
 "Meal Replacement, Protein Bar, Average, C. 40% Protein",,"[""Barebells proteiinipatukka""]",,,,,,,,,
 Meat dishes,,,,,,,,,"1,1",Animal based groceries,2
