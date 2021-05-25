@@ -188,8 +188,7 @@ export default function TransactionList({
       const categoryAttribute = Object.values(category?.attributes || {}).find(a => a.attributeId === attribute.id);
       return getItemAttributeValue(item, categoryAttribute, attributes);*/
 
-      const productCategory = categories.find(category => category.id === item.product.categoryId);
-      const result = getCategoriesWithAttributes(categories, productCategory, Number(attributeId));
+      const result = getCategoriesWithAttributes(categories, item.product.categoryId, Number(attributeId));
       const [, itemAttributes] = result?.[0] || [undefined, undefined];
       const [attributeValue] = getItemAttributeValue(item, itemAttributes, attributes) || [undefined, undefined];
       return attributeValue?.toLocaleString();
