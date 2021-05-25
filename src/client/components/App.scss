@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
+
 html, body {
   min-height: 100%;
   overflow: auto;
@@ -8,10 +11,17 @@ body {
   background: radial-gradient(79.69% 79.69% at 69.7% 18.84%, #FFFFFF 0%, #FFFFFF 49.69%, #E1F1F5 100%);
 }
 #app {
-  font-family: sans-serif;
+  font-family: 'Montserrat', sans-serif;
   hyphens: auto;
   font-size: 16px;
   margin: 0 0 3em 0;
+}
+h1, h2, h3, h4 {
+  font-family: 'IBM Plex Sans';
+  color: #7C7C7C;
+}
+h1 {
+  color: #42B7D4;
 }
 a, .fas {
   color: #002b61;
@@ -123,6 +133,9 @@ footer .button {
     & > td:last-child {
       border-bottom-right-radius: 1em;
     }
+  }
+  .expand {
+    padding: 0 0.5em;
   }
 }
 
