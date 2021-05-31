@@ -12,8 +12,8 @@ let cache = apicache.middleware;
 
 export default app => {
 
-app.get('/api/product/:id', cache(), async (req, res) => {
-  const attributeIds = req.query.attributeIds.split(',').map(id => Number(id));
+app.get('/api/product/:id', /*cache(),*/ async (req, res) => {
+  const attributeIds = req.query.attributeIds?.split(',').map(id => Number(id));
   const foodUnitAttributeId = Number(req.query.foodUnitAttributeId);
   const {
     id
@@ -107,12 +107,10 @@ app.get('/api/product/:id', cache(), async (req, res) => {
     }
 
     const resolvedProduct = {
-      id: product.id,
-      name: product.name,
-      contributionList: product.contributionList,
-      measure,
-      unit: measure ? 'kg' : null,
-      attributes: productAttributes
+      ...product,
+      measure: measure || product.measure,
+      unit: measure ? 'kg' : product.unit,
+      attributes: productAttributes || product.attributes
     };
     
     res.send(resolvedProduct);
@@ -123,8 +121,18 @@ app.get('/api/product/:id', cache(), async (req, res) => {
 });
 
 app.get('/api/product', async (req, res) => {
+  const {
+    pageNumber,
+    productsPerPage,
+    name
+  } = req.query;
   try {
-    const product = await Product.query();
+    const product = (
+      await Product.query()
+      .page(pageNumber, productsPerPage)
+      .where('name', 'ilike', name ? `%${name}%` : undefined)
+      .skipUndefined()
+    );
     res.send(product);
   } catch (error) {
     console.error(error);

@@ -15,7 +15,7 @@ export default class Source extends Model {
 				name: {type: 'string'},
         authors: {type: ['string', 'null']},
         publicationUrl: {type: ['string', 'null']},
-				publicationCate: { type: 'string' },
+				publicationDate: { type: 'string' },
 				countryCode: { type: 'string' }
 			}
 		}

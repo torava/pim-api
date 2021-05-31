@@ -16,7 +16,7 @@ export default class CategoryAttributeSource extends Model {
         reference_url: {type: ['string', 'null']},
 				reference_date: { type: 'datetime', default: new Date().toISOString() },
 				note: {type: ['string', 'null']},
-				countryCode: { type: 'string' }
+				countryCode: { type: ['string', 'null'] }
 			}
 		}
   }

@@ -22,7 +22,7 @@ export default class ProductContribution extends Model {
   
   static get relationMappings() {
 		return {
-			category: {
+			product: {
 				relation: Model.BelongsToOneRelation,
 				modelClass: Product,
 				join: {

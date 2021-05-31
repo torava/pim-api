@@ -8,6 +8,7 @@
   "paths": {
     "/api/attribute": {
       "get": {
+        "description": "Returns a list of attributes",
         "responses": {
           "200": {
             "description": "Successful response",
@@ -28,26 +29,102 @@
         }
       }
     },
-    "/api/product/{id}": {
-      "parameters": [
-        {
-          "name": "id",
-          "in": "path",
-          "required": true,
-          "type": "integer"
-        },
-        {
-          "name": "attributeIds",
-          "in": "query",
-          "type": "string"
-        },
-        {
-          "name": "foodUnitAttributeId",
-          "in": "query",
-          "type": "string"
-        }
-      ],
+    "/api/category/{id}": {
       "get": {
+        "description": "Returns category by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "Category id to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Category"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/category": {
+      "get": {
+        "parameters": [
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "type": "integer",
+            "description": "Zero based page number"
+          },
+          {
+            "name": "categoriesPerPage",
+            "in": "query",
+            "type": "integer",
+            "description": "Number of categories per page"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "type": "string",
+            "description": "Part of category name for filtering"
+          }
+        ],
+        "description": "Returns a list of categories",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Category"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/product/{id}": {
+      "get": {
+        "description": "Returns product by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "Product id to return"
+          },
+          {
+            "name": "attributeIds",
+            "in": "query",
+            "type": "string",
+            "description": "Attribute ids to aggregate for product"
+          },
+          {
+            "name": "foodUnitAttributeId",
+            "in": "query",
+            "type": "string",
+            "description": "Attribute id for food unit to use in attribute aggregation"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful response",
@@ -67,6 +144,27 @@
     },
     "/api/product": {
       "get": {
+        "parameters": [
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "type": "integer",
+            "description": "Zero based page number"
+          },
+          {
+            "name": "productsPerPage",
+            "in": "query",
+            "type": "integer",
+            "description": "Number of products per page"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "type": "string",
+            "description": "Part of product name for filtering"
+          }
+        ],
+        "description": "Returns list of products",
         "responses": {
           "200": {
             "description": "Successful response",
@@ -87,6 +185,7 @@
         }
       },
       "post": {
+        "description": "Creates a new product",
         "requestBody": {
           "content": {
             "application/json": {
@@ -112,10 +211,54 @@
           }
         }
       }
+    },
+    "/api/source": {
+      "get": {
+        "description": "Returns list of sources",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Source"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "Source": {
+        "type": "object",
+        "required": "name",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "authors": {
+            "type": "string"
+          },
+          "publicationUrl": {
+            "type": "string"
+          },
+          "publicationDate": {
+            "type": "string"
+          },
+          "countryCode": {
+            "type": "string"
+          }
+        }
+      },
       "Product": {
         "type": "object",
         "required": ["id", "name"],
@@ -124,22 +267,57 @@
             "type": "integer"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Product name"
           },
           "contributionList": {
-            "type": "string"
+            "type": "string",
+            "description": "Product contribution category names separated with comma"
           },
           "measure": {
-            "type": "number"
+            "type": "number",
+            "description": "Product amount measure"
           },
           "unit": {
-            "type": "string"
+            "type": "string",
+            "description": "Product amount unit"
           },
           "attributes": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ProductAttribute"
+            },
+            "description": "List of product attributes"
+          },
+          "contributions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductContribution"
             }
+          }
+        }
+      },
+      "ProductContribution": {
+        "type": "object",
+        "required": ["id", "amount", "unit"],
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "category": {
+            "$ref": "#/components/schemas/Category"
+          },
+          "product": {
+            "$ref": "#/components/schemas/Product"
+          },
+          "contribution": {
+            "$ref": "#/components/schemas/Category"
           }
         }
       },
@@ -179,6 +357,75 @@
           },
           "attribute": {
             "$ref": "#/components/schemas/Attribute"
+          }
+        }
+      },
+      "Category": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "object"
+          }
+        }
+      },
+      "CategoryAttribute": {
+        "type": "object",
+        "required": ["id", "value", "unit", "type"],
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "value": {
+            "type": "float"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "category": {
+            "$ref": "#/components/schemas/Category"
+          },
+          "attribute": {
+            "$ref": "#/components/schemas/Attribute"
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategoryAttributeSource"
+            }
+          }
+        }
+      },
+      "CategoryAttributeSource": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "reference_url": {
+            "type": "string"
+          },
+          "reference_date": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          },
+          "countryCode": {
+            "type": "string"
+          },
+          "attribute": {
+            "$ref": "#/components/schemas/Attribute"
+          },
+          "source": {
+            "$ref": "#/components/schemas/Source"
           }
         }
       }

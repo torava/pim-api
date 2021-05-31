@@ -7,26 +7,33 @@ let cache = apicache.middleware;
 
 export default app => {
 
-app.get('/api/category/:id', (req, res) => {
+app.get('/api/category/:id', async (req, res) => {
   console.log(req.query, req.params);
-  return Category.query()
-    .where('id', req.params.id)
-    .modify('getAttributes')
-    .withGraphFetched('[products.[items], contributions.[contribution], attributes.[attribute.[parent.^], sources.[source]], parent.^, children(getAttributes)]')
-    .then(categories => {
-      resolveCategories(categories, req.query.locale);
-      return res.send(categories);
-    })
-    .catch(error => {
-      console.error(error);
-      return res.sendStatus(500);
-    });
+  try {
+    const categories = (
+      await Category.query()
+      .where('id', req.params.id)
+      .withGraphFetched('[contributions, attributes]')
+    );
+    resolveCategories(categories, req.query.locale);
+    return res.send(categories);
+  } catch (error) {
+    console.error(error);
+    return res.sendStatus(500);
+  }
 });
 
-app.get('/api/category', cache(), (req, res) => {
+app.get('/api/category', cache(), async (req, res) => {
+  const {
+    pageNumber = 0,
+    categoriesPerPage = 20,
+    name,
+    parent,
+    transactions
+  } = req.query;
   if ('parent' in req.query) {
     return Category.query()
-    .where('parentId', req.query.parent || null)
+    .where('parentId', parent || null)
     .modify('getAttributes')
     .withGraphFetched('[products.[items], contributions.[contribution], attributes, children(getAttributes)]')
     .then(categories => {
@@ -38,7 +45,7 @@ app.get('/api/category', cache(), (req, res) => {
       return res.sendStatus(500);
     });
   }
-  else if (req.query.transactions) {
+  else if (transactions) {
     return Category.query()
     .where('parentId', null)
     .modify('getTransactions')
@@ -54,16 +61,25 @@ app.get('/api/category', cache(), (req, res) => {
     });
   }
   else {
-    return Category.query()
-    .withGraphFetched('[attributes]')
-    .then(categories => {
+    try {
+      let categories = await Category.query();
+      if (name?.length) {
+        categories = categories.filter(category => (
+          Object.values(category.name).find(n => n.toLowerCase().match(name.toLowerCase()))
+        ));
+      }
+      const results = categories.slice(pageNumber*categoriesPerPage, pageNumber*categoriesPerPage+categoriesPerPage);
+      categories = {
+        results,
+        total: results.length
+      };
       resolveCategories(categories, req.query.locale);
       return res.send(categories);
-    })
-    .catch(error => {
+    }
+    catch (error) {
       console.error(error);
       return res.sendStatus(500);
-    });
+    }
   }
 });
 
