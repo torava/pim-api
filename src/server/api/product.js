@@ -13,7 +13,6 @@ let cache = apicache.middleware;
 export default app => {
 
 app.get('/api/product/:id', /*cache(),*/ async (req, res) => {
-  const attributeIds = req.query.attributeIds?.split(',').map(id => Number(id));
   const foodUnitAttributeId = Number(req.query.foodUnitAttributeId);
   const {
     id
@@ -22,12 +21,14 @@ app.get('/api/product/:id', /*cache(),*/ async (req, res) => {
     let measure,
         productAttributes = [];
 
+    const attributes = await Attribute.query();
+    const attributeIds = req.query.attributeIds?.split(',').map(id => Number(id)) || attributes.map(a => a.id);
+
     const categories = (await Category.query()
     .withGraphFetched('[children, parent, contributions, attributes.[attribute]]')
     .modifiers({
       filterByGivenAttributeIds: query => query.modify('filterByAttributeIds', [...attributeIds, foodUnitAttributeId])
     }));
-    const attributes = await Attribute.query();
     const foodUnitParentAttribute = attributes.find(a => a.name['en-US'] === 'Food units');
     const foodUnitAttribute = attributes.find(a => a.id === foodUnitAttributeId && a.parentId === foodUnitParentAttribute.id)
 
