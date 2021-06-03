@@ -1,6 +1,5 @@
-import { locale } from "../client/components/locale";
 import { convertMeasure } from "./entities";
-import config from '../config/default';
+import { getAttributeValues } from "./attributes";
 
 export const getItemNameByDepth = (item, depth) => {
   let name,
@@ -51,37 +50,6 @@ export const getItemNameByDepth = (item, depth) => {
     name = 'Uncategorized';
   }
   return {id, name};
-};
-
-export const getAttributeValues = (unit, measure, quantity = 1, price = undefined, categoryAttributes = [], attributes = []) => {
-  const result = [];
-  for (const categoryAttribute of categoryAttributes) {
-    const foundAttributes = attributes.filter(a => a.id === categoryAttribute.attributeId);
-    foundAttributes.forEach(attribute => {
-      const perUnit = categoryAttribute?.unit?.split('/')?.[1];
-      
-      let value,
-          rate = 1;
-      
-      const currentAttributeUnit = locale.getAttributeUnit(attribute?.name['en-US']);
-
-      if (currentAttributeUnit) {
-        rate = config.unitConversionRates[categoryAttribute.unit]?.[currentAttributeUnit] || 1;
-      }
-
-      if (perUnit === 'EUR' && !isNaN(price)) {
-        value = rate*categoryAttribute.value;
-      } else if (perUnit && ['l', 'g'].includes(perUnit.substring(1))) {
-        value = rate*categoryAttribute?.value*convertMeasure(measure, unit, perUnit)*quantity;
-      } else if (!unit) {
-        value = rate*categoryAttribute?.value*quantity;
-      }
-      if (!isNaN(value)) {
-        result.push([value, categoryAttribute]);
-      }
-    });
-  }
-  return result;
 };
 
 export const getItemAttributeValue = (item, categoryAttributes = [], attributes = []) => {

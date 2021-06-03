@@ -258,3 +258,21 @@ export const getClosestCategory = (name, categories, acceptLocale) => {
   );
   return bestToken?.substring.length ? [bestCategory, bestToken] : [undefined, undefined];
 };
+
+export const getContributionsFromList = (list, contentLanguage, categories = []) => {
+  const tokens = list?.split(/,\s|\sja\s|\sand\s|\soch\s/gi);
+  const contributions = [];
+  tokens.forEach(contributionToken => {
+    let [contribution, token] = getClosestCategory(contributionToken, categories, contentLanguage);
+    if (contributionToken.split(' ').length > 2) {
+      while (contribution && contributionToken) {
+        contributionToken = contributionToken.replace(new RegExp(token.substring, 'i'), '').trim();
+        contributions.push({contributionId: contribution.id});
+        [contribution, token] = getClosestCategory(contributionToken, categories, contentLanguage);
+      }
+    } else if (contribution) {
+      contributions.push({contributionId: contribution.id});
+    }
+  });
+  return contributions;
+};

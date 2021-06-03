@@ -1,7 +1,9 @@
 import _ from 'lodash';
+import { getStrippedCategories } from '../../utils/categories';
 
 import Attribute from '../models/Attribute';
 import Category from '../models/Category';
+import Manufacturer from '../models/Manufacturer';
 import Source from '../models/Source';
 
 export const getCategoriesFromCsv = async (records, sourceRecords) => {
@@ -188,4 +190,15 @@ export const getCategoryParentsFromCsv = async (records) => {
   } catch (error) {
     console.error(error);
   }
+};
+
+export const getStrippedChildCategories = async () => {
+  const categories = (await Category.query()
+  .withGraphFetched('[children, parent, contributions, attributes.[attribute]]'));
+
+  const childCategories = categories.filter(category => !category.children?.length);
+  const manufacturers = await Manufacturer.query();
+  const strippedCategories = getStrippedCategories(childCategories, manufacturers);
+
+  return strippedCategories;
 };

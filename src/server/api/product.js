@@ -1,26 +1,22 @@
 import apicache from 'apicache';
 
 import Product from '../models/Product';
-import { getCategoriesWithAttributes, getClosestCategory, getStrippedCategories } from '../../utils/categories';
-import { convertMeasure } from '../../utils/entities';
-import { getAttributeValues } from '../../utils/items';
+import { getClosestCategory, getContributionsFromList } from '../../utils/categories';
 import Attribute from '../models/Attribute';
 import Category from '../models/Category';
-import Manufacturer from '../models/Manufacturer';
+import { resolveProductAttributes } from '../../utils/products';
+import { getStrippedChildCategories } from '../utils/categories';
 
 let cache = apicache.middleware;
 
 export default app => {
 
-app.get('/api/product/:id', /*cache(),*/ async (req, res) => {
+app.get('/api/product/:id', cache(), async (req, res) => {
   const foodUnitAttributeId = Number(req.query.foodUnitAttributeId);
   const {
     id
   } = req.params;
   try {
-    let measure,
-        productAttributes = [];
-
     const attributes = await Attribute.query();
     const attributeIds = req.query.attributeIds?.split(',').map(id => Number(id)) || attributes.map(a => a.id);
 
@@ -35,77 +31,7 @@ app.get('/api/product/:id', /*cache(),*/ async (req, res) => {
     const product = (await Product.query().findById(id)
     .withGraphFetched('[contributions.[contribution]]'));
 
-    if (foodUnitAttribute) {
-      attributeIds.forEach(attributeId => {
-        let minValue = 0,
-            maxValue = 0,
-            unit;
-        product.contributions.forEach(productContribution => {
-          const contribution = categories.find(category => category.id === productContribution.contributionId);
-          const portionAttribute = contribution.attributes.find(a => a.attribute.id === foodUnitAttribute.id);
-          if (!portionAttribute) {
-            return true;
-          }
-
-          const result = getCategoriesWithAttributes(categories, contribution.id, Number(attributeId));
-          const [, categoryAttributes] = result?.[0] || [undefined, undefined];
-          const attributeResult = getAttributeValues(portionAttribute.unit, portionAttribute.value, 1, undefined, categoryAttributes, attributes);
-          if (attributeResult.length) {
-            const minAttributeResult = attributeResult.reduce((a, b) => a[0] < b[0] ? a : b);
-            const maxAttributeResult = attributeResult.reduce((a, b) => a[0] > b[0] ? a : b);
-            const [minAttributeValue, minCategoryAttribute] = minAttributeResult || [undefined, undefined];
-            const [maxAttributeValue] = maxAttributeResult || [undefined, undefined];
-            minValue+= minAttributeValue || 0;
-            maxValue+= maxAttributeValue || 0;
-            unit = minCategoryAttribute.unit.split('/')[0];
-          }
-
-          if (!minValue && !maxValue && contribution.contributions?.length) {
-            const totalAmount = contribution.contributions.reduce((previousValue, currentValue) => previousValue.amount+currentValue.amount, 0);
-            contribution.contributions.forEach(contributionContribution => {
-              const result = getCategoriesWithAttributes(categories, contributionContribution.contributionId, Number(attributeId));
-              const [, categoryAttributes] = result?.[0] || [undefined, undefined];
-              const attributeResult = getAttributeValues(portionAttribute.unit, portionAttribute.value*contributionContribution.amount/totalAmount, 1, undefined, categoryAttributes, attributes);
-              if (attributeResult.length) {
-                const minAttributeResult = attributeResult.reduce((a, b) => a[0] < b[0] ? a : b, [undefined, undefined]);
-                const maxAttributeResult = attributeResult.reduce((a, b) => a[0] > b[0] ? a : b, [undefined, undefined]);
-                const [minAttributeValue, minCategoryAttribute] = minAttributeResult || [undefined, undefined];
-                const [maxAttributeValue] = maxAttributeResult || [undefined, undefined];
-                minValue+= minAttributeValue || 0;
-                maxValue+= maxAttributeValue || 0;
-                unit = minCategoryAttribute.unit.split('/')[0];
-              }
-            });
-          }
-        });
-        const attribute = attributes.find(a => a.id === attributeId);
-        if (minValue === maxValue) {
-          productAttributes.push({
-            value: minValue,
-            unit,
-            attribute
-          });
-        } else {
-          productAttributes.push({
-            value: minValue,
-            type: 'MIN_VALUE',
-            unit,
-            attribute
-          });
-          productAttributes.push({
-            value: maxValue,
-            type: 'MAX_VALUE',
-            unit,
-            attribute
-          });
-        }
-      });
-      measure = product.contributions.reduce((total, productContribution) => {
-        const contribution = categories.find(category => category.id === productContribution.contributionId);
-        const portionAttribute = contribution.attributes.find(a => a.attribute.id === foodUnitAttribute.id);
-        return total+convertMeasure(portionAttribute.value, portionAttribute.unit, 'kg');
-      }, 0);
-    }
+    const {productAttributes, measure} = resolveProductAttributes(product, attributeIds, foodUnitAttribute, categories, attributes);
 
     const resolvedProduct = {
       ...product,
@@ -125,16 +51,63 @@ app.get('/api/product', async (req, res) => {
   const {
     pageNumber,
     productsPerPage,
-    name
+    name,
+    contributionList,
   } = req.query;
+  const foodUnitAttributeId = Number(req.query.foodUnitAttributeId);
   try {
-    const product = (
-      await Product.query()
-      .page(pageNumber, productsPerPage)
-      .where('name', 'ilike', name ? `%${name}%` : undefined)
-      .skipUndefined()
-    );
-    res.send(product);
+    let products;
+    if (contributionList && foodUnitAttributeId) {
+      const contentLanguage = req.headers['content-language'];
+
+      const strippedCategories = await getStrippedChildCategories();
+      
+      let category,
+          contributions = [];
+
+      console.log(contributionList);
+      contributions = getContributionsFromList(contributionList, contentLanguage, strippedCategories);
+      console.log(contributionList);
+      
+      let product = {
+        name,
+        contributionList,
+        //measure,
+        //unit: 'kg',
+        //attributes: productAttributes,
+        contributions,
+        category
+      };
+
+      const attributes = await Attribute.query();
+      const attributeIds = req.query.attributeIds?.split(',').map(id => Number(id)) || attributes.map(a => a.id);
+
+      const categories = (await Category.query()
+      .withGraphFetched('[children, parent, contributions, attributes.[attribute]]')
+      .modifiers({
+        filterByGivenAttributeIds: query => query.modify('filterByAttributeIds', [...attributeIds, foodUnitAttributeId])
+      }));
+      const foodUnitParentAttribute = attributes.find(a => a.name['en-US'] === 'Food units');
+      const foodUnitAttribute = attributes.find(a => a.id === foodUnitAttributeId && a.parentId === foodUnitParentAttribute.id)
+
+      const {productAttributes, measure} = resolveProductAttributes(product, attributeIds, foodUnitAttribute, categories, attributes);
+
+      product = {
+        ...product,
+        measure: measure || product.measure,
+        unit: measure ? 'kg' : product.unit,
+        attributes: productAttributes || product.attributes
+      };
+      products = [product];
+    } else {
+      products = (
+        await Product.query()
+        .page(pageNumber, productsPerPage)
+        .where('name', 'ilike', name ? `%${name}%` : undefined)
+        .skipUndefined()
+      );
+    }
+    res.send(products);
   } catch (error) {
     console.error(error);
     res.sendStatus(500);
@@ -224,30 +197,13 @@ app.post('/api/product', async (req, res) => {
 
   console.log(req.body);
   try {
-    const categories = (await Category.query()
-    .withGraphFetched('[children, parent, contributions, attributes.[attribute]]'));
-
-    const childCategories = categories.filter(category => !category.children?.length);
-    const manufacturers = await Manufacturer.query();
-    const strippedCategories = getStrippedCategories(childCategories, manufacturers);
+    const strippedCategories = getStrippedChildCategories();
     
     let category,
-        contributions = [],
-        contributionTokens = contributionList?.split(/,\s|\sja\s|\sand\s|\soch\s/gi);
+        contributions = [];
     if (contributionList) {
       console.log(contributionList);
-      contributionTokens.forEach(contributionToken => {
-        let [contribution, token] = getClosestCategory(contributionToken, strippedCategories, contentLanguage);
-        if (contributionToken.split(' ').length > 2) {
-          while (contribution && contributionToken) {
-            contributionToken = contributionToken.replace(new RegExp(token.substring, 'i'), '').trim();
-            contributions.push({contributionId: contribution.id});
-            [contribution, token] = getClosestCategory(contributionToken, strippedCategories, contentLanguage);
-          }
-        } else if (contribution) {
-          contributions.push({contributionId: contribution.id});
-        }
-      });
+      contributions = getContributionsFromList(contributionList, contentLanguage, strippedCategories);
       console.log(contributionList);
     } else {
       category = getClosestCategory(name, strippedCategories, contentLanguage);

@@ -1,5 +1,6 @@
 import moment from 'moment';
 import { stringSimilarity } from "string-similarity-js";
+import { LevenshteinDistance } from "./levenshteinDistance";
 
 export const measureRegExp = /(\d{1,4}(\.\d)?)((kg)|(g)|(l|1))/;
 
@@ -212,13 +213,13 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
         if (!data.party.id && result.parties.length) {
           const party = result.parties.reduce((previous_party, current_party) => {
             if (current_party.name) {
-              current_party.similarity = stringSimilarity(line, current_party.name);
+              current_party.distance = LevenshteinDistance(current_party.name?.toLowerCase(), line?.toLowerCase(), {search: true})?.distance;
               // K-Supermarket Kaisaniemi != K-Supermarket Kamppi
-              if (current_party.similarity > 0.7 && (!previous_party || !previous_party.similarity || previous_party.similarity < current_party.similarity)) {
+              if (current_party.distance <= 1 && (!previous_party || !previous_party.distance || previous_party.distance < current_party.distance)) {
                 return current_party;
               }
             }
-            if (previous_party && previous_party.similarity) {
+            if (previous_party && previous_party.distance) {
               return previous_party;
             }
           });
