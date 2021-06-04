@@ -179,7 +179,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       
     const baseAttributes = [
       {
-        enum: 'FOODUNITS',
+        code: 'FOODUNITS',
         name: {
           'fi-FI': 'Elintarvikkeiden yksiköt',
           'en-US': 'Food units',
@@ -402,7 +402,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       }
       else {
         attribute = {
-          enum: attrRef,
+          code: attrRef,
           name: eufdname[attrRef]
         }
 
@@ -416,7 +416,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
         }
         else {
           attribute.parent = {
-            enum: parentRef,
+            code: parentRef,
             name: cmpclass[parentRef]
           }
 
@@ -429,7 +429,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
           }
           else {
             attribute.parent.parent = {
-              enum: secondParentRef,
+              code: secondParentRef,
               name: cmpclass[secondParentRef]
             }
           }
@@ -496,7 +496,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       const fiName = foodunitFiRecords[index];
       const svName = foodunitSvRecords[index];
       const foodUnit = {
-        enum: enName.THSCODE,
+        code: enName.THSCODE,
         name: {
           'en-US': enName.DESCRIPT,
           'fi-FI': fiName.DESCRIPT,

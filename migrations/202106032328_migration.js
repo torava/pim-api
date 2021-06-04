@@ -80,14 +80,14 @@ exports.up = (knex) => (
   }))
   .then(() => createTableIfNotExists(knex, 'Attribute', table => {
     table.increments('id').primary();
-    table.string('enum');
+    table.string('code');
     table.jsonb('name');
     table
       .integer('parentId')
       .unsigned()
       .references('id')
       .inTable('Attribute');
-    table.unique(['enum', 'name', 'parentId']);
+    table.unique(['code', 'name', 'parentId']);
   }))
   .then(() => createTableIfNotExists(knex, 'CategoryContribution', table => {
     table.increments('id').primary();
