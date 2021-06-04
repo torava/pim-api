@@ -6,6 +6,7 @@ import Attribute from '../models/Attribute';
 import Category from '../models/Category';
 import { resolveProductAttributes } from '../../utils/products';
 import { getStrippedChildCategories } from '../utils/categories';
+import { getLeafIds } from '../../utils/entities';
 
 let cache = apicache.middleware;
 
@@ -60,9 +61,19 @@ app.get('/api/product', async (req, res) => {
   try {
     let products;
     const attributes = await Attribute.query();
-    const attributeIds = req.query.attributeCodes?.split(',').map(code => (
-      attributes.find(attribute => attribute.code === code)?.id
-    )) || attributes.map(a => a.id);
+    let attributeIds = [];
+    req.query.attributeCodes?.split(',').forEach(code => {
+      const id = attributes.find(attribute => attribute.code === code)?.id;
+      if (id) {
+        let ids = [];
+        getLeafIds(attributes, id, ids);
+        if (ids.length) {
+          attributeIds = attributeIds.concat(ids);
+        } else {
+          attributeIds.push(id);
+        }
+      }
+    }) || attributes.map(a => a.id);
     const foodUnitParentAttribute = attributes.find(a => a.name['en-US'] === 'Food units');
     const foodUnitAttribute = attributes.find(attribute => (
       attribute.code === req.query.foodUnitAttributeCode && attribute.parentId === foodUnitParentAttribute.id

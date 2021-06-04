@@ -8,6 +8,30 @@ export const getRootEntity = (entities, parentId) => {
   return parentsParent || parent;
 };
 
+export const getParentWithFieldValue = (entities, parentId, field, value) => {
+  if (!parentId) return;
+  const parent = entities.find(entity => entity.id === parentId);
+  if (parent?.field === value) {
+    return parent;
+  } else {
+    return getParentWithFieldValue(entities, parent?.parentId, field, value);
+  }
+};
+
+export const getLeafIds = (entities, parentId, leafIds = []) => {
+  const children = entities.filter(entity => entity.parentId === parentId);
+  let result = [];
+  children.forEach(child => {
+    const childChildren = getLeafIds(entities, child.id, leafIds);
+    if (!childChildren.length) {
+      leafIds.push(child.id);
+    }
+    result.push(child.id);
+    result = result.concat(childChildren);
+  });
+  return result;
+};
+
 export const convertMeasure = (measure, fromUnit, toUnit) => {
   const factors = {
     y: -24,

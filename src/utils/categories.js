@@ -267,11 +267,11 @@ export const getContributionsFromList = (list, contentLanguage, categories = [])
     if (contributionToken.split(' ').length > 2) {
       while (contribution && contributionToken) {
         contributionToken = contributionToken.replace(new RegExp(token.substring, 'i'), '').trim();
-        contributions.push({contributionId: contribution.id});
+        contributions.push({contributionId: contribution.id, contribution});
         [contribution, token] = getClosestCategory(contributionToken, categories, contentLanguage);
       }
     } else if (contribution) {
-      contributions.push({contributionId: contribution.id});
+      contributions.push({contributionId: contribution.id, contribution});
     }
   });
   return contributions;
