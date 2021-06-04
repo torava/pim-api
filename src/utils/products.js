@@ -69,7 +69,7 @@ export const resolveProductAttributes = (product, attributeIds, foodUnitAttribut
     measure = product.contributions.reduce((total, productContribution) => {
       const contribution = categories.find(category => category.id === productContribution.contributionId);
       const portionAttribute = contribution.attributes.find(a => a.attribute.id === foodUnitAttribute.id);
-      return total+convertMeasure(portionAttribute.value, portionAttribute.unit, 'kg');
+      return total+convertMeasure(portionAttribute?.value, portionAttribute?.unit, 'kg');
     }, 0);
   }
   return {productAttributes, measure};

@@ -12,21 +12,24 @@ let cache = apicache.middleware;
 export default app => {
 
 app.get('/api/product/:id', cache(), async (req, res) => {
-  const foodUnitAttributeId = Number(req.query.foodUnitAttributeId);
   const {
     id
   } = req.params;
   try {
     const attributes = await Attribute.query();
-    const attributeIds = req.query.attributeIds?.split(',').map(id => Number(id)) || attributes.map(a => a.id);
+    const attributeIds = req.query.attributeCodes?.split(',').map(code => (
+      attributes.find(attribute => attribute.code === code)?.id
+    )) || attributes.map(a => a.id);
+    const foodUnitParentAttribute = attributes.find(a => a.name['en-US'] === 'Food units');
+    const foodUnitAttribute = attributes.find(attribute => (
+      attribute.code === Number(req.query.foodUnitAttributeCode) && attribute.parentId === foodUnitParentAttribute.id
+    ));
 
     const categories = (await Category.query()
     .withGraphFetched('[children, parent, contributions, attributes.[attribute]]')
     .modifiers({
-      filterByGivenAttributeIds: query => query.modify('filterByAttributeIds', [...attributeIds, foodUnitAttributeId])
+      filterByGivenAttributeIds: query => query.modify('filterByAttributeIds', [...attributeIds, foodUnitAttribute.id])
     }));
-    const foodUnitParentAttribute = attributes.find(a => a.name['en-US'] === 'Food units');
-    const foodUnitAttribute = attributes.find(a => a.id === foodUnitAttributeId && a.parentId === foodUnitParentAttribute.id)
 
     const product = (await Product.query().findById(id)
     .withGraphFetched('[contributions.[contribution]]'));
@@ -54,10 +57,17 @@ app.get('/api/product', async (req, res) => {
     name,
     contributionList,
   } = req.query;
-  const foodUnitAttributeId = Number(req.query.foodUnitAttributeId);
   try {
     let products;
-    if (contributionList && foodUnitAttributeId) {
+    const attributes = await Attribute.query();
+    const attributeIds = req.query.attributeCodes?.split(',').map(code => (
+      attributes.find(attribute => attribute.code === code)?.id
+    )) || attributes.map(a => a.id);
+    const foodUnitParentAttribute = attributes.find(a => a.name['en-US'] === 'Food units');
+    const foodUnitAttribute = attributes.find(attribute => (
+      attribute.code === req.query.foodUnitAttributeCode && attribute.parentId === foodUnitParentAttribute.id
+    ));
+    if (contributionList && foodUnitAttribute) {
       const contentLanguage = req.headers['content-language'];
 
       const strippedCategories = await getStrippedChildCategories();
@@ -79,16 +89,11 @@ app.get('/api/product', async (req, res) => {
         category
       };
 
-      const attributes = await Attribute.query();
-      const attributeIds = req.query.attributeIds?.split(',').map(id => Number(id)) || attributes.map(a => a.id);
-
       const categories = (await Category.query()
       .withGraphFetched('[children, parent, contributions, attributes.[attribute]]')
       .modifiers({
-        filterByGivenAttributeIds: query => query.modify('filterByAttributeIds', [...attributeIds, foodUnitAttributeId])
+        filterByGivenAttributeIds: query => query.modify('filterByAttributeIds', [...attributeIds, foodUnitAttribute.id])
       }));
-      const foodUnitParentAttribute = attributes.find(a => a.name['en-US'] === 'Food units');
-      const foodUnitAttribute = attributes.find(a => a.id === foodUnitAttributeId && a.parentId === foodUnitParentAttribute.id)
 
       const {productAttributes, measure} = resolveProductAttributes(product, attributeIds, foodUnitAttribute, categories, attributes);
 
