@@ -162,6 +162,24 @@
             "in": "query",
             "type": "string",
             "description": "Part of product name for filtering"
+          },
+          {
+            "name": "contributionList",
+            "in": "query",
+            "type": "string",
+            "description": "Product contributions separated with comma"
+          },
+          {
+            "name": "attributeIds",
+            "in": "query",
+            "type": "string",
+            "description": "Attribute ids to aggregate for product"
+          },
+          {
+            "name": "foodUnitAttributeId",
+            "in": "query",
+            "type": "string",
+            "description": "Attribute id for food unit to use in attribute aggregation"
           }
         ],
         "description": "Returns list of products",
@@ -272,7 +290,7 @@
           },
           "contributionList": {
             "type": "string",
-            "description": "Product contribution category names separated with comma"
+            "description": "Product contributions separated with comma"
           },
           "measure": {
             "type": "number",
