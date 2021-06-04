@@ -50,50 +50,50 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
             6 = IGCLASSP ingredient class parent, text
             7 = FUCLASS food use class, text
             8 = FUCLASSP food use class parent, text*/
-    let food_rows = fs.readFileSync(fullPath+'/food.csv', encoding).split('\n'),
+    const foodRows = fs.readFileSync(fullPath+'/food.csv', encoding).split('\n');
     /* food use class in Finnish */
-        fuclass_rows = fs.readFileSync(fullPath+'/fuclass_FI.csv', encoding).split('\n'),
+    const fuclassRows = fs.readFileSync(fullPath+'/fuclass_FI.csv', encoding).split('\n');
     /* ingredient class */
-        igclass_rows = fs.readFileSync(fullPath+'/igclass_FI.csv', encoding).split('\n'),
+    const igclassRows = fs.readFileSync(fullPath+'/igclass_FI.csv', encoding).split('\n');
     /* in English */
-        fuclass_en_rows = fs.readFileSync(fullPath+'/fuclass_EN.csv', encoding).split('\n'),
-        igclass_en_rows = fs.readFileSync(fullPath+'/igclass_EN.csv', encoding).split('\n'),
+    const fuclassEnRows = fs.readFileSync(fullPath+'/fuclass_EN.csv', encoding).split('\n');
+    const igclassEnRows = fs.readFileSync(fullPath+'/igclass_EN.csv', encoding).split('\n');
     /* och samma på svenska */
-        fuclass_sv_rows = fs.readFileSync(fullPath+'/fuclass_SV.csv', encoding).split('\n'),
-        igclass_sv_rows = fs.readFileSync(fullPath+'/igclass_SV.csv', encoding).split('\n'),
+    const fuclassSvRows = fs.readFileSync(fullPath+'/fuclass_SV.csv', encoding).split('\n');
+    const igclassSvRows = fs.readFileSync(fullPath+'/igclass_SV.csv', encoding).split('\n');
     /* component value: 0 = FOODID food id, number
                         1 = EUFDNAME component id, number
                         2 = BESTLOC component value, number
                         3 = ACQTYPE acquisition type code, text
                         4 = METHTYPE method type code, text*/
-        component_value_rows = fs.readFileSync(fullPath+'/component_value.csv', encoding).split('\n'),
+    const componentValueRows = fs.readFileSync(fullPath+'/component_value.csv', encoding).split('\n');
     /* component: 0 = EUFDNAME component id, text
                   1 = COMPUNIT unit code, text
                   2 = CMPCLASS component group code, text
                   3 = CMPCLASSP component group parent code, text*/
-        component_rows = fs.readFileSync(fullPath+'/component.csv', encoding).split('\n'),
-    /* component group */
-        cmpclass_rows = fs.readFileSync(fullPath+'/cmpclass_FI.csv', encoding).split('\n'),
+    const componentRows = fs.readFileSync(fullPath+'/component.csv', encoding).split('\n');
+    /* component group: THSCODE;DESCRIPT;LANG */
+    const cmpclassRows = fs.readFileSync(fullPath+'/cmpclass_FI.csv', encoding).split('\n');
     /* component names */
-        eufdname_rows = fs.readFileSync(fullPath+'/eufdname_FI.csv', encoding).split('\n'),
-        cmpclass_en_rows = fs.readFileSync(fullPath+'/cmpclass_EN.csv', encoding).split('\n'),
-        eufdname_en_rows = fs.readFileSync(fullPath+'/eufdname_EN.csv', encoding).split('\n'),
-        cmpclass_sv_rows = fs.readFileSync(fullPath+'/cmpclass_SV.csv', encoding).split('\n'),
-        eufdname_sv_rows = fs.readFileSync(fullPath+'/eufdname_SV.csv', encoding).split('\n'),
+    const eufdnameRows = fs.readFileSync(fullPath+'/eufdname_FI.csv', encoding).split('\n');
+    const cmpclassEnRows = fs.readFileSync(fullPath+'/cmpclass_EN.csv', encoding).split('\n');
+    const eufdnameEnRows = fs.readFileSync(fullPath+'/eufdname_EN.csv', encoding).split('\n');
+    const cmpclassSvRows = fs.readFileSync(fullPath+'/cmpclass_SV.csv', encoding).split('\n');
+    const eufdnameSvRows = fs.readFileSync(fullPath+'/eufdname_SV.csv', encoding).split('\n');
     /* food names */
-        foodname_fi_rows = fs.readFileSync(fullPath+'/foodname_FI.csv', encoding).split('\n'),
-        foodname_en_rows = fs.readFileSync(fullPath+'/foodname_EN.csv', encoding).split('\n'),
-        foodname_sv_rows = fs.readFileSync(fullPath+'/foodname_SV.csv', encoding).split('\n'),
+    const foodnameFiRows = fs.readFileSync(fullPath+'/foodname_FI.csv', encoding).split('\n');
+    const foodnameEnRows = fs.readFileSync(fullPath+'/foodname_EN.csv', encoding).split('\n');
+    const foodnameSvRows = fs.readFileSync(fullPath+'/foodname_SV.csv', encoding).split('\n');
     /* food units: FOODID;FOODUNIT;MASS */
-        foodaddunitCsv = fs.readFileSync(`${fullPath}/foodaddunit.csv`, encoding),
-        foodaddunitRecords = getEntitiesFromCsv(foodaddunitCsv, {delimiter: ';'}),
+    const foodaddunitCsv = fs.readFileSync(`${fullPath}/foodaddunit.csv`, encoding);
+    const foodaddunitRecords = getEntitiesFromCsv(foodaddunitCsv, {delimiter: ';'});
     /* THSCODE;DESCRIPT;LANG */
-        foodunitEnCsv = fs.readFileSync(`${fullPath}/foodunit_EN.csv`, encoding),
-        foodunitEnRecords = getEntitiesFromCsv(foodunitEnCsv, {delimiter: ';'}),
-        foodunitFiCsv = fs.readFileSync(`${fullPath}/foodunit_FI.csv`, encoding),
-        foodunitFiRecords = getEntitiesFromCsv(foodunitFiCsv, {delimiter: ';'}),
-        foodunitSvCsv = fs.readFileSync(`${fullPath}/foodunit_SV.csv`, encoding),
-        foodunitSvRecords = getEntitiesFromCsv(foodunitSvCsv, {delimiter: ';'}),
+    const foodunitEnCsv = fs.readFileSync(`${fullPath}/foodunit_EN.csv`, encoding);
+    const foodunitEnRecords = getEntitiesFromCsv(foodunitEnCsv, {delimiter: ';'});
+    const foodunitFiCsv = fs.readFileSync(`${fullPath}/foodunit_FI.csv`, encoding);
+    const foodunitFiRecords = getEntitiesFromCsv(foodunitFiCsv, {delimiter: ';'});
+    const foodunitSvCsv = fs.readFileSync(`${fullPath}/foodunit_SV.csv`, encoding);
+    const foodunitSvRecords = getEntitiesFromCsv(foodunitSvCsv, {delimiter: ';'});
     /* recipe foods
         0 = FOODID food id, number
         1 = CONFDID recipe row food id, number
@@ -102,41 +102,41 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
         4 = MASS mass, number
         5 = EVREMAIN remained after evaporation, percentage
         6 = RECYEAR recipe year, text*/
-        contribfood_rows = fs.readFileSync(fullPath+'/contribfood.csv', encoding).split('\n'),
-        parent_ref, parent_name, second_parent_name, second_parent_ref, third_parent_ref,
-        attr_ref,
-        attr_refs = {},
-        parent_attr_refs = {},
-        second_parent_attr_refs = {},
+    const contribfoodRows = fs.readFileSync(fullPath+'/contribfood.csv', encoding).split('\n');
+    let parentRef, parentName, secondParentName, secondParentRef, thirdParentRef,
+        attrRef,
+        attrRefs = {},
+        parentAttrRefs = {},
+        secondParentAttrRefs = {},
         fuclass = {},
         igclass = {},
         component = {},
         cmpclass = {},
         eufdname = {},
         foodname = {},
-        attribute_count = 0,
+        attributeCount = 0,
         value,
         attribute,
         food_row,
         row, n,
-        id, ref_id,
+        id, refId,
         parent,
-        attribute_index = 1,
+        attributeIndex = 1,
         refs = {
           '#food': true,
           '#ingredients': true,
           '#recipes': true
         },
         categories = {},
-        category_values = [],
+        categoryValues = [],
         attributes = {},
-        attribute_values = [],
-        contribution_values = [],
+        attributeValues = [],
+        contributionValues = [],
         sources,
-        source_ref,
-        source_refs = {},
+        sourceRef,
+        sourceRefs = {},
         source,
-        base_sources = [
+        baseSources = [
           {
             '#id': 'sfineli',
             name: 'Fineli',
@@ -144,7 +144,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
             publication_date: '2018'
           }
         ],
-        base_categories = [
+        baseCategories = [
           {
             '#id': 'c4food',
             name: {
@@ -179,6 +179,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       
     const baseAttributes = [
       {
+        enum: 'FOODUNITS',
         name: {
           'fi-FI': 'Elintarvikkeiden yksiköt',
           'en-US': 'Food units',
@@ -189,70 +190,70 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
 
     console.log('meta '+moment().format());
 
-    base_sources = await Source.query()
-    .insertGraph(base_sources, {allowRefs: true});
+    baseSources = await Source.query()
+    .insertGraph(baseSources, {allowRefs: true});
 
-    base_categories = await Category.query()
-    .insertGraph(base_categories, {allowRefs: true});
+    baseCategories = await Category.query()
+    .insertGraph(baseCategories, {allowRefs: true});
 
     const baseAttributesWithId = await Attribute.query().insertGraph(baseAttributes);
 
-    for (let i in foodname_fi_rows) {
+    for (let i in foodnameFiRows) {
       value = {};
-      row = foodname_fi_rows[i].trim().split(';');
+      row = foodnameFiRows[i].trim().split(';');
       value['fi-FI'] = convertFirstLetterCapital(row[1]);
-      row = foodname_en_rows[i].trim().split(';');
+      row = foodnameEnRows[i].trim().split(';');
       value['en-US'] = convertFirstLetterCapital(row[1]);
-      row = foodname_sv_rows[i].trim().split(';');
+      row = foodnameSvRows[i].trim().split(';');
       value['sv-SV'] = convertFirstLetterCapital(row[1]);
       foodname[row[0]] = value;
     }
 
-    for (let i in fuclass_rows) {
+    for (let i in fuclassRows) {
       value = {};
-      row = fuclass_rows[i].trim().split(';');
+      row = fuclassRows[i].trim().split(';');
       value['fi-FI'] = convertFirstLetterCapital(row[1]);
-      row = fuclass_en_rows[i].trim().split(';');
+      row = fuclassEnRows[i].trim().split(';');
       value['en-US'] = convertFirstLetterCapital(row[1]);
-      row = fuclass_sv_rows[i].trim().split(';');
+      row = fuclassSvRows[i].trim().split(';');
       value['sv-SV'] = convertFirstLetterCapital(row[1]);
       fuclass[`fuclass-${row[0]}`] = value;
     }
 
-    for (let i in igclass_rows) {
+    for (let i in igclassRows) {
       value = {};
-      row = igclass_rows[i].trim().split(';');
+      row = igclassRows[i].trim().split(';');
       value['fi-FI'] = convertFirstLetterCapital(row[1]);
-      row = igclass_en_rows[i].trim().split(';');
+      row = igclassEnRows[i].trim().split(';');
       value['en-US'] = convertFirstLetterCapital(row[1]);
-      row = igclass_sv_rows[i].trim().split(';');
+      row = igclassSvRows[i].trim().split(';');
       value['sv-SV'] = convertFirstLetterCapital(row[1]);
       igclass[`igclass-${row[0]}`] = value;
     }
 
-    for (let i in component_rows) {
-      row = component_rows[i].trim().split(';');
+    for (let i in componentRows) {
+      row = componentRows[i].trim().split(';');
       component[row[0]] = row;
     }
 
-    for (let i in cmpclass_rows) {
+    for (let i in cmpclassRows) {
       value = {};
-      row = cmpclass_rows[i].trim().split(';');
+      row = cmpclassRows[i].trim().split(';');
       value['fi-FI'] = convertFirstLetterCapital(row[1]);
-      row = cmpclass_en_rows[i].trim().split(';');
+      row = cmpclassEnRows[i].trim().split(';');
       value['en-US'] = convertFirstLetterCapital(row[1]);
-      row = cmpclass_sv_rows[i].trim().split(';');
+      row = cmpclassSvRows[i].trim().split(';');
       value['sv-SV'] = convertFirstLetterCapital(row[1]);
       cmpclass[row[0]] = value;
     }
 
-    for (let i in eufdname_rows) {
+    for (let i in eufdnameRows) {
       value = {};
-      row = eufdname_rows[i].trim().split(';');
+      row = eufdnameRows[i].trim().split(';');
       value['fi-FI'] = convertFirstLetterCapital(row[1]);
-      row = eufdname_en_rows[i].trim().split(';');
+      row = eufdnameEnRows[i].trim().split(';');
       value['en-US'] = convertFirstLetterCapital(row[1]);
-      row = eufdname_sv_rows[i].trim().split(';');
+      row = eufdnameSvRows[i].trim().split(';');
       value['sv-SV'] = convertFirstLetterCapital(row[1]);
       eufdname[row[0]] = value;
     }
@@ -260,8 +261,8 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
     console.log('food '+moment().format());
 
     // go through food
-    for (let i = 1; i < food_rows.length; i++) {
-      food_row = food_rows[i].trim().split(';');
+    for (let i = 1; i < foodRows.length; i++) {
+      food_row = foodRows[i].trim().split(';');
 
       if (!food_row[0] || food_row[0] == 'FOODID') {
         continue;
@@ -269,48 +270,48 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
 
       // is a dish
       if (food_row[6] == 'NONINGR') {
-        parent_ref = `fuclass-${food_row[7]}`;
-        parent_name = fuclass[parent_ref];
-        second_parent_ref = `fuclass-${food_row[8]}`;
-        second_parent_name = fuclass[second_parent_ref];
-        third_parent_ref = base_categories[2].id; // dish
+        parentRef = `fuclass-${food_row[7]}`;
+        parentName = fuclass[parentRef];
+        secondParentRef = `fuclass-${food_row[8]}`;
+        secondParentName = fuclass[secondParentRef];
+        thirdParentRef = baseCategories[2].id; // dish
       }
       // is an ingredient
       else {
-        parent_ref = `igclass-${food_row[5]}`;
-        parent_name = igclass[parent_ref];
-        second_parent_ref = `igclass-${food_row[6]}`;
-        second_parent_name = igclass[second_parent_ref];
-        third_parent_ref = base_categories[1].id; // ingredient
+        parentRef = `igclass-${food_row[5]}`;
+        parentName = igclass[parentRef];
+        secondParentRef = `igclass-${food_row[6]}`;
+        secondParentName = igclass[secondParentRef];
+        thirdParentRef = baseCategories[1].id; // ingredient
       }
 
       // if parent exists refer to that
-      if (parent_ref in refs) {
+      if (parentRef in refs) {
         parent = {
-          '#ref': 'c1'+parent_ref
+          '#ref': 'c1'+parentRef
         };
       }
       // else create a new reference
       else {
-        refs[parent_ref] = true;
+        refs[parentRef] = true;
         parent = {
-          '#id': 'c1'+parent_ref,
-          name: parent_name
+          '#id': 'c1'+parentRef,
+          name: parentName
         };
         // if grandparent exists refer to that
-        if (second_parent_ref in refs) {
+        if (secondParentRef in refs) {
           parent.parent = {
-            '#ref': 'c2'+second_parent_ref
+            '#ref': 'c2'+secondParentRef
           }
         }
         // else create a new reference
         else {
-          refs[second_parent_ref] = true;
+          refs[secondParentRef] = true;
           parent.parent = {
-            '#id': 'c2'+second_parent_ref,
-            name: second_parent_name,
+            '#id': 'c2'+secondParentRef,
+            name: secondParentName,
             parent: {
-              'id': third_parent_ref,
+              'id': thirdParentRef,
             }
           }
         }
@@ -328,14 +329,14 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
 
     // create an array from categories
     for (let i in categories) {
-      category_values.push(categories[i]);
+      categoryValues.push(categories[i]);
     }
 
     //console.dir(category_values, {depth: null, maxArrayLength: null});
 
     // add to database
     const category = await Category.query()
-    .upsertGraph(category_values, {relate: true, allowRefs: true});
+    .upsertGraph(categoryValues, {relate: true, allowRefs: true});
         
     console.log('written '+moment().format());
 
@@ -345,20 +346,20 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
     }
 
     // go through contributions
-    for (let i in contribfood_rows) {
-      row = contribfood_rows[i].split(';');
+    for (let i in contribfoodRows) {
+      row = contribfoodRows[i].split(';');
 
       if (!row[0] || row[0] == 'FOODID' || !row[2]) {
         continue;
       }
 
       id = categories[row[0]].id;
-      ref_id = categories[row[1]].id;
+      refId = categories[row[1]].id;
 
       await CategoryContribution.query()
         .insert({
           categoryId: id,
-          contributionId: ref_id,
+          contributionId: refId,
           amount: parseFloat(row[2].replace(',', '.')),
           unit: row[3].toLowerCase()
         })
@@ -371,8 +372,8 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
     console.log("contributions "+moment().format());
 
     // go through attributes
-    for (let n = attribute_index; n < component_value_rows.length; n++) {
-      row = component_value_rows[n].split(';');
+    for (let n = attributeIndex; n < componentValueRows.length; n++) {
+      row = componentValueRows[n].split(';');
 
       if (!row[0] || row[0] == 'FOODID')
         continue;
@@ -391,42 +392,45 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
           attributes: []
         };
 
-      attr_ref = row[1];
+      attrRef = row[1];
 
       // check references
-      if (attr_ref in attr_refs) {
+      if (attrRef in attrRefs) {
         attribute = {
-          id: attr_refs[attr_ref]
+          id: attrRefs[attrRef]
         }
       }
       else {
         attribute = {
-          name: eufdname[attr_ref]
+          enum: attrRef,
+          name: eufdname[attrRef]
         }
 
-        parent_ref = component[row[1]][2];
+        parentRef = component[row[1]][2];
 
         // check parent references
-        if (parent_ref in parent_attr_refs) {
+        if (parentRef in parentAttrRefs) {
           attribute.parent = {
-            id: parent_attr_refs[parent_ref]
+            id: parentAttrRefs[parentRef]
           }
         }
         else {
           attribute.parent = {
-            name: cmpclass[parent_ref]
+            enum: parentRef,
+            name: cmpclass[parentRef]
           }
 
-          second_parent_ref = component[row[1]][3];
+          secondParentRef = component[row[1]][3];
 
-          if (second_parent_ref in second_parent_attr_refs) {
+          if (secondParentRef in secondParentAttrRefs) {
             attribute.parent.parent = {
-              id: second_parent_attr_refs[second_parent_ref]
+              id: secondParentAttrRefs[secondParentRef]
             }
           }
           else {
             attribute.parent.parent = {
-              name: cmpclass[second_parent_ref]
+              enum: secondParentRef,
+              name: cmpclass[secondParentRef]
             }
           }
         }
@@ -436,12 +440,12 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
           .upsertGraph(attribute, {relate: true})
           .then(result => {
             // set database id as reference
-            if (!(attr_ref in attr_refs))
-              attr_refs[attr_ref] = result.id;
-            if (!(parent_ref in parent_attr_refs))
-              parent_attr_refs[parent_ref] = result.parent.id;
-            if (!(second_parent_ref in second_parent_attr_refs))
-              second_parent_attr_refs[second_parent_ref] = result.parent.parent.id;
+            if (!(attrRef in attrRefs))
+              attrRefs[attrRef] = result.id;
+            if (!(parentRef in parentAttrRefs))
+              parentAttrRefs[parentRef] = result.parent.id;
+            if (!(secondParentRef in secondParentAttrRefs))
+              secondParentAttrRefs[secondParentRef] = result.parent.parent.id;
 
             attribute = {id: result.id};
           })
@@ -454,12 +458,12 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       // set attribute value and source
       if (row[2] != "") {
         const value = parseFloat(row[2].replace(',', '.'));
-        const unit = `${component[attr_ref][1].toLowerCase()}/hg`;
+        const unit = `${component[attrRef][1].toLowerCase()}/hg`;
         const sources = [
           {
             reference_url: `https://fineli.fi/fineli/en/elintarvikkeet/${row[0]}`,
             source: {
-              id: base_sources[0].id
+              id: baseSources[0].id
             }
           }
         ];
@@ -471,20 +475,20 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
         });
       }
 
-      attribute_count++;
+      attributeCount++;
     }
 
     // put attributes to array
     for (let i in attributes) {
-      attribute_values.push(attributes[i]);
+      attributeValues.push(attributes[i]);
 
       await Category.query()
       .upsertGraph(attributes[i], {relate: true});
 
-      attribute_values = [];
+      attributeValues = [];
     }
     
-    console.log('attributes '+attribute_count+'/'+attribute_count+' '+moment().format());
+    console.log('attributes '+attributeCount+'/'+attributeCount+' '+moment().format());
 
     const foodUnits = {};
     for (const index in foodunitEnRecords) {
@@ -492,6 +496,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       const fiName = foodunitFiRecords[index];
       const svName = foodunitSvRecords[index];
       const foodUnit = {
+        enum: enName.THSCODE,
         name: {
           'en-US': enName.DESCRIPT,
           'fi-FI': fiName.DESCRIPT,
@@ -508,7 +513,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
         {
           reference_url: `https://fineli.fi/fineli/en/elintarvikkeet/${row[0]}`,
           source: {
-            id: base_sources[0].id
+            id: baseSources[0].id
           }
         }
       ];

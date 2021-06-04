@@ -31,6 +31,7 @@ export default class Attribute extends Model {
 			type: 'object',
 			
 			properties: {
+				enum: {type: 'string'},
 				name: {type: 'object'}
 			}
 		}
