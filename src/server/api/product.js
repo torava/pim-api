@@ -85,45 +85,45 @@ app.get('/api/product', async (req, res) => {
       .skipUndefined()
     );
     let product = products.results?.[0];
-    if (foodUnitAttribute) {
-      const contentLanguage = req.headers['content-language'];
 
-      const strippedCategories = await getStrippedChildCategories();
-      
-      let category,
-          contributions = [];
+    const contentLanguage = req.headers['content-language'];
 
-      console.log(contributionList);
-      contributions = getContributionsFromList(contributionList, contentLanguage, strippedCategories);
-      console.log(contributionList);
-      
-      product = {
-        name,
-        contributionList,
-        //measure,
-        //unit: 'kg',
-        //attributes: productAttributes,
-        contributions,
-        category,
-        ...product
-      };
+    const strippedCategories = await getStrippedChildCategories();
+    
+    let category,
+        contributions = [];
 
-      const categories = (await Category.query()
-      .withGraphFetched('[children, parent, contributions, attributes.[attribute]]')
-      .modifiers({
-        filterByGivenAttributeIds: query => query.modify('filterByAttributeIds', [...attributeIds, foodUnitAttribute.id])
-      }));
+    console.log(contributionList);
+    contributions = getContributionsFromList(contributionList, contentLanguage, strippedCategories);
+    console.log(contributionList);
+    
+    product = {
+      name,
+      contributionList,
+      //measure,
+      //unit: 'kg',
+      //attributes: productAttributes,
+      contributions,
+      category,
+      ...product
+    };
 
-      const {productAttributes, measure} = resolveProductAttributes(product, attributeIds, foodUnitAttribute, categories, attributes);
+    const categories = (await Category.query()
+    .withGraphFetched('[children, parent, contributions, attributes.[attribute]]')
+    .modifiers({
+      filterByGivenAttributeIds: query => query.modify('filterByAttributeIds', [...attributeIds, foodUnitAttribute.id])
+    }));
 
-      product = {
-        ...product,
-        measure: measure || product.measure,
-        unit: measure ? 'kg' : product.unit,
-        attributes: productAttributes || product.attributes
-      };
-      products = [product];
-    }
+    const {productAttributes, measure} = resolveProductAttributes(product, attributeIds, foodUnitAttribute, categories, attributes);
+
+    product = {
+      ...product,
+      measure: measure || product.measure,
+      unit: measure ? 'kg' : product.unit,
+      attributes: productAttributes || product.attributes
+    };
+    products = [product];
+    
     res.send(products);
   } catch (error) {
     console.error(error);
