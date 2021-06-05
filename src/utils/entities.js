@@ -60,6 +60,9 @@ export const convertMeasure = (measure, fromUnit, toUnit) => {
   if (fromUnit === 'l') {
     fromUnit = 'kg';
   }
+  if (toUnit === 'l') {
+    toUnit = 'kg';
+  }
   if (fromUnit && fromUnit.length > 1) {
     fromUnit = fromUnit.substring(0,1);
     fromUnit = fromUnit.toLowerCase();
