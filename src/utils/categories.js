@@ -262,7 +262,7 @@ export const getClosestCategory = (name, categories, acceptLocale) => {
 export const getContributionsFromList = (list, contentLanguage, categories = []) => {
   const tokens = list?.split(/,\s|\sja\s|\sand\s|\soch\s/gi);
   const contributions = [];
-  tokens.forEach(contributionToken => {
+  tokens?.forEach(contributionToken => {
     let [contribution, token] = getClosestCategory(contributionToken, categories, contentLanguage);
     if (contributionToken.split(' ').length > 2) {
       while (contribution && contributionToken) {

@@ -78,7 +78,14 @@ app.get('/api/product', async (req, res) => {
     const foodUnitAttribute = attributes.find(attribute => (
       attribute.code === req.query.foodUnitAttributeCode && attribute.parentId === foodUnitParentAttribute.id
     ));
-    if (contributionList && foodUnitAttribute) {
+    products = (
+      await Product.query()
+      .page(pageNumber, productsPerPage)
+      .where('name', 'ilike', name ? `%${name}%` : undefined)
+      .skipUndefined()
+    );
+    let product = products.results?.[0];
+    if (foodUnitAttribute) {
       const contentLanguage = req.headers['content-language'];
 
       const strippedCategories = await getStrippedChildCategories();
@@ -90,14 +97,15 @@ app.get('/api/product', async (req, res) => {
       contributions = getContributionsFromList(contributionList, contentLanguage, strippedCategories);
       console.log(contributionList);
       
-      let product = {
+      product = {
         name,
         contributionList,
         //measure,
         //unit: 'kg',
         //attributes: productAttributes,
         contributions,
-        category
+        category,
+        ...product
       };
 
       const categories = (await Category.query()
@@ -115,13 +123,6 @@ app.get('/api/product', async (req, res) => {
         attributes: productAttributes || product.attributes
       };
       products = [product];
-    } else {
-      products = (
-        await Product.query()
-        .page(pageNumber, productsPerPage)
-        .where('name', 'ilike', name ? `%${name}%` : undefined)
-        .skipUndefined()
-      );
     }
     res.send(products);
   } catch (error) {
