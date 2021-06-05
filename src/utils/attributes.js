@@ -17,10 +17,9 @@ export const getAttributeValues = (unit, measure, quantity = 1, price = undefine
       if (currentAttributeUnit) {
         rate = config.unitConversionRates[categoryAttribute.unit]?.[currentAttributeUnit] || 1;
       }
-
       if (perUnit === 'EUR' && !isNaN(price)) {
         value = rate*categoryAttribute.value;
-      } else if (perUnit && ['l', 'g'].includes(perUnit.substring(1))) {
+      } else if (perUnit && ['l', 'g'].includes(perUnit)) {
         value = rate*categoryAttribute?.value*convertMeasure(measure, unit, perUnit)*quantity;
       } else if (!unit) {
         value = rate*categoryAttribute?.value*quantity;
