@@ -1,3 +1,27 @@
+const factors = {
+  y: -24,
+  z: -21,
+  a: -16,
+  f: -15,
+  p: -12,
+  n: -9,
+  µ: -6,
+  m: -3,
+  c: -2,
+  d: -1,
+  '': 0,
+  da: 1,
+  h: 2,
+  k: 3,
+  M: 6,
+  G: 9,
+  T: 12,
+  P: 15,
+  E: 18,
+  Z: 21,
+  Y: 24
+};
+
 export const getRootEntity = (entities, parentId) => {
   if (!parentId) return;
 
@@ -33,35 +57,13 @@ export const getLeafIds = (entities, parentId, leafIds = []) => {
 };
 
 export const convertMeasure = (measure, fromUnit, toUnit) => {
-  const factors = {
-    y: -24,
-    z: -21,
-    a: -16,
-    f: -15,
-    p: -12,
-    n: -9,
-    µ: -6,
-    m: -3,
-    c: -2,
-    d: -1,
-    '': 0,
-    da: 1,
-    h: 2,
-    k: 3,
-    M: 6,
-    G: 9,
-    T: 12,
-    P: 15,
-    E: 18,
-    Z: 21,
-    Y: 24
-  }
+  let offset = 0;
   // assumes that 1 l = 1 kg
-  if (fromUnit === 'l') {
-    fromUnit = 'kg';
+  if (fromUnit.substring(fromUnit.length-1) === 'l') {
+    offset+= 3;
   }
-  if (toUnit === 'l') {
-    toUnit = 'kg';
+  if (toUnit.substring(toUnit.length-1) === 'l') {
+    offset-= 3;
   }
   if (fromUnit && fromUnit.length > 1) {
     fromUnit = fromUnit.substring(0,1);
@@ -77,7 +79,7 @@ export const convertMeasure = (measure, fromUnit, toUnit) => {
   else {
     toUnit = '';
   }
-  let conversion = factors[fromUnit]-factors[toUnit];
+  const conversion = factors[fromUnit]-factors[toUnit]+offset;
   return measure*Math.pow(10, conversion);
 }
 
@@ -94,17 +96,17 @@ export function getTranslation(name, locale, strict) {
   if (typeof name === 'string') {
     return name;
   } 
-  else if (name.hasOwnProperty(locale)) {
+  else if (name[locale]) {
     return name[locale];
   }
-  else if (!strict) {
+  else if (!strict) {
     return first(name);
   }
   else return '';
 }
 
 export function escapeRegExp(stringToGoIntoTheRegex) {
-  return stringToGoIntoTheRegex.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+  return stringToGoIntoTheRegex.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
 export function stringToSlug(str,  sep) {
