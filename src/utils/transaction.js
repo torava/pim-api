@@ -22,7 +22,7 @@ const getDetails = manufacturers => {
     kilogram: ['kg']
   };
   details.cooking = {
-    boiled: ['keitetty'],
+    boiled: ['boiled', 'keitetty'],
     battered: ['battered', 'leivitetty'],
     fried: ['paistettu'],
     grilled: ['grillattu'],
@@ -43,7 +43,7 @@ const getDetails = manufacturers => {
   };
   details.spicing = {
     salted: ['suolattu', 'suolaa'],
-    withoutsalt: ['suolaton'],
+    withoutsalt: ['without salt', 'suolaton'],
     withtomato: ['tomaattinen'],
     withchocolate: ['suklainen'],
     sugared: ['sokeroitu'],
