@@ -11,7 +11,7 @@ export const getProductCategoryMinMaxAttributes = (category, product, foodUnitAt
   if (portionAttribute) {
     measure = portionAttribute.value;
     unit = portionAttribute.unit;
-  } else if (product.measure) {
+  } else if (product?.measure) {
     measure = product.measure;
     unit = product.unit;
   } else {
@@ -98,15 +98,17 @@ export const resolveProductAttributes = (product, attributeIds, foodUnitAttribut
     }
   });
 
-  measure = product.contributions.reduce((total, productContribution) => {
-    const contribution = categories.find(category => category.id === productContribution.contributionId);
-    const portionAttribute = contribution.attributes.find(a => a.attribute.id === foodUnitAttribute.id);
-    return total+convertMeasure(portionAttribute?.value, portionAttribute?.unit, 'kg');
-  }, 0);
+  if (foodUnitAttribute) {   
+    measure = product.contributions.reduce((total, productContribution) => {
+      const contribution = categories.find(category => category.id === productContribution.contributionId);
+      const portionAttribute = contribution.attributes.find(a => a.attribute.id === foodUnitAttribute.id);
+      return total+convertMeasure(portionAttribute?.value, portionAttribute?.unit, 'kg');
+    }, 0);
 
-  if (category && foodUnitAttribute) {
-    const portionAttribute = category.attributes.find(a => a.attribute.id === foodUnitAttribute.id);
-    measure = convertMeasure(portionAttribute?.value, portionAttribute?.unit, 'kg');
+    if (category) {
+      const portionAttribute = category.attributes.find(a => a.attribute.id === foodUnitAttribute.id);
+      measure = convertMeasure(portionAttribute?.value, portionAttribute?.unit, 'kg');
+    }
   }
 
   return {productAttributes, measure};
