@@ -21,7 +21,7 @@ export const getAttributeValues = (unit, measure, quantity = 1, price = undefine
         value = rate*categoryAttribute.value;
       } else if (perUnit && perUnit.match(/l|g$/i)) {
         value = rate*categoryAttribute?.value*convertMeasure(measure, unit, perUnit)*quantity;
-      } else if (!unit) {
+      } else if (!unit || !perUnit) {
         value = rate*categoryAttribute?.value*quantity;
       }
       if (!isNaN(value)) {
