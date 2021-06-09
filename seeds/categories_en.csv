@@ -162,7 +162,7 @@ Diesel,Diesel,"[""Dieselöljy""]",Motor fuel,,,,,"2,68",,,3
 "Dipmix, Milk-Free",,,,,,,,,"0,7",Plant based groceries,2
 Discount,Alennus,,Commerce,,,,,,,,
 Disposable Dish,Kertakäyttöastiat,"[""Kertak.kattaustuott.""]",Kitchen,,,,,,,,
-Double Burger,,,,"3,4",,,,,,,50
+Double Burger,,"[""Kerroshampurilainen""]",,"3,4",,,,,,,50
 Duck,Ankka,,Birds,,"3,09",,,,,"Duck, median",1
 E10 fuel,,,Motor fuel,,,,,"2,21",,,16
 E10 fuel,E10 bensiini,,Motor fuel,,,,,"2,26",,With ethanol combustion,3
@@ -360,7 +360,7 @@ Phone screen protector,Puhelimen näytönsuoja,,Electronics,,,,,,,,
 "Pineapple, With Skin",,,,,"0,5",,,,,"Pineapples, median",1
 "Pineapple, without skin",,"[""Pineapple"", ""Ananas""]",,,"0,5",,,,,"Pineapples, median",1
 Pinto bean,Pintopapu,,Pulses vegetables,,"0,73",,,,,"Beans: pinto USA dried, median",1
-"Pizza Crust, Basic Pizza Dough",,,,,"2,5",,,,,"Pastry, including waste, secondary source",7
+"Pizza Crust, Basic Pizza Dough",,"[""Pizzas"", ""Pizzat""]",,,"2,5",,,,,"Pastry, including waste, secondary source",7
 "Pizza Crust, Basic Pizza Dough",,,,,,,,,"1,1",Animal based groceries,2
 "Pizza, Mozzarella And Tomato Pizza, Saarioinen",,,,,"4,4",,,,,Tesco Family Cheese and Tomato Pizza 512g,34
 "Pizza, pepperoni","Pizza, pepperoni",,Pizza,,"4,7",,,,,Tesco Family Pepperoni Pizza 487g,34
