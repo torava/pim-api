@@ -1,4 +1,4 @@
-const manufacturers = [
+const brands = [
   { name: 'Dan Sukker' },
   { name: 'Vitasia' },
   { name: 'PohjolanMeijeri' },
@@ -39,9 +39,10 @@ const manufacturers = [
   { name: 'Valio' },
   { name: 'God Morgon' },
   { name: 'Dentalux' },
-  { name: 'Kotipizza' }
+  { name: 'Kotipizza' },
+  { name: 'Hesburger' }
 ];
 
 exports.seed = knex => (
-  knex('Manufacturer').insert(manufacturers)
+  knex('Brand').insert(brands)
 );

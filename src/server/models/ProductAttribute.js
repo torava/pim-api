@@ -21,8 +21,10 @@ methane
 */
 
 import {Model} from 'objection';
+
 import Product from './Product';
 import Attribute from './Attribute';
+import ProductAttributeSource from './ProductAttributeSource';
 
 export default class ProductAttribute extends Model {
 	static get tableName() {
@@ -59,7 +61,15 @@ export default class ProductAttribute extends Model {
 					from: 'ProductAttribute.attributeId',
 					to: 'Attribute.id'
 				}
-			}
+			},
+			sources: {
+				relation: Model.HasManyRelation,
+				modelClass: ProductAttributeSource,
+				join: {
+					from: 'ProductAttribute.id',
+					to: 'ProductAttributeSource.attributeId'
+				}
+			},
     }
   }
 }

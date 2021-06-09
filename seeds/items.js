@@ -19,8 +19,11 @@ exports.seed = async knex => {
   const itemsCsv = fs.readFileSync(`${__dirname}/items.csv`, 'utf8');
   const items = getEntitiesFromCsv(itemsCsv);
 
+  const sourcesCsv = fs.readFileSync(`${__dirname}/sources.csv`, 'utf8');
+  const sources = getEntitiesFromCsv(sourcesCsv);
+
   try {
-    await getItemsFromCsv(items, products, parties, transactions);
+    await getItemsFromCsv(items, products, parties, transactions, sources);
   } catch (error) {
     console.error('error while adding CSV items', error);
   }

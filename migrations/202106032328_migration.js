@@ -33,13 +33,21 @@ exports.up = (knex) => (
     table.string('name').unique();
     table.json('aliases');
     table.string('factory_location');
-    table.string('manufacturer_location');
+    table.string('headquarters_location');
     table.integer('ownerId').unsigned().references('id').inTable('Manufacturer');
+  }))
+  .then(() => createTableIfNotExists(knex, 'Brand', table => {
+    table.increments('id').primary();
+    table.string('name').unique();
+    table.json('aliases');
+    table.string('factory_location');
+    table.string('headquarters_location');
+    table.integer('ownerId').unsigned().references('id').inTable('Brand');
   }))
   .then(() => createTableIfNotExists(knex, 'Category', table => {
     table.increments('id').primary();
     table.jsonb('name');
-    table.specificType('aliases', 'text ARRAY');
+    table.json('aliases');
     table.integer('parentId').unsigned().references('id').inTable('Category');
     table.unique(['name', 'parentId']);
   }))
@@ -47,12 +55,13 @@ exports.up = (knex) => (
     table.increments('id').primary();
     table.string('product_number');
     table.string('name');
+    table.json('aliases');
     table.string('contributionList');
-    table.specificType('aliases', 'text ARRAY');
     table.integer('quantity');
     table.float('measure');
     table.string('unit');
     table.integer('manufacturerId').unsigned().references('id').inTable('Manufacturer').onDelete('CASCADE');
+    table.integer('brandId').unsigned().references('id').inTable('Brand').onDelete('CASCADE');
     table.integer('categoryId').unsigned().references('id').inTable('Category').onDelete('CASCADE');
   }))
   .then(() => createTableIfNotExists(knex, 'Item', table => {
@@ -173,7 +182,7 @@ exports.up = (knex) => (
     table.string('country_code');
     table.string('publication_date');
     table.string('publication_url');
-    table.unique(['name', 'authors', 'publication_url']);
+    table.unique(['name', 'authors', 'publication_date', 'publication_url']);
   }))
   .then(() => createTableIfNotExists(knex, 'CategoryAttributeSource', table => {
     table.increments('id').primary();
@@ -194,6 +203,25 @@ exports.up = (knex) => (
       .inTable('Source');
     table.unique(['attributeId', 'sourceId']);
   }))
+  .then(() => createTableIfNotExists(knex, 'ProductAttributeSource', table => {
+    table.increments('id').primary();
+    table.string('reference_date');
+    table.string('reference_url');
+    table.string('note');
+    table.string('country_code');
+    table
+      .integer('attributeId')
+      .unsigned()
+      .references('id')
+      .inTable('ProductAttribute')
+      .onDelete('CASCADE');
+    table
+      .integer('sourceId')
+      .unsigned()
+      .references('id')
+      .inTable('Source');
+    table.unique(['attributeId', 'sourceId']);
+  }))
 );
 
 exports.down = knex => (
@@ -205,6 +233,7 @@ exports.down = knex => (
     .dropTableIfExists('Receipt')
     .dropTableIfExists('Product')
     .dropTableIfExists('Manufacturer')
+    .dropTableIfExists('Brand')
     .dropTableIfExists('Category')
     .dropTableIfExists('ProductAttribute')
     .dropTableIfExists('CategoryAttribute')
@@ -214,4 +243,5 @@ exports.down = knex => (
     .dropTableIfExists('Conversion')
     .dropTableIfExists('Source')
     .dropTableIfExists('CategoryAttributeSource')
+    .dropTableIfExists('ProductAttributeSource')
 );

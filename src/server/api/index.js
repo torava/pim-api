@@ -6,7 +6,7 @@ import item from './item';
 import category from './category';
 import attribute from './attribute';
 import source from './source';
-import manufacturer from './manufacturer';
+import brand from './brand';
 import party from './party';
 import group from './group';
 
@@ -17,7 +17,7 @@ export default api => {
   category(api);
   attribute(api);
   source(api);
-  manufacturer(api);
+  brand(api);
   party(api);
   group(api);
 }

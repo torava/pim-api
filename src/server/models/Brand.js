@@ -1,9 +1,9 @@
 import {Model} from 'objection';
 
-export default class Manufacturer extends Model {
+export default class Brand extends Model {
 
 	static get tableName() {
-		return 'Manufacturer';
+		return 'Brand';
 	}
 
 	static get jsonSchema() {
@@ -25,10 +25,10 @@ export default class Manufacturer extends Model {
 		return {
 			parent: {
 				relation: Model.BelongsToOneRelation,
-				modelClass: Manufacturer,
+				modelClass: Brand,
 				join: {
-					from: 'Manufacturer.ownerId',
-					to: 'Manufacturer.id'
+					from: 'Brand.ownerId',
+					to: 'Brand.id'
 				}
 			}
 		}

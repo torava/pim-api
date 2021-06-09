@@ -73,7 +73,7 @@ export default class CategoryAttribute extends Model {
 					from: 'CategoryAttribute.id',
 					to: 'CategoryAttributeSource.attributeId'
 				}
-			},
+			}
     }
   }
 }
