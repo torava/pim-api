@@ -51,6 +51,10 @@ const getDetails = manufacturers => {
     flavored: ['maustettu'],
     nonflavored: ['maustamaton', 'naturel']
   };
+  details.description = {
+    fresh: ['fresh', 'raikas'],
+    soft: ['soft', 'pehmeä']
+  };
   details.type = {
     natural: ['luomu'],
     bulk: ['irto'],
@@ -59,7 +63,7 @@ const getDetails = manufacturers => {
     nonfat: ['rasvaton'],
     lowfat: ['vähärasvainen'],
     foam: ['vaahtoutuva'],
-    sliced: ['paloiteltu', 'palat', 'pala'],
+    sliced: ['slice', 'sliced', 'paloiteltu', 'palat', 'pala', 'viipale', 'viipaloitu'],
     nonlactose: ['laktoositon'],
     thickened: ['puuroutuva'],
     parboiled: ['kiehautettu', 'parboiled'],
@@ -73,7 +77,7 @@ const getDetails = manufacturers => {
     canned: ['säilyke'],
     fairtrade: ['reilun kaupan'],
     vegan: ['vegaaninen', 'vegan'],
-    fresh: ['tuore'],
+    fresh: ['fresh', 'tuore'],
     
     sweetorange: ['sweet orange'],
 
@@ -119,7 +123,7 @@ export function getNameLocale(name, locale, strict) {
   else if (name.hasOwnProperty(locale)) {
     return name[locale];
   }
-  else if (!strict) {
+  else if (!strict) {
     return first(name);
   }
   else return '';
