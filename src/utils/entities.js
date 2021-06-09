@@ -59,10 +59,10 @@ export const getLeafIds = (entities, parentId, leafIds = []) => {
 export const convertMeasure = (measure, fromUnit, toUnit) => {
   let offset = 0;
   // assumes that 1 l = 1 kg
-  if (fromUnit.substring(fromUnit.length-1) === 'l') {
+  if (fromUnit?.substring(fromUnit?.length-1) === 'l') {
     offset+= 3;
   }
-  if (toUnit.substring(toUnit.length-1) === 'l') {
+  if (toUnit?.substring(toUnit?.length-1) === 'l') {
     offset-= 3;
   }
   if (fromUnit && fromUnit.length > 1) {

@@ -6,7 +6,7 @@ export const getProductCategoryMinMaxAttributes = (category, product, foodUnitAt
   let unit, measure, portionAttribute;
   
   if (foodUnitAttribute) {
-    portionAttribute = category.attributes.find(a => a.attribute.id === foodUnitAttribute.id);
+    portionAttribute = category.attributes.find(a => a.attributeId === foodUnitAttribute.id);
   }
   if (portionAttribute) {
     measure = portionAttribute.value;
@@ -106,7 +106,7 @@ export const resolveProductAttributes = (product, attributeIds, foodUnitAttribut
     }, 0);
 
     if (category) {
-      const portionAttribute = category.attributes.find(a => a.attribute.id === foodUnitAttribute.id);
+      const portionAttribute = category.attributes.find(a => a.attributeId === foodUnitAttribute.id);
       measure = convertMeasure(portionAttribute?.value, portionAttribute?.unit, 'kg');
     }
   }
