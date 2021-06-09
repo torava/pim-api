@@ -56,6 +56,8 @@ app.get('/api/product', async (req, res) => {
     pageNumber,
     productsPerPage,
     name,
+    quantity,
+    unit,
     contributionList,
   } = req.query;
   try {
@@ -93,19 +95,18 @@ app.get('/api/product', async (req, res) => {
     let category,
         contributions = [];
 
-    console.log(contributionList);
     contributions = getContributionsFromList(contributionList, contentLanguage, strippedCategories);
-    console.log(contributionList);
     
     product = {
       name,
       contributionList,
-      //measure,
-      //unit: 'kg',
       //attributes: productAttributes,
       contributions,
       category,
-      ...product
+      ...product,
+      measure: Number(req.query.measure) || product?.measure,
+      unit: unit || product?.unit,
+      quantity: Number(quantity) || 1,
     };
 
     const categories = (await Category.query()
@@ -115,6 +116,12 @@ app.get('/api/product', async (req, res) => {
     }));
 
     const {productAttributes, measure} = resolveProductAttributes(product, attributeIds, foodUnitAttribute, categories, attributes);
+    console.log('product', product);
+    console.log('attributeIds', attributeIds);
+    console.log('foodUnitAttribute', foodUnitAttribute);
+    console.log('productAttributes');
+    console.dir(productAttributes, {depth: null});
+    console.log('measure', measure);
 
     product = {
       ...product,

@@ -146,6 +146,11 @@
       "get": {
         "parameters": [
           {
+            "name": "Accept-Language",
+            "in": "header",
+            "type": "string"
+          },
+          {
             "name": "pageNumber",
             "in": "query",
             "type": "integer",
@@ -168,6 +173,24 @@
             "in": "query",
             "type": "string",
             "description": "Product contributions separated with comma"
+          },
+          {
+            "name": "quantity",
+            "in": "query",
+            "type": "number",
+            "description": "Product quantity"
+          },
+          {
+            "name": "measure",
+            "in": "query",
+            "type": "number",
+            "description": "Product measure such as weight or volume"
+          },
+          {
+            "name": "unit",
+            "in": "query",
+            "type": "string",
+            "description": "Unit of product measure such as kg or l"
           },
           {
             "name": "attributeCodes",
