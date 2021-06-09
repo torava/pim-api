@@ -238,7 +238,7 @@ export const getClosestCategory = (name, categories, acceptLocale) => {
           t[0].accuracy = (t[0].substring.length-t[0].distance)/name.length;
           if (t[0].distance < 1 && t[0].accuracy > 0.1 && t[0].accuracy >= (token ? token.accuracy : 0)) {
             token = t[0];
-            console.log(name, translation, t);
+            console.log('name', name, 'translation', translation, 'token', t);
           }
         });
 
