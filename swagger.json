@@ -148,7 +148,8 @@
           {
             "name": "Accept-Language",
             "in": "header",
-            "type": "string"
+            "type": "string",
+            "description": "Accept language header for filtering name translations"
           },
           {
             "name": "pageNumber",
