@@ -175,6 +175,18 @@
             "description": "Product contributions separated with comma"
           },
           {
+            "name": "brand",
+            "in": "query",
+            "type": "string",
+            "description": "Product brand"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "type": "string",
+            "description": "Product category"
+          },
+          {
             "name": "quantity",
             "in": "query",
             "type": "number",
