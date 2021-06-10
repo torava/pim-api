@@ -127,6 +127,8 @@ app.listen(port, (err) => {
   }
   return console.info(
     `
+      v${process.env.npm_package_version}
+
       Server running on http://localhost:${port} [${env}]
     `);
 });
