@@ -1,8 +1,9 @@
 import { getAttributeValues, getMaxAttributeValue, getMinAttributeValue } from "./attributes";
 import { getCategoriesWithAttributes } from "./categories";
 import { convertMeasure } from "./entities";
+import { LevenshteinDistance } from './levenshteinDistance';
 
-export const getProductCategoryMinMaxAttributes = (category, product, foodUnitAttribute, attributeId, categories = [], attributes = []) => {
+export const getProductCategoryMinMaxAttributes = (category, product, foodUnitAttribute, attributeId, categories = [], productAttributes = [], attributes = []) => {
   let unit, measure, portionAttribute;
   
   if (foodUnitAttribute) {
@@ -21,7 +22,10 @@ export const getProductCategoryMinMaxAttributes = (category, product, foodUnitAt
   let minAttributeValue, minCategoryAttribute, maxAttributeValue, maxCategoryAttribute;
   const result = getCategoriesWithAttributes(categories, category.id, Number(attributeId));
   const [, categoryAttributes] = result?.[0] || [undefined, undefined];
-  const attributeResult = getAttributeValues(unit, measure, 1, undefined, categoryAttributes, attributes);
+  let attributeResult = getAttributeValues(unit, measure, 1, undefined, productAttributes, attributes);
+  if (!attributeResult.length) {
+    attributeResult = getAttributeValues(unit, measure, 1, undefined, categoryAttributes, attributes);
+  }
   if (attributeResult.length) {
     [minAttributeValue, minCategoryAttribute] = getMinAttributeValue(attributeResult);
     [maxAttributeValue, maxCategoryAttribute] = getMaxAttributeValue(attributeResult);
@@ -32,7 +36,10 @@ export const getProductCategoryMinMaxAttributes = (category, product, foodUnitAt
     category.contributions.forEach(contributionContribution => {
       const result = getCategoriesWithAttributes(categories, contributionContribution.contributionId, Number(attributeId));
       const [, categoryAttributes] = result?.[0] || [undefined, undefined];
-      const attributeResult = getAttributeValues(unit, measure*contributionContribution.amount/totalAmount, 1, undefined, categoryAttributes, attributes);
+      let attributeResult = getAttributeValues(unit, measure*contributionContribution.amount/totalAmount, 1, undefined, productAttributes, attributes);
+      if (!attributeResult.length) {
+        attributeResult = getAttributeValues(unit, measure*contributionContribution.amount/totalAmount, 1, undefined, categoryAttributes, attributes);
+      }
       if (attributeResult.length) {
         [minAttributeValue, minCategoryAttribute] = getMinAttributeValue(attributeResult);
         [maxAttributeValue, maxCategoryAttribute] = getMaxAttributeValue(attributeResult);
@@ -50,11 +57,12 @@ export const resolveProductAttributes = (product, attributeIds, foodUnitAttribut
   attributeIds.forEach(attributeId => {
     let minValue = 0,
         maxValue = 0,
-        unit;
+        unit,
+        initialProductAttributes = product.attributes?.filter(a => a.attributeId === attributeId);
     
     product.contributions.forEach(productContribution => {
       const contribution = categories.find(category => category.id === productContribution.contributionId);
-      const result = getProductCategoryMinMaxAttributes(contribution, undefined, foodUnitAttribute, attributeId, categories, attributes);
+      const result = getProductCategoryMinMaxAttributes(contribution, undefined, foodUnitAttribute, attributeId, categories, initialProductAttributes, attributes);
       if (result?.minCategoryAttribute) {
         const {minAttributeValue, minCategoryAttribute, maxAttributeValue} = result;
         minValue+= minAttributeValue || 0;
@@ -66,7 +74,7 @@ export const resolveProductAttributes = (product, attributeIds, foodUnitAttribut
     });
 
     if (category) {
-      const result = getProductCategoryMinMaxAttributes(category, product, foodUnitAttribute, attributeId, categories, attributes);
+      const result = getProductCategoryMinMaxAttributes(category, product, foodUnitAttribute, attributeId, categories, initialProductAttributes, attributes);
       if (result?.minCategoryAttribute) {
         const {minCategoryAttribute} = result;
         minValue = result.minAttributeValue;
@@ -112,4 +120,41 @@ export const resolveProductAttributes = (product, attributeIds, foodUnitAttribut
   }
 
   return {productAttributes, measure};
+};
+
+export const getClosestProduct = (name, products) => {
+  if (!name) return [undefined, undefined];
+
+  let bestToken, bestProduct;
+
+  products.forEach((product) => {
+    const {aliases} = product;
+    const tokens = [];
+    tokens.push([LevenshteinDistance(product.name.toLowerCase(), name.toLowerCase(), {search: true}), product.name.toLowerCase()]);
+    aliases?.forEach(alias => {
+      tokens.push([LevenshteinDistance(alias.toLowerCase(), name.toLowerCase(), {search: true}), alias.toLowerCase()]);
+    });
+    //tokens.push([LevenshteinDistance(category.parent?.name[locale]?.toLowerCase() || '', strippedName.toLowerCase(), {search: true}), category.parent?.name[locale]?.toLowerCase() || '']);
+
+    let token;
+    tokens.forEach(t => {
+      t[0].accuracy = (t[0].substring.length-t[0].distance)/name.length;
+      if (t[0].distance < 1 && t[0].accuracy > 0.1 && t[0].accuracy >= (token ? token.accuracy : 0)) {
+        token = t[0];
+        console.log('name', name, 'product', product.name, 'token', t);
+      }
+    });
+
+    if (token?.accuracy > (bestToken ? bestToken.accuracy : 0)) {
+      bestProduct = product;
+      bestToken = token;
+    }
+  });
+  console.log(
+    'closest product for',
+    'name', name,
+    'category name', bestProduct?.name,
+    'token', bestToken
+  );
+  return bestToken?.substring.length ? [bestProduct, bestToken] : [undefined, undefined];
 };

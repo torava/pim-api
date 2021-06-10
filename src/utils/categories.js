@@ -250,7 +250,7 @@ export const getClosestCategory = (name, categories, acceptLocale) => {
     });
   });
   console.log(
-    'closest category for name',
+    'closest category',
     'name', name,
     'stripped name', strippedName,
     'category name', bestCategory?.name,

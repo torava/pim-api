@@ -4,7 +4,7 @@ import Product from '../models/Product';
 import { getClosestCategory, getContributionsFromList } from '../../utils/categories';
 import Attribute from '../models/Attribute';
 import Category from '../models/Category';
-import { resolveProductAttributes } from '../../utils/products';
+import { resolveProductAttributes, getClosestProduct } from '../../utils/products';
 import { getStrippedChildCategories } from '../utils/categories';
 import { getLeafIds } from '../../utils/entities';
 
@@ -53,8 +53,8 @@ app.get('/api/product/:id', cache(), async (req, res) => {
 
 app.get('/api/product', async (req, res) => {
   const {
-    pageNumber,
-    productsPerPage,
+    pageNumber = 0,
+    productsPerPage = 20,
     name,
     quantity,
     unit,
@@ -62,75 +62,82 @@ app.get('/api/product', async (req, res) => {
   } = req.query;
   try {
     let products;
-    const attributes = await Attribute.query();
-    let attributeIds = [];
-    req.query.attributeCodes?.split(',').forEach(code => {
-      const id = attributes.find(attribute => attribute.code === code)?.id;
-      if (id) {
-        let ids = [];
-        getLeafIds(attributes, id, ids);
-        if (ids.length) {
-          attributeIds = attributeIds.concat(ids);
-        } else {
-          attributeIds.push(id);
+    if (!name && !contributionList) {
+      products = (
+        await Product.query()
+        .page(pageNumber, productsPerPage)
+      );
+    } else {
+      const attributes = await Attribute.query();
+      let attributeIds = [];
+      req.query.attributeCodes?.split(',').forEach(code => {
+        const id = attributes.find(attribute => attribute.code === code)?.id;
+        if (id) {
+          let ids = [];
+          getLeafIds(attributes, id, ids);
+          if (ids.length) {
+            attributeIds = attributeIds.concat(ids);
+          } else {
+            attributeIds.push(id);
+          }
+        }
+      }) || attributes.map(a => a.id);
+      const foodUnitParentAttribute = attributes.find(a => a.name['en-US'] === 'Food units');
+      const foodUnitAttribute = attributes.find(attribute => (
+        attribute.code === req.query.foodUnitAttributeCode && attribute.parentId === foodUnitParentAttribute.id
+      ));
+
+      const productEntries = await Product.query().withGraphFetched('[attributes.[attribute]]');
+
+      let [product] = getClosestProduct(name, productEntries);
+
+      const strippedCategories = await getStrippedChildCategories();
+      const contentLanguage = req.headers['content-language'];
+
+      if (!product) {
+        let [category] = getClosestCategory(name, strippedCategories, contentLanguage);
+        if (category) {
+          product = {categoryId: category?.id};
         }
       }
-    }) || attributes.map(a => a.id);
-    const foodUnitParentAttribute = attributes.find(a => a.name['en-US'] === 'Food units');
-    const foodUnitAttribute = attributes.find(attribute => (
-      attribute.code === req.query.foodUnitAttributeCode && attribute.parentId === foodUnitParentAttribute.id
-    ));
-    products = (
-      await Product.query()
-      .page(pageNumber, productsPerPage)
-      .where('name', 'ilike', name ? `%${name}%` : undefined)
-      .skipUndefined()
-    );
-    let product = products.results?.[0];
+      
+      let contributions = [];
 
-    const contentLanguage = req.headers['content-language'];
+      contributions = getContributionsFromList(contributionList, contentLanguage, strippedCategories);
+      
+      product = {
+        name,
+        contributionList,
+        //attributes: productAttributes,
+        contributions,
+        ...product,
+        measure: Number(req.query.measure) || product?.measure,
+        unit: unit || product?.unit,
+        quantity: Number(quantity) || 1,
+      };
 
-    const strippedCategories = await getStrippedChildCategories();
-    
-    let category,
-        contributions = [];
+      const categories = (await Category.query()
+      .withGraphFetched('[children, parent, contributions, attributes.[attribute]]')
+      .modifiers({
+        filterByGivenAttributeIds: query => query.modify('filterByAttributeIds', [...attributeIds, foodUnitAttribute.id])
+      }));
 
-    contributions = getContributionsFromList(contributionList, contentLanguage, strippedCategories);
-    
-    product = {
-      name,
-      contributionList,
-      //attributes: productAttributes,
-      contributions,
-      category,
-      ...product,
-      measure: Number(req.query.measure) || product?.measure,
-      unit: unit || product?.unit,
-      quantity: Number(quantity) || 1,
-    };
+      const {productAttributes, measure} = resolveProductAttributes(product, attributeIds, foodUnitAttribute, categories, attributes);
+      console.log('product', product);
+      console.log('attributeIds', attributeIds);
+      console.log('foodUnitAttribute', foodUnitAttribute);
+      console.log('productAttributes');
+      console.dir(productAttributes, {depth: null});
+      console.log('measure', measure);
 
-    const categories = (await Category.query()
-    .withGraphFetched('[children, parent, contributions, attributes.[attribute]]')
-    .modifiers({
-      filterByGivenAttributeIds: query => query.modify('filterByAttributeIds', [...attributeIds, foodUnitAttribute.id])
-    }));
-
-    const {productAttributes, measure} = resolveProductAttributes(product, attributeIds, foodUnitAttribute, categories, attributes);
-    console.log('product', product);
-    console.log('attributeIds', attributeIds);
-    console.log('foodUnitAttribute', foodUnitAttribute);
-    console.log('productAttributes');
-    console.dir(productAttributes, {depth: null});
-    console.log('measure', measure);
-
-    product = {
-      ...product,
-      measure: measure || product.measure,
-      unit: measure ? 'kg' : product.unit,
-      attributes: productAttributes || product.attributes
-    };
-    products = [product];
-    
+      product = {
+        ...product,
+        measure: measure || product.measure,
+        unit: measure ? 'kg' : product.unit,
+        attributes: productAttributes || product.attributes
+      };
+      products = [product];
+    }
     res.send(products);
   } catch (error) {
     console.error(error);

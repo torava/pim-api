@@ -2,9 +2,9 @@ import { locale } from "../client/components/locale";
 import config from "../config/default";
 import { convertMeasure } from "./entities";
 
-export const getAttributeValues = (unit, measure, quantity = 1, price = undefined, categoryAttributes = [], attributes = []) => {
+export const getAttributeValues = (unit, measure, quantity = 1, price = undefined, attributeValues = [], attributes = []) => {
   const result = [];
-  for (const categoryAttribute of categoryAttributes) {
+  for (const categoryAttribute of attributeValues) {
     const foundAttributes = attributes.filter(a => a.id === categoryAttribute.attributeId);
     foundAttributes.forEach(attribute => {
       const perUnit = categoryAttribute?.unit?.split('/')?.[1];
