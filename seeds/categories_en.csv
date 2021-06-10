@@ -162,7 +162,7 @@ Diesel,Diesel,"[""Dieselöljy""]",Motor fuel,,,,,"2,68",,,3
 "Dipmix, Milk-Free",,,,,,,,,"0,7",Plant based groceries,2
 Discount,Alennus,,Commerce,,,,,,,,
 Disposable Dish,Kertakäyttöastiat,"[""Kertak.kattaustuott.""]",Kitchen,,,,,,,,
-Double Burger,,"[""Kerroshampurilainen""]",,"3,4",,,,,,,50
+Double Hamburger,,"[""Kerroshampurilainen""]",,"3,4",,,,,,,50
 Duck,Ankka,,Birds,,"3,09",,,,,"Duck, median",1
 E10 fuel,,,Motor fuel,,,,,"2,21",,,16
 E10 fuel,E10 bensiini,,Motor fuel,,,,,"2,26",,With ethanol combustion,3
@@ -234,7 +234,7 @@ Haddock,Kolja,,Fish,,"3,41",,,,,"Haddock, median",1
 Hair products,Hiustuotteet,"[""Hiuslenkki""]",Supplies,,,,,,"0,4",Personal items,2
 Hairdresser,Kampaamo,,Recreational services,,,,,,"0,2",,
 "Ham, Cooked, 2% Fat",,"[""Ham"", ""Ylikypsä kinkku""]",,,"5,77",,,,,Ham,1
-"Hamburger, Double Burger, Big Mac, Mcdonald'S",,,,"3,4",,,,,,,50
+"Hamburger, Double Burger, Big Mac, Mcdonald'S",,"[""Big Mac™""]",,"3,4",,,,,,,50
 "Hamburger, Double Burger, Hesburger",,,,0,,,,,,,50
 Headphones,Kuulokkeet,,Electronics,,,,,,,,
 Healthcare products,Terveydenhoitotuotteet,,Supplies,,,,,,"0,51","Kestokulutustavarat, terveydenhoitotuotteet keskiarvo",2
