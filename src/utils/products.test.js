@@ -28,14 +28,14 @@ it('should resolve product attributes by contributions with food unit attribute'
 });
 
 it('should get product category min max attributes', () => {
-  const result = getProductCategoryMinMaxAttributes(mockStrippedCategories[3], mockProducts[0], undefined, 1, mockStrippedCategories, mockAttributes);
+  const result = getProductCategoryMinMaxAttributes(mockStrippedCategories[3], mockProducts[0], undefined, 1, mockStrippedCategories, [], mockAttributes);
   const value = mockProducts[0].measure*mockStrippedCategories[3].attributes[1].value;
   expect(result.minAttributeValue).toEqual(value);
   expect(result.maxAttributeValue).toEqual(value);
 });
 
 it('should get product category min max attributes with food unit attribute', () => {
-  const result = getProductCategoryMinMaxAttributes(mockStrippedCategories[3], mockProducts[0], mockAttributes[2], 5, mockStrippedCategories, mockAttributes);
+  const result = getProductCategoryMinMaxAttributes(mockStrippedCategories[3], mockProducts[0], mockAttributes[2], 5, mockStrippedCategories, [], mockAttributes);
   const value = mockStrippedCategories[3].attributes[2].value/100*mockStrippedCategories[3].attributes[0].value;
   expect(result.minAttributeValue).toEqual(value);
   expect(result.maxAttributeValue).toEqual(value);
