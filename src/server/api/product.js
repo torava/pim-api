@@ -56,6 +56,8 @@ app.get('/api/product', async (req, res) => {
     pageNumber = 0,
     productsPerPage = 20,
     name,
+    brand,
+    category,
     quantity,
     unit,
     contributionList,
@@ -87,9 +89,16 @@ app.get('/api/product', async (req, res) => {
         attribute.code === req.query.foodUnitAttributeCode && attribute.parentId === foodUnitParentAttribute.id
       ));
 
-      const productEntries = await Product.query().withGraphFetched('[attributes.[attribute]]');
+      const productEntries = await Product.query().withGraphFetched('[attributes.[attribute], brand]');
 
-      let [product] = getClosestProduct(name, productEntries);
+      let product;
+      if (brand) {
+        const productEntriesWithBrand = productEntries.filter(p => p.brand?.name === brand);
+
+        [product] = getClosestProduct(name, productEntriesWithBrand);
+      } else {
+        [product] = getClosestProduct(name, productEntries);
+      }
 
       const strippedCategories = await getStrippedChildCategories();
       const contentLanguage = req.headers['content-language'];
@@ -103,7 +112,13 @@ app.get('/api/product', async (req, res) => {
       
       let contributions = [];
 
-      contributions = getContributionsFromList(contributionList, contentLanguage, strippedCategories);
+      let list = contributionList;
+
+      if (contributionList && category) {
+        list = `${category}, ${contributionList}`;
+      }
+
+      contributions = getContributionsFromList(list, contentLanguage, strippedCategories);
       
       product = {
         name,
@@ -123,12 +138,6 @@ app.get('/api/product', async (req, res) => {
       }));
 
       const {productAttributes, measure} = resolveProductAttributes(product, attributeIds, foodUnitAttribute, categories, attributes);
-      console.log('product', product);
-      console.log('attributeIds', attributeIds);
-      console.log('foodUnitAttribute', foodUnitAttribute);
-      console.log('productAttributes');
-      console.dir(productAttributes, {depth: null});
-      console.log('measure', measure);
 
       product = {
         ...product,
