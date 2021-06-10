@@ -139,7 +139,7 @@ export const getClosestProduct = (name, products) => {
     let token;
     tokens.forEach(t => {
       t[0].accuracy = (t[0].substring.length-t[0].distance)/name.length;
-      if (t[0].distance < 1 && t[0].accuracy > 0.1 && t[0].accuracy >= (token ? token.accuracy : 0)) {
+      if (t[0].distance <= 1 && t[0].accuracy > 0.1 && t[0].accuracy >= (token ? token.accuracy : 0)) {
         token = t[0];
         console.log('name', name, 'product', product.name, 'token', t);
       }

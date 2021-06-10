@@ -173,7 +173,7 @@
             "name": "contributionList",
             "in": "query",
             "type": "string",
-            "description": "Product contributions separated with comma"
+            "description": "Product contributions separated with commas"
           },
           {
             "name": "brand",
@@ -209,13 +209,13 @@
             "name": "attributeCodes",
             "in": "query",
             "type": "string",
-            "description": "Attribute codes to aggregate for product"
+            "description": "Attribute codes separated with commas to aggregate for product.\n\nFor example, GHG will return carbon footprint.\n\nENERC,FAT,FASAT,CHOAVL,SUGAR,FIBRC,PROT,NACL returns basic nutritional information."
           },
           {
             "name": "foodUnitAttributeCode",
             "in": "query",
             "type": "string",
-            "description": "Attribute code for food unit to use in attribute aggregation"
+            "description": "Attribute code for food unit to use in attribute aggregation.\n\nFor example, PORTS is small portion, PORTM is medium portion and PORTL is large portion."
           }
         ],
         "description": "Returns list of products",
