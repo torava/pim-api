@@ -234,7 +234,7 @@ Haddock,Kolja,,Fish,,"3,41",,,,,"Haddock, median",1
 Hair products,Hiustuotteet,"[""Hiuslenkki""]",Supplies,,,,,,"0,4",Personal items,2
 Hairdresser,Kampaamo,,Recreational services,,,,,,"0,2",,
 "Ham, Cooked, 2% Fat",,"[""Ham"", ""Ylikypsä kinkku""]",,,"5,77",,,,,Ham,1
-"Hamburger, Double Burger, Big Mac, Mcdonald'S",,"[""Big Mac™""]",,"3,4",,,,,,,50
+"Hamburger, Double Burger, Big Mac, Mcdonald'S",,"[""Big Mac™"", ""Big Mac""]",,"3,4",,,,,,,50
 "Hamburger, Double Burger, Hesburger",,,,0,,,,,,,50
 Headphones,Kuulokkeet,,Electronics,,,,,,,,
 Healthcare products,Terveydenhoitotuotteet,,Supplies,,,,,,"0,51","Kestokulutustavarat, terveydenhoitotuotteet keskiarvo",2
@@ -419,7 +419,7 @@ Rye,Ruis,,,,"0,38",,,,,"Rye, median",1
 Rye bread,"Leipä, ruis-",,,,"1,3",,,,,Ruisleipä,9
 "Rye Bread, Reissumies, Oululainen, Fazer",,"[""Reissumies""]",,,,,,,,,
 Salad dressings and mayonnaises,,,,,,,,,"1,1",Animal based groceries,2
-Salami,"Meetvursti tai salami, kevyt rasvaa, 22 %",,,,"2,88",,,,,Salami,1
+Salami,"Meetvursti tai salami, kevyt rasvaa, 22 %","[""Pepperoni"", ""Pepperoni sausage"", ""Pepperonimakkara""]",,,"2,88",,,,,Salami,1
 Salmon fillet,,,,,"3,47",,,,,"Salmon, median",1
 "Salmon, Farmed",,,,,"11,9",,,,,"Kirjolohi, kasvatettu",27
 "Salmon, Whole",,,,,"3,47",,,,,"Salmon, median",1
