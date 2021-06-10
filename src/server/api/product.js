@@ -55,13 +55,13 @@ app.get('/api/product', async (req, res) => {
   const {
     pageNumber = 0,
     productsPerPage = 20,
-    name,
     brand,
     category,
     quantity,
     unit,
-    contributionList,
   } = req.query;
+  const name = req.query.name?.trim();
+  const contributionList = req.query.contributionList?.trim();
   try {
     let products;
     if (!name && !contributionList) {
@@ -103,7 +103,7 @@ app.get('/api/product', async (req, res) => {
       const strippedCategories = await getStrippedChildCategories();
       const contentLanguage = req.headers['content-language'];
 
-      if (!product) {
+      if (!product && !contributionList) {
         let [category] = getClosestCategory(name, strippedCategories, contentLanguage);
         if (category) {
           product = {categoryId: category?.id};
@@ -140,7 +140,9 @@ app.get('/api/product', async (req, res) => {
       const {productAttributes, measure} = resolveProductAttributes(product, attributeIds, foodUnitAttribute, categories, attributes);
 
       product = {
-        ...product,
+        name: product.name,
+        contributionList: product.contributionList,
+        //contributions: product.contributions,
         measure: measure || product.measure,
         unit: measure ? 'kg' : product.unit,
         attributes: productAttributes || product.attributes
