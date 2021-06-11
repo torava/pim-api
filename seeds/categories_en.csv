@@ -30,8 +30,11 @@ Bay leaf,Laakerinlehti,,Spices,,,,,,,,
 Beef,Nauta,,,,15,,,,,"Beef, raw",4
 Beef,Nauta,,,,"26,61",,,,,"Beef: world average, median",1
 "Beef Steak, Grilled",,,,,15,,,,,"Beef, raw",4
+"Beef Steak, Grilled",,,,,"26,61",,,,,"Beef: world average, median",1
 "Beef, Cured, 2.8% Fat",,"[""Paahtopaisti""]",,,15,,,,,"Beef, raw",4
-"Beef Steak, Fried",,"[""Beef""]",,,,,,,,,
+"Beef, Cured, 2.8% Fat",,"[""Paahtopaisti""]",,,"26,61",,,,,"Beef: world average, median",1
+"Beef Steak, Fried",,"[""Beef""]",,,"26,61",,,,,"Beef: world average, median",1
+"Beef Steak, Fried",,,,,15,,,,,"Beef, raw",4
 "Beer, Alcohol-Free, 0.0% Volume",,"[""Pils alkoholiton"", ""Crisp IPA""]",,,,,,"0,54",,"Beer, cradle-to-grave",5
 "Beer, Lager, Medium Strength, 4.5% Volume",,"[""Beer"", ""Olut"", ""Lager"", ""Pils""]",,,,,,,,,
 "Beer, Lager, Strong, 5-5.5% Volume",,"[""NEIPA""]",,,,,,,,,
