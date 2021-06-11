@@ -103,23 +103,25 @@ app.get('/api/product', async (req, res) => {
       const strippedCategories = await getStrippedChildCategories();
       const contentLanguage = req.headers['content-language'];
 
-      if (!product && !contributionList) {
+      let contributions = [];
+
+      if (!product) {
         let [category] = getClosestCategory(name, strippedCategories, contentLanguage);
         if (category) {
           product = {categoryId: category?.id};
         }
       }
       
-      let contributions = [];
+      if (!product?.categoryId) {
+        let list = contributionList;
 
-      let list = contributionList;
+        if (contributionList && category) {
+          list = `${category}, ${contributionList}`;
+        }
 
-      if (contributionList && category) {
-        list = `${category}, ${contributionList}`;
+        contributions = getContributionsFromList(list, contentLanguage, strippedCategories);
       }
-
-      contributions = getContributionsFromList(list, contentLanguage, strippedCategories);
-      
+        
       product = {
         name,
         contributionList,
@@ -143,6 +145,7 @@ app.get('/api/product', async (req, res) => {
         name: product.name,
         contributionList: product.contributionList,
         //contributions: product.contributions,
+        categoryId: product.categoryId,
         measure: measure || product.measure,
         unit: measure ? 'kg' : product.unit,
         attributes: productAttributes || product.attributes
