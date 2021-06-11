@@ -2,6 +2,7 @@ import { getAttributeValues, getMaxAttributeValue, getMinAttributeValue } from "
 import { getCategoriesWithAttributes } from "./categories";
 import { convertMeasure } from "./entities";
 import { LevenshteinDistance } from './levenshteinDistance';
+import { stripDetails } from "./transaction";
 
 export const getProductCategoryMinMaxAttributes = (category, product, foodUnitAttribute, attributeId, categories = [], productAttributes = [], attributes = []) => {
   let unit, measure, portionAttribute;
@@ -125,21 +126,25 @@ export const resolveProductAttributes = (product, attributeIds, foodUnitAttribut
 export const getClosestProduct = (name, products) => {
   if (!name) return [undefined, undefined];
 
+  const strippedName = stripDetails(name);
+
   let bestToken, bestProduct;
 
   products.forEach((product) => {
     const {aliases} = product;
     const tokens = [];
     tokens.push([LevenshteinDistance(product.name.toLowerCase(), name.toLowerCase(), {search: true}), product.name.toLowerCase()]);
+    tokens.push([LevenshteinDistance(product.name.toLowerCase(), strippedName.toLowerCase(), {search: true}), product.name.toLowerCase()]);
     aliases?.forEach(alias => {
       tokens.push([LevenshteinDistance(alias.toLowerCase(), name.toLowerCase(), {search: true}), alias.toLowerCase()]);
+      tokens.push([LevenshteinDistance(alias.toLowerCase(), strippedName.toLowerCase(), {search: true}), alias.toLowerCase()]);
     });
     //tokens.push([LevenshteinDistance(category.parent?.name[locale]?.toLowerCase() || '', strippedName.toLowerCase(), {search: true}), category.parent?.name[locale]?.toLowerCase() || '']);
 
     let token;
     tokens.forEach(t => {
       t[0].accuracy = (t[0].substring.length-t[0].distance)/name.length;
-      if (t[0].distance <= 1 && t[0].accuracy > 0.1 && t[0].accuracy >= (token ? token.accuracy : 0)) {
+      if (t[0].distance < 1 && t[0].accuracy > 0.1 && t[0].accuracy >= (token ? token.accuracy : 0)) {
         token = t[0];
         console.log('name', name, 'product', product.name, 'token', t);
       }
