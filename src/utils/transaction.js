@@ -12,6 +12,9 @@ const getDetails = manufacturers => {
     details.manufacturers[manufacturer.name] = [manufacturer.name, ...manufacturer.aliases || []];
   });
 
+  details.extra = {
+    trademark: ['™']
+  };
   details.weighting = {
     weighed: ['punnittu'],
     stone: ['kivineen'],
@@ -20,6 +23,11 @@ const getDetails = manufacturers => {
     peeled: ['kuorittu'],
     average: ['tuotekeskiarvo', 'keskiarvo'],
     kilogram: ['kg']
+  };
+  details.size = {
+    PORTS: ['small', 'pieni', 'pienet'],
+    PORTM: ['medium', 'keskikokoinen'],
+    PORTL: ['large', 'big', 'iso', 'isot']
   };
   details.cooking = {
     boiled: ['boiled', 'keitetty'],
@@ -78,6 +86,7 @@ const getDetails = manufacturers => {
     fairtrade: ['reilun kaupan'],
     vegan: ['vegaaninen', 'vegan'],
     fresh: ['fresh', 'tuore'],
+    meal: ['meal', 'ateria'],
     
     sweetorange: ['sweet orange'],
 
