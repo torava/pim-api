@@ -31,6 +31,7 @@ Beef,Nauta,,,,15,,,,,"Beef, raw",4
 Beef,Nauta,,,,"26,61",,,,,"Beef: world average, median",1
 "Beef Steak, Grilled",,,,,15,,,,,"Beef, raw",4
 "Beef, Cured, 2.8% Fat",,"[""Paahtopaisti""]",,,15,,,,,"Beef, raw",4
+"Beef Steak, Fried",,"[""Beef""]",,,,,,,,,
 "Beer, Alcohol-Free, 0.0% Volume",,"[""Pils alkoholiton"", ""Crisp IPA""]",,,,,,"0,54",,"Beer, cradle-to-grave",5
 "Beer, Lager, Medium Strength, 4.5% Volume",,"[""Beer"", ""Olut"", ""Lager"", ""Pils""]",,,,,,,,,
 "Beer, Lager, Strong, 5-5.5% Volume",,"[""NEIPA""]",,,,,,,,,
@@ -206,10 +207,12 @@ Flour,,,,,,,,,"0,7",Plant based groceries,2
 "Flour, Whole Wheat Flour",,,,,"0,5",,,,,"Vehnäjauhot, ryynit",4
 Flowers,Kukat,,Supplies,,,,,,"0,6",Garden supplies,2
 Flowers,Kukat,,Supplies,,,,,,,,
-"French Fries, Frozen",,"[""Kuorellinen tikkuperuna pakaste""]",,,,,,,,,
+"French Fries, Oven-Baked",,"[""Kuorellinen tikkuperuna pakaste""]",,,,,,,"0,7",Plant based groceries,2
+"French Fries, Frozen",,,,,,,,,"0,7",Plant based groceries,2
+"French Fries, Deep-Fried",,"[""French fries"", ""Ranskanperunat""]",,,"0,46",,,,,Fries,51
+"French Fries, Deep-Fried",,"[""French fries"", ""Ranskanperunat""]",,,,,,,"0,7",Plant based groceries,2
 "Fresh Pasta, Contains Egg",,,,,,,,,"1,1",Animal based groceries,2
 Fried onions,Paahdettu sipulirouhe,,Spices,,,,,,,,
-"Fried potatoes, French fries",,,,,,,,,"0,7",Plant based groceries,2
 "Frozen Vegetable Mix, Broccoli-Carrot-Sweet Pepper, Kartanon Kasvikset",,"[""Cooked vegetables"", ""Keitetyt kasvikset""]",,,,,,,,,
 "Frozen Vegetable Mix, Pea-Sweet Corn-Sweet Pepper",,"[""Herne-maissi-paprika""]",,,,,,,,,
 "Frozen Vegetable Mix, Root Vegetables",,"[""Keittovihannekset""]",,,,,,,,,
@@ -360,7 +363,7 @@ Phone screen protector,Puhelimen näytönsuoja,,Electronics,,,,,,,,
 "Pineapple, With Skin",,,,,"0,5",,,,,"Pineapples, median",1
 "Pineapple, without skin",,"[""Pineapple"", ""Ananas""]",,,"0,5",,,,,"Pineapples, median",1
 Pinto bean,Pintopapu,,Pulses vegetables,,"0,73",,,,,"Beans: pinto USA dried, median",1
-"Pizza Crust, Basic Pizza Dough",,"[""Pizzas"", ""Pizzat""]",,,"2,5",,,,,"Pastry, including waste, secondary source",7
+"Pizza Crust, Basic Pizza Dough",,"[""Pizzas"", ""Pizzat"", ""Pizza""]",,,"2,5",,,,,"Pastry, including waste, secondary source",7
 "Pizza Crust, Basic Pizza Dough",,,,,,,,,"1,1",Animal based groceries,2
 "Pizza, Mozzarella And Tomato Pizza, Saarioinen",,,,,"4,4",,,,,Tesco Family Cheese and Tomato Pizza 512g,34
 "Pizza, pepperoni","Pizza, pepperoni",,Pizza,,"4,7",,,,,Tesco Family Pepperoni Pizza 487g,34
@@ -381,7 +384,7 @@ Postal parcel,Posti,"[""Postipaketti"", ""Kirje""]",Services,,,,,,"0,2",Postal a
 Potato,,,,,"0,18",,,,,"Potatoes, median",1
 Potato,,,,,"0,2",,,,,"Peruna, vihannekset, raaka",4
 Potato,,,,,,,,,"0,7",Plant based groceries,2
-"Potato Crisps, Potato Chips, Potato Snack",,,,,"2,25",,,,,"Cradle-to-grave, Svenska Lantchips, Transportation to Helsinki taken into consideration, in 200 gramms packets",35
+"Potato Crisps, Potato Chips, Potato Snack",,,,,"2,25",,,,,"Cradle-to-grave, Svenska Lantchips, Transportation to Helsinki taken into consideration, in 200 grams packets",35
 Potato dishes,,,,,,,,,"1,1",Plant based groceries,2
 "Potato Wedges, Oven-Baked",,,,,,,,,"0,7",Plant based groceries,2
 "Potato, Unpeeled, Avarage, Raw",,"[""Potato"", ""Potatoes"", ""Peruna"", ""Perunaa"", ""Varhaisperuna"", ""Ruokaperuna"", ""Ruokaperunapussi""]",,,,,,,,,
@@ -443,7 +446,7 @@ Small engine fuel,Pienkonepolttoaine,,Supplies,,,,,,,,
 Smartphone,Älypuhelin,,Electronics,,,,,,,,
 "Smoothie, Marli Smoothie, Fruit +Vitamins  D&C",,"[""Voima smoothie""]",,,,,,,,,
 Snacks,Naposteltavat,"[""Snacksit""]",,,,,,,"0,7",Plant based groceries,2
-"Soft Drink, Lemonade",Virvoitusjuoma,"[""Coca-Cola"", ""Pepsi"", ""Fanta"", ""Sprite"", ""7up"", ""Jaffa""]",,,,,,"0,2",,Virvoitusjuomat,36
+"Soft Drink, Lemonade",Virvoitusjuoma,"[""Coca-Cola"", ""Coca Cola"", ""Pepsi"", ""Fanta"", ""Sprite"", ""7up"", ""Jaffa""]",,,,,,"0,2",,Virvoitusjuomat,36
 Soil,Multa,"[""Kukkamulta""]",Supplies,,,,,,"0,6",Garden supplies,2
 Soup vegetables,Kuivatut keittovihannekset,"[""Kuivattu keittovihannes""]",Spices,,,,,,,,
 "Soy Product, Alpro Go On, Soured, Plain, Fat 3.6%",,"[""Go On Soijavalmiste Maustamaton""]",,,,,,,,,
