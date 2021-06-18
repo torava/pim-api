@@ -2,7 +2,7 @@ import moment from 'moment';
 import { stringSimilarity } from "string-similarity-js";
 import { LevenshteinDistance } from "./levenshteinDistance";
 
-export const measureRegExp = /(\d{1,4}(\.\d)?)((kg)|(g)|(l|1))/;
+export const measureRegExp = /(\d{1,4}([.|,]\d)?)((kg)|(g)|(l))/;
 
 function parseYear(year) {
   if (year.length == 2) {

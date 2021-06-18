@@ -81,7 +81,9 @@ export const convertMeasure = (measure, fromUnit, toUnit) => {
   }
   const conversion = factors[fromUnit]-factors[toUnit]+offset;
   return measure*Math.pow(10, conversion);
-}
+};
+
+export const measureRegExp = /(\d{1,4}([.|,]\d)?)\s?((m|d|k)?(l|g)?)/;
 
 export function first(list) {
   for (let i in list) {
