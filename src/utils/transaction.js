@@ -3,7 +3,7 @@ import { stringSimilarity } from "string-similarity-js";
 import { LevenshteinDistance } from "./levenshteinDistance";
 import { measureRegExp } from './receipt';
 
-const getDetails = manufacturers => {
+export const getDetails = (manufacturers = []) => {
   const details = {};
 
   details.manufacturers = {};
@@ -13,7 +13,8 @@ const getDetails = manufacturers => {
   });
 
   details.extra = {
-    trademark: ['™']
+    trademark: ['™'],
+    registered: ["®"]
   };
   details.weighting = {
     weighed: ['punnittu'],
@@ -32,6 +33,7 @@ const getDetails = manufacturers => {
   details.cooking = {
     boiled: ['boiled', 'keitetty'],
     battered: ['battered', 'leivitetty'],
+    deepFried: ['deep fried', 'uppopaistettu'],
     fried: ['paistettu'],
     grilled: ['grillattu'],
     fresh: ['fresh', 'tuore'],
@@ -43,11 +45,11 @@ const getDetails = manufacturers => {
     coldsmoked: ['kylmäsavustettu', 'kylmäsavu'],
     smoked: ['savustettu', 'savu'],
     milk: ['kevytmaito', 'rasvaton maito'],
-    overcooked: ['ylikypsä', 'overcooked'],
-    deepFried: ['deep fried', 'uppopaistettu']
+    overcooked: ['ylikypsä', 'overcooked']
   };
   details.serving = {
-    servedWith: ['served with', 'kanssa']
+    servedWith: ['served with', 'kanssa'],
+    includes: ['includes', 'sisältää']
   };
   details.spicing = {
     salted: ['suolattu', 'suolaa'],
