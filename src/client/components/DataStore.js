@@ -81,7 +81,7 @@ export default {
         resolve(this.products);
       }
       else {
-        axios.get('/api/product')
+        axios.get('/api/product/all')
         .then(response => {
           this.products = response.data;
           resolve(this.products);
@@ -115,7 +115,7 @@ export default {
         resolve(this.categories);
       }
       else {
-        axios.get('/api/category')
+        axios.get('/api/category/all')
         .then(response => {
           this.categories = response.data;
           resolve(this.categories);

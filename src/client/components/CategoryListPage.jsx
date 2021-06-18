@@ -6,8 +6,19 @@ import sortable from 'react-asterisk-table/lib/Sortable';
 import { locale } from './locale';
 import DataStore from './DataStore';
 import { getAttributeColumns } from '../utils/ui';
+import { first, measureRegExp } from '../../utils/entities';
 
 const TreeTable = sortable(tree(AsteriskTable));
+
+const getTranslation = (name) => {
+  let translation = '';
+  if (typeof name === 'object') {
+    translation = name[locale.getLocale()] || name['en-US'] || first(name);
+  } else if (typeof name === 'string') {
+    translation = name;
+  }
+  return translation;
+};
 
 export default class CategoryList extends Component {
   constructor(props) {
@@ -17,20 +28,30 @@ export default class CategoryList extends Component {
       searchCategoryName: '',
       categories: [],
       resolvedCategories: [],
-      attributes: []
+      attributes: [],
+      products: [],
+      measureAndUnit: undefined,
+      measure: undefined,
+      unit: undefined,
+      price: undefined
     };
 
     this.searchTimeout;
 
     Promise.all([
       DataStore.getAttributes(),
-      DataStore.getCategories()
+      DataStore.getCategories(),
+      DataStore.getProducts()
     ])
-    .then(([attributes, categories]) => {
+    .then(([attributes, categories, products]) => {
+      let categoriesAndProducts = [
+        ...categories,
+        ...products.map(p => ({...p, id: -p.id, isProduct: true, parentId: p.categoryId}))
+      ];
       this.setState({
-        categories: categories,
-        resolvedCategories: categories,
-        attributes: attributes
+        categories: categoriesAndProducts,
+        resolvedCategories: categoriesAndProducts,
+        attributes
       });
     })
     .catch(error => {
@@ -42,7 +63,10 @@ export default class CategoryList extends Component {
   }
   getColumns() {
     const {
-      categories
+      categories,
+      measure,
+      unit,
+      price
     } = this.state;
 
     const {
@@ -56,7 +80,7 @@ export default class CategoryList extends Component {
         label: 'Name',
         property: 'name',
         formatter: (name, item) => {
-          const translation = name[locale.getLocale()] || name['en-US'] || '';
+          const translation = getTranslation(name);
           let content = translation;
           const searchCategoryName = this.state.searchCategoryName || '';
           if (searchCategoryName.length) {
@@ -69,9 +93,13 @@ export default class CategoryList extends Component {
               </>;
             }
           }
-          return <a href={`/category/${item.id}`}>
-            {content}
-          </a>;
+          if (item.isProduct) {
+            return content;
+          } else {
+            return <a href={`/category/${item.id}`}>
+              {content}
+            </a>;
+          }
         },
         width: '700'
       },
@@ -79,7 +107,7 @@ export default class CategoryList extends Component {
         id: 'price',
         label: 'Price'
       },
-    ].concat(getAttributeColumns(selectedAttributes, categories, attributeUnits));
+    ].concat(getAttributeColumns(selectedAttributes, categories, attributeUnits, measure, unit, price));
   }
   selectCategory(category, selected) {
     let selected_categories = {...this.state.selected_categories};
@@ -99,7 +127,7 @@ export default class CategoryList extends Component {
     this.searchTimeout = setTimeout(() => {
       if (searchCategoryName !== '') {
         const resolvedCategories = this.state.categories.filter(category => (
-          (category.name[locale.getLocale()] || '').toLowerCase().indexOf(searchCategoryName?.toLowerCase()) !== -1
+          getTranslation(category.name).toLowerCase().indexOf(searchCategoryName?.toLowerCase()) !== -1
         )).map(category => ({
           ...category,
           parentId: null
@@ -114,11 +142,42 @@ export default class CategoryList extends Component {
       }
     }, 500);
   }
+  setMeasure(measureAndUnit) {
+    const match = measureAndUnit.match(measureRegExp);
+    if (match) {
+      const measure = parseFloat(match[1]);
+      const unit = match[3];
+      if (measure && unit) {
+        this.setState({
+          measureAndUnit,
+          measure,
+          unit
+        });
+      } else {
+        this.setState({
+          measureAndUnit,
+          measure: undefined,
+          unit: undefined
+        });
+      }
+    } else {
+      this.setState({
+        measureAndUnit,
+        measure: undefined,
+        unit: undefined
+      });
+    }
+  }
+  setPrice(price) {
+    this.setState({price});
+  }
   render() {
     const {
       attributes,
       resolvedCategories,
-      searchCategoryName
+      searchCategoryName,
+      measureAndUnit,
+      price
     } = this.state;
 
     const columns = this.getColumns();
@@ -132,7 +191,23 @@ export default class CategoryList extends Component {
             <input
               type="search"
               value={searchCategoryName}
-              onChange={event => this.setSearchCategoryName(event.target.value)}/>
+              onChange={event => this.setSearchCategoryName(event.target.value)}/>&nbsp;
+          </label>
+          <label>
+            Measure:&nbsp;
+            <input
+              type="text"
+              value={measureAndUnit}
+              style={{width: '5em'}}
+              onChange={event => this.setMeasure(event.target.value)}/>&nbsp;
+          </label>
+          <label>
+            Price:&nbsp;
+            <input
+              type="number"
+              value={price}
+              style={{width: '5em'}}
+              onChange={event => this.setPrice(event.target.value)}/>
           </label>
         </p>
         <TreeTable

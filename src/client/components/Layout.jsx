@@ -8,9 +8,11 @@ import { downloadString, exportTransactions, getCsvFromObject, getXlsxFromObject
 import { setupWorker } from '../utils/tesseractWorker';
 import CategoryList from './CategoryListPage';
 import Attributes from './shared/Attributes';
+import TransactionList from './TransactionList';
 
 import './Layout.scss';
-import TransactionList from './TransactionList';
+import { Accordion } from './shared/Accordion';
+import { Settings } from './Settings';
 
 export default class Layout extends React.Component {
   constructor(props) {
@@ -205,77 +207,60 @@ export default class Layout extends React.Component {
           </div>
           <div className="transactions__container">
             <div className="transactions__content">
-              <h2>Settings</h2>
-              <p>
-                <select 
-                  id="currency"
-                  placeholder="Currency"
-                  value={currency}
-                  onChange={this.onCurrencyChange.bind(this)}>
-                  <option value="EUR">EUR</option>
-                  <option value="SEK">SEK</option>
-                  <option value="USD">USD</option>
-                  <option value="CAD">CAD</option>
-                  <option value="ARS">ARS</option>
-                </select>&nbsp;
-                <select
-                  id="locale"
-                  placeholder="Locale"
-                  value={locale}
-                  onChange={this.onLocaleChange.bind(this)}>
-                  <option value="fi-FI">fi-FI</option>
-                  <option value="sv-SV">sv-SV</option>
-                  <option value="en-US">en-US</option>
-                </select>&nbsp;
-                <select
-                  id="energy"
-                  placeholder="Energy"
-                  value={attributeUnits['Energy,calculated']}
-                  onChange={this.onEnergyUnitChange.bind(this)}>
-                  <option value="kj/hg">kJ</option>
-                  <option value="kcal/hg">kcal</option>
-                </select>
-              </p>
-              <p>
-                <select
-                  id="format"
-                  placeholder="Format"
-                  value={format}
-                  onChange={this.onFormatChange.bind(this)}>
-                  <option value="text/csv">CSV</option>
-                  <option value="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">XLSX</option>
-                </select>
+              <Accordion
+                type="h2"
+                title="Categories">
+                <CategoryList
+                  selectedAttributes={attributeAggregates}
+                  attributeUnits={attributeUnits}/>
+              </Accordion>
+              <Accordion
+                type="h2"
+                title="Attributes"
+                collapsed>
+                <Attributes
+                  attributes={attributes}
+                  attributeAggregates={attributeAggregates}
+                  setAttributeAggregates={(attributeAggregates) => this.setState({attributeAggregates})}/>
+              </Accordion>
+              <Accordion
+                type="h2"
+                title="Transactions"
+                collapsed>
+                <TransactionList
+                  transactions={transactions}
+                  categories={categories}
+                  attributes={attributes}
+                  attributeAggregates={attributeAggregates}
+                  format={format}/>
+              </Accordion>
+              <Accordion
+                type="h2"
+                title="Upload"
+                collapsed>
                 <label>
-                  <input
-                    type="checkbox"
-                    checked={pipeline.crop}
-                    onChange={this.onCropChange.bind(this)}/>
-                  Crop
+                  Upload:<br/>
+                  <input type="file" name="upload-file" id="upload-file" multiple draggable onChange={this.onUpload}/>
                 </label>
-              </p>
-              <h2>Upload</h2>
-              <label>
-                Upload:<br/>
-                <input type="file" name="upload-file" id="upload-file" multiple draggable onChange={this.onUpload}/>
-              </label>
-              {typeof receiptCount !== 'undefined' &&
-              <p>{message}</p>}
-              <h2>Transactions</h2>
-              <TransactionList
-                transactions={transactions}
-                categories={categories}
-                attributes={attributes}
-                attributeAggregates={attributeAggregates}
-                format={format}/>
-              <h2>Attributes</h2>
-              <Attributes
-                attributes={attributes}
-                attributeAggregates={attributeAggregates}
-                setAttributeAggregates={(attributeAggregates) => this.setState({attributeAggregates})}/>
-              <h2>Categories</h2>
-              <CategoryList
-                selectedAttributes={attributeAggregates}
-                attributeUnits={attributeUnits}/>
+                {typeof receiptCount !== 'undefined' &&
+                <p>{message}</p>}
+              </Accordion>
+              <Accordion
+                type="h2"
+                title="Settings"
+                collapsed>
+                <Settings
+                  currency={currency}
+                  onCurrencyChange={this.onCurrencyChange}
+                  locale={locale}
+                  onLocaleChange={this.onLocaleChange}
+                  attributeUnits={attributeUnits}
+                  onEnergyUnitChange={this.onEnergyUnitChange}
+                  format={format}
+                  onFormatChange={this.onFormatChange}
+                  pipeline={pipeline}
+                  onCropChange={this.onCropChange}/>
+              </Accordion>
             </div>
           </div>
         </>}
