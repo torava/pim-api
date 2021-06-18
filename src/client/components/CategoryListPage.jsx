@@ -30,6 +30,7 @@ export default class CategoryList extends Component {
       resolvedCategories: [],
       attributes: [],
       products: [],
+      quantity: undefined,
       measureAndUnit: undefined,
       measure: undefined,
       unit: undefined,
@@ -64,6 +65,7 @@ export default class CategoryList extends Component {
   getColumns() {
     const {
       categories,
+      quantity,
       measure,
       unit,
       price
@@ -107,7 +109,7 @@ export default class CategoryList extends Component {
         id: 'price',
         label: 'Price'
       },
-    ].concat(getAttributeColumns(selectedAttributes, categories, attributeUnits, measure, unit, price));
+    ].concat(getAttributeColumns(selectedAttributes, categories, attributeUnits, quantity, measure, unit, price));
   }
   selectCategory(category, selected) {
     let selected_categories = {...this.state.selected_categories};
@@ -141,6 +143,9 @@ export default class CategoryList extends Component {
         });
       }
     }, 500);
+  }
+  setQuantity(quantity) {
+    this.setState({quantity});
   }
   setMeasure(measureAndUnit) {
     const match = measureAndUnit.match(measureRegExp);
@@ -176,6 +181,7 @@ export default class CategoryList extends Component {
       attributes,
       resolvedCategories,
       searchCategoryName,
+      quantity,
       measureAndUnit,
       price
     } = this.state;
@@ -191,7 +197,18 @@ export default class CategoryList extends Component {
             <input
               type="search"
               value={searchCategoryName}
+              style={{width: '19em'}}
               onChange={event => this.setSearchCategoryName(event.target.value)}/>&nbsp;
+          </label>
+        </p>
+        <p>
+          <label>
+            Quantity:&nbsp;
+            <input
+              type="number"
+              value={quantity}
+              style={{width: '3em'}}
+              onChange={event => this.setQuantity(event.target.value)}/>&nbsp;
           </label>
           <label>
             Measure:&nbsp;

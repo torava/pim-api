@@ -5,7 +5,7 @@ import { getCategoryWithAttributes } from '../../utils/categories';
 import { convertMeasure } from '../../utils/entities';
 import { locale } from '../components/locale';
 
-export const getAttributeColumns = (selectedAttributes, categories = [], attributeUnits = {}, sampleMeasure, sampleUnit, samplePrice) => {
+export const getAttributeColumns = (selectedAttributes, categories = [], attributeUnits = {}, sampleQuantity, sampleMeasure, sampleUnit, samplePrice) => {
   const columns = [];
   for (const key in selectedAttributes) {
     const selectedAttribute = selectedAttributes[key];
@@ -32,18 +32,23 @@ export const getAttributeColumns = (selectedAttributes, categories = [], attribu
           const [primaryUnit, perUnit] = (targetUnit || unit)?.split('/') || [undefined, undefined];
 
           let sampleValue,
-              formattedValue;
+              formattedValue,
+              quantity = 1;
 
-          if (perUnit === 'EUR') {
+          if (perUnit === 'EUR' && samplePrice) {
             sampleValue = convertedValue*samplePrice;
-          } else if (perUnit) {
+            quantity = sampleQuantity || 1;
+          } else if (perUnit && sampleMeasure) {
             sampleValue = convertMeasure(convertedValue, sampleUnit, perUnit)*sampleMeasure;
+            quantity = sampleQuantity || 1;
+          } else if (!perUnit) {
+            quantity = sampleQuantity || 1;
           }
 
           if (sampleValue) {
-            formattedValue = `${new Intl.NumberFormat(locale.getLocale()).format(sampleValue)} ${primaryUnit}`;
+            formattedValue = `${new Intl.NumberFormat(locale.getLocale()).format(quantity*sampleValue)} ${primaryUnit}`;
           } else {
-            formattedValue = `${new Intl.NumberFormat(locale.getLocale()).format(convertedValue)} ${targetUnit || unit}`;
+            formattedValue = `${new Intl.NumberFormat(locale.getLocale()).format(quantity*convertedValue)} ${targetUnit || unit}`;
           }
           
           if (!categoryWithAttribute) {
