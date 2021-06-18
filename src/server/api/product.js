@@ -12,6 +12,16 @@ let cache = apicache.middleware;
 
 export default app => {
 
+app.get('/api/product/all', cache(), async (req, res) => {
+  try {
+    let products = await Product.query();
+    return res.send(products);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(500);
+  }
+});
+  
 app.get('/api/product/:id', cache(), async (req, res) => {
   const {
     id
@@ -112,15 +122,13 @@ app.get('/api/product', async (req, res) => {
         }
       }
       
-      if (!product?.categoryId) {
-        let list = contributionList;
+      let list = contributionList;
 
-        if (contributionList && category) {
-          list = `${category}, ${contributionList}`;
-        }
-
-        contributions = getContributionsFromList(list, contentLanguage, strippedCategories);
+      if (contributionList && category) {
+        list = `${category}, ${contributionList}`;
       }
+
+      contributions = getContributionsFromList(list, contentLanguage, strippedCategories, attributes);
         
       product = {
         name,
@@ -144,7 +152,12 @@ app.get('/api/product', async (req, res) => {
       product = {
         name: product.name,
         contributionList: product.contributionList,
-        //contributions: product.contributions,
+        contributions: product.contributions.map(contribution => ({
+          ...contribution, contribution: {
+            ...contribution.contribution,
+            attributes: undefined
+          }
+        })),
         categoryId: product.categoryId,
         measure: measure || product.measure,
         unit: measure ? 'kg' : product.unit,

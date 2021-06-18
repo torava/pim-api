@@ -7,6 +7,18 @@ let cache = apicache.middleware;
 
 export default app => {
 
+app.get('/api/category/all', cache(), async (req, res) => {
+  try {
+    let categories = await Category.query()
+    .withGraphFetched('[contributions, attributes]');
+    resolveCategories(categories, req.query.locale);
+    return res.send(categories);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(500);
+  }
+});
+
 app.get('/api/category/:id', async (req, res) => {
   console.log(req.query, req.params);
   try {

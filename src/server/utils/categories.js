@@ -194,7 +194,7 @@ export const getCategoryParentsFromCsv = async (records) => {
 
 export const getStrippedChildCategories = async () => {
   const categories = (await Category.query()
-  .withGraphFetched('[contributions, children]'));
+  .withGraphFetched('[contributions, children, attributes]'));
 
   const childCategories = categories.filter(category => !category.children?.length);
   const manufacturers = await Manufacturer.query();

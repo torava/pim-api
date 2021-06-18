@@ -4,13 +4,16 @@ import { convertMeasure } from "./entities";
 import { LevenshteinDistance } from './levenshteinDistance';
 import { stripDetails } from "./transaction";
 
-export const getProductCategoryMinMaxAttributes = (category, product, foodUnitAttribute, attributeId, categories = [], productAttributes = [], attributes = []) => {
+export const getProductCategoryMinMaxAttributes = (category, contribution, product, foodUnitAttribute, attributeId, categories = [], productAttributes = [], attributes = []) => {
   let unit, measure, portionAttribute;
   
   if (foodUnitAttribute) {
     portionAttribute = category.attributes.find(a => a.attributeId === foodUnitAttribute.id);
   }
-  if (portionAttribute) {
+  if (contribution?.contribution.amount) {
+    measure = contribution.contribution.amount;
+    unit = contribution.contribution.unit;
+  } else if (portionAttribute) {
     measure = portionAttribute.value;
     unit = portionAttribute.unit;
   } else if (product?.measure) {
@@ -63,7 +66,7 @@ export const resolveProductAttributes = (product, attributeIds, foodUnitAttribut
     
     product.contributions.forEach(productContribution => {
       const contribution = categories.find(category => category.id === productContribution.contributionId);
-      const result = getProductCategoryMinMaxAttributes(contribution, undefined, foodUnitAttribute, attributeId, categories, initialProductAttributes, attributes);
+      const result = getProductCategoryMinMaxAttributes(contribution, productContribution, undefined, foodUnitAttribute, attributeId, categories, initialProductAttributes, attributes);
       if (result?.minCategoryAttribute) {
         const {minAttributeValue, minCategoryAttribute, maxAttributeValue} = result;
         minValue+= minAttributeValue || 0;
@@ -75,7 +78,7 @@ export const resolveProductAttributes = (product, attributeIds, foodUnitAttribut
     });
 
     if (category) {
-      const result = getProductCategoryMinMaxAttributes(category, product, foodUnitAttribute, attributeId, categories, initialProductAttributes, attributes);
+      const result = getProductCategoryMinMaxAttributes(category, undefined, product, foodUnitAttribute, attributeId, categories, initialProductAttributes, attributes);
       if (result?.minCategoryAttribute) {
         const {minCategoryAttribute} = result;
         minValue = result.minAttributeValue;

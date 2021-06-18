@@ -3,8 +3,9 @@ import moment from 'moment';
 import { locale } from "../client/components/locale";
 import { convertMeasure } from './entities';
 import { getTranslation } from '../utils/entities';
-import { stripName, stripDetails } from './transaction';
+import { stripName, stripDetails, getDetails } from './transaction';
 import { LevenshteinDistance } from './levenshteinDistance';
+import { measureRegExp } from './receipt';
 
 export const getAverageRate = (filter, average_range) => {
   const {start_date, end_date} = filter;
@@ -225,17 +226,17 @@ export const getClosestCategory = (name, categories, acceptLocale) => {
       if (acceptLocale && locale !== acceptLocale) return true;
       if (translation) {
         const tokens = [];
-        tokens.push([LevenshteinDistance(translation.toLowerCase(), strippedName.toLowerCase(), {search: true}), translation.toLowerCase()]);
+        tokens.push([LevenshteinDistance(translation.toLowerCase(), strippedName.toLowerCase(), {search: true}), translation.toLowerCase(), 0.1]);
         tokens.push([LevenshteinDistance(category.name[locale].toLowerCase(), name.toLowerCase(), {search: true}), category.name[locale].toLowerCase()]);
         category.aliases?.forEach(alias => {
-          tokens.push([LevenshteinDistance(alias.toLowerCase(), strippedName.toLowerCase(), {search: true}), alias.toLowerCase()]);
+          tokens.push([LevenshteinDistance(alias.toLowerCase(), strippedName.toLowerCase(), {search: true}), alias.toLowerCase(), 0.1]);
           tokens.push([LevenshteinDistance(alias.toLowerCase(), name.toLowerCase(), {search: true}), alias.toLowerCase()]);
         });
         //tokens.push([LevenshteinDistance(category.parent?.name[locale]?.toLowerCase() || '', strippedName.toLowerCase(), {search: true}), category.parent?.name[locale]?.toLowerCase() || '']);
 
         let token;
         tokens.forEach(t => {
-          t[0].accuracy = (t[0].substring.length-t[0].distance)/name.length;
+          t[0].accuracy = (t[0].substring.length-t[0].distance-(t[2] || 0))/name.length;
           if (t[0].distance < 1 && t[0].accuracy > 0.1 && t[0].accuracy >= (token ? token.accuracy : 0)) {
             token = t[0];
             console.log('name', name, 'translation', translation, 'token', t);
@@ -259,16 +260,61 @@ export const getClosestCategory = (name, categories, acceptLocale) => {
   return bestToken?.substring.length ? [bestCategory, bestToken] : [undefined, undefined];
 };
 
-export const getContributionsFromList = (list, contentLanguage, categories = []) => {
+export const getContributionsFromList = (list, contentLanguage, categories = [], attributes = []) => {
   const tokens = list?.split(/,\s|\sja\s|\sand\s|\soch\s/gi);
   const contributions = [];
   tokens?.forEach(contributionToken => {
+    const measureMatch = contributionToken.match(measureRegExp);
+    const measure = measureMatch && parseFloat(measureMatch[1]);
+    let foodUnitAttribute;
+    let unit;
+    if (measure && !isNaN(measure)) {
+      if (measureMatch[4]) {
+        unit = 'kg';
+      }
+      else if (measureMatch[5]) {
+        unit = 'g';
+      }
+      else if (measureMatch[6]) {
+        unit = 'l';
+      }
+    }
+    const {size} = getDetails();
+    Object.entries(size).forEach(([code, details]) => {
+      if (details.some(detail => contributionToken.match(detail))) {
+        foodUnitAttribute = attributes.find(attribute => attribute.code === code);
+      }
+    });
     let [contribution, token] = getClosestCategory(contributionToken, categories, contentLanguage);
+    if (contribution) {
+      if (foodUnitAttribute) {
+        const {value, unit} = contribution.attributes.find(attribute => attribute.attributeId === foodUnitAttribute.id) || {};
+        if (value) {
+          contribution.amount = value;
+          contribution.unit = unit;
+        }
+      } else if (measure) {
+        contribution.amount = measure;
+        contribution.unit = unit;
+      }
+    }
     if (contributionToken.split(' ').length > 2) {
       while (contribution && contributionToken) {
         contributionToken = contributionToken.replace(new RegExp(token.substring, 'i'), '').trim();
         contributions.push({contributionId: contribution.id, contribution});
         [contribution, token] = getClosestCategory(contributionToken, categories, contentLanguage);
+        if (contribution) {
+          if (foodUnitAttribute) {
+            const {value, unit} = contribution.attributes.find(attribute => attribute.attributeId === foodUnitAttribute.id) || {};
+            if (value) {
+              contribution.amount = value;
+              contribution.unit = unit;
+            }
+          } else if (measure) {
+            contribution.amount = measure;
+            contribution.unit = unit;
+          }
+        }
       }
     } else if (contribution) {
       contributions.push({contributionId: contribution.id, contribution});
