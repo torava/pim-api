@@ -21,5 +21,5 @@ it('renders without crashing', async () => {
   const result = render(<BrowserRouter><App /></BrowserRouter>);
   const {findByText} = within(result.container);
   expect(await findByText('Loading...')).toBeInTheDocument();
-  expect(await findByText('Upload:')).toBeInTheDocument();
+  expect(await findByText('Search category:')).toBeInTheDocument();
 });

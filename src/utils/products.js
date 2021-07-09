@@ -10,7 +10,7 @@ export const getProductCategoryMinMaxAttributes = (category, contribution, produ
   if (foodUnitAttribute) {
     portionAttribute = category.attributes.find(a => a.attributeId === foodUnitAttribute.id);
   }
-  if (contribution?.contribution.amount) {
+  if (contribution?.contribution?.amount) {
     measure = contribution.contribution.amount;
     unit = contribution.contribution.unit;
   } else if (portionAttribute) {
