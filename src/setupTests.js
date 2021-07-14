@@ -292,6 +292,7 @@ export const mockProducts = [
       {
         contributionId: 302
       }
-    ]
+    ],
+    categoryId: 296
   }
 ];
