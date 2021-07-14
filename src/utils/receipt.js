@@ -18,7 +18,7 @@ function parseYear(year) {
 function toTitleCase(str) {
   if (!str) return str;
 
-  return  str.replace(/([^\s:\-])([^\s:\-]*)/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+  return  str.replace(/([^\s:-])([^\s:-]*)/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
 
 // https://stackoverflow.com/a/63372663
@@ -34,12 +34,12 @@ export const blobToData = (blob) => {
 export function getTransactionsFromReceipt(result, text, locale, id) {
   text = text
   .replace(/ﬂ|»|'|´|`|‘|“|"|”|\|/g, '')
-  .replace(/(\d) *(\.,|\,|\.|_|\-|;) *(\d)/g, '$1.$3')
-  .replace(/\.,|\,|_|\-|;/g, '')
+  .replace(/(\d) *(\.,|,|\.|_|-|;) *(\d)/g, '$1.$3')
+  .replace(/\.,|,|_|-|;/g, '')
   .replace(/—/g, '-')
   .replace(/ +/g, ' ');
 
-  let line, line_name, line_product_name, line_prices, item_number, line_text,
+  let line, line_name, line_product_name, item_number, line_text,
     line_total, line_date, line_address, line_vat, line_item_details,
     line_number_format, total_price_computed = 0, name, date, line_phone_number,
     line_opening,
@@ -99,8 +99,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
       'vuosiomavastuu oston jälkeen',
       'ennen arvonlisäveroa'
     ],
-    line_measure,
-    total_price, price, has_discount, previous_line, found_attribute, category,
+    price, has_discount, previous_line, found_attribute,
     items = [], line_number = 0, data = {party:{}},
     lines = text.split("\n");
 
@@ -132,9 +131,9 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
         found_attribute = null;
 
         line = ines[i].trim();
-        line_number_format = line.replace(/\s*(\.,|\,|\.)\s*/g, '.');
+        line_number_format = line.replace(/\s*(\.,|,|\.)\s*/g, '.');
 
-        line_name = line.match(/^[\u00C0-\u017F-a-z0-9\s\-\.%\/]+$/i);
+        line_name = line.match(/^[\u00C0-\u017F-a-z0-9\s\-.%/]+$/i);
         //if (!line_name || line_name[0].length <= 1) continue;
 
         line_number++;
@@ -160,7 +159,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
 
         if (!data.date) {
           // 1.1.12 1:12
-          line_date = line.match(/((\d{1,2})[\.|\,|\/](\d{1,2})[\.|\,|\/](\d{2,4}))(\s)?((\d{1,2})[:|,|\.|\s|z]?((\d{2})[:|,|\.|\s|z]?)?(\d{2})?)/);
+          line_date = line.match(/((\d{1,2})[.|,|/](\d{1,2})[.|,|/](\d{2,4}))(\s)?((\d{1,2})[:|,|.|\s|z]?((\d{2})[:|,|.|\s|z]?)?(\d{2})?)/);
           date = line_date && parseYear(line_date[4])+'-'+line_date[3]+'-'+line_date[2]+' '+line_date[7]+':'+line_date[9];//+':'+line_date[10];
           if (date && moment(date).isValid()) {
             console.log(line_date, date);
@@ -171,7 +170,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
 
           if (!data.date) {
             // 1.1.12
-            line_date = line.match(/((\d{1,2})[\.|\,|\/](\d{1,2})[\.|\,|\/](\d{2,4}))/);
+            line_date = line.match(/((\d{1,2})[.|,|/](\d{1,2})[.|,|/](\d{2,4}))/);
             date = line_date && parseYear(line_date[4])+'-'+line_date[3]+'-'+line_date[2]+' '+line_date[7]+':'+line_date[9];//+':'+line_date[10];
             if (date && moment(date).isValid()) {
               console.log(line_date, date);
@@ -183,7 +182,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
 
           if (!data.date) {
             // 1:12 1-1-12
-            line_date = line.match(/((\d{1,2}[:|,|\.|1]?)(\d{2}[:|,|\.]?)?(\d{1,2})?)?(\s)?((\d{1,2})[\-|\.](\d{1,2})[\-|\.](\d{2,4}))/);
+            line_date = line.match(/((\d{1,2}[:|,|.|1]?)(\d{2}[:|,|.]?)?(\d{1,2})?)?(\s)?((\d{1,2})[-|.](\d{1,2})[-|.](\d{2,4}))/);
             date = line_date && parseYear(line_date[9])+'-'+line_date[8]+'-'+line_date[7]+' '+line_date[1];
             if (date && moment(date).isValid()) {
               console.log(line_date, date);
@@ -196,7 +195,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
 
         if (!data.party.street_name) {
           // Hämeenkatu 123-123 33100 Tampere
-          line_address = line.match(/^([\u00C0-\u017F-a-z\/\s]+)((\d{1,4})([-]\d{1,4})?)[-]?\s?(\d{5})?[,|.]?\s?([\u00C0-\u017F-a-z\/]+)?$/i);
+          line_address = line.match(/^([\u00C0-\u017F-a-z/\s]+)((\d{1,4})([-]\d{1,4})?)[-]?\s?(\d{5})?[,|.]?\s?([\u00C0-\u017F-a-z/]+)?$/i);
           if (line_address) {
             console.log(line_address);
             data.party.street_name = toTitleCase(line_address[1]);
@@ -366,13 +365,13 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
         
         // item line
         if (!has_discount) {
-          let line_price = line_number_format.match(/(\s|\.)((\d{1,4}\.\d{2})(\-)?){1,2}\s*.{0,3}$/i);
+          let line_price = line_number_format.match(/(\s|\.)((\d{1,4}\.\d{2})(-)?){1,2}\s*.{0,3}$/i);
           if (line_price) {
             // 1kg
             const line_measure = line.substring(0, line_price.index).match(measureRegExp);
             const line_quantity = line_number_format.substring(0, line_price.index).match(/(\d{1,4}\.\d{2})\s?x\s?(\d{1,2})/i);
             
-            let line_item = line.substring(0, line_price.index).match(/^((\d+)\s)?([\u00C0-\u017F-a-z0-9\s:\-\.\,\+\&\%\=\/\(\)\{\}\[\]]+)$/i);
+            let line_item = line.substring(0, line_price.index).match(/^((\d+)\s)?([\u00C0-\u017F-a-z0-9\s:\-.,+&%=/(){}[\]]+)$/i);
 
             const measure = line_measure && parseFloat(line_measure[1]);
             const quantity = line_quantity && parseFloat(line_quantity[2]);
@@ -406,7 +405,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
               }
 
               if (name) {
-                const price = parseFloat(line_price[2]);
+                let price = parseFloat(line_price[2]);
 
                 if (line_price[4] === '-') {
                   has_discount = true;
