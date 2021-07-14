@@ -28,4 +28,5 @@ custom:
   webpack:
     webpackConfig: ./webpack.config.js 
     includeModules: true
+    series: true
     
