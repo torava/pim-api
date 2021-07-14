@@ -14,7 +14,7 @@ functions:
       - http: 'ANY /{proxy+}'
 
 plugins:
-  - serverless-webpack
+  - serverless-plugin-webpack
 
 package:
   exclude:
