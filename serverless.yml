@@ -14,11 +14,12 @@ functions:
       - http: 'ANY /{proxy+}'
 
 plugins:
-  - serverless-plugin-webpack
+  - serverless-webpack
 
 package:
-  exclude:
-    - node_modules/**
+  patterns:
+    - '!src/**'
+    - src/server.js
 # serverless optimization
   individually: true
 
@@ -26,6 +27,6 @@ package:
 # Enable auto-packing of external modules
 custom:
   webpack:
-    config: ./webpack.config.server.js 
+    webpackConfig: ./webpack.config.server.js 
     includeModules: true
     
