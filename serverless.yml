@@ -26,7 +26,6 @@ package:
 # Enable auto-packing of external modules
 custom:
   webpack:
-    webpackConfig: ./webpack.config.js 
+    webpackConfig: ./webpack.config.server.js 
     includeModules: true
-    series: true
     
