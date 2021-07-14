@@ -16,11 +16,6 @@ functions:
 plugins:
   - serverless-webpack
 
-package:
-  patterns:
-    - '!src/**'
-    - src/server.js
-
 # serverless-webpack configuration
 # Enable auto-packing of external modules
 custom:
