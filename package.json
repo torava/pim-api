@@ -4,7 +4,7 @@
   "description": "bookkeepr",
   "main": "src/server.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --env=jsdom",
     "build": "./node_modules/.bin/webpack --mode production",
     "build:dev": "./node_modules/.bin/webpack --mode development",
     "start": "node src/server-compiled.js",
