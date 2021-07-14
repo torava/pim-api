@@ -20,8 +20,6 @@ package:
   patterns:
     - '!src/**'
     - src/server.js
-# serverless optimization
-  individually: true
 
 # serverless-webpack configuration
 # Enable auto-packing of external modules
