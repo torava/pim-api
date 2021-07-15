@@ -4,10 +4,7 @@ const nodeExternals = require('webpack-node-externals');
 module.exports = {
   target: 'node',
   node: false,
-  entry: [
-    'regenerator-runtime/runtime',
-    './src/server.js'
-  ],
+  entry: './src/server.js',
   output: {
     path: path.join(__dirname, 'src'),
     filename: 'server-compiled.js'

@@ -7920,7 +7920,7 @@
     },
     "co": {
       "version": "4.6.0",
-      "resolved": "https://registry.npmjs.org/co/-/co-4.6.0.tgz",
+      "resolved": false,
       "integrity": "sha1-bqa989hTrlTMuOR7+gvz+QMfsYQ=",
       "dev": true
     },
