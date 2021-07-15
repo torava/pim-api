@@ -260,8 +260,12 @@ export const getClosestCategory = (name, categories, acceptLocale) => {
   return bestToken?.substring.length ? [bestCategory, bestToken] : [undefined, undefined];
 };
 
+export const getTokensFromContributionList = (list) => (
+  list?.replace(/[([][^)\]]*[)\]]/g, '').replace(/\s{2,}/g, ' ').trim().split(/,\s|\sja\s|\sand\s|\soch\s/gi)
+);
+
 export const getContributionsFromList = (list, contentLanguage, categories = [], attributes = []) => {
-  const tokens = list?.split(/,\s|\sja\s|\sand\s|\soch\s/gi);
+  const tokens = getTokensFromContributionList(list);
   const contributions = [];
   tokens?.forEach(contributionToken => {
     const measureMatch = contributionToken.match(measureRegExp);
