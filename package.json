@@ -2,7 +2,6 @@
   "name": "bookkeepr",
   "version": "0.0.22",
   "description": "bookkeepr",
-  "main": "src/server.js",
   "scripts": {
     "test": "jest --env=jsdom",
     "build": "./node_modules/.bin/webpack --mode production",
