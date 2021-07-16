@@ -1,10 +1,11 @@
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
-
+const slsw = require('serverless-webpack');
+console.log('slsw.lib.entries', slsw.lib.entries);
 module.exports = {
   target: 'node',
   node: false,
-  entry: './src/server.js',
+  entry: slsw.lib.entries || './src/server.js',
   output: {
     path: path.join(__dirname, 'src'),
     filename: 'server-compiled.js'
