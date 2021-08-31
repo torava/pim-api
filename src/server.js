@@ -10,7 +10,7 @@ import bodyParser from 'body-parser';
 import swaggerUi from 'swagger-ui-express';
 
 import knexConfig from '../knexfile';
-import registerApi from './server/api';
+import registerApi from './api';
 import swaggerDocument from '../swagger.json';
 
 export const app = new Express();

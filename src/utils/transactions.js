@@ -1,7 +1,7 @@
 import { stringSimilarity } from "string-similarity-js";
 
 import { LevenshteinDistance } from "./levenshteinDistance";
-import { measureRegExp } from './receipt';
+import { measureRegExp } from './receipts';
 
 export const getDetails = (manufacturers = []) => {
   const details = {};

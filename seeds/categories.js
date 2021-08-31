@@ -1,9 +1,9 @@
 import fs from 'fs';
-const { Model } = require("objection");
+import { Model } from 'objection';
 
-const { default: Category } = require("../src/server/models/Category");
-const { getCategoriesFromCsv, getCategoryParentsFromCsv } = require("../src/server/utils/categories");
-const { getExternalCategoriesFineli, getEntitiesFromCsv } = require("../src/server/utils/import");
+import Category from '../src/models/Category';
+import { getCategoriesFromCsv, getCategoryParentsFromCsv } from '../src/server/utils/categories';
+import { getExternalCategoriesFineli, getEntitiesFromCsv } from '../src/utils/import';
 
 exports.seed = async knex => {
   Model.knex(knex);

@@ -6,8 +6,7 @@ module.exports = {
         "jest/globals": true
     },
     "extends": [
-        "eslint:recommended",
-        "plugin:react/recommended"
+        "eslint:recommended"
     ],
     "parserOptions": {
         "ecmaFeatures": {
@@ -17,7 +16,6 @@ module.exports = {
         "sourceType": "module"
     },
     "plugins": [
-        "react",
         "jest"
     ],
     "rules": {

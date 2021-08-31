@@ -1,63 +1,21 @@
 import moment from 'moment';
+import _ from 'lodash';
 
-import { locale } from "../client/components/locale";
+import Attribute from '../models/Attribute';
+import Category from '../models/Category';
+import Manufacturer from '../models/Manufacturer';
+import Source from '../models/Source';
 import { convertMeasure } from './entities';
 import { getTranslation } from '../utils/entities';
-import { stripName, stripDetails, getDetails } from './transaction';
+import { stripName, stripDetails, getDetails } from './transactions';
 import { LevenshteinDistance } from './levenshteinDistance';
-import { measureRegExp } from './receipt';
+import { measureRegExp } from './receipts';
 
 export const getAverageRate = (filter, average_range) => {
   const {start_date, end_date} = filter;
   const rate = average_range ? average_range/moment.duration(moment(end_date).diff(moment(start_date))).asDays() : 1;
   //console.log(rate, this.state, moment(start_date));
   return rate;
-};
-
-export const aggregateCategoryAttribute = (resolvedCategories, attributeAggregates, averageRate) => {
-  let categories = [...resolvedCategories],
-      parent_value;
-  for (let attributeId in attributeAggregates) {
-    categories.reduce(function resolver(sum, category) {
-      let measure,
-          itemMeasure = 0,
-          value = 0,
-          measuredValue = 0;
-      if (category.hasOwnProperty('products') && category.products.length) {
-        category.products.map(product => {
-          product.items.map(item => {
-            measure = convertMeasure(product.measure || item.measure, product.unit || item.unit, 'kg');
-            itemMeasure+=(product.quantity || item.quantity || 1)*measure;
-          });
-        });
-      }
-      if (category.attributes.hasOwnProperty(attributeId) || parent_value) {
-        if (!category.hasOwnProperty('attribute_sum')) {
-          category.attribute_sum = {};
-        }
-        value = category.attributes.hasOwnProperty(attributeId) && category.attributes[attributeId].value || 0;
-        measuredValue = value*itemMeasure;
-        category.attribute_sum[attributeId] = measuredValue || parent_value*itemMeasure || 0;
-        category.attribute_sum[attributeId]*= averageRate;
-        const targetUnit = locale.getAttributeUnit(attributeAggregates[attributeId].name['en-US']);
-        if (targetUnit) {
-          const rate = config.unit_conversions[attributeAggregates[attributeId].unit][targetUnit];
-          if (rate) {
-            category.attribute_sum[attributeId]*= rate;
-          }
-        } 
-      }
-      if (category.hasOwnProperty('children') && category.children.length) {
-        if (!category.hasOwnProperty('attribute_sum')) {
-          category.attribute_sum = {};
-        }
-        parent_value = value;
-        category.attribute_sum[attributeId] = category.children.reduce(resolver, 0);
-      }
-      return sum+(category.attribute_sum && category.attribute_sum[attributeId] || 0);
-    }, 0);
-  }
-  return categories;
 };
 
 export const aggregateCategoryPrice = (resolvedCategories, averageRate) => {
@@ -74,7 +32,7 @@ export const aggregateCategoryPrice = (resolvedCategories, averageRate) => {
             item_volumes+= (product.quantity || item.quantity || 1)*(product.measure || item.measure || 0);
           }
           else {
-            item_weights+= (product.quantity || item.quantity || 1)*convertMeasure(product.measure || item.measure, product.unit || item.unit, 'kg');
+            item_weights+= (product.quantity || item.quantity || 1)*convertMeasure(product.measure || item.measure, product.unit || item.unit, 'kg');
           }
         });
       });
@@ -154,8 +112,7 @@ export function resolveCategories(items, locale) {
   if (!locale) return;
   let item_attributes,
       resolved_attributes,
-      item,
-      index;
+      item;
   for (let i in items) {
     item = items[i];
     resolved_attributes = {};
@@ -325,4 +282,201 @@ export const getContributionsFromList = (list, contentLanguage, categories = [],
     }
   });
   return contributions;
+};
+
+export const getCategoriesFromCsv = async (records, sourceRecords) => {
+  try {
+    let item,
+        found,
+        attribute,
+        note,
+        attributes = await Attribute.query(),
+        categories = await Category.query(),
+        sourceRecordIdMap = {},
+        attributeObject,
+        value;
+
+    for (const columns of records) {
+      item = {};
+      note = '';
+      for (const [columnName, column] of Object.entries(columns)) {
+        if (columnName !== '' && column !== '') {
+          attribute = columnName.match(/^attribute:(.*)(\s\((.*)\))/i) ||
+                      columnName.match(/^attribute:(.*)/i);
+          let nameMatch = columnName.match(/^(name|nimi)\["([a-z-]+)"\]$/i),
+              name,
+              locale;
+          if (nameMatch) {
+            name = nameMatch[1];
+            locale = nameMatch[2];
+          }
+          if (attribute) {
+            found = false;
+            for (let m in attributes) {
+              if (Object.values(attributes[m].name).includes(attribute[1])) {
+                attributeObject = {
+                  id: attributes[m].id
+                }
+                found = true;
+                break;
+              }
+            }
+            if (!found) {
+              attributeObject = {
+                name: {
+                  'fi-FI': attribute[1],
+                  'en-US': attribute[1]
+                }
+              };
+            }
+            value = parseFloat(column.replace(',', '.'));
+            item = {
+              ...item || {},
+              attributes: [
+                ...item.attributes || [],
+                {
+                  attribute: attributeObject,
+                  value,
+                  unit: attribute[3]
+                }
+              ]
+            };
+          } else if (columnName.toLowerCase() === 'note') {
+            note = column;
+          } else if (columnName.toLowerCase() === 'sourceid') {
+            const sourceRecord = sourceRecords.find(source => source.id === column);
+            if (sourceRecord) {
+              let source = sourceRecordIdMap[sourceRecord.id];
+              if (!source) {
+                const sourceRecordWithoutId = {
+                  ...sourceRecord,
+                  id: undefined
+                };
+                try {
+                  source = await Source.query().insertAndFetch(sourceRecordWithoutId).returning('*');
+                  sourceRecordIdMap[sourceRecord.id] = {id: source.id};
+                } catch (error) {
+                  console.error('Error while adding source', sourceRecord);
+                }
+              }
+              
+              for (const m in item.attributes) {
+                if (!item.attributes[m].sources) {
+                  item.attributes[m].sources = [];
+                }
+                item.attributes[m].sources.push({
+                  source,
+                  note
+                });
+              }
+            } else {
+              console.error('Source not found for id', column);
+            }
+          } else if (name && locale) {
+            if (!item.id) {
+              for (const i in categories) {
+                if (categories[i].name?.[locale] && categories[i].name[locale].toLowerCase().trim() === column?.toLowerCase().trim()) {
+                  item.id = categories[i].id;
+                  delete item.name;
+                  break;
+                }
+              }
+              if (!item.id) {
+                if (!item.name) item.name = {};
+                item.name[locale] = column;
+              }
+            }
+          } else if (columnName.toLowerCase() === 'aliases') {
+            try {
+              const aliases = JSON.parse(column);
+              if (aliases) {
+                _.set(item, columnName, aliases);
+              }
+            } catch (error) {
+              console.error('Aliases parse error', column, error);
+            }
+          } else if (['parent'].indexOf(columnName.toLowerCase()) === -1) {
+            _.set(item, columnName, column);
+          }
+        }
+      }
+      await Category.query().upsertGraph(item, {
+        noDelete: true,
+        relate: true
+      })
+      .catch(error => console.error(error));
+
+      categories = await Category.query()
+      .catch(error => console.error(error));
+
+      attributes = await Attribute.query()
+      .catch(error => console.error(error));
+    }
+    console.log(`read ${records.length} records`);
+    //console.dir(items, {depth: null, maxArrayLength: null});
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const getCategoryParentsFromCsv = async (records) => {
+  try {
+    let items = [],
+        item,
+        categories = await Category.query();
+
+    records.forEach(columns => {
+      item = {};
+      Object.entries(columns).forEach(([columnName, column]) => {
+        let nameMatch = columnName.match(/^(name|nimi)\["([a-z-]+)"\]$/i),
+            name,
+            locale;
+        if (nameMatch) {
+          name = nameMatch[1];
+          locale = nameMatch[2];
+        }
+        if (name && locale) {
+          if (column === '') return true;
+          if (!item.id) {
+            for (let i in categories) {
+              if (categories[i].name?.[locale] && categories[i].name[locale].toLowerCase().trim() === column?.toLowerCase().trim()) {
+                item.id = categories[i].id;
+                break;
+              }
+            }
+          }
+        }
+        else if (['parent'].indexOf(columnName.toLowerCase()) !== -1) {
+          if (column === '') return true;
+          for (let i in categories) {
+            if (categories[i].name && Object.values(categories[i].name).some(category => category.toLowerCase().trim() === column.toLowerCase().trim())) {
+              item.parent = {
+                id: categories[i].id
+              }
+              break;
+            }
+          }
+        }
+      });
+      if (item.parent) {
+        items.push(item);
+      }
+    });
+    console.log(`read ${records.length} records and found ${items.length} category parents`);
+    //console.dir(items, {depth: null, maxArrayLength: null});
+    return items;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const getStrippedChildCategories = async () => {
+  const categories = (await Category.query()
+  .withGraphFetched('[contributions, children, attributes]'));
+
+  const childCategories = categories.filter(category => !category.children?.length);
+  const manufacturers = await Manufacturer.query();
+  const strippedCategories = getStrippedCategories(childCategories, manufacturers);
+
+  return strippedCategories;
 };

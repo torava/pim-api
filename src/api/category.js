@@ -1,7 +1,7 @@
 import apicache from 'apicache';
 
 import Category from '../models/Category';
-import { resolveCategories, resolveCategoryPrices } from '../../utils/categories';
+import { resolveCategories, resolveCategoryPrices } from '../utils/categories';
 
 let cache = apicache.middleware;
 

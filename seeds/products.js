@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { Model } from 'objection';
 
-import { getEntitiesFromCsv } from '../src/server/utils/import';
+import { getEntitiesFromCsv } from '../src/utils/import';
 import { getProductsFromOpenFoodFactsRecords } from '../src/server/utils/products';
 
 exports.seed = async knex => {

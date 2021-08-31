@@ -1,12 +1,12 @@
 import apicache from 'apicache';
 
 import Product from '../models/Product';
-import { getClosestCategory, getContributionsFromList } from '../../utils/categories';
+import { getClosestCategory, getContributionsFromList } from '../utils/categories';
 import Attribute from '../models/Attribute';
 import Category from '../models/Category';
-import { resolveProductAttributes, getClosestProduct } from '../../utils/products';
+import { resolveProductAttributes, getClosestProduct } from '../utils/products';
 import { getStrippedChildCategories } from '../utils/categories';
-import { getLeafIds } from '../../utils/entities';
+import { getLeafIds } from '../utils/entities';
 
 let cache = apicache.middleware;
 

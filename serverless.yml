@@ -23,6 +23,6 @@ plugins:
 # Enable auto-packing of external modules
 custom:
   webpack:
-    webpackConfig: ./webpack.config.server.js 
+    webpackConfig: ./webpack.config.js 
     includeModules: true
     
