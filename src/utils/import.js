@@ -39,7 +39,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
     console.log('dir', directory);
     console.log('files '+moment().format());
 
-    const fullPath = __dirname+'/../../../'+directory;
+    const fullPath = __dirname+'/../../'+directory;
 
     /* food: 0 = FOODID food id, number
             1 = FOODNAME food name, text
