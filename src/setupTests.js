@@ -1,5 +1,3 @@
-import '@testing-library/jest-dom/extend-expect';
-
 export const toArrayBuffer = (buf) => {
   const ab = new ArrayBuffer(buf.length);
   const view = new Uint8Array(ab);
