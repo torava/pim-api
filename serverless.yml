@@ -17,10 +17,8 @@ functions:
       - http: 'ANY /{proxy+}'
 
 plugins:
+  - serverless-offline
   - serverless-webpack
-
-# serverless-webpack configuration
-# Enable auto-packing of external modules
 custom:
   webpack:
     webpackConfig: ./webpack.config.js 
