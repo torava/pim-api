@@ -7,7 +7,7 @@ provider:
   region: eu-north-1
 
 package:
-  individually: true
+  individually: false
 
 functions:
   app:
