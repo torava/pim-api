@@ -465,8 +465,10 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       attributeCount++;
     }
 
+    const attributeValues = Object.values(attributes);
+
     // put attributes to array
-    for (const attribute of attributes) {
+    for (const attribute of attributeValues) {
       try {
         await Category.query().upsertGraph(attribute, {relate: true});
       } catch (error) {
