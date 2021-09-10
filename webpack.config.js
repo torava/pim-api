@@ -6,9 +6,8 @@ module.exports = {
   node: false,
   entry: './src/server.js',
   output: {
-    libraryTarget: 'commonjs',
-    path: path.join(__dirname, './.webpack'),
-    filename: 'server.js'
+    path: path.join(__dirname, 'src'),
+    filename: 'server-compiled.js'
   },
   watchOptions: {
     ignored: ['src/static', 'node_modules']
