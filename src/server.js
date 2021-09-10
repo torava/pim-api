@@ -1,5 +1,4 @@
 import Express from 'express';
-import serverless from 'serverless-http';
 import compression from 'compression';
 import Knex from 'knex';
 import {Model} from 'objection';
@@ -91,8 +90,6 @@ if (env === 'production') {
 }
 
 registerApi(app);
-
-export const handler = serverless(app);
 
 // Using jsdom and node-canvas we define some global variables to emulate HTML DOM.
 // Although a complete emulation can be archived, here we only define those globals used
