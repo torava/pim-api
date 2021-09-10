@@ -470,13 +470,13 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
     const attributeValues = Object.values(attributes);
 
     // put attributes to array
-    for (const attribute of attributeValues) {
-      try {
+    try {
+      for (const attribute of attributeValues) {
         await Category.query().upsertGraph(attribute, {relate: true});
-      } catch (error) {
-        console.error(error);
-        throw new Error('Category attribute error');
       }
+    } catch (error) {
+      console.error(error);
+      throw new Error('Category attribute error');
     }
     
     console.log('category attributes', moment().format());
