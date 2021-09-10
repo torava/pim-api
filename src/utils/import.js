@@ -117,8 +117,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
         attributeCount = 0,
         value,
         attribute,
-        food_row,
-        row, n,
+        row,
         id, refId,
         parent,
         attributeIndex = 1,
@@ -128,14 +127,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
           '#recipes': true
         },
         categories = {},
-        categoryValues = [],
         attributes = {},
-        attributeValues = [],
-        contributionValues = [],
-        sources,
-        sourceRef,
-        sourceRefs = {},
-        source,
         baseSources = [
           {
             '#id': 'sfineli',
@@ -198,7 +190,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
 
     const baseAttributesWithId = await Attribute.query().insertGraph(baseAttributes);
 
-    for (let i in foodnameFiRows) {
+    for (const i in foodnameFiRows) {
       value = {};
       row = foodnameFiRows[i].trim().split(';');
       value['fi-FI'] = convertFirstLetterCapital(row[1]);
@@ -209,7 +201,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       foodname[row[0]] = value;
     }
 
-    for (let i in fuclassRows) {
+    for (const i in fuclassRows) {
       value = {};
       row = fuclassRows[i].trim().split(';');
       value['fi-FI'] = convertFirstLetterCapital(row[1]);
@@ -220,7 +212,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       fuclass[`fuclass-${row[0]}`] = value;
     }
 
-    for (let i in igclassRows) {
+    for (const i in igclassRows) {
       value = {};
       row = igclassRows[i].trim().split(';');
       value['fi-FI'] = convertFirstLetterCapital(row[1]);
@@ -231,12 +223,12 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       igclass[`igclass-${row[0]}`] = value;
     }
 
-    for (let i in componentRows) {
+    for (const i in componentRows) {
       row = componentRows[i].trim().split(';');
       component[row[0]] = row;
     }
 
-    for (let i in cmpclassRows) {
+    for (const i in cmpclassRows) {
       value = {};
       row = cmpclassRows[i].trim().split(';');
       value['fi-FI'] = convertFirstLetterCapital(row[1]);
@@ -247,7 +239,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       cmpclass[row[0]] = value;
     }
 
-    for (let i in eufdnameRows) {
+    for (const i in eufdnameRows) {
       value = {};
       row = eufdnameRows[i].trim().split(';');
       value['fi-FI'] = convertFirstLetterCapital(row[1]);
@@ -261,26 +253,26 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
     console.log('food '+moment().format());
 
     // go through food
-    for (let i = 1; i < foodRows.length; i++) {
-      food_row = foodRows[i].trim().split(';');
+    for (const foodRow of foodRows) {
+      const columns = foodRow.trim().split(';');
 
-      if (!food_row[0] || food_row[0] == 'FOODID') {
+      if (!columns[0] || columns[0] == 'FOODID') {
         continue;
       }
 
       // is a dish
-      if (food_row[6] == 'NONINGR') {
-        parentRef = `fuclass-${food_row[7]}`;
+      if (columns[6] == 'NONINGR') {
+        parentRef = `fuclass-${columns[7]}`;
         parentName = fuclass[parentRef];
-        secondParentRef = `fuclass-${food_row[8]}`;
+        secondParentRef = `fuclass-${columns[8]}`;
         secondParentName = fuclass[secondParentRef];
         thirdParentRef = baseCategories[2].id; // dish
       }
       // is an ingredient
       else {
-        parentRef = `igclass-${food_row[5]}`;
+        parentRef = `igclass-${columns[5]}`;
         parentName = igclass[parentRef];
-        secondParentRef = `igclass-${food_row[6]}`;
+        secondParentRef = `igclass-${columns[6]}`;
         secondParentName = igclass[secondParentRef];
         thirdParentRef = baseCategories[1].id; // ingredient
       }
@@ -318,8 +310,8 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       }
     
       // add to categories
-      categories[food_row[0]] = {
-        name: foodname[food_row[0]],
+      categories[columns[0]] = {
+        name: foodname[columns[0]],
         //type: food_row[2],
         //process: food_row[3],
         //portion: food_row[4],
@@ -327,16 +319,11 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       };
     }
 
-    // create an array from categories
-    for (let i in categories) {
-      categoryValues.push(categories[i]);
-    }
-
     //console.dir(category_values, {depth: null, maxArrayLength: null});
 
     // add to database
     const category = await Category.query()
-    .upsertGraph(categoryValues, {relate: true, allowRefs: true});
+    .upsertGraph(Object.values(categories), {relate: true, allowRefs: true});
         
     console.log('written '+moment().format());
 
@@ -346,22 +333,22 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
     }
 
     // go through contributions
-    for (let i in contribfoodRows) {
-      row = contribfoodRows[i].split(';');
+    for (const contribFoodRow of contribfoodRows) {
+      const columns = contribFoodRow.split(';');
 
-      if (!row[0] || row[0] == 'FOODID' || !row[2]) {
+      if (!columns[0] || columns[0] == 'FOODID' || !columns[2]) {
         continue;
       }
 
-      id = categories[row[0]].id;
-      refId = categories[row[1]].id;
+      id = categories[columns[0]].id;
+      refId = categories[columns[1]].id;
 
       await CategoryContribution.query()
         .insert({
           categoryId: id,
           contributionId: refId,
-          amount: parseFloat(row[2].replace(',', '.')),
-          unit: row[3].toLowerCase()
+          amount: parseFloat(columns[2].replace(',', '.')),
+          unit: columns[3].toLowerCase()
         })
         .catch(error => {
           console.error(error);
@@ -479,13 +466,13 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
     }
 
     // put attributes to array
-    for (let i in attributes) {
-      attributeValues.push(attributes[i]);
-
-      await Category.query()
-      .upsertGraph(attributes[i], {relate: true});
-
-      attributeValues = [];
+    for (const attribute of attributes) {
+      try {
+        await Category.query().upsertGraph(attribute, {relate: true});
+      } catch (error) {
+        console.error(error);
+        throw new Error('Category attribute error');
+      }
     }
     
     console.log('attributes '+attributeCount+'/'+attributeCount+' '+moment().format());
