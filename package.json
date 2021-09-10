@@ -1,6 +1,6 @@
 {
   "name": "bookkeepr",
-  "version": "0.0.22",
+  "version": "0.0.23",
   "description": "bookkeepr",
   "scripts": {
     "test": "jest --env=jsdom",
