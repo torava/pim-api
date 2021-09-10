@@ -465,6 +465,8 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       attributeCount++;
     }
 
+    console.log('attributes', `${attributeCount}/${attributeCount}`, moment().format());
+
     const attributeValues = Object.values(attributes);
 
     // put attributes to array
@@ -477,7 +479,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       }
     }
     
-    console.log('attributes '+attributeCount+'/'+attributeCount+' '+moment().format());
+    console.log('category attributes', moment().format());
 
     const foodUnits = {};
     for (const index in foodunitEnRecords) {
