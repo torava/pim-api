@@ -2,7 +2,7 @@ import {Model} from 'objection';
 import ProductAttribute from './ProductAttribute';
 import Source from './Source';
 
-export default class CategoryAttributeSource extends Model {
+export default class ProductAttributeSource extends Model {
 	static get tableName() {
 		return 'ProductAttributeSource';
 	}

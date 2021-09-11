@@ -5,6 +5,7 @@ import moment from 'moment';
 import Attribute from '../models/Attribute';
 import Category from '../models/Category';
 import CategoryAttribute from '../models/CategoryAttribute';
+import CategoryAttributeSource from '../models/CategoryAttributeSource';
 import CategoryContribution from '../models/CategoryContribution';
 import Source from '../models/Source';
 
@@ -37,7 +38,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
     const encoding = 'utf8';
 
     console.log('dir', directory);
-    console.log('files '+moment().format());
+    console.log('files', moment().format());
 
     const fullPath = __dirname+'/../../'+directory;
 
@@ -127,7 +128,6 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
           '#recipes': true
         },
         categories = {},
-        attributes = {},
         baseSources = [
           {
             '#id': 'sfineli',
@@ -323,7 +323,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
 
     // add to database
     const category = await Category.query()
-    .upsertGraph(Object.values(categories), {relate: true, allowRefs: true});
+    .insertGraph(Object.values(categories), {relate: true, allowRefs: true});
         
     console.log('written '+moment().format());
 
@@ -343,144 +343,131 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       id = categories[columns[0]].id;
       refId = categories[columns[1]].id;
 
-      await CategoryContribution.query()
+      try {
+        await CategoryContribution.query()
         .insert({
           categoryId: id,
           contributionId: refId,
           amount: parseFloat(columns[2].replace(',', '.')),
           unit: columns[3].toLowerCase()
-        })
-        .catch(error => {
-          console.error(error);
-          throw new Error('CategoryAttribute error');
         });
+      } catch (error) {
+        console.error(error);
+        throw new Error('CategoryContribution error');
+      }
     }
 
     console.log("contributions "+moment().format());
 
     // go through attributes
     for (let n = attributeIndex; n < componentValueRows.length; n++) {
-      row = componentValueRows[n].split(';');
+      try {
+        row = componentValueRows[n].split(';');
 
-      if (!row[0] || row[0] == 'FOODID')
-        continue;
+        if (!row[0] || row[0] == 'FOODID')
+          continue;
 
-      id = categories[row[0]].id;
+        const categoryId = categories[row[0]].id;
 
-      /*  if (row[0] != food_row[0]) {
-        attribute_index = n;
-        break;
-      }*/
+        let attributeId;
 
-      // add new attribute
-      if (!(row[0] in attributes))
-        attributes[row[0]] = {
-          id,
-          attributes: []
-        };
+        /*  if (row[0] != food_row[0]) {
+          attribute_index = n;
+          break;
+        }*/
 
-      attrRef = row[1];
+        attrRef = row[1];
 
-      // check references
-      if (attrRef in attrRefs) {
-        attribute = {
-          id: attrRefs[attrRef]
-        }
-      }
-      else {
-        attribute = {
-          code: attrRef,
-          name: eufdname[attrRef]
-        }
-
-        parentRef = component[row[1]][2];
-
-        // check parent references
-        if (parentRef in parentAttrRefs) {
-          attribute.parent = {
-            id: parentAttrRefs[parentRef]
+        // check references
+        if (attrRef in attrRefs) {
+          attribute = {
+            id: attrRefs[attrRef]
           }
         }
         else {
-          attribute.parent = {
-            code: parentRef,
-            name: cmpclass[parentRef]
+          attribute = {
+            code: attrRef,
+            name: eufdname[attrRef]
           }
 
-          secondParentRef = component[row[1]][3];
+          parentRef = component[row[1]][2];
 
-          if (secondParentRef in secondParentAttrRefs) {
-            attribute.parent.parent = {
-              id: secondParentAttrRefs[secondParentRef]
+          // check parent references
+          if (parentRef in parentAttrRefs) {
+            attribute.parent = {
+              id: parentAttrRefs[parentRef]
             }
           }
           else {
-            attribute.parent.parent = {
-              code: secondParentRef,
-              name: cmpclass[secondParentRef]
+            attribute.parent = {
+              code: parentRef,
+              name: cmpclass[parentRef]
+            }
+
+            secondParentRef = component[row[1]][3];
+
+            if (secondParentRef in secondParentAttrRefs) {
+              attribute.parent.parent = {
+                id: secondParentAttrRefs[secondParentRef]
+              }
+            }
+            else {
+              attribute.parent.parent = {
+                code: secondParentRef,
+                name: cmpclass[secondParentRef]
+              }
             }
           }
+
+          // add attribute to database
+          const insertedAttribute = await Attribute.query().insertGraph(attribute, {relate: true});
+          // set database id as reference
+          if (!(attrRef in attrRefs))
+            attrRefs[attrRef] = insertedAttribute.id;
+          if (!(parentRef in parentAttrRefs))
+            parentAttrRefs[parentRef] = insertedAttribute.parent.id;
+          if (!(secondParentRef in secondParentAttrRefs))
+            secondParentAttrRefs[secondParentRef] = insertedAttribute.parent.parent.id;
+
+          attributeId = insertedAttribute.id;
         }
 
-        // add attribute to database
-        await Attribute.query()
-          .upsertGraph(attribute, {relate: true})
-          .then(result => {
-            // set database id as reference
-            if (!(attrRef in attrRefs))
-              attrRefs[attrRef] = result.id;
-            if (!(parentRef in parentAttrRefs))
-              parentAttrRefs[parentRef] = result.parent.id;
-            if (!(secondParentRef in secondParentAttrRefs))
-              secondParentAttrRefs[secondParentRef] = result.parent.parent.id;
-
-            attribute = {id: result.id};
-          })
-          .catch(error => {
-            console.error(error);
-            throw new Error('Attribute error');
-          });
-      }
-
-      // set attribute value and source
-      if (row[2] != "") {
-        const value = parseFloat(row[2].replace(',', '.'));
-        const unit = `${component[attrRef][1].toLowerCase()}/hg`;
-        const sources = [
-          {
-            reference_url: `https://fineli.fi/fineli/en/elintarvikkeet/${row[0]}`,
-            source: {
-              id: baseSources[0].id
+        // set attribute value and source
+        if (row[2] != "") {
+          const value = parseFloat(row[2].replace(',', '.'));
+          const unit = `${component[attrRef][1].toLowerCase()}/hg`;
+          const sources = [
+            {
+              reference_url: `https://fineli.fi/fineli/en/elintarvikkeet/${row[0]}`,
+              source: {
+                id: baseSources[0].id
+              }
             }
-          }
-        ];
-        attributes[row[0]].attributes.push({
-          attribute,
-          value,
-          unit,
-          sources
-        });
-      }
+          ];
+          const categoryAttribute = await CategoryAttribute.query().insertGraph({
+            categoryId,
+            attributeId,
+            value,
+            unit,
+            sources
+          }, {relate: true});
 
-      attributeCount++;
+          await CategoryAttributeSource.query().insert({
+            attributeId: categoryAttribute.id,
+            sourceId: baseSources[0].id,
+            reference_url: `https://fineli.fi/fineli/en/elintarvikkeet/${row[0]}`
+          });
+        }
+
+        attributeCount++;
+      } catch (error) {
+        console.error(error);
+        throw new Error('attribute error');
+      }
     }
 
     console.log('attributes', `${attributeCount}/${attributeCount}`, moment().format());
-
-    const attributeValues = Object.values(attributes);
-
-    // put attributes to array
-    try {
-      for (const attribute of attributeValues) {
-        await Category.query().upsertGraph(attribute, {relate: true});
-      }
-    } catch (error) {
-      console.error(error);
-      throw new Error('Category attribute error');
-    }
     
-    console.log('category attributes', moment().format());
-
     const foodUnits = {};
     for (const index in foodunitEnRecords) {
       const enName = foodunitEnRecords[index];
@@ -495,8 +482,13 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
         },
         parentId: baseAttributesWithId[0].id
       };
-      const foodUnitWithId = await Attribute.query().insertAndFetch(foodUnit);
-      foodUnits[enName.THSCODE] = foodUnitWithId;
+      try {
+        const foodUnitWithId = await Attribute.query().insertAndFetch(foodUnit);
+        foodUnits[enName.THSCODE] = foodUnitWithId;
+      } catch (error) {
+        console.error(error);
+        throw new Error('food unit attribute error');
+      }
     }
 
     for (const unit of foodaddunitRecords) {
@@ -516,7 +508,12 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
         unit: 'g',
         sources
       };
-      await CategoryAttribute.query().insertGraph(categoryFoodUnit, {relate: true});
+      try {
+        await CategoryAttribute.query().insertGraph(categoryFoodUnit, {relate: true});
+      } catch (error) {
+        console.error(error);
+        throw new Error('food unit category attribute error');
+      }
     }
 
     console.log('food units', moment().format());

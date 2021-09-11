@@ -1,6 +1,6 @@
 {
   "name": "product-api",
-  "version": "0.0.28",
+  "version": "0.0.29",
   "description": "product-api",
   "scripts": {
     "test": "jest --env=jsdom",
