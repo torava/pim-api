@@ -436,21 +436,12 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
         if (row[2] != "") {
           const value = parseFloat(row[2].replace(',', '.'));
           const unit = `${component[attrRef][1].toLowerCase()}/hg`;
-          const sources = [
-            {
-              reference_url: `https://fineli.fi/fineli/en/elintarvikkeet/${row[0]}`,
-              source: {
-                id: baseSources[0].id
-              }
-            }
-          ];
-          const categoryAttribute = await CategoryAttribute.query().insertGraph({
+          const categoryAttribute = await CategoryAttribute.query().insert({
             categoryId,
             attributeId,
             value,
-            unit,
-            sources
-          }, {relate: true});
+            unit
+          });
 
           await CategoryAttributeSource.query().insert({
             attributeId: categoryAttribute.id,
