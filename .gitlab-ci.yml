@@ -1,2 +1,7 @@
+variables:
+  CI_AWS_ECS_CLUSTER: product-api
+  CI_AWS_ECS_SERVICE: product-api
+  CI_AWS_ECS_TASK_DEFINITION: product-api
+
 include:
-  - template: Docker.gitlab-ci.yml
+  - template: AWS/Deploy-ECS.gitlab-ci.yml
