@@ -1,6 +1,6 @@
 {
   "name": "product-api",
-  "version": "0.0.35",
+  "version": "0.0.36",
   "description": "product-api",
   "scripts": {
     "test": "jest --env=jsdom",
@@ -44,6 +44,7 @@
     "lodash": "^4.17.21",
     "match-sorter": "^2.3.0",
     "moment": "^2.22.2",
+    "morgan": "^1.10.0",
     "natural": "^5.1.0",
     "objection": "^2.2.15",
     "path": "^0.12.7",

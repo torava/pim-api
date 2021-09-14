@@ -1,4 +1,5 @@
 import Express from 'express';
+import morgan from 'morgan';
 import compression from 'compression';
 import Knex from 'knex';
 import {Model} from 'objection';
@@ -15,6 +16,7 @@ import swaggerDocument from '../swagger.json';
 export const app = new Express();
 
 app.use(compression());
+app.use(morgan('dev'));
 
 // Initialize knex.
 const knex = Knex(knexConfig.development);
