@@ -56,7 +56,13 @@ let port;
 if (env === 'production') {
   port = process.env.PORT || 42808;
   // define the folder that will be used for static assets
-  app.use(Express.static('src/static'));
+  app.use(Express.static('src/static', {
+    index: false
+  }));
+
+  app.get('/', (req, res) => {
+    return res.sendStatus(404);
+  });
 
   app.get('/*', (req, res, next) => {
     const {
