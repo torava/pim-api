@@ -61,7 +61,7 @@ app.get('/api/product/:id', cache(), async (req, res) => {
   }
 });
 
-app.get('/api/product', async (req, res) => {
+app.get('/api/product', cache(), async (req, res) => {
   const {
     pageNumber = 0,
     productsPerPage = 20,
