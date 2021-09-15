@@ -10,7 +10,8 @@ module.exports = {
       database: process.env.POSTGRES_DB || 'product-api',
       port: Number(process.env.POSTGRES_PORT) || 5432
       //filename: './example.db'
-    }
+    },
+    pool: { min: 0, max: 10 }
   },
 
   production: {
@@ -22,7 +23,8 @@ module.exports = {
       password: process.env.POSTGRES_PASSWORD || 'password',
       database: process.env.POSTGRES_DB || 'product-api',
       port: Number(process.env.POSTGRES_PORT) || 5432
-    }
+    },
+    pool: { min: 0, max: 10 }
   }
 
 };
