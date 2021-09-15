@@ -1,13 +1,9 @@
-import apicache from 'apicache';
-
 import Category from '../models/Category';
 import { resolveCategories, resolveCategoryPrices } from '../utils/categories';
 
-let cache = apicache.middleware;
-
 export default app => {
 
-app.get('/api/category/all', cache(), async (req, res) => {
+app.get('/api/category/all', async (req, res) => {
   try {
     let categories = await Category.query()
     .withGraphFetched('[contributions, attributes]');
@@ -35,7 +31,7 @@ app.get('/api/category/:id', async (req, res) => {
   }
 });
 
-app.get('/api/category', cache(), async (req, res) => {
+app.get('/api/category', async (req, res) => {
   const {
     pageNumber = 0,
     categoriesPerPage = 20,

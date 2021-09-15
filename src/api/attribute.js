@@ -1,8 +1,4 @@
-import apicache from 'apicache';
-
 import Attribute from '../models/Attribute';
-
-const cache = apicache.middleware;
 
 export default app => {
 
@@ -17,7 +13,7 @@ function resolveAttributes(attributes) {
   return resolved_attributes;
 }
 
-app.get('/api/attribute', cache(), (req, res) => {
+app.get('/api/attribute', (req, res) => {
   if (req.query.parent) {
     return Attribute.query()
     .where('parentId', req.query.parent || null)

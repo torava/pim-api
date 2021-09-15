@@ -1,6 +1,7 @@
 import Express from 'express';
 import morgan from 'morgan';
 import compression from 'compression';
+import apicache from 'apicache';
 import Knex from 'knex';
 import {Model} from 'objection';
 import {JSDOM} from 'jsdom';
@@ -17,6 +18,14 @@ export const app = new Express();
 
 app.use(compression());
 app.use(morgan('dev'));
+
+const cache = apicache.options({
+  statusCodes: {
+    include: [200]
+  }
+}).middleware;
+
+app.use(cache());
 
 // Initialize knex.
 const knex = Knex(knexConfig.development);
@@ -57,6 +66,9 @@ const env = process.env.NODE_ENV || 'production';
 let port;
 if (env === 'production') {
   port = process.env.PORT || 42808;
+
+  app.get('/favicon.ico', (req, res) => res.sendStatus(204));
+
   // define the folder that will be used for static assets
   app.use(Express.static('src/static', {
     index: false

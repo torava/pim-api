@@ -1,5 +1,3 @@
-import apicache from 'apicache';
-
 import Product from '../models/Product';
 import { getClosestCategory, getContributionsFromList } from '../utils/categories';
 import Attribute from '../models/Attribute';
@@ -8,11 +6,9 @@ import { resolveProductAttributes, getClosestProduct } from '../utils/products';
 import { getStrippedChildCategories } from '../utils/categories';
 import { getLeafIds } from '../utils/entities';
 
-let cache = apicache.middleware;
-
 export default app => {
 
-app.get('/api/product/all', cache(), async (req, res) => {
+app.get('/api/product/all', async (req, res) => {
   try {
     let products = await Product.query();
     return res.send(products);
@@ -22,7 +18,7 @@ app.get('/api/product/all', cache(), async (req, res) => {
   }
 });
   
-app.get('/api/product/:id', cache(), async (req, res) => {
+app.get('/api/product/:id', async (req, res) => {
   const {
     id
   } = req.params;
@@ -61,7 +57,7 @@ app.get('/api/product/:id', cache(), async (req, res) => {
   }
 });
 
-app.get('/api/product', cache(), async (req, res) => {
+app.get('/api/product', async (req, res) => {
   const {
     pageNumber = 0,
     productsPerPage = 20,
