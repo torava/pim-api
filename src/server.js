@@ -1,4 +1,5 @@
 import Express from 'express';
+import cors from 'cors';
 import morgan from 'morgan';
 import compression from 'compression';
 import apicache from 'apicache';
@@ -16,6 +17,7 @@ import swaggerDocument from '../swagger.json';
 
 export const app = new Express();
 
+app.use(cors());
 app.use(compression());
 app.use(morgan('dev'));
 
