@@ -218,7 +218,10 @@ export const getClosestCategory = (name, categories, acceptLocale) => {
 };
 
 export const getTokensFromContributionList = (list) => (
-  list?.replace(/[([][^)\]]*[)\]]/g, '').replace(/\s{2,}/g, ' ').trim().split(/,\s|\sja\s|\sand\s|\soch\s/gi)
+  list?.replace(/[([][^)\]]*[)\]]|\./g, '')
+  .replace(/\s{2,}/g, ' ')
+  .trim()
+  .split(/,\s|\sja\s|\sand\s|\soch\s|\s?&\s?/gi)
 );
 
 export const getContributionsFromList = (list, contentLanguage, categories = [], attributes = []) => {
