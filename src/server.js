@@ -21,14 +21,6 @@ app.use(cors());
 app.use(compression());
 app.use(morgan('dev'));
 
-const cache = apicache.options({
-  statusCodes: {
-    include: [200]
-  }
-}).middleware;
-
-app.use(cache());
-
 // Initialize knex.
 const knex = Knex(knexConfig.development);
 
@@ -70,6 +62,14 @@ if (env === 'production') {
   port = process.env.PORT || 42808;
 
   app.get('/favicon.ico', (req, res) => res.sendStatus(204));
+
+  const cache = apicache.options({
+    statusCodes: {
+      include: [200]
+    }
+  }).middleware;
+  
+  app.use(cache());
 
   // define the folder that will be used for static assets
   app.use(Express.static('src/static', {
