@@ -17,7 +17,7 @@ it('should strip category names', () => {
     'sv-SV': 'Makaroner mörka kokta utan salt'
   });
   expect(strippedCategories[4].strippedName).toEqual({
-    "en-US": "Ravioli with spinach",
+    "en-US": "Ravioli spinach",
     "fi-FI": "Pasta ravioli pinaatti",
     "sv-SV": "Pasta fylld pasta ravioli med spenatfyllning"
   });
@@ -25,7 +25,7 @@ it('should strip category names', () => {
 
 it('should get contributions', () => {
   const mockStrippedCategoryChildren = getStrippedCategories(mockCategoryChildren);
-  
+  console.log('mockStrippedCategoryChildren', mockStrippedCategoryChildren);
   let contributions = getContributionsFromList('Macaroni dark 500g [macaroni] (100%)', undefined, mockStrippedCategoryChildren);
   expect(contributions.length).toBe(1);
   expect(contributions[0].contributionId).toBe(302);

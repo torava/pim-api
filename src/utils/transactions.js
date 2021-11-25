@@ -12,11 +12,6 @@ export const getDetails = (manufacturers = []) => {
     details.manufacturers[manufacturer.name] = [manufacturer.name, ...manufacturer.aliases || []];
   });
 
-  details.extra = {
-    trademark: ['™'],
-    registered: ["®"],
-    with: ['with a', 'with']
-  };
   details.weighting = {
     weighed: ['punnittu'],
     stone: ['kivineen'],
@@ -124,6 +119,11 @@ export const getDetails = (manufacturers = []) => {
     finnish: ['suomi', 'suomalainen', 'suomesta'],
     californian: ['kalifornia', 'kalifornialainen'],
     spanish: ['espanja', 'espanjalainen']
+  };
+  details.extra = {
+    trademark: ['™'],
+    registered: ["®"],
+    with: ['with a', 'with']
   };
 
   return details;
@@ -241,13 +241,14 @@ export function stripName(name, manufacturers) {
       for (const j in details[i]) {
         details[i][j].forEach(detail => {
           strippedName[locale] = strippedName[locale]
-          .replace(new RegExp(escapeRegExp(detail)), ' ')
+          .replace(new RegExp(escapeRegExp(detail)), '')
         });
       }
     }
     strippedName[locale] = (
       strippedName[locale]
-      .replace(/,|\s{2,}|/g, '')
+      .replace(/,/g, '')
+      .replace(/\s{2,}/, ' ')
       .trim()
     );
   });
