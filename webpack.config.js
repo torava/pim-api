@@ -1,7 +1,8 @@
 const path = require('path');
+const { merge } = require('webpack-merge');
 const nodeExternals = require('webpack-node-externals');
 
-module.exports = {
+const common = {
   target: 'node',
   node: false,
   entry: './src/server.js',
@@ -47,3 +48,11 @@ module.exports = {
     nodeExternals()
   ]
 };
+
+module.exports = merge(common, {
+  performance: {
+      hints: false,
+      maxEntrypointSize: 512000,
+      maxAssetSize: 512000
+  }
+});
