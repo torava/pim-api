@@ -42,7 +42,8 @@ export const getDetails = (manufacturers = []) => {
     smoked: ['savustettu', 'savu'],
     milk: ['kevytmaito', 'rasvaton maito'],
     overcooked: ['ylikypsä', 'overcooked'],
-    cooked: ['cooked']
+    cooked: ['cooked'],
+    grated: ['grated']
   };
   details.serving = {
     servedWith: ['served with', 'kanssa'],
