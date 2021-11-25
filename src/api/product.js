@@ -130,11 +130,20 @@ app.get('/api/product', async (req, res) => {
         name,
         contributionList,
         //attributes: productAttributes,
-        contributions,
+        contributions
+      };
+
+      if (!contributions.length) {
+        product = {
+          ...product
+        };
+      }
+
+      product = {
         ...product,
         measure: Number(req.query.measure) || product?.measure,
         unit: unit || product?.unit,
-        quantity: Number(quantity) || 1,
+        quantity: Number(quantity) || 1
       };
 
       const categories = (await Category.query()
