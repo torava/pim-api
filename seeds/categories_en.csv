@@ -92,7 +92,7 @@ Cereals,,,,,,,,,"0,7",Plant based groceries,2
 "Cheese, ripened cheese > 17 %",,,,,10,,,,,Juusto,9
 "Cheese, ripened cheese > 17 %",,,,,"8,55",,,,,"Cheese, median",1
 "Cheese, ripened cheese > 17 %",,,,,,,,,"2,44",Dairy products and ice cream,2
-"Cheese, Turunmaa/Oltermanni, 30% Fat",,"[""Oltermanni"", ""Kärtner Rahmlaib"", ""Appenzeller Extra"", ""Vuorijuusto""]",,,,,,,,,
+"Cheese, Turunmaa/Oltermanni, 30% Fat",,"[""Oltermanni"", ""Kärtner Rahmlaib"", ""Appenzeller Extra"", ""Vuorijuusto"", ""Parmesan""]",,,,,,,,,
 "Cheese, unripened, fresh cheese <=15 %",,,,,10,,,,,Juusto,9
 "Cheese, unripened, fresh cheese <=15 %",,,,,"8,55",,,,,"Cheese, median",1
 "Cheese, unripened, fresh cheese <=15 %",,,,,,,,,"2,44",Dairy products and ice cream,2
@@ -567,3 +567,4 @@ Yoghurt  <= 1 %,,,,,"1,31",,,,,"Yoghurt, median",1
 Yoghurt > 1 %,,,,,"1,31",,,,,"Yoghurt, median",1
 "Zucchini, Summer Squash","Kesäkurpitsa, zucchini","[""Kesäkurpitsa""]",,,"1,77",,,,,"Zucchini: passive greenhouse, median",1
 "Zucchini, Summer Squash","Kesäkurpitsa, zucchini","[""Pattypan squash"", ""Button squash"", ""Kiekkokurpitsa""]",,,"0,21",,,,,"Zucchini/button squash, median",1
+"Pasta, Spaghetti, Boiled Without Salt",,"[""Spaghetti""]",,,,,,,,,
