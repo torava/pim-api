@@ -14,7 +14,8 @@ export const getDetails = (manufacturers = []) => {
 
   details.extra = {
     trademark: ['™'],
-    registered: ["®"]
+    registered: ["®"],
+    with: ['with a', 'with']
   };
   details.weighting = {
     weighed: ['punnittu'],
@@ -22,7 +23,7 @@ export const getDetails = (manufacturers = []) => {
     stoneless: ['kivetön'],
     withpeel: ['kuorineen'],
     peeled: ['kuorittu'],
-    average: ['tuotekeskiarvo', 'keskiarvo'],
+    average: ['average', 'tuotekeskiarvo', 'keskiarvo'],
     kilogram: ['kg']
   };
   details.size = {
@@ -45,7 +46,8 @@ export const getDetails = (manufacturers = []) => {
     coldsmoked: ['kylmäsavustettu', 'kylmäsavu'],
     smoked: ['savustettu', 'savu'],
     milk: ['kevytmaito', 'rasvaton maito'],
-    overcooked: ['ylikypsä', 'overcooked']
+    overcooked: ['ylikypsä', 'overcooked'],
+    cooked: ['cooked']
   };
   details.serving = {
     servedWith: ['served with', 'kanssa'],
@@ -111,7 +113,10 @@ export const getDetails = (manufacturers = []) => {
 
     skin: ['kuorellinen'],
     withoutskin: ['kuoreton'],
-    package: ['paperipakkaus']
+    package: ['paperipakkaus'],
+
+    filledPasta: ['täytepasta'],
+    filling: ['filling', 'täyte']
   };
   details.origin = {
     local: ['kotimainen'],
@@ -242,8 +247,8 @@ export function stripName(name, manufacturers) {
     }
     strippedName[locale] = (
       strippedName[locale]
-      .trim()
       .replace(/,|\s{2,}|/g, '')
+      .trim()
     );
   });
   return strippedName;

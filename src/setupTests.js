@@ -7,7 +7,7 @@ export const toArrayBuffer = (buf) => {
   return ab;
 };
 
-export const mockStrippedCategoryChildren = [
+export const mockCategoryChildren = [
   {
     id: 302,
     name: {
@@ -34,11 +34,6 @@ export const mockStrippedCategoryChildren = [
       }
     ],
     children: [],
-    strippedName: {
-      'en-US': 'Macaroni dark',
-      'fi-FI': 'Makaroni tumma',
-      'sv-SV': 'Makaroner mörka kokta utan salt'
-    },
     "attributes": [
       {
         "id": 4117,
@@ -68,11 +63,6 @@ export const mockStrippedCategoryChildren = [
     "aliases": null,
     "parentId": 50,
     "contributions": [],
-    strippedName: {
-      'en-US': 'Macaroni whole wheat',
-      'fi-FI': 'Makaroni tumma',
-      'sv-SV': 'Makaroner mörka'
-    },
     "attributes": [
       {
         "id": 3903,
@@ -102,11 +92,6 @@ export const mockStrippedCategoryChildren = [
     "aliases": null,
     "parentId": 127,
     "contributions": [],
-    "strippedName": {
-      "en-US": "Water tap water",
-      "fi-FI": "Vesi vesijohtovesi",
-      "sv-SV": "Vatten kranvatten"
-    },
     "attributes": [
       {
         "id": 32003,
@@ -167,17 +152,221 @@ export const mockStrippedCategoryChildren = [
         "categoryId": 670,
         "attributeId": 117
       }
+    ]
+  },
+  {
+    "id": 945,
+    "name": {
+      "en-US": "Ravioli with spinach filling, boiled",
+      "fi-FI": "Pasta, täytepasta, ravioli, pinaattitäyte, keitetty",
+      "sv-SV": "Pasta, fylld pasta, ravioli med spenatfyllning"
+    },
+    "aliases": [
+      "de Angelis tortell"
     ],
-    "strippedName": {
-      "en-US": "Soft drink lemonade",
-      "fi-FI": "Virvoitusjuoma",
-      "sv-SV": "Läskedryck"
-    }
+    "parentId": 51,
+    "contributions": [
+      {
+        "id": 974,
+        "amount": 0.8,
+        "unit": "g",
+        "categoryId": 945,
+        "contributionId": 254
+      },
+      {
+        "id": 968,
+        "amount": 38,
+        "unit": "g",
+        "categoryId": 945,
+        "contributionId": 280
+      },
+      {
+        "id": 973,
+        "amount": 3,
+        "unit": "g",
+        "categoryId": 945,
+        "contributionId": 471
+      },
+      {
+        "id": 972,
+        "amount": 4,
+        "unit": "g",
+        "categoryId": 945,
+        "contributionId": 551
+      },
+      {
+        "id": 970,
+        "amount": 12,
+        "unit": "g",
+        "categoryId": 945,
+        "contributionId": 650
+      },
+      {
+        "id": 969,
+        "amount": 20,
+        "unit": "g",
+        "categoryId": 945,
+        "contributionId": 679
+      },
+      {
+        "id": 975,
+        "amount": 0.8,
+        "unit": "g",
+        "categoryId": 945,
+        "contributionId": 1511
+      },
+      {
+        "id": 971,
+        "amount": 10,
+        "unit": "g",
+        "categoryId": 945,
+        "contributionId": 1523
+      },
+      {
+        "id": 976,
+        "amount": 0.05,
+        "unit": "g",
+        "categoryId": 945,
+        "contributionId": 1533
+      },
+      {
+        "id": 977,
+        "amount": 12,
+        "unit": "g",
+        "categoryId": 945,
+        "contributionId": 3596
+      }
+    ],
+    "attributes": [
+      {
+        "id": 47939,
+        "value": 886.52,
+        "unit": "kj/hg",
+        "type": null,
+        "categoryId": 945,
+        "attributeId": 5
+      },
+      {
+        "id": 311267,
+        "value": 175,
+        "unit": "g",
+        "type": null,
+        "categoryId": 945,
+        "attributeId": 117
+      },
+      {
+        "id": 328194,
+        "value": 0.7,
+        "unit": "kgCO₂e/EUR",
+        "type": null,
+        "categoryId": 945,
+        "attributeId": 1
+      }
+    ]
+  },
+  {
+    "id": 3592,
+    "name": {
+      "en-US": "Cheese, average",
+      "fi-FI": "Juusto, tuotekeskiarvo",
+      "sv-SV": "Ost, medelvärde"
+    },
+    "aliases": [
+      "Juusto",
+      "Juustoa"
+    ],
+    "parentId": 98,
+    "contributions": [],
+    "attributes": [
+      {
+        "id": 244781,
+        "value": 1159.37,
+        "unit": "kj/hg",
+        "type": null,
+        "categoryId": 3592,
+        "attributeId": 5
+      },
+      {
+        "id": 323609,
+        "value": 8,
+        "unit": "g",
+        "type": null,
+        "categoryId": 3592,
+        "attributeId": 117
+      }
+    ]
+  },
+  {
+    "id": 3776,
+    "name": {
+      "en-US": "Cream sauce with meat bouillon",
+      "fi-FI": "Kermakastike, lihaliemi, kerma, vehnäjauho",
+      "sv-SV": "Gräddsås, köttbuljong, grädde, vetemjöl"
+    },
+    "aliases": [
+      "Creamy sauce"
+    ],
+    "parentId": 45,
+    "contributions": [
+      {
+        "id": 8698,
+        "amount": 400,
+        "unit": "g",
+        "categoryId": 3776,
+        "contributionId": 253
+      },
+      {
+        "id": 8701,
+        "amount": 5,
+        "unit": "g",
+        "categoryId": 3776,
+        "contributionId": 254
+      },
+      {
+        "id": 8702,
+        "amount": 30,
+        "unit": "g",
+        "categoryId": 3776,
+        "contributionId": 280
+      },
+      {
+        "id": 8699,
+        "amount": 30,
+        "unit": "g",
+        "categoryId": 3776,
+        "contributionId": 1118
+      },
+      {
+        "id": 8700,
+        "amount": 100,
+        "unit": "g",
+        "categoryId": 3776,
+        "contributionId": 1752
+      }
+    ],
+    "attributes": [
+      {
+        "id": 258055,
+        "value": 574.77,
+        "unit": "kj/hg",
+        "type": null,
+        "categoryId": 3776,
+        "attributeId": 5
+      },
+      {
+        "id": 324513,
+        "value": 100,
+        "unit": "g",
+        "type": null,
+        "categoryId": 3776,
+        "attributeId": 117
+      }
+    ]
   }
 ];
 
-export const mockStrippedCategories = [
-  ...mockStrippedCategoryChildren,
+export const mockCategories = [
+  ...mockCategoryChildren,
   {
     "id": 50,
     "name": {
@@ -217,11 +406,6 @@ export const mockStrippedCategories = [
     "aliases": null,
     "parentId": 20,
     "contributions": [],
-    "strippedName": {
-      "en-US": "Water",
-      "fi-FI": "Vesi",
-      "sv-SV": "Vatten"
-    },
     "attributes": [
       {
         "id": 328291,
@@ -229,6 +413,43 @@ export const mockStrippedCategories = [
         "unit": "kgCO₂e/l",
         "type": null,
         "categoryId": 127,
+        "attributeId": 1
+      }
+    ]
+  },
+  {
+    "id": 98,
+    "name": {
+      "en-US": "Cheese, ripened cheese > 17 %",
+      "fi-FI": "Juustot, kypsytetyt, rasvaa >17 %",
+      "sv-SV": "Ost, mogen > 17 %"
+    },
+    "aliases": null,
+    "parentId": 16,
+    "contributions": [],
+    "attributes": [
+      {
+        "id": 327931,
+        "value": 8.55,
+        "unit": "kgCO₂e/kg",
+        "type": null,
+        "categoryId": 98,
+        "attributeId": 1
+      },
+      {
+        "id": 327932,
+        "value": 10,
+        "unit": "kgCO₂e/kg",
+        "type": null,
+        "categoryId": 98,
+        "attributeId": 1
+      },
+      {
+        "id": 327933,
+        "value": 2.44,
+        "unit": "kgCO₂e/EUR",
+        "type": null,
+        "categoryId": 98,
         "attributeId": 1
       }
     ]

@@ -1,5 +1,8 @@
 import { getProductCategoryMinMaxAttributes, resolveProductAttributes } from './products';
-import { mockStrippedCategories, mockAttributes, mockProducts } from '../setupTests';
+import { mockAttributes, mockProducts, mockCategories } from '../setupTests';
+import { getStrippedCategories } from './categories';
+
+const mockStrippedCategories = getStrippedCategories(mockCategories);
 
 it('should resolve product attributes by product name', () => {
   const product = mockProducts[0];
