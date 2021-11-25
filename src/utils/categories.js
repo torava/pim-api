@@ -169,10 +169,10 @@ export const getStrippedCategories = (categories, manufacturers = []) => {
   });
 };
 
-export const getClosestCategory = (name, categories, acceptLocale) => {
+export const getClosestCategory = (name, categories, acceptLocale, strippedName) => {
   if (!name) return [undefined, undefined];
 
-  const strippedName = stripDetails(name);
+  if (!strippedName) strippedName = stripDetails(name);
 
   let bestToken, bestCategory;
 
@@ -249,7 +249,8 @@ export const getContributionsFromList = (list, contentLanguage, categories = [],
         foodUnitAttribute = attributes.find(attribute => attribute.code === code);
       }
     });
-    let [contribution, token] = getClosestCategory(contributionToken, categories, contentLanguage);
+    let strippedContributionToken = stripDetails(contributionToken);
+    let [contribution, token] = getClosestCategory(contributionToken, categories, contentLanguage, strippedContributionToken);
     if (contribution) {
       if (foodUnitAttribute) {
         const {value, unit} = contribution.attributes.find(attribute => attribute.attributeId === foodUnitAttribute.id) || {};
@@ -263,8 +264,9 @@ export const getContributionsFromList = (list, contentLanguage, categories = [],
       }
     }
     if (contributionToken.split(' ').length > 2) {
-      while (contribution && contributionToken) {
+      while (contribution && contributionToken && strippedContributionToken) {
         contributionToken = contributionToken.replace(new RegExp(token.substring, 'i'), '').trim();
+        strippedContributionToken = stripDetails(contributionToken).replace(new RegExp(token.substring, 'i'), '').trim();
         contributions.push({contributionId: contribution.id, contribution});
         [contribution, token] = getClosestCategory(contributionToken, categories, contentLanguage);
         if (contribution) {
