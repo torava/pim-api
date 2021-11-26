@@ -463,7 +463,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
     console.log('attributes', `${attributeCount}/${attributeCount}`, moment().format());
     
     const foodUnits = {};
-    for await (const index in foodunitEnRecords) {
+    for (const index in foodunitEnRecords) {
       const enName = foodunitEnRecords[index];
       const fiName = foodunitFiRecords[index];
       const svName = foodunitSvRecords[index];
