@@ -48,7 +48,7 @@
     "moment": "^2.22.2",
     "morgan": "^1.10.0",
     "natural": "^5.1.0",
-    "objection": "^2.2.15",
+    "objection": "^3.0.0",
     "path": "^0.12.7",
     "pdfjs-dist": "^2.6.347",
     "pg": "^8.5.1",
