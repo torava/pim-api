@@ -360,9 +360,10 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
     console.log("contributions "+moment().format());
 
     // go through attributes
-    for (let n = attributeIndex; n < componentValueRows.length; n++) {
+    const splicedComponentValueRows = componentValueRows.splice(attributeIndex);
+    for (const componentValueRow of splicedComponentValueRows) {
       try {
-        row = componentValueRows[n].split(';');
+        row = componentValueRow.split(';');
 
         if (!row[0] || row[0] == 'FOODID')
           continue;
