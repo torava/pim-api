@@ -5,7 +5,6 @@ import moment from 'moment';
 import Attribute from '../models/Attribute';
 import Category from '../models/Category';
 import CategoryAttribute from '../models/CategoryAttribute';
-import CategoryAttributeSource from '../models/CategoryAttributeSource';
 import CategoryContribution from '../models/CategoryContribution';
 import Source from '../models/Source';
 
@@ -38,7 +37,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
     const encoding = 'utf8';
 
     console.log('dir', directory);
-    console.log('files', moment().format());
+    console.log('files '+moment().format());
 
     const fullPath = __dirname+'/../../'+directory;
 
@@ -118,7 +117,8 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
         attributeCount = 0,
         value,
         attribute,
-        row,
+        food_row,
+        row, n,
         id, refId,
         parent,
         attributeIndex = 1,
@@ -128,6 +128,14 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
           '#recipes': true
         },
         categories = {},
+        categoryValues = [],
+        attributes = {},
+        attributeValues = [],
+        contributionValues = [],
+        sources,
+        sourceRef,
+        sourceRefs = {},
+        source,
         baseSources = [
           {
             '#id': 'sfineli',
@@ -190,7 +198,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
 
     const baseAttributesWithId = await Attribute.query().insertGraph(baseAttributes);
 
-    for (const i in foodnameFiRows) {
+    for (let i in foodnameFiRows) {
       value = {};
       row = foodnameFiRows[i].trim().split(';');
       value['fi-FI'] = convertFirstLetterCapital(row[1]);
@@ -201,7 +209,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       foodname[row[0]] = value;
     }
 
-    for (const i in fuclassRows) {
+    for (let i in fuclassRows) {
       value = {};
       row = fuclassRows[i].trim().split(';');
       value['fi-FI'] = convertFirstLetterCapital(row[1]);
@@ -212,7 +220,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       fuclass[`fuclass-${row[0]}`] = value;
     }
 
-    for (const i in igclassRows) {
+    for (let i in igclassRows) {
       value = {};
       row = igclassRows[i].trim().split(';');
       value['fi-FI'] = convertFirstLetterCapital(row[1]);
@@ -223,12 +231,12 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       igclass[`igclass-${row[0]}`] = value;
     }
 
-    for (const i in componentRows) {
+    for (let i in componentRows) {
       row = componentRows[i].trim().split(';');
       component[row[0]] = row;
     }
 
-    for (const i in cmpclassRows) {
+    for (let i in cmpclassRows) {
       value = {};
       row = cmpclassRows[i].trim().split(';');
       value['fi-FI'] = convertFirstLetterCapital(row[1]);
@@ -239,7 +247,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       cmpclass[row[0]] = value;
     }
 
-    for (const i in eufdnameRows) {
+    for (let i in eufdnameRows) {
       value = {};
       row = eufdnameRows[i].trim().split(';');
       value['fi-FI'] = convertFirstLetterCapital(row[1]);
@@ -253,26 +261,26 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
     console.log('food '+moment().format());
 
     // go through food
-    for await (const foodRow of foodRows) {
-      const columns = foodRow.trim().split(';');
+    for (let i = 1; i < foodRows.length; i++) {
+      food_row = foodRows[i].trim().split(';');
 
-      if (!columns[0] || columns[0] == 'FOODID') {
+      if (!food_row[0] || food_row[0] == 'FOODID') {
         continue;
       }
 
       // is a dish
-      if (columns[6] == 'NONINGR') {
-        parentRef = `fuclass-${columns[7]}`;
+      if (food_row[6] == 'NONINGR') {
+        parentRef = `fuclass-${food_row[7]}`;
         parentName = fuclass[parentRef];
-        secondParentRef = `fuclass-${columns[8]}`;
+        secondParentRef = `fuclass-${food_row[8]}`;
         secondParentName = fuclass[secondParentRef];
         thirdParentRef = baseCategories[2].id; // dish
       }
       // is an ingredient
       else {
-        parentRef = `igclass-${columns[5]}`;
+        parentRef = `igclass-${food_row[5]}`;
         parentName = igclass[parentRef];
-        secondParentRef = `igclass-${columns[6]}`;
+        secondParentRef = `igclass-${food_row[6]}`;
         secondParentName = igclass[secondParentRef];
         thirdParentRef = baseCategories[1].id; // ingredient
       }
@@ -310,8 +318,8 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       }
     
       // add to categories
-      categories[columns[0]] = {
-        name: foodname[columns[0]],
+      categories[food_row[0]] = {
+        name: foodname[food_row[0]],
         //type: food_row[2],
         //process: food_row[3],
         //portion: food_row[4],
@@ -319,11 +327,16 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       };
     }
 
+    // create an array from categories
+    for (let i in categories) {
+      categoryValues.push(categories[i]);
+    }
+
     //console.dir(category_values, {depth: null, maxArrayLength: null});
 
     // add to database
     const category = await Category.query()
-    .insertGraph(Object.values(categories), {relate: true, allowRefs: true});
+    .upsertGraph(categoryValues, {relate: true, allowRefs: true});
         
     console.log('written '+moment().format());
 
@@ -333,135 +346,150 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
     }
 
     // go through contributions
-    for await (const contribFoodRow of contribfoodRows) {
-      const columns = contribFoodRow.split(';');
+    for (let i in contribfoodRows) {
+      row = contribfoodRows[i].split(';');
 
-      if (!columns[0] || columns[0] == 'FOODID' || !columns[2]) {
+      if (!row[0] || row[0] == 'FOODID' || !row[2]) {
         continue;
       }
 
-      id = categories[columns[0]].id;
-      refId = categories[columns[1]].id;
+      id = categories[row[0]].id;
+      refId = categories[row[1]].id;
 
-      try {
-        await CategoryContribution.query()
-        .insertGraph({
-          category: {id},
-          contribution: {id: refId},
-          amount: parseFloat(columns[2].replace(',', '.')) || 0,
-          unit: columns[3].toLowerCase()
-        }, {
-          relate: true
+      await CategoryContribution.query()
+        .insert({
+          categoryId: id,
+          contributionId: refId,
+          amount: parseFloat(row[2].replace(',', '.')),
+          unit: row[3].toLowerCase()
+        })
+        .catch(error => {
+          console.error(error);
+          throw new Error('CategoryAttribute error');
         });
-      } catch (error) {
-        console.error(error);
-        throw new Error('CategoryContribution error');
-      }
     }
 
     console.log("contributions "+moment().format());
 
     // go through attributes
-    const splicedComponentValueRows = componentValueRows.splice(attributeIndex);
-    for await (const componentValueRow of splicedComponentValueRows) {
-      try {
-        row = componentValueRow.split(';');
+    for (let n = attributeIndex; n < componentValueRows.length; n++) {
+      row = componentValueRows[n].split(';');
 
-        if (!row[0] || row[0] == 'FOODID')
-          continue;
+      if (!row[0] || row[0] == 'FOODID')
+        continue;
 
-        const categoryId = categories[row[0]].id;
+      id = categories[row[0]].id;
 
-        let attributeId;
+      /*  if (row[0] != food_row[0]) {
+        attribute_index = n;
+        break;
+      }*/
 
-        /*  if (row[0] != food_row[0]) {
-          attribute_index = n;
-          break;
-        }*/
+      // add new attribute
+      if (!(row[0] in attributes))
+        attributes[row[0]] = {
+          id,
+          attributes: []
+        };
 
-        attrRef = row[1];
+      attrRef = row[1];
 
-        // check references
-        if (attrRef in attrRefs) {
-          attribute = {
-            id: attrRefs[attrRef]
+      // check references
+      if (attrRef in attrRefs) {
+        attribute = {
+          id: attrRefs[attrRef]
+        }
+      }
+      else {
+        attribute = {
+          code: attrRef,
+          name: eufdname[attrRef]
+        }
+
+        parentRef = component[row[1]][2];
+
+        // check parent references
+        if (parentRef in parentAttrRefs) {
+          attribute.parent = {
+            id: parentAttrRefs[parentRef]
           }
         }
         else {
-          attribute = {
-            code: attrRef,
-            name: eufdname[attrRef]
+          attribute.parent = {
+            code: parentRef,
+            name: cmpclass[parentRef]
           }
 
-          parentRef = component[row[1]][2];
+          secondParentRef = component[row[1]][3];
 
-          // check parent references
-          if (parentRef in parentAttrRefs) {
-            attribute.parent = {
-              id: parentAttrRefs[parentRef]
+          if (secondParentRef in secondParentAttrRefs) {
+            attribute.parent.parent = {
+              id: secondParentAttrRefs[secondParentRef]
             }
           }
           else {
-            attribute.parent = {
-              code: parentRef,
-              name: cmpclass[parentRef]
-            }
-
-            secondParentRef = component[row[1]][3];
-
-            if (secondParentRef in secondParentAttrRefs) {
-              attribute.parent.parent = {
-                id: secondParentAttrRefs[secondParentRef]
-              }
-            }
-            else {
-              attribute.parent.parent = {
-                code: secondParentRef,
-                name: cmpclass[secondParentRef]
-              }
+            attribute.parent.parent = {
+              code: secondParentRef,
+              name: cmpclass[secondParentRef]
             }
           }
-
-          // add attribute to database
-          const insertedAttribute = await Attribute.query().insertGraph(attribute, {relate: true});
-          // set database id as reference
-          if (!(attrRef in attrRefs))
-            attrRefs[attrRef] = insertedAttribute.id;
-          if (!(parentRef in parentAttrRefs))
-            parentAttrRefs[parentRef] = insertedAttribute.parent.id;
-          if (!(secondParentRef in secondParentAttrRefs))
-            secondParentAttrRefs[secondParentRef] = insertedAttribute.parent.parent.id;
-
-          attributeId = insertedAttribute.id;
         }
 
-        // set attribute value and source
-        if (row[2] != "") {
-          const value = parseFloat(row[2].replace(',', '.'));
-          const unit = `${component[attrRef][1].toLowerCase()}/hg`;
-          const categoryAttribute = await CategoryAttribute.query().insert({
-            categoryId,
-            attributeId,
-            value,
-            unit
-          });
+        // add attribute to database
+        await Attribute.query()
+          .upsertGraph(attribute, {relate: true})
+          .then(result => {
+            // set database id as reference
+            if (!(attrRef in attrRefs))
+              attrRefs[attrRef] = result.id;
+            if (!(parentRef in parentAttrRefs))
+              parentAttrRefs[parentRef] = result.parent.id;
+            if (!(secondParentRef in secondParentAttrRefs))
+              secondParentAttrRefs[secondParentRef] = result.parent.parent.id;
 
-          await CategoryAttributeSource.query().insert({
-            attributeId: categoryAttribute.id,
-            sourceId: baseSources[0].id,
-            reference_url: `https://fineli.fi/fineli/en/elintarvikkeet/${row[0]}`
+            attribute = {id: result.id};
+          })
+          .catch(error => {
+            console.error(error);
+            throw new Error('Attribute error');
           });
-        }
-
-        attributeCount++;
-      } catch (error) {
-        console.error(error);
-        throw new Error('attribute error');
       }
+
+      // set attribute value and source
+      if (row[2] != "") {
+        const value = parseFloat(row[2].replace(',', '.'));
+        const unit = `${component[attrRef][1].toLowerCase()}/hg`;
+        const sources = [
+          {
+            reference_url: `https://fineli.fi/fineli/en/elintarvikkeet/${row[0]}`,
+            source: {
+              id: baseSources[0].id
+            }
+          }
+        ];
+        attributes[row[0]].attributes.push({
+          attribute,
+          value,
+          unit,
+          sources
+        });
+      }
+
+      attributeCount++;
     }
 
-    console.log('attributes', `${attributeCount}/${attributeCount}`, moment().format());
+    // put attributes to array
+    for (let i in attributes) {
+      attributeValues.push(attributes[i]);
+
+      await Category.query()
+      .upsertGraph(attributes[i], {relate: true});
+
+      attributeValues = [];
+    }
     
+    console.log('attributes '+attributeCount+'/'+attributeCount+' '+moment().format());
+
     const foodUnits = {};
     for (const index in foodunitEnRecords) {
       const enName = foodunitEnRecords[index];
@@ -476,16 +504,11 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
         },
         parentId: baseAttributesWithId[0].id
       };
-      try {
-        const foodUnitWithId = await Attribute.query().insertAndFetch(foodUnit);
-        foodUnits[enName.THSCODE] = foodUnitWithId;
-      } catch (error) {
-        console.error(error);
-        throw new Error('food unit attribute error');
-      }
+      const foodUnitWithId = await Attribute.query().insertAndFetch(foodUnit);
+      foodUnits[enName.THSCODE] = foodUnitWithId;
     }
 
-    for await (const unit of foodaddunitRecords) {
+    for (const unit of foodaddunitRecords) {
       const sources = [
         {
           reference_url: `https://fineli.fi/fineli/en/elintarvikkeet/${row[0]}`,
@@ -502,12 +525,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
         unit: 'g',
         sources
       };
-      try {
-        await CategoryAttribute.query().insertGraph(categoryFoodUnit, {relate: true});
-      } catch (error) {
-        console.error(error);
-        throw new Error('food unit category attribute error');
-      }
+      await CategoryAttribute.query().insertGraph(categoryFoodUnit, {relate: true});
     }
 
     console.log('food units', moment().format());
