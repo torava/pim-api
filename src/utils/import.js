@@ -253,7 +253,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
     console.log('food '+moment().format());
 
     // go through food
-    for (const foodRow of foodRows) {
+    for await (const foodRow of foodRows) {
       const columns = foodRow.trim().split(';');
 
       if (!columns[0] || columns[0] == 'FOODID') {
@@ -333,7 +333,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
     }
 
     // go through contributions
-    for (const contribFoodRow of contribfoodRows) {
+    for await (const contribFoodRow of contribfoodRows) {
       const columns = contribFoodRow.split(';');
 
       if (!columns[0] || columns[0] == 'FOODID' || !columns[2]) {
@@ -345,11 +345,13 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
 
       try {
         await CategoryContribution.query()
-        .insert({
-          categoryId: id,
-          contributionId: refId,
-          amount: parseFloat(columns[2].replace(',', '.')),
+        .insertGraph({
+          category: {id},
+          contribution: {id: refId},
+          amount: parseFloat(columns[2].replace(',', '.')) || 0,
           unit: columns[3].toLowerCase()
+        }, {
+          relate: true
         });
       } catch (error) {
         console.error(error);
@@ -361,7 +363,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
 
     // go through attributes
     const splicedComponentValueRows = componentValueRows.splice(attributeIndex);
-    for (const componentValueRow of splicedComponentValueRows) {
+    for await (const componentValueRow of splicedComponentValueRows) {
       try {
         row = componentValueRow.split(';');
 
@@ -461,7 +463,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
     console.log('attributes', `${attributeCount}/${attributeCount}`, moment().format());
     
     const foodUnits = {};
-    for (const index in foodunitEnRecords) {
+    for await (const index in foodunitEnRecords) {
       const enName = foodunitEnRecords[index];
       const fiName = foodunitFiRecords[index];
       const svName = foodunitSvRecords[index];
@@ -483,7 +485,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       }
     }
 
-    for (const unit of foodaddunitRecords) {
+    for await (const unit of foodaddunitRecords) {
       const sources = [
         {
           reference_url: `https://fineli.fi/fineli/en/elintarvikkeet/${row[0]}`,
