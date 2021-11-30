@@ -13,6 +13,9 @@ services:
       DATABASE_URL: postgres://admin@postgres/bookkeepr
       ADMIN_USER: postgres
       ADMIN_PASSWORD: password
+      USER: user
+      PASSWORD: password
+      ACCESS_CONTROL_ALLOW_ORIGIN: http://pimtool.s3-website.eu-central-1.amazonaws.com
     image: registry.gitlab.com/torava/bookkeepr:master
   postgres:
     image: postgres:13.1

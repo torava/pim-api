@@ -91,6 +91,11 @@ if (env === 'production') {
     const strauth = Buffer.from(b64auth, 'base64').toString();
     const [, user, password] = strauth.match(/(.*?):(.*)/) || [];
 
+    if (process.env.ACCESS_CONTROL_ALLOW_ORIGIN) {
+      console.log('ACCESS_CONTROL_ALLOW_ORIGIN', process.env.ACCESS_CONTROL_ALLOW_ORIGIN);
+      res.set('Access-Control-Allow-Origin', process.env.ACCESS_CONTROL_ALLOW_ORIGIN);
+    }
+
     // Verify login and password are set and correct
     if (user !== USER || password !== PASSWORD) {
       // Access denied...
