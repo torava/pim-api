@@ -42,7 +42,9 @@ export const getProductCategoryMinMaxAttributes = (category, contribution, produ
   }
 
   if (!minAttributeValue && !maxAttributeValue && category.contributions?.length) {
-    const totalAmount = category.contributions.reduce((previousValue, currentValue) => previousValue.amount+currentValue.amount, 0);
+    const totalAmount = category.contributions.reduce((previousValue, currentValue) => {
+      return previousValue+currentValue.amount;
+    }, 0);
     category.contributions.forEach(contributionContribution => {
       const result = getCategoriesWithAttributes(categories, contributionContribution.contributionId, Number(attributeId));
       const [, categoryAttributes] = result?.[0] || [undefined, undefined];
