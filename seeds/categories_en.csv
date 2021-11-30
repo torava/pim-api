@@ -29,7 +29,7 @@ Bay leaf,Laakerinlehti,,Spices,,,,,,,,
 "Bean, Green Bean, String Bean","Papu, vihreä taitepapu, tuore","[""Vihreä papu""]",,,"0,31",,,,,"Beans: green, median",1
 Beef,Nauta,,,,"26,61",,,,,"Beef: world average, median",1
 Beef,Nauta,,,,15,,,,,"Beef, raw",4
-"Beef Mince, 17% Fat",,"[""Nauta jauheliha"", ""Jauhettu naudanliha""]",,,,,,,,,
+"Beef Mince, 17% Fat, Fried Without Fat",,"[""Nauta jauheliha"", ""Jauhettu naudanliha"", ""Ground beef""]",,,,,,,,,
 "Beef Steak, Fried",,"[""Beef""]",,,"26,61",,,,,"Beef: world average, median",1
 "Beef Steak, Fried",,,,,15,,,,,"Beef, raw",4
 "Beef Steak, Grilled",,,,,"26,61",,,,,"Beef: world average, median",1
@@ -519,7 +519,7 @@ Tomato,,,,,"0,51",,,,,"Tomatoes: passive greenhouse, median",1
 Tomato,,,,,"0,45",,,,,"Tomatoes, median",1
 Tomato Puree,,,,,"0,868",,,,,"1 kg packed product, processed and canned",48
 Tomato Salsa,,"[""Salsa"", ""Pico de gallo""]",,,,,,,,,
-Tomato Sauce,,"[""Tomaattikastikkeessa""]",,,,,,,,,
+Tomato Sauce,,"[""Tomaattikastikkeessa"", ""Marinara""]",,,,,,,,,
 "Tomatoes, Crushed, Canned",,,,,"0,868",,,,,"1 kg packed product, processed and canned",48
 Tools,Työkalut,,Supplies,,,,,,"0,51",Kodinkoneet ja työkalut,2
 Tooth brush,Hammasharja,,Hygiene products,,,,,,,,
