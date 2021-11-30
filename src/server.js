@@ -1,5 +1,4 @@
 import Express from 'express';
-import basicAuth from 'express-basic-auth';
 import cors from 'cors';
 import morgan from 'morgan';
 import compression from 'compression';
@@ -64,17 +63,6 @@ if (env === 'production') {
 
   app.get('/favicon.ico', (req, res) => res.sendStatus(204));
 
-  const {
-    USER,
-    PASSWORD
-  } = process.env;
-
-  app.use(basicAuth({
-    users: { [USER]: PASSWORD },
-    challenge: true,
-    realm: 'iS9C88OIjfeO0IE4309vw989dID0CJ'
-  }))
-
   const cache = apicache.options({
     statusCodes: {
       include: [200]
@@ -93,7 +81,22 @@ if (env === 'production') {
   });
 
   app.get('/*', (req, res, next) => {
-    if (req.originalUrl.match(/^\/api\//)) {
+    const {
+      USER,
+      PASSWORD
+    } = process.env;
+
+    // parse login and password from headers
+    const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
+    const strauth = Buffer.from(b64auth, 'base64').toString();
+    const [, user, password] = strauth.match(/(.*?):(.*)/) || [];
+
+    // Verify login and password are set and correct
+    if (user !== USER || password !== PASSWORD) {
+      // Access denied...
+      res.set('WWW-Authenticate', 'Basic realm="401"') // change this
+      res.status(401).send('Authentication required.') // custom message
+    } else if (req.originalUrl.match(/^\/api\//)) {
       next();
     } else {
       res.sendFile(path.resolve(__dirname, 'static', 'index.html'), error => {
