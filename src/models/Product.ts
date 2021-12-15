@@ -1,12 +1,32 @@
-import {Model} from 'objection';
+import {Model, ModelObject} from 'objection';
+
 import Item from './Item';
 import ProductAttribute from './ProductAttribute';
 import Category from './Category';
 import Manufacturer from './Manufacturer';
 import ProductContribution from './ProductContribution';
 import Brand from './Brand';
+import { DeepPartial } from '../utils/types';
 
 export default class Product extends Model {
+	id!: number;
+	name!: string;
+
+	contributionList?: string;
+	aliases?: string[];
+	product_number?: string;
+	quantity?: number;
+	measure?: number;
+	unit?: string;
+
+	items?: Item[];
+	attributes?: ProductAttribute[];
+	category?: Category;
+	categoryId?: Category['id'];
+	manufacturer?: Manufacturer;
+	brand?: Brand;
+	contributions?: ProductContribution[];
+
 	static get tableName() {
 		return 'Product';
 	}
@@ -82,3 +102,6 @@ export default class Product extends Model {
 		}
 	}
 }
+
+export type ProductShape = ModelObject<Product>;
+export type ProductPartialShape = DeepPartial<ProductShape>;

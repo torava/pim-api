@@ -1,32 +1,23 @@
-/*
-Product Attribute DB model
-
-protein
-carbohydrate
-fiber
-fat
-magnesium
-natrium
-a vitamin
-b vitamin
-c vitamin
-d vitamin
-e vitamin
-width
-length
-height
-mass
-co2
-methane
-*/
-
-import {Model} from 'objection';
+import {Model, ModelObject} from 'objection';
 
 import Product from './Product';
 import Attribute from './Attribute';
 import ProductAttributeSource from './ProductAttributeSource';
+import { DeepPartial } from '../utils/types';
 
 export default class ProductAttribute extends Model {
+	id!: number;
+	
+	value?: number;
+	unit?: string;
+	type?: string;
+
+	product?: Product;
+	productId?: Product['id'];
+	attribute?: Attribute;
+	attributeId?: Attribute['id'];
+	sources?: ProductAttributeSource[];
+
 	static get tableName() {
 		return 'ProductAttribute';
 	}
@@ -73,3 +64,6 @@ export default class ProductAttribute extends Model {
     }
   }
 }
+
+export type ProductAttributeShape = ModelObject<ProductAttribute>;
+export type ProductAttributePartialShape = DeepPartial<ProductAttributeShape>;

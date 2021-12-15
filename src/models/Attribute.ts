@@ -1,28 +1,16 @@
-/*
-Category Attribute DB model
-
-protein
-carbohydrate
-fiber
-fat
-magnesium
-natrium
-a vitamin
-b vitamin
-c vitamin
-d vitamin
-e vitamin
-width
-length
-height
-mass
-co2
-methane
-*/
-
-import {Model} from 'objection';
+import {Model, ModelObject} from 'objection';
+import { NameTranslations } from '../utils/types';
 
 export default class Attribute extends Model {
+	id!: number;
+	
+	code?: string;
+	name: NameTranslations;
+	
+	children?: Attribute[];
+	parent?: Attribute;
+	parentId?: Attribute['id'];
+
 	static get tableName() {
 		return 'Attribute';
 	}
@@ -31,6 +19,7 @@ export default class Attribute extends Model {
 			type: 'object',
 			
 			properties: {
+				id: {type: 'integer'},
 				code: {type: 'string'},
 				name: {type: 'object'}
 			}
@@ -57,3 +46,5 @@ export default class Attribute extends Model {
 		}
 	}
 }
+
+export type AttributeShape = ModelObject<Attribute>;

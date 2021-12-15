@@ -1,8 +1,19 @@
-import {Model} from 'objection';
+import {Model, ModelObject} from 'objection';
+
 import CategoryAttribute from './CategoryAttribute';
 import Source from './Source';
 
 export default class CategoryAttributeSource extends Model {
+	id!: number;
+
+	referenceUrl?: string;
+	referenceDate?: string;
+	note?: string;
+	countryCode?: string;
+
+	attribute?: CategoryAttribute;
+	source?: Source;
+	
 	static get tableName() {
 		return 'CategoryAttributeSource';
 	}
@@ -13,8 +24,8 @@ export default class CategoryAttributeSource extends Model {
 
 			properties: {
 				id: {type: 'integer'},
-        reference_url: {type: ['string', 'null']},
-				reference_date: { type: 'datetime', default: new Date().toISOString() },
+        referenceUrl: {type: ['string', 'null']},
+				referenceDate: { type: 'datetime', default: new Date().toISOString() },
 				note: {type: ['string', 'null']},
 				countryCode: { type: ['string', 'null'] }
 			}
@@ -42,3 +53,5 @@ export default class CategoryAttributeSource extends Model {
     }
   }
 }
+
+export type CategoryAttributeSourceShape = ModelObject<CategoryAttributeSource>;

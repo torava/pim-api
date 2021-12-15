@@ -1,8 +1,18 @@
-import {Model} from 'objection';
+import {Model, ModelObject} from 'objection';
+
 import Transaction from './Transaction';
 import Product from './Product';
 
 export default class Item extends Model {
+	id!: number;
+
+	item_number?: string;
+	text?: string;
+	price?: number;
+	currency?: string;
+	quantity?: number;
+	measure?: number;
+	unit?: string;
 
 	static get tableName() {
 		return 'Item';
@@ -46,3 +56,5 @@ export default class Item extends Model {
 		}
 	}
 }
+
+export type ItemShape = ModelObject<Item>;

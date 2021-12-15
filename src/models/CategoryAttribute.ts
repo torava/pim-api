@@ -1,37 +1,29 @@
-/*
-Category Attribute DB model
+import {Model, ModelObject, QueryBuilder} from 'objection';
 
-protein
-carbohydrate
-fiber
-fat
-magnesium
-natrium
-a vitamin
-b vitamin
-c vitamin
-d vitamin
-e vitamin
-width
-length
-height
-mass
-co2
-methane
-*/
-
-import {Model} from 'objection';
 import Category from './Category';
 import Attribute from './Attribute';
 import CategoryAttributeSource from './CategoryAttributeSource';
+import { DeepPartial } from '../utils/types';
 
 export default class CategoryAttribute extends Model {
+	id!: number;
+
+	value?: number;
+	unit?: string;
+	type?: string;
+
+	category?: Category;
+	categoryId?: Category['id'];
+	attribute?: Attribute;
+	attributeId?: Attribute['id'];
+	sources?: CategoryAttributeSource[];
+
 	static get tableName() {
 		return 'CategoryAttribute';
 	}
 	static get modifiers() {
 		return {
-			filterByAttributeIds(builder, attributeIds) {
+			filterByAttributeIds(builder: QueryBuilder<CategoryAttribute>, attributeIds: CategoryAttribute['id'][]) {
         builder.whereIn('attributeId', attributeIds);
       }
 		}
@@ -77,3 +69,6 @@ export default class CategoryAttribute extends Model {
     }
   }
 }
+
+export type CategoryAttributeShape = ModelObject<CategoryAttribute>;
+export type CategoryAttributePartialShape = DeepPartial<CategoryAttributeShape>;

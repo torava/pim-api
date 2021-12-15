@@ -1,8 +1,18 @@
-import {Model} from 'objection';
+import {Model, ModelObject} from 'objection';
 import ProductAttribute from './ProductAttribute';
 import Source from './Source';
 
 export default class ProductAttributeSource extends Model {
+	id!: number;
+
+	referenceUrl?: string;
+	referenceDate?: string;
+	note?: string;
+	countryCode?: string;
+
+	attribute?: ProductAttribute;
+	source?: Source;
+
 	static get tableName() {
 		return 'ProductAttributeSource';
 	}
@@ -13,8 +23,8 @@ export default class ProductAttributeSource extends Model {
 
 			properties: {
 				id: {type: 'integer'},
-        reference_url: {type: ['string', 'null']},
-				reference_date: { type: 'datetime', default: new Date().toISOString() },
+        referenceUrl: {type: ['string', 'null']},
+				referenceDate: { type: 'datetime', default: new Date().toISOString() },
 				note: {type: ['string', 'null']},
 				countryCode: { type: ['string', 'null'] }
 			}
@@ -42,3 +52,5 @@ export default class ProductAttributeSource extends Model {
     }
   }
 }
+
+export type ProductAttributeSourceShape = ModelObject<ProductAttributeSource>;

@@ -1,12 +1,15 @@
-import Product from '../models/Product';
+import express, { Request } from 'express';
+
+import Product, { ProductPartialShape } from '../models/Product';
 import { getClosestCategory, getContributionsFromList } from '../utils/categories';
 import Attribute from '../models/Attribute';
 import Category from '../models/Category';
 import { resolveProductAttributes, getClosestProduct } from '../utils/products';
 import { getStrippedChildCategories } from '../utils/categories';
 import { getLeafIds } from '../utils/entities';
+import { Page } from 'objection';
 
-export default app => {
+export default (app: express.Application) => {
 
 app.get('/api/product/all', async (req, res) => {
   try {
@@ -18,7 +21,9 @@ app.get('/api/product/all', async (req, res) => {
   }
 });
   
-app.get('/api/product/:id', async (req, res) => {
+app.get('/api/product/:id', async (req: Request<Product, undefined, undefined, {
+  foodUnitAttributeCode: string
+}>, res) => {
   const {
     id
   } = req.params;
@@ -27,7 +32,7 @@ app.get('/api/product/:id', async (req, res) => {
     const attributeIds = req.query.attributeCodes?.split(',').map(code => (
       attributes.find(attribute => attribute.code === code)?.id
     )) || attributes.map(a => a.id);
-    const foodUnitParentAttribute = attributes.find(a => a.name['en-US'] === 'Food units');
+    const foodUnitParentAttribute = attributes.find(attribute => attribute.name['en-US'] === 'Food units');
     const foodUnitAttribute = attributes.find(attribute => (
       attribute.code === Number(req.query.foodUnitAttributeCode) && attribute.parentId === foodUnitParentAttribute.id
     ));
@@ -57,7 +62,19 @@ app.get('/api/product/:id', async (req, res) => {
   }
 });
 
-app.get('/api/product', async (req, res) => {
+app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductPartialShape[], undefined, {
+  pageNumber: number,
+  productsPerPage: number,
+  brand: string,
+  category: string,
+  quantity: number,
+  measure: number,
+  unit: string,
+  attributeCodes: string,
+  foodUnitAttributeCode: string,
+  name: string,
+  contributionList: string
+}>, res) => {
   const {
     pageNumber = 0,
     productsPerPage = 20,
@@ -65,11 +82,13 @@ app.get('/api/product', async (req, res) => {
     category,
     quantity,
     unit,
+    attributeCodes,
+    foodUnitAttributeCode
   } = req.query;
   const name = req.query.name?.trim();
   const contributionList = req.query.contributionList?.trim();
   try {
-    let products;
+    let products: Page<Product> | ProductPartialShape[];
     if (!name && !contributionList) {
       products = (
         await Product.query()
@@ -77,11 +96,11 @@ app.get('/api/product', async (req, res) => {
       );
     } else {
       const attributes = await Attribute.query();
-      let attributeIds = [];
-      req.query.attributeCodes?.split(',').forEach(code => {
+      let attributeIds: Attribute['id'][] = [];
+      attributeCodes?.split(',').forEach(code => {
         const id = attributes.find(attribute => attribute.code === code)?.id;
         if (id) {
-          let ids = [];
+          let ids: Attribute['id'][] = [];
           getLeafIds(attributes, id, ids);
           if (ids.length) {
             attributeIds = attributeIds.concat(ids);
@@ -89,17 +108,20 @@ app.get('/api/product', async (req, res) => {
             attributeIds.push(id);
           }
         }
-      }) || attributes.map(a => a.id);
+      });
+      if (!attributeCodes) {
+        attributeIds = attributes.map(a => a.id);
+      }
       const foodUnitParentAttribute = attributes.find(a => a.name['en-US'] === 'Food units');
       const foodUnitAttribute = attributes.find(attribute => (
-        attribute.code === req.query.foodUnitAttributeCode && attribute.parentId === foodUnitParentAttribute.id
+        attribute.code === foodUnitAttributeCode && attribute.parentId === foodUnitParentAttribute.id
       ));
 
       const productEntries = await Product.query().withGraphFetched('[attributes.[attribute], brand]');
 
-      let product;
+      let product: ProductPartialShape;
       if (brand) {
-        const productEntriesWithBrand = productEntries.filter(p => p.brand?.name === brand);
+        const productEntriesWithBrand = productEntries.filter(filterableProduct => filterableProduct.brand?.name === brand);
 
         [product] = getClosestProduct(name, productEntriesWithBrand);
       } else {
@@ -153,7 +175,6 @@ app.get('/api/product', async (req, res) => {
       }));
 
       const {productAttributes, measure} = resolveProductAttributes(product, attributeIds, foodUnitAttribute, categories, attributes);
-
       product = {
         name: product.name,
         contributionList: product.contributionList,
@@ -177,6 +198,7 @@ app.get('/api/product', async (req, res) => {
   }
 });
 
+/*
 app.get('/api/product/populate', function(req, res) {
   Product.query()
   .eager('[category.[parent.^], items.[transaction]]')
@@ -188,6 +210,7 @@ app.get('/api/product/populate', function(req, res) {
       throw new Error();
     });
 });
+*/
 
 /*
 {
@@ -260,7 +283,7 @@ app.post('/api/product', async (req, res) => {
 
   console.log(req.body);
   try {
-    const strippedCategories = getStrippedChildCategories();
+    const strippedCategories = await getStrippedChildCategories();
     
     let category,
         contributions = [];
