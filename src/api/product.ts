@@ -8,6 +8,8 @@ import { resolveProductAttributes, getClosestProduct } from '../utils/products';
 import { getStrippedChildCategories } from '../utils/categories';
 import { getLeafIds } from '../utils/entities';
 import { Page } from 'objection';
+import { Locale } from '../utils/types';
+import { CategoryContributionPartialShape } from '../models/CategoryContribution';
 
 export default (app: express.Application) => {
 
@@ -21,9 +23,15 @@ app.get('/api/product/all', async (req, res) => {
   }
 });
   
-app.get('/api/product/:id', async (req: Request<Product, undefined, undefined, {
-  foodUnitAttributeCode: string
-}>, res) => {
+app.get('/api/product/:id', async (req: Request<
+  { id: string },
+  ProductPartialShape,
+  undefined,
+  {
+    foodUnitAttributeCode: string,
+    attributeCodes: string
+  }
+>, res) => {
   const {
     id
   } = req.params;
@@ -34,7 +42,7 @@ app.get('/api/product/:id', async (req: Request<Product, undefined, undefined, {
     )) || attributes.map(a => a.id);
     const foodUnitParentAttribute = attributes.find(attribute => attribute.name['en-US'] === 'Food units');
     const foodUnitAttribute = attributes.find(attribute => (
-      attribute.code === Number(req.query.foodUnitAttributeCode) && attribute.parentId === foodUnitParentAttribute.id
+      attribute.code === req.query.foodUnitAttributeCode && attribute.parentId === foodUnitParentAttribute.id
     ));
 
     const categories = (await Category.query()
@@ -48,7 +56,7 @@ app.get('/api/product/:id', async (req: Request<Product, undefined, undefined, {
 
     const {productAttributes, measure} = resolveProductAttributes(product, attributeIds, foodUnitAttribute, categories, attributes);
 
-    const resolvedProduct = {
+    const resolvedProduct: ProductPartialShape = {
       ...product,
       measure: measure || product.measure,
       unit: measure ? 'kg' : product.unit,
@@ -134,7 +142,7 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductPa
       let contributions = [];
 
       if (!product) {
-        let [category] = getClosestCategory(name, strippedCategories, contentLanguage);
+        let [category] = getClosestCategory(name, strippedCategories, contentLanguage as Locale);
         if (category) {
           product = {categoryId: category?.id};
         }
@@ -146,7 +154,7 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductPa
         list = `${category}, ${contributionList}`;
       }
 
-      contributions = getContributionsFromList(list, contentLanguage, strippedCategories, attributes);
+      contributions = getContributionsFromList(list, contentLanguage as Locale, strippedCategories, attributes);
         
       product = {
         name,
@@ -279,20 +287,20 @@ const exampleResponse = {
 app.post('/api/product', async (req, res) => {
   const {name, contributionList} = req.body;
 
-  const contentLanguage = req.headers['content-language'];
+  const contentLanguage = req.headers['content-language'] as Locale;
 
   console.log(req.body);
   try {
     const strippedCategories = await getStrippedChildCategories();
     
     let category,
-        contributions = [];
+        contributions: CategoryContributionPartialShape[] = [];
     if (contributionList) {
       console.log(contributionList);
       contributions = getContributionsFromList(contributionList, contentLanguage, strippedCategories);
       console.log(contributionList);
     } else {
-      category = getClosestCategory(name, strippedCategories, contentLanguage);
+      [category] = getClosestCategory(name, strippedCategories, contentLanguage);
     }
     const resolvedProduct = {
       name,
@@ -302,7 +310,7 @@ app.post('/api/product', async (req, res) => {
       //attributes: productAttributes,
       contributions,
       category
-    };
+    } as Product;
     console.log('resolvedProduct', resolvedProduct);
     const upsertedProduct = await Product.query().upsertGraph(resolvedProduct, {
       relate: true

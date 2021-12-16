@@ -1,3 +1,5 @@
+import express from 'express';
+
 import product from './product';
 import transaction from './transaction';
 import item from './item';
@@ -9,15 +11,15 @@ import manufacturer from './manufacturer';
 import party from './party';
 import group from './group';
 
-export default api => {
-  product(api);
-  transaction(api);
-  item(api);
-  category(api);
-  attribute(api);
-  source(api);
-  brand(api);
-  manufacturer(api);
-  party(api);
-  group(api);
+export default (app: express.Application) => {
+  product(app);
+  transaction(app);
+  item(app);
+  category(app);
+  attribute(app);
+  source(app);
+  brand(app);
+  manufacturer(app);
+  party(app);
+  group(app);
 }
