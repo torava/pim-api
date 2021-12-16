@@ -78,7 +78,7 @@ export const getCategoryById = (categories: Category[], categoryId: Category['id
   categories.find(c => c.id === categoryId)
 );
 
-export const getCategoryAttributes = (category: Category, attributeId: CategoryAttribute['id']) => (
+export const getCategoryAttributes = (category?: Category, attributeId?: CategoryAttribute['id']) => (
   Object.values(category?.attributes || {}).filter(attribute => attribute.attributeId === attributeId)
 );
 
@@ -89,7 +89,7 @@ export const getCategoryWithAttributes = (
 ): [
   Category,
   CategoryAttribute[]
-] => {
+] | undefined => {
   if (!categories.length || !categoryId || !attributeId) return;
 
   const category = getCategoryById(categories, categoryId);
@@ -119,7 +119,7 @@ export const getCategoriesWithAttributes = (
   if (result) {
     let [populatedCategory, attributes] = result;
     results.push([populatedCategory, attributes]);
-    while (attributes.length) {
+    while (attributes?.length) {
       const result = getCategoryWithAttributes(categories, populatedCategory.parentId, attributeId);
       if (result) {
         [populatedCategory, attributes] = result;
@@ -205,8 +205,8 @@ export const getClosestCategory = (
   acceptLocale: Locale,
   strippedName?: string
 ): [
-  Category,
-  Token
+  Category?,
+  Token?
 ] => {
   if (!name) return [undefined, undefined];
 
@@ -296,7 +296,7 @@ export const getContributionsFromList = (
     let [contributionContribution, token] = getClosestCategory(contributionToken, categories, contentLanguage, strippedContributionToken);
     let contribution: CategoryContributionPartialShape = {
       contribution: contributionContribution,
-      contributionId: contributionContribution.id
+      contributionId: contributionContribution?.id
     };
     if (contribution) {
       if (foodUnitAttribute) {
@@ -315,7 +315,11 @@ export const getContributionsFromList = (
         contributionToken = contributionToken.replace(new RegExp(token.substring, 'i'), '').trim();
         strippedContributionToken = stripDetails(contributionToken).replace(new RegExp(token.substring, 'i'), '').trim();
         contributions.push(contribution);
-        [contribution, token] = getClosestCategory(contributionToken, categories, contentLanguage);
+        [contributionContribution, token] = getClosestCategory(contributionToken, categories, contentLanguage);
+        contribution = {
+          contribution: contributionContribution,
+          contributionId: contributionContribution?.id
+        };
         if (contribution) {
           if (foodUnitAttribute) {
             const {value, unit} = contribution.contribution.attributes.find(attribute => attribute.attributeId === foodUnitAttribute.id) || {};
