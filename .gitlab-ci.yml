@@ -1,31 +1,19 @@
+image: node:14
+
 variables:
   NPM_TOKEN: ${CI_JOB_TOKEN}
 
-default:
-  image: node:14
-  before_script:
-    - npm ci --cache .npm --prefer-offline
+stages:
+  - deploy
+
+deploy:
+  stage: deploy
+  script:
     - |
       {
         echo "@${CI_PROJECT_ROOT_NAMESPACE}:registry=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/npm/"
         echo "${CI_API_V4_URL#https?}/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=\${CI_JOB_TOKEN}"
       } | tee --append .npmrc
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}
-    paths:
-      - .npm/
-
-workflow:
-  rules:
-    - if: $CI_COMMIT_BRANCH
-
-stages:
-  - release
-
-publish:
-  stage: release
-  script:
+    - npm ci
     - npm run build
-    - npm run semantic-release
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - npm publish
