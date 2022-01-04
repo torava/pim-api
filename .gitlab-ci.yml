@@ -25,6 +25,7 @@ stages:
 publish:
   stage: release
   script:
+    - git config --global http.emptyAuth true
     - npm run semantic-release
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
