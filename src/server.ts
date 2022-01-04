@@ -75,7 +75,7 @@ types.setTypeParser(1700, function(val) {
 /**bodyParser.json(options)
 * Parses the text as JSON and exposes the resulting object on req.body.
 */
-app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.json({ limit: '50mb' }));
 
 app.use(
   '/api-docs',
