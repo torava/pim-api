@@ -205,8 +205,8 @@ export const getClosestCategory = (
   acceptLocale: Locale,
   strippedName?: string
 ): [
-  Category?,
-  Token?
+  Category | undefined,
+  Token | undefined
 ] => {
   if (!name) return [undefined, undefined];
 
@@ -311,7 +311,7 @@ export const getContributionsFromList = (
       }
     }
     if (contributionToken.split(' ').length > 2) {
-      while (contribution && contributionToken && strippedContributionToken) {
+      while (contributionContribution && contributionToken && strippedContributionToken) {
         contributionToken = contributionToken.replace(new RegExp(token.substring, 'i'), '').trim();
         strippedContributionToken = stripDetails(contributionToken).replace(new RegExp(token.substring, 'i'), '').trim();
         contributions.push(contribution);
