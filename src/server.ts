@@ -113,7 +113,6 @@ if (env === 'production') {
       USER,
       PASSWORD
     } = process.env;
-
     // parse login and password from headers
     const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
     const strauth = Buffer.from(b64auth, 'base64').toString();
@@ -122,9 +121,8 @@ if (env === 'production') {
     if (process.env.ACCESS_CONTROL_ALLOW_ORIGIN) {
       res.set('Access-Control-Allow-Origin', process.env.ACCESS_CONTROL_ALLOW_ORIGIN);
     }
-
     // Verify login and password are set and correct
-    if (user !== USER || password !== PASSWORD) {
+    if ((USER && user != USER) || (PASSWORD && password != PASSWORD)) {
       // Access denied...
       res.set('WWW-Authenticate', 'Basic realm="401"') // change this
       res.status(401).send('Authentication required.') // custom message

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "./src/static/js/",
+    "outDir": "dist/",
     "noImplicitAny": true,
     "module": "CommonJS",
     "lib": ["es2020"],
@@ -9,7 +9,9 @@
     "allowJs": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "declaration": true
   },
+  "include": ["src/**/*"],
   "exclude": ["src/static"]
 }

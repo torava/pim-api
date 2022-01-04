@@ -5,10 +5,10 @@ const nodeExternals = require('webpack-node-externals');
 const common = {
   target: 'node',
   node: false,
-  entry: './src/server.js',
+  entry: './src/server.ts',
   output: {
-    path: path.join(__dirname, 'src'),
-    filename: 'server-compiled.js'
+    path: path.join(__dirname, 'dist'),
+    filename: 'bundle.js'
   },
   watchOptions: {
     ignored: ['src/static', 'node_modules']
@@ -17,7 +17,7 @@ const common = {
   module: {
     rules: [
       {
-        test: /\.[j|t]s$/,
+        test: /\.js$/,
         use: {
           loader: 'babel-loader',
           options: {
@@ -35,11 +35,16 @@ const common = {
         },
         include: path.join(__dirname, 'src')
       },
+      {
+        test: /\.ts$/,
+        exclude: /node_modules/,
+        use: ['ts-loader']
+      },
       { test: /\.css$/, use: ['style-loader', 'css-loader'] }
     ],
   },
   resolve: {
-    extensions: [".[j|t]s"],
+    extensions: ['.js', '.ts'],
     modules: [path.resolve(__dirname, 'src'), 'node_modules']
   },
   externals: [{

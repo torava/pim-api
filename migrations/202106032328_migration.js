@@ -222,6 +222,12 @@ exports.up = (knex) => (
       .inTable('Source');
     table.unique(['attributeId', 'sourceId']);
   }))
+  /*.then(() => createTableIfNotExists(knex, 'User', table => {
+    table.increments('id').primary();
+    table.string('name');
+    table.string('password');
+    table.unique(['name']);
+  }))*/
 );
 
 exports.down = knex => (
