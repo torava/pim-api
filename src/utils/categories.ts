@@ -2,46 +2,57 @@ import moment from 'moment';
 import _ from 'lodash';
 
 import Attribute from '../models/Attribute';
-import Category from '../models/Category';
+import Category, { CategoryPartialShape } from '../models/Category';
 import Manufacturer from '../models/Manufacturer';
-import Source from '../models/Source';
+import Source, { SourcePartialShape } from '../models/Source';
 import { convertMeasure } from './entities';
 import { getTranslation } from '../utils/entities';
 import { stripName, stripDetails, getDetails } from './transactions';
 import { LevenshteinDistance } from './levenshteinDistance';
 import { measureRegExp } from './receipts';
+import CategoryAttribute from '../models/CategoryAttribute';
+import { Locale, NameTranslations, ObjectEntries, Token } from './types';
+import { CategoryContributionPartialShape } from '../models/CategoryContribution';
 
-export const getAverageRate = (filter, average_range) => {
+export const getAverageRate = (filter: {start_date: string, end_date: string}, averageRange: number) => {
   const {start_date, end_date} = filter;
-  const rate = average_range ? average_range/moment.duration(moment(end_date).diff(moment(start_date))).asDays() : 1;
+  const rate = averageRange ? averageRange/moment.duration(moment(end_date).diff(moment(start_date))).asDays() : 1;
   //console.log(rate, this.state, moment(start_date));
   return rate;
 };
 
-export const aggregateCategoryPrice = (resolvedCategories, averageRate) => {
+export const aggregateCategoryPrice = (resolvedCategories: (Category & {
+  price_sum: number,
+  weight_sum: number,
+  volume_sum: number
+})[], averageRate: number) => {
   let categories = [...resolvedCategories];
   categories.reduce(function resolver(sum, category) {
     if (category.products?.length) {
-      let item_prices = 0,
-          item_weights = 0,
-          item_volumes = 0;
+      let itemPrices = 0,
+          itemWeights = 0,
+          itemVolumes = 0;
       category.products.map(product => {
         product.items.map(item => {
-          item_prices+= item.price;
+          itemPrices+= item.price;
           if (item.unit == 'l' || product.unit == 'l') {
-            item_volumes+= (product.quantity || item.quantity || 1)*(product.measure || item.measure || 0);
+            itemVolumes+= (product.quantity || item.quantity || 1)*(product.measure || item.measure || 0);
           }
           else {
-            item_weights+= (product.quantity || item.quantity || 1)*convertMeasure(product.measure || item.measure, product.unit || item.unit, 'kg');
+            itemWeights+= (product.quantity || item.quantity || 1)*convertMeasure(product.measure || item.measure, product.unit || item.unit, 'kg');
           }
         });
       });
-      category.price_sum = item_prices*averageRate;
-      category.weight_sum = item_weights*averageRate;
-      category.volume_sum = item_volumes*averageRate;
+      category.price_sum = itemPrices*averageRate;
+      category.weight_sum = itemWeights*averageRate;
+      category.volume_sum = itemVolumes*averageRate;
     }
     if (category.children?.length) {
-      let sum = category.children.reduce(resolver, {
+      let sum: {
+        price_sum: number,
+        weight_sum: number,
+        volume_sum: number
+      } = category.children.reduce(resolver, {
         price_sum: 0,
         volume_sum: 0,
         weight_sum: 0
@@ -63,13 +74,22 @@ export const aggregateCategoryPrice = (resolvedCategories, averageRate) => {
   return categories;
 };
 
-export const getCategoryById = (categories, categoryId) => categories.find(c => c.id === categoryId);
+export const getCategoryById = (categories: Category[], categoryId: Category['id']) => (
+  categories.find(c => c.id === categoryId)
+);
 
-export const getCategoryAttributes = (category, attributeId) => (
+export const getCategoryAttributes = (category?: Category, attributeId?: CategoryAttribute['id']) => (
   Object.values(category?.attributes || {}).filter(attribute => attribute.attributeId === attributeId)
 );
 
-export const getCategoryWithAttributes = (categories, categoryId, attributeId) => {
+export const getCategoryWithAttributes = (
+  categories: Category[],
+  categoryId: Category['id'],
+  attributeId: CategoryAttribute['id']
+): [
+  Category,
+  CategoryAttribute[]
+] | undefined => {
   if (!categories.length || !categoryId || !attributeId) return;
 
   const category = getCategoryById(categories, categoryId);
@@ -86,50 +106,54 @@ export const getCategoryWithAttributes = (categories, categoryId, attributeId) =
   }
 };
 
-export const getCategoriesWithAttributes = (categories, categoryId, attributeId) => {
+export const getCategoriesWithAttributes = (
+  categories: Category[],
+  categoryId: Category['id'],
+  attributeId: CategoryAttribute['id']
+) => {
   if (!categoryId) return;
 
-  let results = [];
+  let results: [Category, CategoryAttribute[]][] = [];
   
   const result = getCategoryWithAttributes(categories, categoryId, attributeId);
   if (result) {
     let [populatedCategory, attributes] = result;
     results.push([populatedCategory, attributes]);
-    while (attributes.length) {
+    while (attributes?.length) {
       const result = getCategoryWithAttributes(categories, populatedCategory.parentId, attributeId);
       if (result) {
         [populatedCategory, attributes] = result;
         results.push([populatedCategory, attributes]);
       } else {
-        attributes = false;
+        attributes = undefined;
       }
     }
   }
   return results;
 };
 
-export function resolveCategories(items, locale) {
+export function resolveCategories(items: Category[], locale: Locale) {
   if (!locale) return;
-  let item_attributes,
-      resolved_attributes,
+  let itemAttributes: CategoryAttribute[],
+      resolvedAttributes: {[key: CategoryAttribute['id']]: CategoryAttribute},
       item;
   for (let i in items) {
     item = items[i];
-    resolved_attributes = {};
-    item_attributes = item.attributes;
-    for (let n in item_attributes) {
-      if (item_attributes[n].attribute) {
-        item_attributes[n].attribute.name = getTranslation(item_attributes[n].attribute.name, locale);
+    resolvedAttributes = {};
+    itemAttributes = item.attributes;
+    for (let n in itemAttributes) {
+      if (itemAttributes[n].attribute) {
+        itemAttributes[n].attribute.name = getTranslation(itemAttributes[n].attribute.name, locale);
 
-        let parent = item_attributes[n].attribute.parent;
+        let parent = itemAttributes[n].attribute.parent;
         while (parent) {
           parent.name = getTranslation(parent.name, locale);
           parent = parent.parent;
         }
       }
-      resolved_attributes[item_attributes[n].attributeId] = item_attributes[n];
+      resolvedAttributes[itemAttributes[n].attributeId] = itemAttributes[n];
     }
-    item.attributes = resolved_attributes;
+    item.attributes = Object.values(resolvedAttributes);
     if (item.children) {
       resolveCategories(item.children, locale);
     }
@@ -143,7 +167,9 @@ export function resolveCategories(items, locale) {
   }
 }
 
-export function resolveCategoryPrices(categories) {
+export function resolveCategoryPrices(categories: (Category & {
+  price_sum: number
+})[]) {
   categories && categories.reduce(function resolver(sum, category) {
     if (category.products?.length) {
       let item_prices = 0;
@@ -161,7 +187,9 @@ export function resolveCategoryPrices(categories) {
   }, 0);
 }
 
-export const getStrippedCategories = (categories, manufacturers = []) => {
+export const getStrippedCategories = (categories: (Category & {
+  strippedName?: NameTranslations
+})[], manufacturers: Manufacturer[] = []) => {
   return categories.map(category => {
     const name = category.name;
     category.strippedName = stripName(name, manufacturers);
@@ -169,29 +197,39 @@ export const getStrippedCategories = (categories, manufacturers = []) => {
   });
 };
 
-export const getClosestCategory = (name, categories, acceptLocale, strippedName) => {
+export const getClosestCategory = (
+  name: string,
+  categories: (Category & {
+    strippedName?: NameTranslations
+  })[],
+  acceptLocale: Locale,
+  strippedName?: string
+): [
+  Category | undefined,
+  Token | undefined
+] => {
   if (!name) return [undefined, undefined];
 
   if (!strippedName) strippedName = stripDetails(name);
 
-  let bestToken, bestCategory;
+  let bestToken: Token, bestCategory: Category;
 
   console.log('strippedName', strippedName);
 
   categories.forEach((category) => {
-    Object.entries(category.strippedName).forEach(([locale, translation]) => {
+    ObjectEntries(category.strippedName).forEach(([locale, translation]) => {
       if (acceptLocale && locale !== acceptLocale) return true;
       if (translation) {
-        const tokens = [];
-        tokens.push([LevenshteinDistance(translation.toLowerCase(), strippedName.toLowerCase(), {search: true}), translation.toLowerCase(), 0.1]);
-        tokens.push([LevenshteinDistance(category.name[locale].toLowerCase(), name.toLowerCase(), {search: true}), category.name[locale].toLowerCase()]);
+        const tokens: [Token, string, number?][] = [];
+        tokens.push([LevenshteinDistance(translation.toLowerCase(), strippedName.toLowerCase(), {search: true}) as Token, translation.toLowerCase(), 0.1]);
+        tokens.push([LevenshteinDistance(category.name[locale].toLowerCase(), name.toLowerCase(), {search: true}) as Token, category.name[locale].toLowerCase()]);
         category.aliases?.forEach(alias => {
-          tokens.push([LevenshteinDistance(alias.toLowerCase(), strippedName.toLowerCase(), {search: true}), alias.toLowerCase(), 0.1]);
-          tokens.push([LevenshteinDistance(alias.toLowerCase(), name.toLowerCase(), {search: true}), alias.toLowerCase()]);
+          tokens.push([LevenshteinDistance(alias.toLowerCase(), strippedName.toLowerCase(), {search: true}) as Token, alias.toLowerCase(), 0.1]);
+          tokens.push([LevenshteinDistance(alias.toLowerCase(), name.toLowerCase(), {search: true}) as Token, alias.toLowerCase()]);
         });
         //tokens.push([LevenshteinDistance(category.parent?.name[locale]?.toLowerCase() || '', strippedName.toLowerCase(), {search: true}), category.parent?.name[locale]?.toLowerCase() || '']);
 
-        let token;
+        let token: Token;
         tokens.forEach(t => {
           t[0].accuracy = (t[0].substring.length-t[0].distance-(t[2] || 0))/name.length;
           if (t[0].distance < 1 && t[0].accuracy > 0.1 && t[0].accuracy >= (token ? token.accuracy : 0)) {
@@ -217,20 +255,25 @@ export const getClosestCategory = (name, categories, acceptLocale, strippedName)
   return bestToken?.substring.length ? [bestCategory, bestToken] : [undefined, undefined];
 };
 
-export const getTokensFromContributionList = (list) => (
+export const getTokensFromContributionList = (list: string) => (
   list?.replace(/[([][^)\]]*[)\]]|\./g, '')
   .replace(/\s{2,}/g, ' ')
   .trim()
   .split(/,\s|\sja\s|\sand\s|\soch\s|\s?&\s?/gi)
 );
 
-export const getContributionsFromList = (list, contentLanguage, categories = [], attributes = []) => {
+export const getContributionsFromList = (
+  list: string,
+  contentLanguage: Locale,
+  categories: Category[] = [],
+  attributes: Attribute[] = []
+) => {
   const tokens = getTokensFromContributionList(list);
-  const contributions = [];
+  const contributions: CategoryContributionPartialShape[] = [];
   tokens?.forEach(contributionToken => {
     const measureMatch = contributionToken.match(measureRegExp);
     const measure = measureMatch && parseFloat(measureMatch[1]);
-    let foodUnitAttribute;
+    let foodUnitAttribute: Attribute;
     let unit;
     if (measure && !isNaN(measure)) {
       if (measureMatch[4]) {
@@ -250,10 +293,14 @@ export const getContributionsFromList = (list, contentLanguage, categories = [],
       }
     });
     let strippedContributionToken = stripDetails(contributionToken);
-    let [contribution, token] = getClosestCategory(contributionToken, categories, contentLanguage, strippedContributionToken);
+    let [contributionContribution, token] = getClosestCategory(contributionToken, categories, contentLanguage, strippedContributionToken);
+    let contribution: CategoryContributionPartialShape = {
+      contribution: contributionContribution,
+      contributionId: contributionContribution?.id
+    };
     if (contribution) {
       if (foodUnitAttribute) {
-        const {value, unit} = contribution.attributes.find(attribute => attribute.attributeId === foodUnitAttribute.id) || {};
+        const {value, unit} = contribution.contribution.attributes.find(attribute => attribute.attributeId === foodUnitAttribute.id) || {};
         if (value) {
           contribution.amount = value;
           contribution.unit = unit;
@@ -264,14 +311,18 @@ export const getContributionsFromList = (list, contentLanguage, categories = [],
       }
     }
     if (contributionToken.split(' ').length > 2) {
-      while (contribution && contributionToken && strippedContributionToken) {
+      while (contributionContribution && contributionToken && strippedContributionToken) {
         contributionToken = contributionToken.replace(new RegExp(token.substring, 'i'), '').trim();
         strippedContributionToken = stripDetails(contributionToken).replace(new RegExp(token.substring, 'i'), '').trim();
-        contributions.push({contributionId: contribution.id, contribution});
-        [contribution, token] = getClosestCategory(contributionToken, categories, contentLanguage);
+        contributions.push(contribution);
+        [contributionContribution, token] = getClosestCategory(contributionToken, categories, contentLanguage);
+        contribution = {
+          contribution: contributionContribution,
+          contributionId: contributionContribution?.id
+        };
         if (contribution) {
           if (foodUnitAttribute) {
-            const {value, unit} = contribution.attributes.find(attribute => attribute.attributeId === foodUnitAttribute.id) || {};
+            const {value, unit} = contribution.contribution.attributes.find(attribute => attribute.attributeId === foodUnitAttribute.id) || {};
             if (value) {
               contribution.amount = value;
               contribution.unit = unit;
@@ -283,28 +334,28 @@ export const getContributionsFromList = (list, contentLanguage, categories = [],
         }
       }
     } else if (contribution) {
-      contributions.push({contributionId: contribution.id, contribution});
+      contributions.push(contribution);
     }
   });
   return contributions;
 };
 
-export const getCategoriesFromCsv = async (records, sourceRecords) => {
+export const getCategoriesFromCsv = async (records: {[key: string]: string}[], sourceRecords: {[key: string]: string}[]) => {
   try {
-    let item,
+    let item: CategoryPartialShape,
         found,
         attribute,
         note,
         attributes = await Attribute.query(),
         categories = await Category.query(),
-        sourceRecordIdMap = {},
+        sourceRecordIdMap: {[key: string]: SourcePartialShape} = {},
         attributeObject,
         value;
 
     for (const columns of records) {
       item = {};
       note = '';
-      for (const [columnName, column] of Object.entries(columns)) {
+      for (const [columnName, column] of ObjectEntries(columns)) {
         if (columnName !== '' && column !== '') {
           attribute = columnName.match(/^attribute:(.*)(\s\((.*)\))/i) ||
                       columnName.match(/^attribute:(.*)/i);
@@ -313,7 +364,7 @@ export const getCategoriesFromCsv = async (records, sourceRecords) => {
               locale;
           if (nameMatch) {
             name = nameMatch[1];
-            locale = nameMatch[2];
+            locale = nameMatch[2] as Locale;
           }
           if (attribute) {
             found = false;
@@ -353,10 +404,8 @@ export const getCategoriesFromCsv = async (records, sourceRecords) => {
             if (sourceRecord) {
               let source = sourceRecordIdMap[sourceRecord.id];
               if (!source) {
-                const sourceRecordWithoutId = {
-                  ...sourceRecord,
-                  id: undefined
-                };
+                const sourceRecordWithoutId: SourcePartialShape = {...sourceRecord};
+                delete sourceRecordWithoutId.id;
                 try {
                   source = await Source.query().insertAndFetch(sourceRecordWithoutId).returning('*');
                   sourceRecordIdMap[sourceRecord.id] = {id: source.id};
@@ -405,17 +454,12 @@ export const getCategoriesFromCsv = async (records, sourceRecords) => {
           }
         }
       }
-      await Category.query().upsertGraph(item, {
+      await Category.query().upsertGraph(item as Category, {
         noDelete: true,
         relate: true
-      })
-      .catch(error => console.error(error));
-
-      categories = await Category.query()
-      .catch(error => console.error(error));
-
-      attributes = await Attribute.query()
-      .catch(error => console.error(error));
+      });
+      categories = await Category.query();
+      attributes = await Attribute.query();
     }
     console.log(`read ${records.length} records`);
     //console.dir(items, {depth: null, maxArrayLength: null});
@@ -424,10 +468,10 @@ export const getCategoriesFromCsv = async (records, sourceRecords) => {
   }
 };
 
-export const getCategoryParentsFromCsv = async (records) => {
+export const getCategoryParentsFromCsv = async (records: {[key: string]: string}[]) => {
   try {
-    let items = [],
-        item,
+    let items: CategoryPartialShape[] = [],
+        item: CategoryPartialShape,
         categories = await Category.query();
 
     records.forEach(columns => {
@@ -438,7 +482,7 @@ export const getCategoryParentsFromCsv = async (records) => {
             locale;
         if (nameMatch) {
           name = nameMatch[1];
-          locale = nameMatch[2];
+          locale = nameMatch[2] as Locale;
         }
         if (name && locale) {
           if (column === '') return true;

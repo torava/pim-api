@@ -1,6 +1,14 @@
-import {Model} from 'objection';
+import {Model, ModelObject} from 'objection';
 
 export default class Manufacturer extends Model {
+	id!: number;
+
+	name?: string;
+	aliases?: string[];
+	factoryLocation?: string[];
+	headquartersLocation?: string[];
+
+	parent?: Manufacturer;
 
 	static get tableName() {
 		return 'Manufacturer';
@@ -15,8 +23,8 @@ export default class Manufacturer extends Model {
 				id: {type: 'integer'},
 				name: {type: 'string', minLength: 1, maxLength: 255},
 				aliases: {type: ['array', 'null']},
-        factory_location: {type: 'string', minLength: 1, maxLength: 255},
-        headquarters_location: {type: 'string', minLength: 1, maxLength: 255}
+        factoryLocation: {type: 'string', minLength: 1, maxLength: 255},
+        headquartersLocation: {type: 'string', minLength: 1, maxLength: 255}
 			}
 		}
 	}
@@ -34,3 +42,5 @@ export default class Manufacturer extends Model {
 		}
 	}
 }
+
+export type ManufacturerShape = ModelObject<Manufacturer>;

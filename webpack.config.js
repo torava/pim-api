@@ -17,7 +17,7 @@ const common = {
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
+        test: /\.[j|t]s$/,
         use: {
           loader: 'babel-loader',
           options: {
@@ -39,7 +39,7 @@ const common = {
     ],
   },
   resolve: {
-    extensions: [".js", ".jsx"],
+    extensions: [".[j|t]s"],
     modules: [path.resolve(__dirname, 'src'), 'node_modules']
   },
   externals: [{

@@ -1,4 +1,4 @@
-import Express from 'express';
+import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import compression from 'compression';
@@ -10,12 +10,40 @@ import { Canvas, createCanvas, Image, ImageData } from 'canvas';
 import path from 'path';
 import bodyParser from 'body-parser';
 import swaggerUi from 'swagger-ui-express';
+import pg from 'pg';
 
 import knexConfig from '../knexfile';
 import registerApi from './api';
 import swaggerDocument from '../swagger.json';
 
-export const app = new Express();
+declare global {
+  // eslint-disable-next-line no-unused-vars
+  namespace NodeJS {
+    // eslint-disable-next-line no-unused-vars
+    interface Global {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      document: any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      window: any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      Image: any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any,
+      HTMLCanvasElement: any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ImageData: any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      HTMLImageElement: any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      Module: any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      cv: any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      createCanvas: any
+    }
+  }
+}
+
+export const app = express();
 
 app.use(cors());
 app.use(compression());
@@ -30,7 +58,7 @@ const knex = Knex(knexConfig.development);
 Model.knex(knex);
 
 // https://github.com/brianc/node-postgres/issues/811
-const types = require('pg').types;
+const types = pg.types;
 types.setTypeParser(1700, function(val) {
     return parseFloat(val);
 });
@@ -57,9 +85,9 @@ app.use(
 
 const env = process.env.NODE_ENV || 'production';
 
-let port;
+let port: number;
 if (env === 'production') {
-  port = process.env.PORT || 42808;
+  port = Number(process.env.PORT) || 42808;
 
   app.get('/favicon.ico', (req, res) => res.sendStatus(204));
 
@@ -72,7 +100,7 @@ if (env === 'production') {
   app.use(cache());
 
   // define the folder that will be used for static assets
-  app.use(Express.static('src/static', {
+  app.use(express.static('src/static', {
     index: false
   }));
 
@@ -92,7 +120,6 @@ if (env === 'production') {
     const [, user, password] = strauth.match(/(.*?):(.*)/) || [];
 
     if (process.env.ACCESS_CONTROL_ALLOW_ORIGIN) {
-      console.log('ACCESS_CONTROL_ALLOW_ORIGIN', process.env.ACCESS_CONTROL_ALLOW_ORIGIN);
       res.set('Access-Control-Allow-Origin', process.env.ACCESS_CONTROL_ALLOW_ORIGIN);
     }
 
@@ -113,7 +140,7 @@ if (env === 'production') {
     }
   });
 } else {
-  port = process.env.PORT || 42809;
+  port = Number(process.env.PORT) || 42809;
 }
 
 registerApi(app);
@@ -143,12 +170,9 @@ function loadOpenCV() {
 installDOM();
 loadOpenCV();
 
-global.createCanvas = (width, height) => createCanvas(width, height);
+global.createCanvas = (width: number, height: number) => createCanvas(width, height);
 
-app.listen(port, (err) => {
-  if (err) {
-    return console.error(err);
-  }
+app.listen(port, () => {
   return console.info(
     `
       v${process.env.npm_package_version}

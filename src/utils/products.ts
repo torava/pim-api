@@ -4,21 +4,37 @@ import stringSimilarity from "string-similarity-js";
 import { stripDetails, stripName } from "./transactions";
 import Category from "../models/Category";
 import Manufacturer from "../models/Manufacturer";
-import Product from "../models/Product";
+import Product, { ProductPartialShape } from "../models/Product";
 import { getAttributeValues, getMaxAttributeValue, getMinAttributeValue } from "./attributes";
 import { getCategoriesWithAttributes } from "./categories";
 import { convertMeasure } from "./entities";
 import { LevenshteinDistance } from './levenshteinDistance';
+import Attribute from "../models/Attribute";
+import CategoryContribution from "../models/CategoryContribution";
+import { ProductAttributePartialShape } from "../models/ProductAttribute";
+import { NameTranslations, ObjectEntries, Token } from "./types";
+import { ProductContributionPartialShape } from "../models/ProductContribution";
 
-export const getProductCategoryMinMaxAttributes = (category, contribution, product, foodUnitAttribute, attributeId, categories = [], productAttributes = [], attributes = []) => {
-  let unit, measure, portionAttribute;
+export const getProductCategoryMinMaxAttributes = (
+  category: Category,
+  contribution: ProductContributionPartialShape,
+  product: ProductPartialShape,
+  foodUnitAttribute: Attribute,
+  attributeId: Attribute['id'],
+  categories: Category[] = [],
+  productAttributes: ProductAttributePartialShape[] = [],
+  attributes: Attribute[] = []
+) => {
+  let unit: CategoryContribution['unit'] | Product['unit'],
+      measure: CategoryContribution['amount'] | Product['measure'],
+      portionAttribute;
   
   if (foodUnitAttribute) {
     portionAttribute = category.attributes.find(a => a.attributeId === foodUnitAttribute.id);
   }
-  if (contribution?.contribution?.amount) {
-    measure = contribution.contribution.amount;
-    unit = contribution.contribution.unit;
+  if (contribution?.amount) {
+    measure = contribution.amount;
+    unit = contribution.unit;
   } else if (portionAttribute) {
     measure = portionAttribute.value;
     unit = portionAttribute.unit;
@@ -61,16 +77,22 @@ export const getProductCategoryMinMaxAttributes = (category, contribution, produ
   return {minAttributeValue, minCategoryAttribute, maxAttributeValue, maxCategoryAttribute};
 };
 
-export const resolveProductAttributes = (product, attributeIds, foodUnitAttribute, categories = [], attributes = []) => {
+export const resolveProductAttributes = (
+  product: ProductPartialShape,
+  attributeIds: Attribute['id'][],
+  foodUnitAttribute: Attribute,
+  categories: Category[] = [],
+  attributes: Attribute[] = []
+) => {
   let measure,
-      productAttributes = [];
+      productAttributes: ProductAttributePartialShape[] = [];
 
   const category = categories.find(c => c.id === product.categoryId);
   attributeIds.forEach(attributeId => {
     let minValue = 0,
         maxValue = 0,
         unit,
-        initialProductAttributes = product.attributes?.filter(a => a.attributeId === attributeId);
+        initialProductAttributes = product.attributes?.filter(productAttribute => productAttribute.attributeId === attributeId);
     
     product.contributions.forEach(productContribution => {
       const contribution = categories.find(category => category.id === productContribution.contributionId);
@@ -134,30 +156,34 @@ export const resolveProductAttributes = (product, attributeIds, foodUnitAttribut
   return {productAttributes, measure};
 };
 
-export const getClosestProduct = (name, products) => {
+export const getClosestProduct = (name: Product['name'], products: Product[]): [
+  Product?,
+  Token?
+] => {
   if (!name) return [undefined, undefined];
 
   const strippedName = stripDetails(name);
 
-  let bestToken, bestProduct;
+  let bestToken: Token,
+      bestProduct: Product;
 
   products.forEach((product) => {
     const {aliases} = product;
-    const tokens = [];
-    tokens.push([LevenshteinDistance(product.name.toLowerCase(), name.toLowerCase(), {search: true}), product.name.toLowerCase()]);
-    tokens.push([LevenshteinDistance(product.name.toLowerCase(), strippedName.toLowerCase(), {search: true}), product.name.toLowerCase()]);
+    const tokens: [Token, string][] = [];
+    tokens.push([LevenshteinDistance(product.name.toLowerCase(), name.toLowerCase(), {search: true}) as Token, product.name.toLowerCase()]);
+    tokens.push([LevenshteinDistance(product.name.toLowerCase(), strippedName.toLowerCase(), {search: true}) as Token, product.name.toLowerCase()]);
     aliases?.forEach(alias => {
-      tokens.push([LevenshteinDistance(alias.toLowerCase(), name.toLowerCase(), {search: true}), alias.toLowerCase()]);
-      tokens.push([LevenshteinDistance(alias.toLowerCase(), strippedName.toLowerCase(), {search: true}), alias.toLowerCase()]);
+      tokens.push([LevenshteinDistance(alias.toLowerCase(), name.toLowerCase(), {search: true}) as Token, alias.toLowerCase()]);
+      tokens.push([LevenshteinDistance(alias.toLowerCase(), strippedName.toLowerCase(), {search: true}) as Token, alias.toLowerCase()]);
     });
     //tokens.push([LevenshteinDistance(category.parent?.name[locale]?.toLowerCase() || '', strippedName.toLowerCase(), {search: true}), category.parent?.name[locale]?.toLowerCase() || '']);
 
-    let token;
-    tokens.forEach(t => {
-      t[0].accuracy = (t[0].substring.length-t[0].distance)/name.length;
-      if (t[0].distance < 1 && t[0].accuracy > 0.1 && t[0].accuracy >= (token ? token.accuracy : 0)) {
-        token = t[0];
-        console.log('name', name, 'product', product.name, 'token', t);
+    let token: Token;
+    tokens.forEach(comparableToken => {
+      comparableToken[0].accuracy = (comparableToken[0].substring.length-comparableToken[0].distance)/name.length;
+      if (comparableToken[0].distance < 1 && comparableToken[0].accuracy > 0.1 && comparableToken[0].accuracy >= (token ? token.accuracy : 0)) {
+        token = comparableToken[0];
+        console.log('name', name, 'product', product.name, 'token', comparableToken);
       }
     });
 
@@ -175,8 +201,12 @@ export const getClosestProduct = (name, products) => {
   return bestToken?.substring.length ? [bestProduct, bestToken] : [undefined, undefined];
 };
 
-export const getProductsFromOpenFoodFactsRecords = async (records) => {
-  const categories = await Category.query().withGraphFetched('attributes');
+export const getProductsFromOpenFoodFactsRecords = async (records: {
+  quantity: string,
+  brands: string,
+  product_name: string
+}[]) => {
+  const categories = (await Category.query().withGraphFetched('attributes')) as (Category & {strippedName?: NameTranslations})[];
   const manufacturers = await Manufacturer.query();
 
   const strippedCategories = categories.filter(category => (
@@ -208,7 +238,7 @@ export const getProductsFromOpenFoodFactsRecords = async (records) => {
       let bestDistance = 0.4,
           categoryId;
       strippedCategories.forEach((category) => {
-        Object.entries(category.strippedName).forEach(([locale, translation]) => {
+        ObjectEntries(category.strippedName).forEach(([locale, translation]) => {
           if (translation) {
             let distance = stringSimilarity(strippedProductName.toLowerCase() || '', translation.toLowerCase() || '');
             distance = Math.max(distance, stringSimilarity(productNameWithBrand.toLowerCase() || '', category.name[locale].toLowerCase() || '')+0.1);

@@ -29,8 +29,8 @@ it('should get contributions', () => {
   let contributions = getContributionsFromList('Macaroni dark 500g [macaroni] (100%)', undefined, mockStrippedCategoryChildren);
   expect(contributions.length).toBe(1);
   expect(contributions[0].contributionId).toBe(302);
-  expect(contributions[0].contribution.amount).toBe(500);
-  expect(contributions[0].contribution.unit).toBe('g');
+  expect(contributions[0].amount).toBe(500);
+  expect(contributions[0].unit).toBe('g');
 
   contributions = getContributionsFromList('Fresh ravioli with spinach', undefined, mockStrippedCategoryChildren);
   expect(contributions.length).toBe(1);

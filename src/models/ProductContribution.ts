@@ -1,9 +1,20 @@
-import {Model} from 'objection';
+import {Model, ModelObject} from 'objection';
+import { DeepPartial } from '../utils/types';
 
 import Category from './Category';
 import Product from './Product';
 
 export default class ProductContribution extends Model {
+	id!: number;
+
+	amount?: number;
+	unit?: string;
+
+	product?: Product;
+	productId?: Product['id'];
+	contribution?: Category;
+	contributionId?: Category['id'];
+
 	static get tableName() {
 		return 'ProductContribution';
 	}
@@ -41,3 +52,6 @@ export default class ProductContribution extends Model {
     }
   }
 }
+
+export type ProductContributionShape = ModelObject<ProductContribution>;
+export type ProductContributionPartialShape = DeepPartial<ProductContributionShape>;

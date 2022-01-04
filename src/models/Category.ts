@@ -1,9 +1,23 @@
-import {Model} from 'objection';
+import {Model, ModelObject, QueryBuilder} from 'objection';
+
 import Product from './Product';
 import CategoryAttribute from './CategoryAttribute';
 import CategoryContribution from './CategoryContribution';
+import { DeepPartial, NameTranslations } from '../utils/types';
 
 export default class Category extends Model {
+	id!: number;
+	
+	name?: NameTranslations;
+	aliases?: string[];
+
+	products?: Product[];
+	attributes?: CategoryAttribute[];
+	contributions?: CategoryContribution[];
+	children?: Category[];
+	parent?: Category;
+	parentId?: number;
+
 	static get tableName() {
 		return 'Category';
 	}
@@ -22,10 +36,10 @@ export default class Category extends Model {
 
 	static get modifiers() {
 		return {
-			getAttributes(builder) {
+			getAttributes(builder: QueryBuilder<Category>) {
 				builder.withGraphFetched('[products.[items], contributions.[contribution], attributes, children(getAttributes)]');
 			},
-			getTransactions(builder) {
+			getTransactions(builder: QueryBuilder<Category>) {
 				builder.withGraphFetched('[products.items.transaction, attributes, children(getTransactions)]');
 			}
 		};
@@ -76,3 +90,6 @@ export default class Category extends Model {
 		}
 	}
 }
+
+export type CategoryShape = ModelObject<Category>;
+export type CategoryPartialShape = DeepPartial<CategoryShape>;
