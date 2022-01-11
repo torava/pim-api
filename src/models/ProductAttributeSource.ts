@@ -1,18 +1,27 @@
-import {Model, ModelObject} from 'objection';
-import ProductAttribute from './ProductAttribute';
-import Source from './Source';
 
-export default class ProductAttributeSource extends Model {
-	id!: number;
+
+import { Model } from 'objection';
+import ProductAttribute, { ProductAttributeShape } from './ProductAttribute';
+import Source, { SourceShape } from './Source';
+
+export interface ProductAttributeSourceShape {
+	id: number;
 
 	referenceUrl?: string;
 	referenceDate?: string;
 	note?: string;
 	countryCode?: string;
 
+	attribute?: ProductAttributeShape;
+	source?: SourceShape;
+}
+
+interface ProductAttributeSource extends Omit<ProductAttributeSourceShape, 'attribute' | 'source'> {
 	attribute?: ProductAttribute;
 	source?: Source;
-
+}
+// eslint-disable-next-line no-redeclare
+class ProductAttributeSource extends Model {
 	static get tableName() {
 		return 'ProductAttributeSource';
 	}
@@ -53,4 +62,4 @@ export default class ProductAttributeSource extends Model {
   }
 }
 
-export type ProductAttributeSourceShape = ModelObject<ProductAttributeSource>;
+export default ProductAttributeSource;

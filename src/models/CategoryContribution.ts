@@ -1,19 +1,28 @@
-import {Model, ModelObject} from 'objection';
+
+import { Model } from 'objection';
 import { DeepPartial } from '../utils/types';
 
-import Category from './Category';
+import Category, { CategoryShape } from './Category';
 
-export default class CategoryContribution extends Model {
-	id!: number;
+export interface CategoryContributionShape {
+	id: number;
 
 	amount?: number;
 	unit?: string;
 
-	category?: Category;
-	categoryId?: Category['id'];
-	contribution?: Category;
-	contributionId?: Category['id'];
+	category?: CategoryShape;
+	categoryId?: CategoryShape['id'];
+	contribution?: CategoryShape;
+	contributionId?: CategoryShape['id'];
+}
 
+interface CategoryContribution extends Omit<CategoryContributionShape, 'category' | 'contribution'> {
+	category?: Category;
+	contribution?: Category;
+}
+
+// eslint-disable-next-line no-redeclare
+class CategoryContribution extends Model {
 	static get tableName() {
 		return 'CategoryContribution';
 	}
@@ -52,5 +61,6 @@ export default class CategoryContribution extends Model {
   }
 }
 
-export type CategoryContributionShape = ModelObject<CategoryContribution>;
 export type CategoryContributionPartialShape = DeepPartial<CategoryContributionShape>;
+
+export default CategoryContribution;

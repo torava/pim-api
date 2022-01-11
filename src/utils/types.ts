@@ -1,7 +1,7 @@
 export enum Locale {
   'fi-FI' = 'fi-FI',
   'en-US' = 'en-US',
-  'sv-SV' = 'sv-SV',
+  'sv-SE' = 'sv-SE',
   'es-AR' = 'es-AR'
 }
 

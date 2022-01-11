@@ -1,23 +1,31 @@
-import {Model, ModelObject} from 'objection';
+import { Model } from 'objection';
 
-import Product from './Product';
-import Attribute from './Attribute';
-import ProductAttributeSource from './ProductAttributeSource';
+import Product, { ProductShape } from './Product';
+import Attribute, { AttributeShape } from './Attribute';
+import ProductAttributeSource, { ProductAttributeSourceShape } from './ProductAttributeSource';
 import { DeepPartial } from '../utils/types';
 
-export default class ProductAttribute extends Model {
-	id!: number;
+export interface ProductAttributeShape {
+	id: number;
 	
 	value?: number;
 	unit?: string;
 	type?: string;
 
-	product?: Product;
-	productId?: Product['id'];
-	attribute?: Attribute;
-	attributeId?: Attribute['id'];
-	sources?: ProductAttributeSource[];
+	product?: ProductShape;
+	productId?: ProductShape['id'];
+	attribute?: AttributeShape;
+	attributeId?: AttributeShape['id'];
+	sources?: ProductAttributeSourceShape[];
+}
 
+interface ProductAttribute extends Omit<ProductAttributeShape, 'product' | 'attribute' | 'sources'> {
+	product?: Product;
+	attribute?: Attribute;
+	sources?: ProductAttributeSource[];
+}
+// eslint-disable-next-line no-redeclare
+class ProductAttribute extends Model {
 	static get tableName() {
 		return 'ProductAttribute';
 	}
@@ -65,5 +73,6 @@ export default class ProductAttribute extends Model {
   }
 }
 
-export type ProductAttributeShape = ModelObject<ProductAttribute>;
 export type ProductAttributePartialShape = DeepPartial<ProductAttributeShape>;
+
+export default ProductAttribute;

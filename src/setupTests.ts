@@ -1,19 +1,23 @@
-export const toArrayBuffer = (buf) => {
-  const ab = new ArrayBuffer(buf.length);
-  const view = new Uint8Array(ab);
-  for (let i = 0; i < buf.length; ++i) {
-      view[i] = buf[i];
+import { AttributeShape } from "./models/Attribute";
+import { CategoryShape } from "./models/Category";
+import { ProductShape } from "./models/Product";
+
+export const toArrayBuffer = (buffer: Buffer) => {
+  const arrayBuffer = new ArrayBuffer(buffer.length);
+  const view = new Uint8Array(arrayBuffer);
+  for (let i = 0; i < buffer.length; ++i) {
+      view[i] = buffer[i];
   }
-  return ab;
+  return arrayBuffer;
 };
 
-export const mockCategoryChildren = [
+export const mockCategoryChildren: CategoryShape[] = [
   {
     id: 302,
     name: {
       'en-US': 'Macaroni, dark, boiled without salt',
       'fi-FI': 'Makaroni, tumma, keitetty, suolaton',
-      'sv-SV': 'Makaroner, mörka, kokta utan salt'
+      'sv-SE': 'Makaroner, mörka, kokta utan salt'
     },
     aliases: null,
     parentId: 51,
@@ -58,7 +62,7 @@ export const mockCategoryChildren = [
     "name": {
       "en-US": "Macaroni, whole wheat",
       "fi-FI": "Makaroni, tumma",
-      "sv-SV": "Makaroner, mörka"
+      "sv-SE": "Makaroner, mörka"
     },
     "aliases": null,
     "parentId": 50,
@@ -87,7 +91,7 @@ export const mockCategoryChildren = [
     "name": {
       "en-US": "Water, tap water",
       "fi-FI": "Vesi, vesijohtovesi",
-      "sv-SV": "Vatten, kranvatten"
+      "sv-SE": "Vatten, kranvatten"
     },
     "aliases": null,
     "parentId": 127,
@@ -116,7 +120,7 @@ export const mockCategoryChildren = [
     "name": {
       "en-US": "Soft drink, lemonade",
       "fi-FI": "Virvoitusjuoma",
-      "sv-SV": "Läskedryck"
+      "sv-SE": "Läskedryck"
     },
     "aliases": [
       "Coca-Cola",
@@ -159,7 +163,7 @@ export const mockCategoryChildren = [
     "name": {
       "en-US": "Ravioli with spinach filling, boiled",
       "fi-FI": "Pasta, täytepasta, ravioli, pinaattitäyte, keitetty",
-      "sv-SV": "Pasta, fylld pasta, ravioli med spenatfyllning"
+      "sv-SE": "Pasta, fylld pasta, ravioli med spenatfyllning"
     },
     "aliases": [
       "de Angelis tortell"
@@ -269,7 +273,7 @@ export const mockCategoryChildren = [
     "name": {
       "en-US": "Cheese, average",
       "fi-FI": "Juusto, tuotekeskiarvo",
-      "sv-SV": "Ost, medelvärde"
+      "sv-SE": "Ost, medelvärde"
     },
     "aliases": [
       "Juusto",
@@ -301,7 +305,7 @@ export const mockCategoryChildren = [
     "name": {
       "en-US": "Cream sauce with meat bouillon",
       "fi-FI": "Kermakastike, lihaliemi, kerma, vehnäjauho",
-      "sv-SV": "Gräddsås, köttbuljong, grädde, vetemjöl"
+      "sv-SE": "Gräddsås, köttbuljong, grädde, vetemjöl"
     },
     "aliases": [
       "Creamy sauce"
@@ -365,14 +369,14 @@ export const mockCategoryChildren = [
   }
 ];
 
-export const mockCategories = [
+export const mockCategories: CategoryShape[] = [
   ...mockCategoryChildren,
   {
     "id": 50,
     "name": {
       "en-US": "Wheat",
       "fi-FI": "Vehnä",
-      "sv-SV": "Vete"
+      "sv-SE": "Vete"
     },
     "aliases": null,
     "parentId": 6,
@@ -401,7 +405,7 @@ export const mockCategories = [
     "name": {
       "en-US": "Water",
       "fi-FI": "Vesi",
-      "sv-SV": "Vatten"
+      "sv-SE": "Vatten"
     },
     "aliases": null,
     "parentId": 20,
@@ -422,7 +426,7 @@ export const mockCategories = [
     "name": {
       "en-US": "Cheese, ripened cheese > 17 %",
       "fi-FI": "Juustot, kypsytetyt, rasvaa >17 %",
-      "sv-SV": "Ost, mogen > 17 %"
+      "sv-SE": "Ost, mogen > 17 %"
     },
     "aliases": null,
     "parentId": 16,
@@ -456,7 +460,7 @@ export const mockCategories = [
   }
 ];
 
-export const mockAttributes = [
+export const mockAttributes: AttributeShape[] = [
   {
     "id": 1,
     "code": "GHG",
@@ -473,7 +477,7 @@ export const mockAttributes = [
     "name": {
       "en-US": "Energy,calculated",
       "fi-FI": "Energia, laskennallinen",
-      "sv-SV": "Energi, beräknad"
+      "sv-SE": "Energi, beräknad"
     },
     "parentId": 4
   },
@@ -483,20 +487,20 @@ export const mockAttributes = [
     "name": {
       "en-US": "medium-sized portion",
       "fi-FI": "keskikokoinen annos",
-      "sv-SV": "medelstor portion"
+      "sv-SE": "medelstor portion"
     },
     "parentId": 2
   }
 ];
 
-export const mockProducts = [
+export const mockProducts: ProductShape[] = [
   {
     name: 'Coca-Cola Coca-cola',
     contributionList: null,
     contributions: [],
     category: undefined,
     id: 574,
-    product_number: null,
+    productNumber: null,
     aliases: null,
     quantity: 1,
     measure: 2,
@@ -505,10 +509,12 @@ export const mockProducts = [
     categoryId: 670
   },
   {
+    id: 1,
     "name": "Macaroni dark",
     "contributionList": "Macaroni dark",
     contributions: [
       {
+        id: 1,
         contributionId: 302
       }
     ],

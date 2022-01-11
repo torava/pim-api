@@ -1,23 +1,34 @@
-import {Model, ModelObject, QueryBuilder} from 'objection';
+import {Model, QueryBuilder} from 'objection';
 
-import Product from './Product';
-import CategoryAttribute from './CategoryAttribute';
-import CategoryContribution from './CategoryContribution';
+import Product, { ProductShape } from './Product';
+import CategoryAttribute, { CategoryAttributeShape } from './CategoryAttribute';
+import CategoryContribution, { CategoryContributionShape } from './CategoryContribution';
 import { DeepPartial, NameTranslations } from '../utils/types';
 
-export default class Category extends Model {
-	id!: number;
+// https://dev.to/tylerlwsmith/using-a-typescript-interface-to-define-model-properties-in-objection-js-1231
+export interface CategoryShape {
+	id: number;
 	
 	name?: NameTranslations;
 	aliases?: string[];
 
+	products?: ProductShape[];
+	attributes?: CategoryAttributeShape[];
+	contributions?: CategoryContributionShape[];
+	children?: CategoryShape[];
+	parent?: CategoryShape;
+	parentId?: number;
+}
+
+interface Category extends Pick<CategoryShape, 'id' | 'name' | 'aliases' | 'parentId'> {
 	products?: Product[];
 	attributes?: CategoryAttribute[];
 	contributions?: CategoryContribution[];
 	children?: Category[];
 	parent?: Category;
-	parentId?: number;
-
+}
+// eslint-disable-next-line no-redeclare
+class Category extends Model {
 	static get tableName() {
 		return 'Category';
 	}
@@ -91,5 +102,6 @@ export default class Category extends Model {
 	}
 }
 
-export type CategoryShape = ModelObject<Category>;
 export type CategoryPartialShape = DeepPartial<CategoryShape>;
+
+export default Category;

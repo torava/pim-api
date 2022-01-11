@@ -1,16 +1,23 @@
-import {Model, ModelObject} from 'objection';
+import { Model } from 'objection';
 import { NameTranslations } from '../utils/types';
 
-export default class Attribute extends Model {
-	id!: number;
+export interface AttributeShape {
+	id: number;
 	
 	code?: string;
 	name: NameTranslations;
 	
+	children?: AttributeShape[];
+	parent?: AttributeShape;
+	parentId?: Attribute['id'];
+}
+
+interface Attribute extends Pick<AttributeShape, 'id' | 'code' | 'name' | 'parentId'> {
 	children?: Attribute[];
 	parent?: Attribute;
-	parentId?: Attribute['id'];
-
+}
+// eslint-disable-next-line no-redeclare
+class Attribute extends Model {
 	static get tableName() {
 		return 'Attribute';
 	}
@@ -47,4 +54,4 @@ export default class Attribute extends Model {
 	}
 }
 
-export type AttributeShape = ModelObject<Attribute>;
+export default Attribute;

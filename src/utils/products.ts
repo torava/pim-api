@@ -2,31 +2,31 @@ import moment from "moment";
 import stringSimilarity from "string-similarity-js";
 
 import { stripDetails, stripName } from "./transactions";
-import Category from "../models/Category";
+import Category, { CategoryShape } from "../models/Category";
 import Manufacturer from "../models/Manufacturer";
-import Product, { ProductPartialShape } from "../models/Product";
+import Product, { ProductPartialShape, ProductShape } from "../models/Product";
 import { getAttributeValues, getMaxAttributeValue, getMinAttributeValue } from "./attributes";
 import { getCategoriesWithAttributes } from "./categories";
 import { convertMeasure } from "./entities";
 import { LevenshteinDistance } from './levenshteinDistance';
-import Attribute from "../models/Attribute";
-import CategoryContribution from "../models/CategoryContribution";
+import { AttributeShape } from "../models/Attribute";
+import { CategoryContributionShape } from "../models/CategoryContribution";
 import { ProductAttributePartialShape } from "../models/ProductAttribute";
 import { NameTranslations, ObjectEntries, Token } from "./types";
 import { ProductContributionPartialShape } from "../models/ProductContribution";
 
 export const getProductCategoryMinMaxAttributes = (
-  category: Category,
+  category: CategoryShape,
   contribution: ProductContributionPartialShape,
   product: ProductPartialShape,
-  foodUnitAttribute: Attribute,
-  attributeId: Attribute['id'],
-  categories: Category[] = [],
+  foodUnitAttribute: AttributeShape,
+  attributeId: AttributeShape['id'],
+  categories: CategoryShape[] = [],
   productAttributes: ProductAttributePartialShape[] = [],
-  attributes: Attribute[] = []
+  attributes: AttributeShape[] = []
 ) => {
-  let unit: CategoryContribution['unit'] | Product['unit'],
-      measure: CategoryContribution['amount'] | Product['measure'],
+  let unit: CategoryContributionShape['unit'] | ProductShape['unit'],
+      measure: CategoryContributionShape['amount'] | ProductShape['measure'],
       portionAttribute;
   
   if (foodUnitAttribute) {
@@ -79,10 +79,10 @@ export const getProductCategoryMinMaxAttributes = (
 
 export const resolveProductAttributes = (
   product: ProductPartialShape,
-  attributeIds: Attribute['id'][],
-  foodUnitAttribute: Attribute,
-  categories: Category[] = [],
-  attributes: Attribute[] = []
+  attributeIds: AttributeShape['id'][],
+  foodUnitAttribute: AttributeShape,
+  categories: CategoryShape[] = [],
+  attributes: AttributeShape[] = []
 ) => {
   let measure,
       productAttributes: ProductAttributePartialShape[] = [];

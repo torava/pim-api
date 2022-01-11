@@ -1,32 +1,54 @@
-import {Model, ModelObject} from 'objection';
+import { Model } from 'objection';
 
-import Item from './Item';
-import ProductAttribute from './ProductAttribute';
-import Category from './Category';
-import Manufacturer from './Manufacturer';
-import ProductContribution from './ProductContribution';
-import Brand from './Brand';
+import Item, { ItemShape } from './Item';
+import ProductAttribute, { ProductAttributeShape } from './ProductAttribute';
+import Category, { CategoryShape } from './Category';
+import Manufacturer, { ManufacturerShape } from './Manufacturer';
+import ProductContribution, { ProductContributionShape } from './ProductContribution';
+import Brand, { BrandShape } from './Brand';
 import { DeepPartial } from '../utils/types';
 
-export default class Product extends Model {
-	id!: number;
-	name!: string;
+export interface ProductShape {
+	id: number;
+	name: string;
 
 	contributionList?: string;
 	aliases?: string[];
-	product_number?: string;
+	productNumber?: string;
 	quantity?: number;
 	measure?: number;
 	unit?: string;
 
-	items?: Item[];
-	attributes?: ProductAttribute[];
-	category?: Category;
-	categoryId?: Category['id'];
-	manufacturer?: Manufacturer;
-	brand?: Brand;
-	contributions?: ProductContribution[];
+	items?: ItemShape[];
+	attributes?: ProductAttributeShape[];
+	category?: CategoryShape;
+	categoryId?: CategoryShape['id'];
+	manufacturer?: ManufacturerShape;
+	manufacturerId?: ManufacturerShape['id'];
+	brand?: BrandShape;
+	contributions?: ProductContributionShape[];
+}
 
+interface Product extends Pick<ProductShape,
+	'id' |
+	'name' |
+	'contributionList' |
+	'aliases' |
+	'productNumber' |
+	'quantity' |
+	'measure' |
+	'unit' |
+	'categoryId' |
+	'manufacturerId'> {
+	items: Item[];
+	attributes: ProductAttribute[];
+	category: Category;
+	manufacturer: Manufacturer;
+	brand: Brand;
+	contributions: ProductContribution[];
+}
+// eslint-disable-next-line no-redeclare
+class Product extends Model {
 	static get tableName() {
 		return 'Product';
 	}
@@ -41,7 +63,7 @@ export default class Product extends Model {
 				name: {type: 'string', minLength: 1, maxLength: 255},
 				contributionList: {type: 'string'},
 				aliases: {type: ['array', 'null']},
-				product_number: {type: ['string', 'null']},
+				productNumber: {type: ['string', 'null']},
 				quantity: {type: ['number', 'null']},
 				measure: {type: ['number', 'null']},
 				unit: {type: ['string', 'null']}
@@ -103,5 +125,6 @@ export default class Product extends Model {
 	}
 }
 
-export type ProductShape = ModelObject<Product>;
 export type ProductPartialShape = DeepPartial<ProductShape>;
+
+export default Product;

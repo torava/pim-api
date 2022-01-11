@@ -1,16 +1,16 @@
 import moment from 'moment';
 import _ from 'lodash';
 
-import Attribute from '../models/Attribute';
-import Category, { CategoryPartialShape } from '../models/Category';
-import Manufacturer from '../models/Manufacturer';
+import Attribute, { AttributeShape } from '../models/Attribute';
+import Category, { CategoryPartialShape, CategoryShape } from '../models/Category';
+import Manufacturer, { ManufacturerShape } from '../models/Manufacturer';
 import Source, { SourcePartialShape } from '../models/Source';
 import { convertMeasure } from './entities';
 import { getTranslation } from '../utils/entities';
 import { stripName, stripDetails, getDetails } from './transactions';
 import { LevenshteinDistance } from './levenshteinDistance';
 import { measureRegExp } from './receipts';
-import CategoryAttribute from '../models/CategoryAttribute';
+import CategoryAttribute, { CategoryAttributeShape } from '../models/CategoryAttribute';
 import { Locale, NameTranslations, ObjectEntries, Token } from './types';
 import { CategoryContributionPartialShape } from '../models/CategoryContribution';
 
@@ -74,21 +74,21 @@ export const aggregateCategoryPrice = (resolvedCategories: (Category & {
   return categories;
 };
 
-export const getCategoryById = (categories: Category[], categoryId: Category['id']) => (
+export const getCategoryById = (categories: CategoryShape[], categoryId: CategoryShape['id']) => (
   categories.find(c => c.id === categoryId)
 );
 
-export const getCategoryAttributes = (category?: Category, attributeId?: CategoryAttribute['id']) => (
+export const getCategoryAttributes = (category?: CategoryShape, attributeId?: CategoryAttributeShape['id']) => (
   Object.values(category?.attributes || {}).filter(attribute => attribute.attributeId === attributeId)
 );
 
 export const getCategoryWithAttributes = (
-  categories: Category[],
-  categoryId: Category['id'],
-  attributeId: CategoryAttribute['id']
+  categories: CategoryShape[],
+  categoryId: CategoryShape['id'],
+  attributeId: CategoryAttributeShape['id']
 ): [
-  Category,
-  CategoryAttribute[]
+  CategoryShape,
+  CategoryAttributeShape[]
 ] | undefined => {
   if (!categories.length || !categoryId || !attributeId) return;
 
@@ -107,13 +107,13 @@ export const getCategoryWithAttributes = (
 };
 
 export const getCategoriesWithAttributes = (
-  categories: Category[],
-  categoryId: Category['id'],
-  attributeId: CategoryAttribute['id']
+  categories: CategoryShape[],
+  categoryId: CategoryShape['id'],
+  attributeId: CategoryAttributeShape['id']
 ) => {
   if (!categoryId) return;
 
-  let results: [Category, CategoryAttribute[]][] = [];
+  let results: [CategoryShape, CategoryAttributeShape[]][] = [];
   
   const result = getCategoryWithAttributes(categories, categoryId, attributeId);
   if (result) {
@@ -187,9 +187,9 @@ export function resolveCategoryPrices(categories: (Category & {
   }, 0);
 }
 
-export const getStrippedCategories = (categories: (Category & {
+export const getStrippedCategories = (categories: (CategoryShape & {
   strippedName?: NameTranslations
-})[], manufacturers: Manufacturer[] = []) => {
+})[], manufacturers: ManufacturerShape[] = []) => {
   return categories.map(category => {
     const name = category.name;
     category.strippedName = stripName(name, manufacturers);
@@ -199,20 +199,20 @@ export const getStrippedCategories = (categories: (Category & {
 
 export const getClosestCategory = (
   name: string,
-  categories: (Category & {
+  categories: (CategoryShape & {
     strippedName?: NameTranslations
   })[],
   acceptLocale: Locale,
   strippedName?: string
 ): [
-  Category | undefined,
+  CategoryShape | undefined,
   Token | undefined
 ] => {
   if (!name) return [undefined, undefined];
 
   if (!strippedName) strippedName = stripDetails(name);
 
-  let bestToken: Token, bestCategory: Category;
+  let bestToken: Token, bestCategory: CategoryShape;
 
   console.log('strippedName', strippedName);
 
@@ -265,15 +265,15 @@ export const getTokensFromContributionList = (list: string) => (
 export const getContributionsFromList = (
   list: string,
   contentLanguage: Locale,
-  categories: Category[] = [],
-  attributes: Attribute[] = []
+  categories: CategoryShape[] = [],
+  attributes: AttributeShape[] = []
 ) => {
   const tokens = getTokensFromContributionList(list);
   const contributions: CategoryContributionPartialShape[] = [];
   tokens?.forEach(contributionToken => {
     const measureMatch = contributionToken.match(measureRegExp);
     const measure = measureMatch && parseFloat(measureMatch[1]);
-    let foodUnitAttribute: Attribute;
+    let foodUnitAttribute: AttributeShape;
     let unit;
     if (measure && !isNaN(measure)) {
       if (measureMatch[4]) {
