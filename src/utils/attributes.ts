@@ -1,4 +1,4 @@
-import Attribute from "../models/Attribute";
+import { AttributeShape } from "../models/Attribute";
 import { CategoryAttributePartialShape } from "../models/CategoryAttribute";
 import { ProductAttributePartialShape } from "../models/ProductAttribute";
 import { convertMeasure } from "./entities";
@@ -9,7 +9,7 @@ export const getAttributeValues = (
   quantity: number = 1,
   price: number = undefined,
   attributeValues: ProductAttributePartialShape[] | CategoryAttributePartialShape[] = [],
-  attributes: Attribute[] = []
+  attributes: AttributeShape[] = []
 ) => {
   const result: [number, CategoryAttributePartialShape][] = [];
   for (const categoryAttribute of attributeValues) {

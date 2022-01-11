@@ -118,7 +118,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
         value,
         attribute,
         food_row,
-        row, n,
+        row,
         id, refId,
         parent,
         attributeIndex = 1,
@@ -131,11 +131,11 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
         categoryValues = [],
         attributes = {},
         attributeValues = [],
-        contributionValues = [],
+        /*contributionValues = [],
         sources,
         sourceRef,
         sourceRefs = {},
-        source,
+        source,*/
         baseSources = [
           {
             '#id': 'sfineli',
@@ -150,7 +150,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
             name: {
               'fi-FI': 'Ruoka',
               'en-US': 'Food',
-              'sv-SV': 'Mat'
+              'sv-SE': 'Mat'
             }
           },
           {
@@ -158,7 +158,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
             name: {
               'fi-FI': 'Raaka-aine',
               'en-US': 'Ingredient',
-              'sv-SV': 'Råvara'
+              'sv-SE': 'Råvara'
             },
             parent: {
               '#ref': 'c4food',
@@ -169,7 +169,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
             name: {
               'fi-FI': 'Ruokalaji',
               'en-US': 'Dish',
-              'sv-SV': 'Maträtt'
+              'sv-SE': 'Maträtt'
             },
             parent: {
               '#ref': 'c4food'
@@ -183,7 +183,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
         name: {
           'fi-FI': 'Elintarvikkeiden yksiköt',
           'en-US': 'Food units',
-          'sv-SV': 'Livsmedelsenheter'
+          'sv-SE': 'Livsmedelsenheter'
         }
       }
     ];
@@ -205,7 +205,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       row = foodnameEnRows[i].trim().split(';');
       value['en-US'] = convertFirstLetterCapital(row[1]);
       row = foodnameSvRows[i].trim().split(';');
-      value['sv-SV'] = convertFirstLetterCapital(row[1]);
+      value['sv-SE'] = convertFirstLetterCapital(row[1]);
       foodname[row[0]] = value;
     }
 
@@ -216,7 +216,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       row = fuclassEnRows[i].trim().split(';');
       value['en-US'] = convertFirstLetterCapital(row[1]);
       row = fuclassSvRows[i].trim().split(';');
-      value['sv-SV'] = convertFirstLetterCapital(row[1]);
+      value['sv-SE'] = convertFirstLetterCapital(row[1]);
       fuclass[`fuclass-${row[0]}`] = value;
     }
 
@@ -227,7 +227,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       row = igclassEnRows[i].trim().split(';');
       value['en-US'] = convertFirstLetterCapital(row[1]);
       row = igclassSvRows[i].trim().split(';');
-      value['sv-SV'] = convertFirstLetterCapital(row[1]);
+      value['sv-SE'] = convertFirstLetterCapital(row[1]);
       igclass[`igclass-${row[0]}`] = value;
     }
 
@@ -243,7 +243,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       row = cmpclassEnRows[i].trim().split(';');
       value['en-US'] = convertFirstLetterCapital(row[1]);
       row = cmpclassSvRows[i].trim().split(';');
-      value['sv-SV'] = convertFirstLetterCapital(row[1]);
+      value['sv-SE'] = convertFirstLetterCapital(row[1]);
       cmpclass[row[0]] = value;
     }
 
@@ -254,7 +254,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       row = eufdnameEnRows[i].trim().split(';');
       value['en-US'] = convertFirstLetterCapital(row[1]);
       row = eufdnameSvRows[i].trim().split(';');
-      value['sv-SV'] = convertFirstLetterCapital(row[1]);
+      value['sv-SE'] = convertFirstLetterCapital(row[1]);
       eufdname[row[0]] = value;
     }
 
@@ -500,7 +500,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
         name: {
           'en-US': enName.DESCRIPT,
           'fi-FI': fiName.DESCRIPT,
-          'sv-SV': svName.DESCRIPT
+          'sv-SE': svName.DESCRIPT
         },
         parentId: baseAttributesWithId[0].id
       };

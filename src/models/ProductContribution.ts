@@ -1,20 +1,27 @@
-import {Model, ModelObject} from 'objection';
+import { Model } from 'objection';
 import { DeepPartial } from '../utils/types';
 
-import Category from './Category';
-import Product from './Product';
+import Category, { CategoryShape } from './Category';
+import Product, { ProductShape } from './Product';
 
-export default class ProductContribution extends Model {
-	id!: number;
+export interface ProductContributionShape {
+	id: number;
 
 	amount?: number;
 	unit?: string;
 
-	product?: Product;
-	productId?: Product['id'];
-	contribution?: Category;
-	contributionId?: Category['id'];
+	product?: ProductShape;
+	productId?: ProductShape['id'];
+	contribution?: CategoryShape;
+	contributionId?: CategoryShape['id'];
+}
 
+interface ProductContribution extends Pick<ProductContributionShape, 'id' | 'amount' | 'unit' | 'productId' | 'contributionId'> {
+	product?: Product;
+	contribution?: Category;
+}
+// eslint-disable-next-line no-redeclare
+class ProductContribution extends Model {
 	static get tableName() {
 		return 'ProductContribution';
 	}
@@ -53,5 +60,6 @@ export default class ProductContribution extends Model {
   }
 }
 
-export type ProductContributionShape = ModelObject<ProductContribution>;
 export type ProductContributionPartialShape = DeepPartial<ProductContributionShape>;
+
+export default ProductContribution;

@@ -1,12 +1,12 @@
-import {Model, ModelObject, QueryBuilder} from 'objection';
+import {Model, QueryBuilder} from 'objection';
 
 import Category from './Category';
 import Attribute from './Attribute';
 import CategoryAttributeSource from './CategoryAttributeSource';
 import { DeepPartial } from '../utils/types';
 
-export default class CategoryAttribute extends Model {
-	id!: number;
+export interface CategoryAttributeShape {
+	id: number;
 
 	value?: number;
 	unit?: string;
@@ -17,7 +17,11 @@ export default class CategoryAttribute extends Model {
 	attribute?: Attribute;
 	attributeId?: Attribute['id'];
 	sources?: CategoryAttributeSource[];
+}
 
+interface CategoryAttribute extends CategoryAttributeShape {}
+// eslint-disable-next-line no-redeclare
+class CategoryAttribute extends Model {
 	static get tableName() {
 		return 'CategoryAttribute';
 	}
@@ -70,5 +74,6 @@ export default class CategoryAttribute extends Model {
   }
 }
 
-export type CategoryAttributeShape = ModelObject<CategoryAttribute>;
 export type CategoryAttributePartialShape = DeepPartial<CategoryAttributeShape>;
+
+export default CategoryAttribute;

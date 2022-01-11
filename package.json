@@ -1,6 +1,6 @@
 {
   "name": "@torava/product-api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "product-api",
   "scripts": {
     "test": "jest",

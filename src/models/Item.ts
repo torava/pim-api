@@ -1,19 +1,23 @@
-import {Model, ModelObject} from 'objection';
+import { Model } from 'objection';
 
 import Transaction from './Transaction';
 import Product from './Product';
 
-export default class Item extends Model {
-	id!: number;
+export interface ItemShape {
+	id: number;
 
-	item_number?: string;
+	itemNumber?: string;
 	text?: string;
 	price?: number;
 	currency?: string;
 	quantity?: number;
 	measure?: number;
 	unit?: string;
+}
 
+interface Item extends ItemShape {}
+// eslint-disable-next-line no-redeclare
+class Item extends Model {
 	static get tableName() {
 		return 'Item';
 	}
@@ -24,7 +28,7 @@ export default class Item extends Model {
 
 			properties: {
 				id: {type: 'integer'},
-				item_number: {type: ['string', 'null']}, 
+				itemNumber: {type: ['string', 'null']}, 
 				text: {type: ['string', 'null']},
 				price: {type: ['number', 'null']},
 				currency: {type: ['string', 'null']},
@@ -57,4 +61,4 @@ export default class Item extends Model {
 	}
 }
 
-export type ItemShape = ModelObject<Item>;
+export default Item;

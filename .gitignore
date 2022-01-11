@@ -6,3 +6,4 @@ src/server-compiled.js
 resources/uploads
 .babel_cache
 .env
+dist

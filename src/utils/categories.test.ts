@@ -14,12 +14,12 @@ it('should strip category names', () => {
   expect(strippedCategories[0].strippedName).toEqual({
     'en-US': 'Macaroni dark',
     'fi-FI': 'Makaroni tumma',
-    'sv-SV': 'Makaroner mörka kokta utan salt'
+    'sv-SE': 'Makaroner mörka kokta utan salt'
   });
   expect(strippedCategories[4].strippedName).toEqual({
     "en-US": "Ravioli spinach",
     "fi-FI": "Pasta ravioli pinaatti",
-    "sv-SV": "Pasta fylld pasta ravioli med spenatfyllning"
+    "sv-SE": "Pasta fylld pasta ravioli med spenatfyllning"
   });
 });
 

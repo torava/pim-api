@@ -1,14 +1,23 @@
-import {Model, ModelObject} from 'objection';
 
-export default class Brand extends Model {
-	id!: number;
+import { Model } from 'objection';
+
+export interface BrandShape {
+	id: number;
 
 	name?: string;
 	aliases?: string[];
 	factoryLocation?: string;
 	headquartersLocation?: string;
 
+	parent?: BrandShape;
+}
+
+interface Brand extends Omit<BrandShape, 'parent'> {
 	parent?: Brand;
+}
+// eslint-disable-next-line no-redeclare
+class Brand extends Model {
+	
 
 	static get tableName() {
 		return 'Brand';
@@ -43,4 +52,4 @@ export default class Brand extends Model {
 	}
 }
 
-export type BrandShape = ModelObject<Brand>;
+export default Brand;
