@@ -605,7 +605,7 @@ export const resolveCategoryAttributes = (
         unit,
         initialProductAttributes = category.attributes?.filter(productAttribute => productAttribute.attributeId === attributeId);
     
-    category.contributions.forEach(productContribution => {
+    category.contributions?.forEach(productContribution => {
       const contribution = categories.find(category => category.id === productContribution.contributionId);
       const result = getCategoryMinMaxAttributes(contribution, productContribution, foodUnitAttribute, attributeId, categories, initialProductAttributes, attributes);
       if (result?.minCategoryAttribute) {
@@ -650,7 +650,7 @@ export const resolveCategoryAttributes = (
   });
 
   if (foodUnitAttribute) {   
-    measure = category.contributions.reduce((total, productContribution) => {
+    measure = category.contributions?.reduce((total, productContribution) => {
       const contribution = categories.find(category => category.id === productContribution.contributionId);
       const portionAttribute = contribution.attributes.find(a => a.attributeId === foodUnitAttribute.id);
       return total+convertMeasure(portionAttribute?.value, portionAttribute?.unit, 'kg');
@@ -662,5 +662,5 @@ export const resolveCategoryAttributes = (
     }
   }
 
-  return {productAttributes: categoryAttributes, measure};
+  return { categoryAttributes, measure };
 };
