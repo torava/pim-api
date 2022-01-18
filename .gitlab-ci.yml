@@ -1,12 +1,17 @@
-image: node:14
-
 variables:
+  # Use TLS https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: "/certs"
+  CONTAINER_TEST_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:latest
   NPM_TOKEN: ${CI_JOB_TOKEN}
 
 stages:
   - deploy
+  - release
 
 deploy:
+  image: node:14
   stage: deploy
   script:
     - |
@@ -18,3 +23,16 @@ deploy:
     - npm test
     - npm run build
     - npm publish
+
+release-image:
+  image: docker:19.03.12
+  services:
+    - docker:19.03.12-dind
+  stage: release
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build --pull -t $CONTAINER_TEST_IMAGE .
+    - docker push $CONTAINER_TEST_IMAGE
+    - docker pull $CONTAINER_TEST_IMAGE
+    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
+    - docker push $CONTAINER_RELEASE_IMAGE
