@@ -32,7 +32,7 @@ class ProductContribution extends Model {
 
 			properties: {
 				id: {type: 'integer'},
-        amount: {type: 'float'},
+        amount: {type: 'number'},
         unit: {type: 'string'}
 			}
 		}

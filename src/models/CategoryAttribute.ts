@@ -38,7 +38,7 @@ class CategoryAttribute extends Model {
 
 			properties: {
 				id: {type: 'integer'},
-				value: {type: 'float'},
+				value: {type: 'number'},
 				unit: {type: 'string'},
 				type: {type: 'string'}
 			}

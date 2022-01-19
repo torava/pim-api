@@ -1,4 +1,4 @@
-import {Model, ModelObject} from 'objection';
+import {Model, ModelObject, snakeCaseMappers} from 'objection';
 
 import CategoryAttribute from './CategoryAttribute';
 import Source from './Source';
@@ -14,6 +14,8 @@ export default class CategoryAttributeSource extends Model {
 	attribute?: CategoryAttribute;
 	source?: Source;
 	
+	static columnNameMappers = snakeCaseMappers();
+	
 	static get tableName() {
 		return 'CategoryAttributeSource';
 	}
@@ -25,7 +27,7 @@ export default class CategoryAttributeSource extends Model {
 			properties: {
 				id: {type: 'integer'},
         referenceUrl: {type: ['string', 'null']},
-				referenceDate: { type: 'datetime', default: new Date().toISOString() },
+				referenceDate: { type: 'string', default: new Date().toISOString() },
 				note: {type: ['string', 'null']},
 				countryCode: { type: ['string', 'null'] }
 			}

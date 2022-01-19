@@ -17,9 +17,9 @@ export default class Transaction extends Model {
 
 			properties: {
 				id: {type: 'integer'},
-				total_price: {type: ['number', 'null']},
-				total_price_read: {type: ['number', 'null']},
-				date: { type: 'datetime', default: moment().format('YYYY-MM-DD HH:mm:ss') },
+				totalPrice: {type: ['number', 'null']},
+				totalPriceRead: {type: ['number', 'null']},
+				date: { type: 'string', default: moment().format('YYYY-MM-DD HH:mm:ss') },
 			}
 		}
 	}
@@ -59,5 +59,5 @@ export default class Transaction extends Model {
 				}
 			}
 		}
-	};
+	}
 }
