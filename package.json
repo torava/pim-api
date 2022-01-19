@@ -7,9 +7,8 @@
     "build": "./node_modules/.bin/webpack --mode production",
     "build:dev": "./node_modules/.bin/webpack --mode development",
     "start": "node dist/bundle.js",
-    "knex": "./node_modules/.bin/babel-node ./node_modules/.bin/knex --env production",
-    "dev": "export NODE_ENV=development && NODE_OPTIONS='--no-warnings --loader ts-node/esm' && ./node_modules/.bin/nodemon --watch ./src --exec ./node_modules/.bin/ts-node src/server.ts",
-    "semantic-release": "semantic-release"
+    "knex": "./node_modules/.bin/ts-node ./node_modules/.bin/knex --env production",
+    "dev": "export NODE_ENV=development && NODE_OPTIONS='--no-warnings --loader ts-node/esm' && ./node_modules/.bin/nodemon --watch ./src --exec ./node_modules/.bin/ts-node src/server.ts"
   },
   "main": "dist/bundle.js",
   "files": [
