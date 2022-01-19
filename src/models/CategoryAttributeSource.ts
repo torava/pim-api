@@ -1,21 +1,12 @@
-import {Model, ModelObject, snakeCaseMappers} from 'objection';
+import { Model } from 'objection';
+import CategoryAttributeSourceShape from '@torava/product-utils/dist/models/CategoryAttributeSource';
 
 import CategoryAttribute from './CategoryAttribute';
 import Source from './Source';
 
-export default class CategoryAttributeSource extends Model {
-	id!: number;
-
-	referenceUrl?: string;
-	referenceDate?: string;
-	note?: string;
-	countryCode?: string;
-
-	attribute?: CategoryAttribute;
-	source?: Source;
-	
-	static columnNameMappers = snakeCaseMappers();
-	
+interface CategoryAttributeSource extends CategoryAttributeSourceShape {}
+// eslint-disable-next-line no-redeclare
+class CategoryAttributeSource extends Model {
 	static get tableName() {
 		return 'CategoryAttributeSource';
 	}
@@ -56,4 +47,4 @@ export default class CategoryAttributeSource extends Model {
   }
 }
 
-export type CategoryAttributeSourceShape = ModelObject<CategoryAttributeSource>;
+export default CategoryAttributeSource;

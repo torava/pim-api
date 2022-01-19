@@ -147,21 +147,23 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductPa
           product = {categoryId: category?.id};
         }
       }
-      
-      let list = contributionList;
 
-      if (contributionList && category) {
-        list = `${category}, ${contributionList}`;
+      if (contributionList) {
+        let list = contributionList;
+
+        if (category) {
+          list = `${category}, ${contributionList}`;
+        }
+
+        contributions = getContributionsFromList(list, contentLanguage as Locale, strippedCategories, attributes);
+          
+        product = {
+          name,
+          contributionList,
+          //attributes: productAttributes,
+          contributions
+        };
       }
-
-      contributions = getContributionsFromList(list, contentLanguage as Locale, strippedCategories, attributes);
-        
-      product = {
-        name,
-        contributionList,
-        //attributes: productAttributes,
-        contributions
-      };
 
       if (!contributions.length) {
         product = {
@@ -186,13 +188,13 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductPa
       product = {
         name: product.name,
         contributionList: product.contributionList,
-        contributions: product.contributions.map(contribution => ({
+        /*contributions: product.contributions?.map(contribution => ({
           ...contribution, contribution: {
             ...contribution.contribution,
             attributes: undefined
           }
         })),
-        categoryId: product.categoryId,
+        categoryId: product.categoryId,*/
         measure: measure || product.measure,
         unit: measure ? 'kg' : product.unit,
         attributes: productAttributes || product.attributes

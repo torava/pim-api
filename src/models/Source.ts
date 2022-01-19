@@ -3,7 +3,9 @@ import { Model } from 'objection';
 import { DeepPartial } from '../utils/types';
 
 export interface SourceShape {
-	id: number;
+	id?: number;
+
+	'#id'?: string;
 	
 	name?: string;
 	authors?: string;

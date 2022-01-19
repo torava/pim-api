@@ -1,5 +1,5 @@
 import { Model } from 'objection';
-import { NameTranslations } from '../utils/types';
+import { DeepPartial, NameTranslations } from '../utils/types';
 
 export interface AttributeShape {
 	id: number;
@@ -53,5 +53,7 @@ class Attribute extends Model {
 		}
 	}
 }
+
+export type AttributePartialShape = DeepPartial<AttributeShape>;
 
 export default Attribute;

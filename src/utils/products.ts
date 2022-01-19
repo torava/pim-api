@@ -16,11 +16,11 @@ import { NameTranslations, ObjectEntries, Token } from "./types";
 import { ProductContributionPartialShape } from "../models/ProductContribution";
 
 export const getProductCategoryMinMaxAttributes = (
-  category: CategoryShape,
-  contribution: ProductContributionPartialShape,
-  product: ProductPartialShape,
-  foodUnitAttribute: AttributeShape,
-  attributeId: AttributeShape['id'],
+  category?: CategoryShape,
+  contribution?: ProductContributionPartialShape,
+  product?: ProductPartialShape,
+  foodUnitAttribute?: AttributeShape,
+  attributeId?: AttributeShape['id'],
   categories: CategoryShape[] = [],
   productAttributes: ProductAttributePartialShape[] = [],
   attributes: AttributeShape[] = []
@@ -28,6 +28,8 @@ export const getProductCategoryMinMaxAttributes = (
   let unit: CategoryContributionShape['unit'] | ProductShape['unit'],
       measure: CategoryContributionShape['amount'] | ProductShape['measure'],
       portionAttribute;
+
+  if (!category) return;
   
   if (foodUnitAttribute) {
     portionAttribute = category.attributes.find(a => a.attributeId === foodUnitAttribute.id);
@@ -94,7 +96,7 @@ export const resolveProductAttributes = (
         unit,
         initialProductAttributes = product.attributes?.filter(productAttribute => productAttribute.attributeId === attributeId);
     
-    product.contributions.forEach(productContribution => {
+    product.contributions?.forEach(productContribution => {
       const contribution = categories.find(category => category.id === productContribution.contributionId);
       const result = getProductCategoryMinMaxAttributes(contribution, productContribution, undefined, foodUnitAttribute, attributeId, categories, initialProductAttributes, attributes);
       if (result?.minCategoryAttribute) {
@@ -141,10 +143,12 @@ export const resolveProductAttributes = (
   });
 
   if (foodUnitAttribute) {   
-    measure = product.contributions.reduce((total, productContribution) => {
+    measure = product.contributions?.reduce((total, productContribution) => {
       const contribution = categories.find(category => category.id === productContribution.contributionId);
-      const portionAttribute = contribution.attributes.find(a => a.attributeId === foodUnitAttribute.id);
-      return total+convertMeasure(portionAttribute?.value, portionAttribute?.unit, 'kg');
+      if (contribution) {
+        const portionAttribute = contribution.attributes.find(a => a.attributeId === foodUnitAttribute.id);
+        return total+convertMeasure(portionAttribute?.value, portionAttribute?.unit, 'kg');
+      }
     }, 0);
 
     if (category) {
@@ -187,7 +191,7 @@ export const getClosestProduct = (name: Product['name'], products: Product[]): [
       }
     });
 
-    if (token?.accuracy > (bestToken ? bestToken.accuracy : 0)) {
+    if (token?.accuracy >= (bestToken ? bestToken.accuracy : 0)) {
       bestProduct = product;
       bestToken = token;
     }

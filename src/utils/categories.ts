@@ -239,7 +239,7 @@ export const getClosestCategory = (
           }
         });
 
-        if (token?.accuracy > (bestToken ? bestToken.accuracy : 0)) {
+        if (token?.accuracy >= (bestToken ? bestToken.accuracy : 0)) {
           bestCategory = category;
           bestToken = token;
         }
@@ -313,6 +313,7 @@ export const getContributionsFromList = (
     }
     if (contributionToken.split(' ').length > 2) {
       while (contributionContribution && contributionToken && strippedContributionToken) {
+        console.log('contributionContribution', contributionContribution?.name, 'contributionToken', contributionToken, 'strippedContributionToken', strippedContributionToken);
         contributionToken = contributionToken.replace(new RegExp(token.substring, 'i'), '').trim();
         strippedContributionToken = stripDetails(contributionToken).replace(new RegExp(token.substring, 'i'), '').trim();
         contributions.push(contribution);
@@ -334,6 +335,7 @@ export const getContributionsFromList = (
           }
         }
       }
+      console.log('contributionContribution', contributionContribution?.name, 'contributionToken', contributionToken, 'strippedContributionToken', strippedContributionToken);
     } else if (contribution) {
       contributions.push(contribution);
     }
@@ -557,7 +559,10 @@ export const getCategoryMinMaxAttributes = (
     return;
   }
   
-  let minAttributeValue, minCategoryAttribute, maxAttributeValue, maxCategoryAttribute;
+  let minAttributeValue: number,
+      minCategoryAttribute: CategoryAttributePartialShape,
+      maxAttributeValue: number,
+      maxCategoryAttribute: CategoryAttributePartialShape;
   const result = getCategoriesWithAttributes(categories, category.id, Number(attributeId));
   const [, categoryAttributes] = result?.[0] || [undefined, undefined];
   let attributeResult = getAttributeValues(unit, measure, 1, undefined, categoryOwnAttributes, attributes);
@@ -584,6 +589,7 @@ export const getCategoryMinMaxAttributes = (
         [minAttributeValue, minCategoryAttribute] = getMinAttributeValue(attributeResult);
         [maxAttributeValue, maxCategoryAttribute] = getMaxAttributeValue(attributeResult);
       }
+      console.log('minAttributeValue', minAttributeValue, 'minCategoryAttribute', minCategoryAttribute, 'measure', measure, 'contributionContributoin', contributionContribution, 'totalAmount', totalAmount);
     });
   }
   return {minAttributeValue, minCategoryAttribute, maxAttributeValue, maxCategoryAttribute};
@@ -613,6 +619,7 @@ export const resolveCategoryAttributes = (
         minValue+= minAttributeValue || 0;
         maxValue+= maxAttributeValue || 0;
         unit = minCategoryAttribute.unit.split('/')[0];
+        console.log('result', result);
       } else {
         return true;
       }

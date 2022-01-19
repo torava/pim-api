@@ -5178,7 +5178,8 @@
       "dev": true
     },
     "@torava/product-utils": {
-      "version": "file:../product-utils/torava-product-utils-1.0.5.tgz",
+      "version": "1.0.5",
+      "resolved": false,
       "integrity": "sha512-At/2NwVkkCvIoTEiG3Cs4zdyksDUa14e6Ku8UOTTbPTmK+xcaYUJKHRQumSIIbXPofTTJawI5qWzuDQ3as/uFg==",
       "requires": {
         "canvas": "^2.8.0",
