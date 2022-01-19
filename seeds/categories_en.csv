@@ -112,7 +112,7 @@ Chicken Breast With Skin,"Broileri, rintaleike, nahkoineen",,,,"2,77",,,,,Chicke
 Chicken eggs,Kananmunat,"[""Ulkomuna"", ""Kultamuna"", ""Vapaan kanan munat""]",,,"3,46",,,,,"Eggs, median",1
 Chicken eggs,Kananmunat,,,,"2,5",,,,,,10
 Children's supplies,Lastentarvikkeet,,Supplies,,,,,,,,
-"Chili, Green, Raw",,"[""Chili pepper""]",,,"1,1",,,,,"Peppers: passive and heated greenhouse, median",1
+"Chili, Green, Raw",,"[""Chili pepper"", ""Jalapeno"", ""Jalapeño""]",,,"1,1",,,,,"Peppers: passive and heated greenhouse, median",1
 Chocolate,Chocolate,,,,"3,55",,,,,"Chocolate, 2.9–4.2 kg CO2 eq./kg",11
 "Chocolate Bar, Average",,"[""Mountone"", ""Susu suklaapatukka"", ""Suklaapatukka""]",,,,,,,,,
 "Chocolate Bar, Caramel And Cookie, Twix",,"[""Kismet""]",,,,,,,,,
@@ -222,8 +222,8 @@ Flour,,,,,,,,,"0,7",Plant based groceries,2
 "Flour, Whole Wheat Flour",,,,,"0,5",,,,,"Vehnäjauhot, ryynit",4
 Flowers,Kukat,,Supplies,,,,,,"0,6",Garden supplies,2
 Flowers,Kukat,,Supplies,,,,,,,,
-"French Fries, Deep-Fried",,"[""French fries"", ""Ranskanperunat""]",,,"0,46",,,,,Fries,51
-"French Fries, Deep-Fried",,"[""French fries"", ""Ranskanperunat""]",,,,,,,"0,7",Plant based groceries,2
+"French Fries, Deep-Fried",,"[""French fries"", ""Ranskanperunat"", ""Ranskalaiset""]",,,"0,46",,,,,Fries,51
+"French Fries, Deep-Fried",,,,,,,,,"0,7",Plant based groceries,2
 "French Fries, Frozen",,,,,,,,,"0,7",Plant based groceries,2
 "French Fries, Oven-Baked",,"[""Kuorellinen tikkuperuna pakaste""]",,,,,,,"0,7",Plant based groceries,2
 "Fresh Pasta, Contains Egg",,,,,,,,,"1,1",Animal based groceries,2
@@ -302,6 +302,7 @@ Margarine and fat spread  < 55%,,,,,"1,75",,,,,"Margarine, 60% fat, including wa
 Margarine and fat spread >= 55%,,,,,"1,75",,,,,"Margarine, 60% fat, including waste",7
 "Mayonnaise, 60% Fat",,"[""American dressing"", ""Big tasty -kastike""]",,,,,,"4,23",,2.0 kgCO₂eq per 473 mL pot of mayonnaise,49
 "Mayonnaise, 80% Fat",,"[""Mayonnaise"", ""Majoneesi""]",,,,,,"4,23",,2.0 kgCO₂eq per 473 mL pot of mayonnaise,49
+"Mayonnaise, Home-Made",,"[""Majoneesi"", ""Majoneesidippi"", ""Mayonnaise"", Mayonnaise dip""]",,,,,,,,,
 "Meal Replacement, Protein Bar, Average, C. 20% Protein",,,,,,,,,"0,7",Plant based groceries,2
 "Meal Replacement, Protein Bar, Average, C. 40% Protein",,"[""Barebells proteiinipatukka""]",,,,,,,,,
 Meat dishes,,,,,,,,,"1,1",Animal based groceries,2
@@ -364,6 +365,7 @@ Other alcoholic beverages,,,,,,,,,"0,3",Alcohol drinks,2
 Palm Oil,Palmuöljy,,,,,,,,"0,7",Plant based groceries,2
 Paper bag,Paperikassi,"[""Lahjakassi karto""]",Supplies,"0,01",,,,,,,33
 Pasta,,,,,"1,564",,,,,Pasta,47
+"Pasta, Spaghetti, Boiled Without Salt",,"[""Spaghetti""]",,,,,,,,,
 "Peach/Nectarine, Average, With Stone",,,,,"0,43",,,,,"Peaches and nectarines, median",1
 Peanut Butter Without Added Salt,,"[""Maapähkinävoi smooth""]",,,"2,5",,,,,Maapähkinävoi,27
 Peanut Oil,Maapähkinäöljy,,,,,,,,"0,7",Plant based groceries,2
@@ -395,6 +397,7 @@ Pomelo,Pomelo,,Citrus fruit,,"0,51",,,,,"Grapefruit and pomelo, median",1
 Pomfret,Pomfretti,,Fish,,"6,63",,,,,"Pomfret, median",1
 Pork,,,,,"5,77",,,,,"Pork: world average, median",1
 Pork,,,,,5,,,,,"Sianliha, raaka",4
+"Pork Ribs, Fried Without Fat",,"[""Possun ribsit"", ""Possun ribsejä"", ""Possun ribs""]",,,,,,,,,
 Post-it notes,Teippimerkit,,Supplies,,,,,,"0,46",Factory products,2
 Postal bag,Postipussi,,Supplies,,,,,,"0,72","Paper, carton and cardboard products",2
 Postal parcel,Posti,"[""Postipaketti"", ""Kirje""]",Services,,,,,,"0,2",Postal and telecommunication services,2
@@ -439,6 +442,7 @@ Rye,Ruis,,,,"0,38",,,,,"Rye, median",1
 Rye bread,"Leipä, ruis-",,,,"1,3",,,,,Ruisleipä,9
 "Rye Bread, Reissumies, Oululainen, Fazer",,"[""Reissumies""]",,,,,,,,,
 Salad dressings and mayonnaises,,,,,,,,,"1,1",Animal based groceries,2
+"Salad, Coleslaw, Home-Made",,"[""Coleslaw"", ""Coleslaw-salaatti""]",,,,,,,,,
 Salami,"Meetvursti tai salami, kevyt rasvaa, 22 %","[""Pepperoni"", ""Pepperoni sausage"", ""Pepperonimakkara""]",,,"2,88",,,,,Salami,1
 Salmon fillet,,,,,"3,47",,,,,"Salmon, median",1
 "Salmon, Farmed",,,,,"11,9",,,,,"Kirjolohi, kasvatettu",27
@@ -493,6 +497,7 @@ Sweet Bakery,,,,,"2,5",,,,,"Pastry, including waste, secondary source",7
 Sweet Bakery,,,,,,,,,"1,1",Animal based groceries,2
 Sweet biscuits,,,,,"2,5",,,,,"Biscuit, including waste, secondary source",7
 Sweet Corn Kernels,,,,,"0,47",,,,,"Maize/corn, median",1
+"Sweet Corn, Cob, Grilled",,"[""Grilled corn"", ""Grillattu maissi"", ""Grillattua maissia"", ""Pariloitua maissia""]",,,,,,,,,
 "Sweet Corn, Corn On The Cob","Maissintähkä, kokonainen","[""Maissintähkä""]",,,"0,47",,,,,"Maize/corn, median",1
 "Sweet Pepper, Average",,,,,"1,1",,,,,"Peppers: passive and heated greenhouse, median",1
 "Sweet Pepper, Average",,,,,"0,66",,,,,"Capsicum/peppers, median",1
@@ -552,6 +557,7 @@ Vöner Wheat Protein Strips,"Vöner, vehnäproteiini, suikale","[""Vöner Origin
 Wasabi,"Maustekrassi, wasabi",,Spices,,,,,,,,
 Washing liquid,Pesuneste,,Hygiene products,,,,,,"0,6","Pesu-, puhdistus- ja kiillotusaineet, hajusteet ja toalettivalmisteet",2
 Water,,,,,,,,"0,1",,,7
+"Water, Tap Water",,,,,,,,"0,00091",,,55
 Watercolor paint,Vesivärit,"[""Akvarellivärit""]",Supplies,,,,,,"0,46",Factory products,2
 "Watermelon, With Skin",,,,,"0,32",,,,,"Water melons, median",1
 Wheat,,,,,"0,52",,,,,"Wheat, median",1
@@ -567,4 +573,3 @@ Yoghurt  <= 1 %,,,,,"1,31",,,,,"Yoghurt, median",1
 Yoghurt > 1 %,,,,,"1,31",,,,,"Yoghurt, median",1
 "Zucchini, Summer Squash","Kesäkurpitsa, zucchini","[""Kesäkurpitsa""]",,,"1,77",,,,,"Zucchini: passive greenhouse, median",1
 "Zucchini, Summer Squash","Kesäkurpitsa, zucchini","[""Pattypan squash"", ""Button squash"", ""Kiekkokurpitsa""]",,,"0,21",,,,,"Zucchini/button squash, median",1
-"Pasta, Spaghetti, Boiled Without Salt",,"[""Spaghetti""]",,,,,,,,,
