@@ -256,6 +256,35 @@ export const getClosestCategory = (
   return bestToken?.substring.length ? [bestCategory, bestToken] : [undefined, undefined];
 };
 
+export const findMeasure = (text: string) => {
+  const measureMatch = text.match(measureRegExp);
+  const measure = measureMatch && parseFloat(measureMatch[1]);
+  let unit;
+  if (measure && !isNaN(measure)) {
+    if (measureMatch[4]) {
+      unit = 'kg';
+    }
+    else if (measureMatch[5]) {
+      unit = 'g';
+    }
+    else if (measureMatch[6]) {
+      unit = 'l';
+    }
+  }
+  return {measure, unit};
+};
+
+export const findFoodUnitAttribute = (text: string, attributes: AttributeShape[] = []) => {
+  let foodUnitAttribute: AttributeShape;
+  const {size} = getDetails();
+  Object.entries(size).forEach(([code, details]) => {
+    if (details.some(detail => text.match(detail))) {
+      foodUnitAttribute = attributes.find(attribute => attribute.code === code);
+    }
+  });
+  return foodUnitAttribute;
+};
+
 export const getTokensFromContributionList = (list: string) => (
   list?.replace(/[([][^)\]]*[)\]]|\./g, '')
   .replace(/\s{2,}/g, ' ')
@@ -272,27 +301,8 @@ export const getContributionsFromList = (
   const tokens = getTokensFromContributionList(list);
   const contributions: CategoryContributionPartialShape[] = [];
   tokens?.forEach(contributionToken => {
-    const measureMatch = contributionToken.match(measureRegExp);
-    const measure = measureMatch && parseFloat(measureMatch[1]);
-    let foodUnitAttribute: AttributeShape;
-    let unit;
-    if (measure && !isNaN(measure)) {
-      if (measureMatch[4]) {
-        unit = 'kg';
-      }
-      else if (measureMatch[5]) {
-        unit = 'g';
-      }
-      else if (measureMatch[6]) {
-        unit = 'l';
-      }
-    }
-    const {size} = getDetails();
-    Object.entries(size).forEach(([code, details]) => {
-      if (details.some(detail => contributionToken.match(detail))) {
-        foodUnitAttribute = attributes.find(attribute => attribute.code === code);
-      }
-    });
+    const { measure, unit } = findMeasure(contributionToken);
+    const foodUnitAttribute = findFoodUnitAttribute(contributionToken, attributes);
     let strippedContributionToken = stripDetails(contributionToken);
     let [contributionContribution, token] = getClosestCategory(contributionToken, categories, contentLanguage, strippedContributionToken);
     let contribution: CategoryContributionPartialShape = {
@@ -301,7 +311,7 @@ export const getContributionsFromList = (
     };
     if (contribution) {
       if (foodUnitAttribute) {
-        const {value, unit} = contribution.contribution.attributes.find(attribute => attribute.attributeId === foodUnitAttribute.id) || {};
+        const {value, unit} = contribution.contribution?.attributes.find(attribute => attribute.attributeId === foodUnitAttribute.id) || {};
         if (value) {
           contribution.amount = value;
           contribution.unit = unit;
@@ -324,7 +334,7 @@ export const getContributionsFromList = (
         };
         if (contribution) {
           if (foodUnitAttribute) {
-            const {value, unit} = contribution.contribution.attributes.find(attribute => attribute.attributeId === foodUnitAttribute.id) || {};
+            const {value, unit} = contribution.contribution?.attributes.find(attribute => attribute.attributeId === foodUnitAttribute.id) || {};
             if (value) {
               contribution.amount = value;
               contribution.unit = unit;

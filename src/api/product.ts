@@ -1,8 +1,8 @@
 import express, { Request } from 'express';
 
 import Product, { ProductPartialShape } from '../models/Product';
-import { getClosestCategory, getContributionsFromList } from '../utils/categories';
-import Attribute from '../models/Attribute';
+import { findFoodUnitAttribute, findMeasure, getClosestCategory, getContributionsFromList } from '../utils/categories';
+import Attribute, { AttributeShape } from '../models/Attribute';
 import Category from '../models/Category';
 import { resolveProductAttributes, getClosestProduct } from '../utils/products';
 import { getStrippedChildCategories } from '../utils/categories';
@@ -83,12 +83,13 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductPa
   name: string,
   contributionList: string
 }>, res) => {
-  const {
+  let {
     pageNumber = 0,
     productsPerPage = 20,
     brand,
     category,
     quantity,
+    measure,
     unit,
     attributeCodes,
     foodUnitAttributeCode
@@ -120,14 +121,32 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductPa
       if (!attributeCodes) {
         attributeIds = attributes.map(a => a.id);
       }
-      const foodUnitParentAttribute = attributes.find(a => a.name['en-US'] === 'Food units');
-      const foodUnitAttribute = attributes.find(attribute => (
-        attribute.code === foodUnitAttributeCode && attribute.parentId === foodUnitParentAttribute.id
-      ));
+
+      let foodUnitAttribute: AttributeShape;
+      
+      if (foodUnitAttributeCode) {
+        const foodUnitParentAttribute = attributes.find(a => a.name['en-US'] === 'Food units');
+        foodUnitAttribute = attributes.find(attribute => (
+          attribute.code === foodUnitAttributeCode && attribute.parentId === foodUnitParentAttribute.id
+        ));
+      }
 
       const productEntries = await Product.query().withGraphFetched('[attributes.[attribute], brand]');
 
       let product: ProductPartialShape;
+
+      const measureResult = findMeasure(name);
+      if (measureResult.unit) {
+        measure = measureResult.measure;
+        unit = measureResult.unit;
+      }
+      foodUnitAttribute = findFoodUnitAttribute(name, attributes);
+  
+      product = {
+        measure,
+        unit
+      }
+
       if (brand) {
         const productEntriesWithBrand = productEntries.filter(filterableProduct => filterableProduct.brand?.name === brand);
 
@@ -144,7 +163,10 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductPa
       if (!product) {
         let [category] = getClosestCategory(name, strippedCategories, contentLanguage as Locale);
         if (category) {
-          product = {categoryId: category?.id};
+          product = {
+            ...product,
+            categoryId: category?.id
+          };
         }
       }
 
@@ -184,17 +206,19 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductPa
         filterByGivenAttributeIds: query => query.modify('filterByAttributeIds', [...attributeIds, foodUnitAttribute.id])
       }));
 
-      const {productAttributes, measure} = resolveProductAttributes(product, attributeIds, foodUnitAttribute, categories, attributes);
+      const productAttributeResult = resolveProductAttributes(product, attributeIds, foodUnitAttribute, categories, attributes);
+      const productAttributes = productAttributeResult.productAttributes;
+      measure = productAttributeResult.measure;
       product = {
         name: product.name,
         contributionList: product.contributionList,
-        /*contributions: product.contributions?.map(contribution => ({
+        contributions: product.contributions?.map(contribution => ({
           ...contribution, contribution: {
             ...contribution.contribution,
             attributes: undefined
           }
         })),
-        categoryId: product.categoryId,*/
+        categoryId: product.categoryId,
         measure: measure || product.measure,
         unit: measure ? 'kg' : product.unit,
         attributes: productAttributes || product.attributes

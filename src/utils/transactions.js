@@ -24,7 +24,7 @@ export const getDetails = (manufacturers = []) => {
   details.size = {
     PORTS: ['small', 'pienet', 'pieni'],
     PORTM: ['medium', 'keskikokoinen'],
-    PORTL: ['large', 'big', 'isot', 'iso', 'reilusti', 'reilu']
+    PORTL: ['large', 'big', 'isot', 'iso', 'reilusti', 'reilu', '(l)']
   };
   details.cooking = {
     boiled: ['boiled', 'keitetty'],
