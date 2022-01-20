@@ -4,7 +4,7 @@ import Category from '../models/Category';
 import { stringSimilarity } from "string-similarity-js";
 import { LevenshteinDistance } from "./levenshteinDistance";
 
-export const measureRegExp = /(\d{1,4}([.|,]\d)?)\s?((kg)|(g)|(l))/;
+export const measureRegExp = /(\d+([.|,]\d+)?)\s?((kg)|(g)|(l))/;
 
 function parseYear(year) {
   if (year.length == 2) {

@@ -212,13 +212,13 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductPa
       product = {
         name: product.name,
         contributionList: product.contributionList,
-        contributions: product.contributions?.map(contribution => ({
+        /*contributions: product.contributions?.map(contribution => ({
           ...contribution, contribution: {
             ...contribution.contribution,
             attributes: undefined
           }
         })),
-        categoryId: product.categoryId,
+        categoryId: product.categoryId,*/
         measure: measure || product.measure,
         unit: measure ? 'kg' : product.unit,
         attributes: productAttributes || product.attributes

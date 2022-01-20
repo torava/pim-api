@@ -142,19 +142,22 @@ export const resolveProductAttributes = (
     }
   });
 
-  if (foodUnitAttribute) {   
-    measure = product.contributions?.reduce((total, productContribution) => {
+  measure = product.contributions?.reduce((total, productContribution) => {
+    console.log('productContribution', productContribution, convertMeasure(productContribution.amount, productContribution.unit, 'kg'));
+    if (foodUnitAttribute) {
       const contribution = categories.find(category => category.id === productContribution.contributionId);
       if (contribution) {
         const portionAttribute = contribution.attributes.find(a => a.attributeId === foodUnitAttribute.id);
         return total+convertMeasure(portionAttribute?.value, portionAttribute?.unit, 'kg');
       }
-    }, 0);
-
-    if (category) {
-      const portionAttribute = category.attributes.find(a => a.attributeId === foodUnitAttribute.id);
-      measure = convertMeasure(portionAttribute?.value, portionAttribute?.unit, 'kg');
+    } else if (productContribution.amount) {
+      return total+convertMeasure(productContribution.amount, productContribution.unit, 'kg');
     }
+  }, 0);
+
+  if (category && foodUnitAttribute) {
+    const portionAttribute = category.attributes.find(a => a.attributeId === foodUnitAttribute.id);
+    measure = convertMeasure(portionAttribute?.value, portionAttribute?.unit, 'kg');
   }
 
   return {productAttributes, measure};

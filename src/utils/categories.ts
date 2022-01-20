@@ -258,7 +258,7 @@ export const getClosestCategory = (
 
 export const findMeasure = (text: string) => {
   const measureMatch = text.match(measureRegExp);
-  const measure = measureMatch && parseFloat(measureMatch[1]);
+  const measure = measureMatch && parseFloat(measureMatch[1].replace(',', '.'));
   let unit;
   if (measure && !isNaN(measure)) {
     if (measureMatch[4]) {
@@ -310,18 +310,18 @@ export const getContributionsFromList = (
       contributionId: contributionContribution?.id
     };
     if (contribution) {
-      if (foodUnitAttribute) {
+      if (measure) {
+        contribution.amount = measure;
+        contribution.unit = unit;
+      } else if (foodUnitAttribute) {
         const {value, unit} = contribution.contribution?.attributes.find(attribute => attribute.attributeId === foodUnitAttribute.id) || {};
         if (value) {
           contribution.amount = value;
           contribution.unit = unit;
         }
-      } else if (measure) {
-        contribution.amount = measure;
-        contribution.unit = unit;
       }
     }
-    if (contributionToken.split(' ').length > 2) {
+    if (strippedContributionToken.split(' ').length > 2) {
       while (contributionContribution && contributionToken && strippedContributionToken) {
         console.log('contributionContribution', contributionContribution?.name, 'contributionToken', contributionToken, 'strippedContributionToken', strippedContributionToken);
         contributionToken = contributionToken.replace(new RegExp(token.substring, 'i'), '').trim();
