@@ -305,6 +305,7 @@ export const getContributionsFromList = (
     const foodUnitAttribute = findFoodUnitAttribute(contributionToken, attributes);
     let strippedContributionToken = stripDetails(contributionToken);
     let [contributionContribution, token] = getClosestCategory(contributionToken, categories, contentLanguage, strippedContributionToken);
+    contributionToken = contributionToken.replace(new RegExp(token.substring, 'i'), '').trim();
     let contribution: CategoryContributionPartialShape = {
       contribution: contributionContribution,
       contributionId: contributionContribution?.id
@@ -321,7 +322,7 @@ export const getContributionsFromList = (
         }
       }
     }
-    if (strippedContributionToken.split(' ').length > 2) {
+    if (contributionToken) {
       while (contributionContribution && contributionToken && strippedContributionToken) {
         console.log('contributionContribution', contributionContribution?.name, 'contributionToken', contributionToken, 'strippedContributionToken', strippedContributionToken);
         contributionToken = contributionToken.replace(new RegExp(token.substring, 'i'), '').trim();

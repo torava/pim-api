@@ -143,7 +143,6 @@ export const resolveProductAttributes = (
   });
 
   measure = product.contributions?.reduce((total, productContribution) => {
-    console.log('productContribution', productContribution, convertMeasure(productContribution.amount, productContribution.unit, 'kg'));
     if (foodUnitAttribute) {
       const contribution = categories.find(category => category.id === productContribution.contributionId);
       if (contribution) {
