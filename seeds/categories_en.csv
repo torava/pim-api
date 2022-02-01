@@ -30,12 +30,8 @@ Bay leaf,Laakerinlehti,,Spices,,,,,,,,
 Beef,Nauta,,,,"26,61",,,,,"Beef: world average, median",1
 Beef,Nauta,,,,15,,,,,"Beef, raw",4
 "Beef Mince, 17% Fat, Fried Without Fat",,"[""Nauta jauheliha"", ""Jauhettu naudanliha"", ""Ground beef""]",,,,,,,,,
-"Beef Steak, Fried",,"[""Beef""]",,,"26,61",,,,,"Beef: world average, median",1
-"Beef Steak, Fried",,,,,15,,,,,"Beef, raw",4
-"Beef Steak, Grilled",,,,,"26,61",,,,,"Beef: world average, median",1
-"Beef Steak, Grilled",,,,,15,,,,,"Beef, raw",4
-"Beef, Cured, 2.8% Fat",,"[""Paahtopaisti""]",,,"26,61",,,,,"Beef: world average, median",1
-"Beef, Cured, 2.8% Fat",,"[""Paahtopaisti""]",,,15,,,,,"Beef, raw",4
+"Beef Steak, Fried",,"[""Beef"", ""Beef steak""]",,,,,,,,,
+"Beef, Cured, 2.8% Fat",,"[""Paahtopaisti""]",,,,,,,,,
 "Beer, Alcohol-Free, 0.0% Volume",,"[""Pils alkoholiton"", ""Crisp IPA""]",,,,,,"0,54",,"Beer, cradle-to-grave",5
 "Beer, Lager, Medium Strength, 4.5% Volume",,"[""Beer"", ""Olut"", ""Lager"", ""Pils""]",,,,,,,,,
 "Beer, Lager, Strong, 5-5.5% Volume",,"[""NEIPA""]",,,,,,,,,
@@ -474,7 +470,7 @@ Soup vegetables,Kuivatut keittovihannekset,"[""Kuivattu keittovihannes""]",Spice
 "Soy Product, Alpro Natural, Soured, Plain, Added Vitamin And Calcium",,"[""Soijavalmiste maustamaton""]",,,,,,,,,
 "Soy Product, Soured, 2% Fat, Calcium",,"[""Soijavalmiste vad-omena""]",,,,,,,,,
 Soy Sauce,,,,,,,,,"0,7",Plant based groceries,2
-"Soya Bean Patty, Fried",,"[""Grillatut kasvisfileet"", ""Vegaaninen Pihvi Soija- Ja Vehnäproteiinista""]",,,,,,,,,2
+"Soya Bean Patty, Fried",,"[""Grillatut kasvisfileet"", ""Vegaaninen Pihvi Soija- Ja Vehnäproteiinista"", ""Soijapihvi"", ""Soy steak""]",,,,,,,,,2
 "Soya Beans, Dried","Soijapapu, kuivattu","[""Soijapapu""]",,,"0,49",,,,,"Soybean, median",1
 "Soya drink,  calcium",,,,,"0,75",,,,,"Soy-milk, median",1
 "Soya Drink, Plain, Average Of Industrial Products",,,,,"0,75",,,,,"Soy-milk, median",1

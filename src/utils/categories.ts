@@ -136,23 +136,21 @@ export const getCategoriesWithAttributes = (
 export function resolveCategories(items: Category[], locale: Locale) {
   if (!locale) return;
   let itemAttributes: CategoryAttribute[],
-      resolvedAttributes: {[key: CategoryAttribute['id']]: CategoryAttribute},
-      item;
-  for (let i in items) {
-    item = items[i];
+      resolvedAttributes: {[key: CategoryAttribute['id']]: CategoryAttribute};
+  for (const item of items) {
     resolvedAttributes = {};
     itemAttributes = item.attributes;
-    for (let n in itemAttributes) {
-      if (itemAttributes[n].attribute) {
-        itemAttributes[n].attribute.name = getTranslation(itemAttributes[n].attribute.name, locale);
+    for (const itemAttribute of itemAttributes) {
+      if (itemAttribute.attribute) {
+        itemAttribute.attribute.name = getTranslation(itemAttribute.attribute.name, locale);
 
-        let parent = itemAttributes[n].attribute.parent;
+        let parent = itemAttribute.attribute.parent;
         while (parent) {
           parent.name = getTranslation(parent.name, locale);
           parent = parent.parent;
         }
       }
-      resolvedAttributes[itemAttributes[n].attributeId] = itemAttributes[n];
+      resolvedAttributes[itemAttribute.attributeId] = itemAttribute;
     }
     item.attributes = Object.values(resolvedAttributes);
     if (item.children) {
@@ -305,12 +303,13 @@ export const getContributionsFromList = (
     const foodUnitAttribute = findFoodUnitAttribute(contributionToken, attributes);
     let strippedContributionToken = stripDetails(contributionToken);
     let [contributionContribution, token] = getClosestCategory(contributionToken, categories, contentLanguage, strippedContributionToken);
-    contributionToken = contributionToken.replace(new RegExp(token.substring, 'i'), '').trim();
-    let contribution: CategoryContributionPartialShape = {
-      contribution: contributionContribution,
-      contributionId: contributionContribution?.id
-    };
-    if (contribution) {
+    let contribution: CategoryContributionPartialShape;
+    if (contributionContribution) {
+      contributionToken = contributionToken.replace(new RegExp(token.substring, 'i'), '').trim();
+      contribution = {
+        contribution: contributionContribution,
+        contributionId: contributionContribution?.id
+      };
       if (measure) {
         contribution.amount = measure;
         contribution.unit = unit;
