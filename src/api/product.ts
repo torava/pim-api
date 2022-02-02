@@ -11,7 +11,9 @@ import { Page } from 'objection';
 import { Locale } from '../utils/types';
 import { CategoryContributionPartialShape } from '../models/CategoryContribution';
 
-export default (app: express.Application) => {
+export default async (app: express.Application) => {
+
+const strippedCategories = await getStrippedChildCategories();
 
 app.get('/api/product/all', async (req, res) => {
   try {
@@ -155,8 +157,9 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductPa
         [product] = getClosestProduct(name, productEntries);
       }
 
-      const strippedCategories = await getStrippedChildCategories();
-      const contentLanguage = req.headers['content-language'];
+      const contentLanguage = req.headers['accept-language'];
+
+      console.log(contentLanguage);
 
       let contributions = [];
 
