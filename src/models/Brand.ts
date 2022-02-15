@@ -17,8 +17,6 @@ interface Brand extends Omit<BrandShape, 'parent'> {
 }
 // eslint-disable-next-line no-redeclare
 class Brand extends Model {
-	
-
 	static get tableName() {
 		return 'Brand';
 	}

@@ -1,22 +1,23 @@
-import {Model, QueryBuilder} from 'objection';
+import { Model, QueryBuilder } from 'objection';
+import CategoryAttributeSourceShape from '@torava/product-utils/dist/models/CategoryAttributeSource';
 
-import Category from './Category';
-import Attribute from './Attribute';
+import Category, { CategoryShape } from './Category';
+import Attribute, { AttributeShape } from './Attribute';
 import CategoryAttributeSource from './CategoryAttributeSource';
 import { DeepPartial } from '../utils/types';
 
 export interface CategoryAttributeShape {
-	id: number;
+	id?: number;
 
 	value?: number;
 	unit?: string;
 	type?: string;
 
-	category?: Category;
-	categoryId?: Category['id'];
-	attribute?: Attribute;
-	attributeId?: Attribute['id'];
-	sources?: CategoryAttributeSource[];
+	category?: CategoryShape;
+	categoryId?: CategoryShape['id'];
+	attribute?: AttributeShape;
+	attributeId?: AttributeShape['id'];
+	sources?: CategoryAttributeSourceShape[];
 }
 
 interface CategoryAttribute extends CategoryAttributeShape {}
@@ -38,7 +39,7 @@ class CategoryAttribute extends Model {
 
 			properties: {
 				id: {type: 'integer'},
-				value: {type: 'float'},
+				value: {type: 'number'},
 				unit: {type: 'string'},
 				type: {type: 'string'}
 			}

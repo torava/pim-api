@@ -30,12 +30,8 @@ Bay leaf,Laakerinlehti,,Spices,,,,,,,,
 Beef,Nauta,,,,"26,61",,,,,"Beef: world average, median",1
 Beef,Nauta,,,,15,,,,,"Beef, raw",4
 "Beef Mince, 17% Fat, Fried Without Fat",,"[""Nauta jauheliha"", ""Jauhettu naudanliha"", ""Ground beef""]",,,,,,,,,
-"Beef Steak, Fried",,"[""Beef""]",,,"26,61",,,,,"Beef: world average, median",1
-"Beef Steak, Fried",,,,,15,,,,,"Beef, raw",4
-"Beef Steak, Grilled",,,,,"26,61",,,,,"Beef: world average, median",1
-"Beef Steak, Grilled",,,,,15,,,,,"Beef, raw",4
-"Beef, Cured, 2.8% Fat",,"[""Paahtopaisti""]",,,"26,61",,,,,"Beef: world average, median",1
-"Beef, Cured, 2.8% Fat",,"[""Paahtopaisti""]",,,15,,,,,"Beef, raw",4
+"Beef Steak, Fried",,"[""Beef"", ""Beef steak""]",,,,,,,,,
+"Beef, Cured, 2.8% Fat",,"[""Paahtopaisti""]",,,,,,,,,
 "Beer, Alcohol-Free, 0.0% Volume",,"[""Pils alkoholiton"", ""Crisp IPA""]",,,,,,"0,54",,"Beer, cradle-to-grave",5
 "Beer, Lager, Medium Strength, 4.5% Volume",,"[""Beer"", ""Olut"", ""Lager"", ""Pils""]",,,,,,,,,
 "Beer, Lager, Strong, 5-5.5% Volume",,"[""NEIPA""]",,,,,,,,,
@@ -302,7 +298,7 @@ Margarine and fat spread  < 55%,,,,,"1,75",,,,,"Margarine, 60% fat, including wa
 Margarine and fat spread >= 55%,,,,,"1,75",,,,,"Margarine, 60% fat, including waste",7
 "Mayonnaise, 60% Fat",,"[""American dressing"", ""Big tasty -kastike""]",,,,,,"4,23",,2.0 kgCO₂eq per 473 mL pot of mayonnaise,49
 "Mayonnaise, 80% Fat",,"[""Mayonnaise"", ""Majoneesi""]",,,,,,"4,23",,2.0 kgCO₂eq per 473 mL pot of mayonnaise,49
-"Mayonnaise, Home-Made",,"[""Majoneesi"", ""Majoneesidippi"", ""Mayonnaise"", Mayonnaise dip""]",,,,,,,,,
+"Mayonnaise, Home-Made",,"[""Majoneesi"", ""Majoneesidippi"", ""Mayonnaise"", ""Mayonnaise dip""]",,,,,,,,,
 "Meal Replacement, Protein Bar, Average, C. 20% Protein",,,,,,,,,"0,7",Plant based groceries,2
 "Meal Replacement, Protein Bar, Average, C. 40% Protein",,"[""Barebells proteiinipatukka""]",,,,,,,,,
 Meat dishes,,,,,,,,,"1,1",Animal based groceries,2
@@ -326,6 +322,7 @@ Motor fuel,Ajoneuvojen polttoaine,,Travel,,,,,,,,
 "Muesli, Basic",,"[""Luomumysli""]",,,,,,,,,
 "Multigrain Bread, Bread Roll",,,,,,,,,,,
 "Multigrain Bread, Buttermilk Bread, Sour Milk, Wheat And Dark Wheat Flour",,"[""Herkkulimppu""]",,,,,,,,,
+"Multigrain Bread, Crushed Grains, Water",,"[""Bread"", ""Leipä""]",,,,,,,,,
 "Multigrain Bread, Oat Bread, Water",,"[""Kauraleipä"", ""Kaurasydän""]",,,,,,,,,
 "Multigrain Bread, Seed Bread, Water, Wheat Flour, Crushed Wheat Grains, Seeds",,"[""Seesaminsiemensämpylä""]",,,,,,,,,
 "Multigrain Bread, Tummempi Tuhatjyvä, Linkosuo",,"[""Rouhepatonki""]",,,,,,,,,
@@ -474,7 +471,7 @@ Soup vegetables,Kuivatut keittovihannekset,"[""Kuivattu keittovihannes""]",Spice
 "Soy Product, Alpro Natural, Soured, Plain, Added Vitamin And Calcium",,"[""Soijavalmiste maustamaton""]",,,,,,,,,
 "Soy Product, Soured, 2% Fat, Calcium",,"[""Soijavalmiste vad-omena""]",,,,,,,,,
 Soy Sauce,,,,,,,,,"0,7",Plant based groceries,2
-"Soya Bean Patty, Fried",,"[""Grillatut kasvisfileet"", ""Vegaaninen Pihvi Soija- Ja Vehnäproteiinista""]",,,,,,,,,2
+"Soya Bean Patty, Fried",,"[""Grillatut kasvisfileet"", ""Vegaaninen Pihvi Soija- Ja Vehnäproteiinista"", ""Soijapihvi"", ""Soy steak""]",,,,,,,,,2
 "Soya Beans, Dried","Soijapapu, kuivattu","[""Soijapapu""]",,,"0,49",,,,,"Soybean, median",1
 "Soya drink,  calcium",,,,,"0,75",,,,,"Soy-milk, median",1
 "Soya Drink, Plain, Average Of Industrial Products",,,,,"0,75",,,,,"Soy-milk, median",1

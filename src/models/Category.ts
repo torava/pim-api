@@ -3,12 +3,10 @@ import {Model, QueryBuilder} from 'objection';
 import Product, { ProductShape } from './Product';
 import CategoryAttribute, { CategoryAttributeShape } from './CategoryAttribute';
 import CategoryContribution, { CategoryContributionShape } from './CategoryContribution';
-import { DeepPartial, NameTranslations } from '../utils/types';
+import { DeepPartial, Ids, NameTranslations, Reference } from '../utils/types';
 
 // https://dev.to/tylerlwsmith/using-a-typescript-interface-to-define-model-properties-in-objection-js-1231
-export interface CategoryShape {
-	id: number;
-	
+export interface CategoryShape extends Ids {	
 	name?: NameTranslations;
 	aliases?: string[];
 
@@ -16,7 +14,7 @@ export interface CategoryShape {
 	attributes?: CategoryAttributeShape[];
 	contributions?: CategoryContributionShape[];
 	children?: CategoryShape[];
-	parent?: CategoryShape;
+	parent?: CategoryShape & Reference;
 	parentId?: number;
 }
 

@@ -136,23 +136,21 @@ export const getCategoriesWithAttributes = (
 export function resolveCategories(items: Category[], locale: Locale) {
   if (!locale) return;
   let itemAttributes: CategoryAttribute[],
-      resolvedAttributes: {[key: CategoryAttribute['id']]: CategoryAttribute},
-      item;
-  for (let i in items) {
-    item = items[i];
+      resolvedAttributes: {[key: CategoryAttribute['id']]: CategoryAttribute};
+  for (const item of items) {
     resolvedAttributes = {};
     itemAttributes = item.attributes;
-    for (let n in itemAttributes) {
-      if (itemAttributes[n].attribute) {
-        itemAttributes[n].attribute.name = getTranslation(itemAttributes[n].attribute.name, locale);
+    for (const itemAttribute of itemAttributes) {
+      if (itemAttribute.attribute) {
+        itemAttribute.attribute.name = getTranslation(itemAttribute.attribute.name, locale);
 
-        let parent = itemAttributes[n].attribute.parent;
+        let parent = itemAttribute.attribute.parent;
         while (parent) {
           parent.name = getTranslation(parent.name, locale);
           parent = parent.parent;
         }
       }
-      resolvedAttributes[itemAttributes[n].attributeId] = itemAttributes[n];
+      resolvedAttributes[itemAttribute.attributeId] = itemAttribute;
     }
     item.attributes = Object.values(resolvedAttributes);
     if (item.children) {
@@ -239,7 +237,7 @@ export const getClosestCategory = (
           }
         });
 
-        if (token?.accuracy > (bestToken ? bestToken.accuracy : 0)) {
+        if (token?.accuracy >= (bestToken ? bestToken.accuracy : 0)) {
           bestCategory = category;
           bestToken = token;
         }
@@ -254,6 +252,35 @@ export const getClosestCategory = (
     'token', bestToken
   );
   return bestToken?.substring.length ? [bestCategory, bestToken] : [undefined, undefined];
+};
+
+export const findMeasure = (text: string) => {
+  const measureMatch = text.match(measureRegExp);
+  const measure = measureMatch && parseFloat(measureMatch[1].replace(',', '.'));
+  let unit;
+  if (measure && !isNaN(measure)) {
+    if (measureMatch[4]) {
+      unit = 'kg';
+    }
+    else if (measureMatch[5]) {
+      unit = 'g';
+    }
+    else if (measureMatch[6]) {
+      unit = 'l';
+    }
+  }
+  return {measure, unit};
+};
+
+export const findFoodUnitAttribute = (text: string, attributes: AttributeShape[] = []) => {
+  let foodUnitAttribute: AttributeShape;
+  const {size} = getDetails();
+  Object.entries(size).forEach(([code, details]) => {
+    if (details.some(detail => text.match(detail))) {
+      foodUnitAttribute = attributes.find(attribute => attribute.code === code);
+    }
+  });
+  return foodUnitAttribute;
 };
 
 export const getTokensFromContributionList = (list: string) => (
@@ -272,47 +299,31 @@ export const getContributionsFromList = (
   const tokens = getTokensFromContributionList(list);
   const contributions: CategoryContributionPartialShape[] = [];
   tokens?.forEach(contributionToken => {
-    const measureMatch = contributionToken.match(measureRegExp);
-    const measure = measureMatch && parseFloat(measureMatch[1]);
-    let foodUnitAttribute: AttributeShape;
-    let unit;
-    if (measure && !isNaN(measure)) {
-      if (measureMatch[4]) {
-        unit = 'kg';
-      }
-      else if (measureMatch[5]) {
-        unit = 'g';
-      }
-      else if (measureMatch[6]) {
-        unit = 'l';
-      }
-    }
-    const {size} = getDetails();
-    Object.entries(size).forEach(([code, details]) => {
-      if (details.some(detail => contributionToken.match(detail))) {
-        foodUnitAttribute = attributes.find(attribute => attribute.code === code);
-      }
-    });
+    const { measure, unit } = findMeasure(contributionToken);
+    const foodUnitAttribute = findFoodUnitAttribute(contributionToken, attributes);
     let strippedContributionToken = stripDetails(contributionToken);
     let [contributionContribution, token] = getClosestCategory(contributionToken, categories, contentLanguage, strippedContributionToken);
-    let contribution: CategoryContributionPartialShape = {
-      contribution: contributionContribution,
-      contributionId: contributionContribution?.id
-    };
-    if (contribution) {
-      if (foodUnitAttribute) {
-        const {value, unit} = contribution.contribution.attributes.find(attribute => attribute.attributeId === foodUnitAttribute.id) || {};
+    let contribution: CategoryContributionPartialShape;
+    if (contributionContribution) {
+      contributionToken = contributionToken.replace(new RegExp(token.substring, 'i'), '').trim();
+      contribution = {
+        contribution: contributionContribution,
+        contributionId: contributionContribution?.id
+      };
+      if (measure) {
+        contribution.amount = measure;
+        contribution.unit = unit;
+      } else if (foodUnitAttribute) {
+        const {value, unit} = contribution.contribution?.attributes.find(attribute => attribute.attributeId === foodUnitAttribute.id) || {};
         if (value) {
           contribution.amount = value;
           contribution.unit = unit;
         }
-      } else if (measure) {
-        contribution.amount = measure;
-        contribution.unit = unit;
       }
     }
-    if (contributionToken.split(' ').length > 2) {
+    if (contributionToken) {
       while (contributionContribution && contributionToken && strippedContributionToken) {
+        console.log('contributionContribution', contributionContribution?.name, 'contributionToken', contributionToken, 'strippedContributionToken', strippedContributionToken);
         contributionToken = contributionToken.replace(new RegExp(token.substring, 'i'), '').trim();
         strippedContributionToken = stripDetails(contributionToken).replace(new RegExp(token.substring, 'i'), '').trim();
         contributions.push(contribution);
@@ -323,7 +334,7 @@ export const getContributionsFromList = (
         };
         if (contribution) {
           if (foodUnitAttribute) {
-            const {value, unit} = contribution.contribution.attributes.find(attribute => attribute.attributeId === foodUnitAttribute.id) || {};
+            const {value, unit} = contribution.contribution?.attributes.find(attribute => attribute.attributeId === foodUnitAttribute.id) || {};
             if (value) {
               contribution.amount = value;
               contribution.unit = unit;
@@ -334,6 +345,7 @@ export const getContributionsFromList = (
           }
         }
       }
+      console.log('contributionContribution', contributionContribution?.name, 'contributionToken', contributionToken, 'strippedContributionToken', strippedContributionToken);
     } else if (contribution) {
       contributions.push(contribution);
     }
@@ -557,7 +569,10 @@ export const getCategoryMinMaxAttributes = (
     return;
   }
   
-  let minAttributeValue, minCategoryAttribute, maxAttributeValue, maxCategoryAttribute;
+  let minAttributeValue: number,
+      minCategoryAttribute: CategoryAttributePartialShape,
+      maxAttributeValue: number,
+      maxCategoryAttribute: CategoryAttributePartialShape;
   const result = getCategoriesWithAttributes(categories, category.id, Number(attributeId));
   const [, categoryAttributes] = result?.[0] || [undefined, undefined];
   let attributeResult = getAttributeValues(unit, measure, 1, undefined, categoryOwnAttributes, attributes);
@@ -584,6 +599,7 @@ export const getCategoryMinMaxAttributes = (
         [minAttributeValue, minCategoryAttribute] = getMinAttributeValue(attributeResult);
         [maxAttributeValue, maxCategoryAttribute] = getMaxAttributeValue(attributeResult);
       }
+      console.log('minAttributeValue', minAttributeValue, 'minCategoryAttribute', minCategoryAttribute, 'measure', measure, 'contributionContributoin', contributionContribution, 'totalAmount', totalAmount);
     });
   }
   return {minAttributeValue, minCategoryAttribute, maxAttributeValue, maxCategoryAttribute};
@@ -613,6 +629,7 @@ export const resolveCategoryAttributes = (
         minValue+= minAttributeValue || 0;
         maxValue+= maxAttributeValue || 0;
         unit = minCategoryAttribute.unit.split('/')[0];
+        console.log('result', result);
       } else {
         return true;
       }

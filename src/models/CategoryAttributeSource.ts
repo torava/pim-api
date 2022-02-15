@@ -1,19 +1,12 @@
-import {Model, ModelObject} from 'objection';
+import { Model } from 'objection';
+import CategoryAttributeSourceShape from '@torava/product-utils/dist/models/CategoryAttributeSource';
 
 import CategoryAttribute from './CategoryAttribute';
 import Source from './Source';
 
-export default class CategoryAttributeSource extends Model {
-	id!: number;
-
-	referenceUrl?: string;
-	referenceDate?: string;
-	note?: string;
-	countryCode?: string;
-
-	attribute?: CategoryAttribute;
-	source?: Source;
-	
+interface CategoryAttributeSource extends CategoryAttributeSourceShape {}
+// eslint-disable-next-line no-redeclare
+class CategoryAttributeSource extends Model {
 	static get tableName() {
 		return 'CategoryAttributeSource';
 	}
@@ -25,7 +18,7 @@ export default class CategoryAttributeSource extends Model {
 			properties: {
 				id: {type: 'integer'},
         referenceUrl: {type: ['string', 'null']},
-				referenceDate: { type: 'datetime', default: new Date().toISOString() },
+				referenceDate: { type: 'string', default: new Date().toISOString() },
 				note: {type: ['string', 'null']},
 				countryCode: { type: ['string', 'null'] }
 			}
@@ -54,4 +47,4 @@ export default class CategoryAttributeSource extends Model {
   }
 }
 
-export type CategoryAttributeSourceShape = ModelObject<CategoryAttributeSource>;
+export default CategoryAttributeSource;

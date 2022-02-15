@@ -1,3 +1,29 @@
+export type Id = number;
+export type Key = string;
+
+
+export interface Reference {
+  '#ref'?: string;
+  id?: Id;
+}
+export interface Ids {
+  '#id'?: string;
+  id?: Id;
+}
+export interface IdsWithParentId extends Ids {
+  parentId: Id
+}
+
+export type Parent = {
+  id?: Id;
+  '#id'?: string;
+  '#ref'?: string;
+  name?: NameTranslations;
+  parent?: Parent;
+};
+
+
+
 export enum Locale {
   'fi-FI' = 'fi-FI',
   'en-US' = 'en-US',

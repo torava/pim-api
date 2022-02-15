@@ -1,18 +1,21 @@
+import CategoryAttributeSourceShape from '@torava/product-utils/dist/models/CategoryAttributeSource';
 import parse from 'csv-parse/lib/sync';
 import fs from 'fs';
 import moment from 'moment';
 
-import Attribute from '../models/Attribute';
-import Category from '../models/Category';
-import CategoryAttribute from '../models/CategoryAttribute';
+import Attribute, { AttributePartialShape, AttributeShape } from '../models/Attribute';
+import Category, { CategoryPartialShape, CategoryShape } from '../models/Category';
+import CategoryAttribute, { CategoryAttributeShape } from '../models/CategoryAttribute';
 import CategoryContribution from '../models/CategoryContribution';
-import Source from '../models/Source';
+import Party from '../models/Party';
+import Source, { SourceShape } from '../models/Source';
+import { Id, NameTranslations, Parent } from './types';
 
-function convertFirstLetterCapital(text) {
+function convertFirstLetterCapital(text: string) {
   return text ? text.substring(0,1).toUpperCase()+text.substring(1).toLowerCase() : text;
 }
 
-export const getEntitiesFromCsv = (csv, options = {}) => {
+export const getEntitiesFromCsv = (csv: string | Buffer, options = {}) => {
   const records = parse(csv, {
     columns: true,
     skipEmptyLines: true,
@@ -21,7 +24,10 @@ export const getEntitiesFromCsv = (csv, options = {}) => {
   return records;
 };
 
-export const insertFromRecords = async (records, model, recordIdMap = {}) => {
+export const insertFromRecords = async (
+  records: {[key: string]: string}[],
+  model: typeof Party,
+  recordIdMap: {[key: string]: Party} = {}) => {
   for (const record of records) {
     const entity = await model.query().insertAndFetch({
       ...record,
@@ -103,48 +109,36 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
         5 = EVREMAIN remained after evaporation, percentage
         6 = RECYEAR recipe year, text*/
     const contribfoodRows = fs.readFileSync(fullPath+'/contribfood.csv', encoding).split('\n');
-    let parentRef, parentName, secondParentName, secondParentRef, thirdParentRef,
-        attrRef,
-        attrRefs = {},
-        parentAttrRefs = {},
-        secondParentAttrRefs = {},
-        fuclass = {},
-        igclass = {},
-        component = {},
-        cmpclass = {},
-        eufdname = {},
-        foodname = {},
+    let parentRef: string,
+        parentName,
+        secondParentName,
+        secondParentRef: string,
+        thirdParentRef,
+        attrRef: string,
         attributeCount = 0,
-        value,
-        attribute,
+        value: NameTranslations,
+        attribute: AttributePartialShape,
         food_row,
         row,
         id, refId,
-        parent,
+        parent: Parent,
         attributeIndex = 1,
-        refs = {
-          '#food': true,
-          '#ingredients': true,
-          '#recipes': true
-        },
-        categories = {},
-        categoryValues = [],
-        attributes = {},
-        attributeValues = [],
+        categories: Record<string, CategoryPartialShape> = {},
+        attributes: Record<string, CategoryShape> = {},
         /*contributionValues = [],
         sources,
         sourceRef,
         sourceRefs = {},
         source,*/
-        baseSources = [
+        baseSources: SourceShape[] = [
           {
             '#id': 'sfineli',
             name: 'Fineli',
-            publication_url: 'https://fineli.fi/fineli/en/index',
-            publication_date: '2018'
+            publicationUrl: 'https://fineli.fi/fineli/en/index',
+            publicationDate: '2018'
           }
         ],
-        baseCategories = [
+        baseCategories: CategoryShape[] = [
           {
             '#id': 'c4food',
             name: {
@@ -187,6 +181,23 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
         }
       }
     ];
+
+    const refs: Record<string, boolean> = {
+      '#food': true,
+      '#ingredients': true,
+      '#recipes': true
+    };
+
+    const attrRefs: Record<string, Id> = {};
+    const parentAttrRefs: Record<string, Id> = {};
+    const secondParentAttrRefs: Record<string, Id> = {};
+
+    const fuclass: Record<string, NameTranslations> = {};
+    const igclass: Record<string, NameTranslations> = {};
+    const component: Record<string, string[]> = {};
+    const cmpclass: Record<string, NameTranslations> = {};
+    const eufdname: Record<string, NameTranslations> = {};
+    const foodname: Record<string, NameTranslations> = {};
 
     console.log('meta '+moment().format());
 
@@ -327,16 +338,11 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       };
     }
 
-    // create an array from categories
-    for (let i in categories) {
-      categoryValues.push(categories[i]);
-    }
-
     //console.dir(category_values, {depth: null, maxArrayLength: null});
 
     // add to database
     const category = await Category.query()
-    .upsertGraph(categoryValues, {relate: true, allowRefs: true});
+    .upsertGraph(Object.values(categories) as Category[], {relate: true, allowRefs: true});
         
     console.log('written '+moment().format());
 
@@ -459,16 +465,14 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       if (row[2] != "") {
         const value = parseFloat(row[2].replace(',', '.'));
         const unit = `${component[attrRef][1].toLowerCase()}/hg`;
-        const sources = [
+        const sources: CategoryAttributeSourceShape[] = [
           {
-            reference_url: `https://fineli.fi/fineli/en/elintarvikkeet/${row[0]}`,
-            source: {
-              id: baseSources[0].id
-            }
+            referenceUrl: `https://fineli.fi/fineli/en/elintarvikkeet/${row[0]}`,
+            sourceId: baseSources[0].id
           }
         ];
         attributes[row[0]].attributes.push({
-          attribute,
+          attribute: attribute as AttributeShape,
           value,
           unit,
           sources
@@ -478,19 +482,12 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
       attributeCount++;
     }
 
-    // put attributes to array
-    for (let i in attributes) {
-      attributeValues.push(attributes[i]);
-
-      await Category.query()
-      .upsertGraph(attributes[i], {relate: true});
-
-      attributeValues = [];
-    }
-    
+    await Category.query()
+    .upsertGraph(Object.values(attributes), {relate: true});
+  
     console.log('attributes '+attributeCount+'/'+attributeCount+' '+moment().format());
 
-    const foodUnits = {};
+    const foodUnits: Record<string, Attribute> = {};
     for (const index in foodunitEnRecords) {
       const enName = foodunitEnRecords[index];
       const fiName = foodunitFiRecords[index];
@@ -509,16 +506,14 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
     }
 
     for (const unit of foodaddunitRecords) {
-      const sources = [
+      const sources: CategoryAttributeSourceShape[] = [
         {
-          reference_url: `https://fineli.fi/fineli/en/elintarvikkeet/${row[0]}`,
-          source: {
-            id: baseSources[0].id
-          }
+          referenceUrl: `https://fineli.fi/fineli/en/elintarvikkeet/${row[0]}`,
+          sourceId: baseSources[0].id
         }
       ];
       const value = parseFloat(unit.MASS.replace(',', '.'));
-      const categoryFoodUnit = {
+      const categoryFoodUnit: CategoryAttributeShape = {
         categoryId: categories[unit.FOODID].id,
         attributeId: foodUnits[unit.FOODUNIT].id,
         value,

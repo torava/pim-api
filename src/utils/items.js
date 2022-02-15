@@ -147,7 +147,7 @@ export const getItemsFromCsv = async (itemRecords, productRecords, partyRecords,
             let found = false;
             let categoryEntity;
             for (const c of categories) {
-              if (Object.values(c.name).some(name => name.toLowerCase() === column.toLowerCase())) {
+              if (c.name && Object.values(c.name).some(name => name.toLowerCase() === column.toLowerCase())) {
                 categoryEntity = {
                   id: c.id
                 }

@@ -2,6 +2,16 @@ import {Model} from 'objection';
 import Transaction from './Transaction';
 
 export default class Party extends Model {
+	id!: number;
+	name?: string;
+	vat?: string;
+	street_name?: string;
+	street_number?: string;
+	postal_code?: string;
+	city?: string;
+	phone_number?: string;
+	email?: string;
+
 	static get tableName() {
 		return 'Party';
 	}
@@ -15,11 +25,11 @@ export default class Party extends Model {
 				id: {type: 'integer'},
 				name: {type: ['string', 'null']},
 				vat: {type: ['string', 'null']},
-				street_name: {type: ['string', 'null']},
-				street_number: {type: ['string', 'null']},
-				postal_code: {type: ['string', 'null']},
+				streetName: {type: ['string', 'null']},
+				streetNumber: {type: ['string', 'null']},
+				postalCode: {type: ['string', 'null']},
 				city: {type: ['string', 'null']},
-				phone_number: {type: ['string', 'null']},
+				phoneNumber: {type: ['string', 'null']},
 				email: {type: ['string', 'null']}
 			}
 		}

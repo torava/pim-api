@@ -22,9 +22,9 @@ export const getDetails = (manufacturers = []) => {
     kilogram: ['kg']
   };
   details.size = {
-    PORTS: ['small', 'pieni', 'pienet'],
+    PORTS: ['small', 'pienet', 'pieni'],
     PORTM: ['medium', 'keskikokoinen'],
-    PORTL: ['large', 'big', 'iso', 'isot']
+    PORTL: ['large', 'big', 'isot', 'iso', 'reilusti', 'reilu', '(l)']
   };
   details.cooking = {
     boiled: ['boiled', 'keitetty'],

@@ -7,14 +7,14 @@ exports.up = (knex) => (
     table.increments('id').primary();
     table.string('name');
     table.string('vat');
-    table.string('street_name');
-    table.string('street_number');
-    table.string('postal_code');
+    table.string('streetName');
+    table.string('streetNumber');
+    table.string('postalCode');
     table.string('city');
-    table.string('phone_number');
+    table.string('phoneNumber');
     table.string('email');
-    table.string('country_code');
-    table.unique(['name', 'vat', 'street_name', 'street_number', 'city', 'country_code']);
+    table.string('countryCode');
+    table.unique(['name', 'vat', 'streetName', 'streetNumber', 'city', 'countryCode']);
   })
   .then(() => createTableIfNotExists(knex, 'Group', table => {
     table.increments('id').primary();
@@ -25,23 +25,23 @@ exports.up = (knex) => (
     table.dateTime('date');
     table.integer('partyId').unsigned().references('id').inTable('Party');
     table.integer('groupId').unsigned().references('id').inTable('Group');
-    table.decimal('total_price', 8, 2);
-    table.decimal('total_price_read', 8, 2);
+    table.decimal('totalPrice', 8, 2);
+    table.decimal('totalPriceRead', 8, 2);
   }))
   .then(() => createTableIfNotExists(knex, 'Manufacturer', table => {
     table.increments('id').primary();
     table.string('name').unique();
     table.json('aliases');
-    table.string('factory_location');
-    table.string('headquarters_location');
+    table.string('factoryLocation');
+    table.string('headquartersLocation');
     table.integer('ownerId').unsigned().references('id').inTable('Manufacturer');
   }))
   .then(() => createTableIfNotExists(knex, 'Brand', table => {
     table.increments('id').primary();
     table.string('name').unique();
     table.json('aliases');
-    table.string('factory_location');
-    table.string('headquarters_location');
+    table.string('factoryLocation');
+    table.string('headquartersLocation');
     table.integer('ownerId').unsigned().references('id').inTable('Brand');
   }))
   .then(() => createTableIfNotExists(knex, 'Category', table => {
@@ -53,7 +53,7 @@ exports.up = (knex) => (
   }))
   .then(() => createTableIfNotExists(knex, 'Product', table => {
     table.increments('id').primary();
-    table.string('product_number');
+    table.string('productNumber');
     table.string('name');
     table.json('aliases');
     table.string('contributionList');
@@ -66,7 +66,7 @@ exports.up = (knex) => (
   }))
   .then(() => createTableIfNotExists(knex, 'Item', table => {
     table.increments('id').primary();
-    table.string('item_number');
+    table.string('itemNumber');
     table.string('text');
     table.decimal('price', 8, 2);
     table.integer('quantity');
@@ -179,17 +179,17 @@ exports.up = (knex) => (
     table.increments('id').primary();
     table.string('name');
     table.string('authors');
-    table.string('country_code');
-    table.string('publication_date');
-    table.string('publication_url');
-    table.unique(['name', 'authors', 'publication_date', 'publication_url']);
+    table.string('countryCode');
+    table.string('publicationDate');
+    table.string('publicationUrl');
+    table.unique(['name', 'authors', 'publicationDate', 'publicationUrl']);
   }))
   .then(() => createTableIfNotExists(knex, 'CategoryAttributeSource', table => {
     table.increments('id').primary();
-    table.string('reference_date');
-    table.string('reference_url');
+    table.string('referenceDate');
+    table.string('referenceUrl');
     table.string('note');
-    table.string('country_code');
+    table.string('countryCode');
     table
       .integer('attributeId')
       .unsigned()
@@ -205,10 +205,10 @@ exports.up = (knex) => (
   }))
   .then(() => createTableIfNotExists(knex, 'ProductAttributeSource', table => {
     table.increments('id').primary();
-    table.string('reference_date');
-    table.string('reference_url');
+    table.string('referenceDate');
+    table.string('referenceUrl');
     table.string('note');
-    table.string('country_code');
+    table.string('countryCode');
     table
       .integer('attributeId')
       .unsigned()

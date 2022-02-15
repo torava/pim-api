@@ -33,7 +33,7 @@ class ProductAttributeSource extends Model {
 			properties: {
 				id: {type: 'integer'},
         referenceUrl: {type: ['string', 'null']},
-				referenceDate: { type: 'datetime', default: new Date().toISOString() },
+				referenceDate: { type: 'string', default: new Date().toISOString() },
 				note: {type: ['string', 'null']},
 				countryCode: { type: ['string', 'null'] }
 			}

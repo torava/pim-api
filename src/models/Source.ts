@@ -1,8 +1,11 @@
-import { Model, snakeCaseMappers } from 'objection';
+import { Model } from 'objection';
+
 import { DeepPartial } from '../utils/types';
 
 export interface SourceShape {
-	id: number;
+	id?: number;
+
+	'#id'?: string;
 	
 	name?: string;
 	authors?: string;
@@ -14,8 +17,6 @@ export interface SourceShape {
 interface Source extends SourceShape {}
 // eslint-disable-next-line no-redeclare
 class Source extends Model {
-	static columnNameMappers = snakeCaseMappers();
-	
 	static get tableName() {
 		return 'Source';
 	}

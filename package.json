@@ -1,6 +1,6 @@
 {
   "name": "@torava/product-api",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "product-api",
   "scripts": {
     "test": "jest",
@@ -21,6 +21,7 @@
   "author": "Teemu Orava",
   "license": "UNLICENSED",
   "dependencies": {
+    "@torava/product-utils": "^1.0.5",
     "apicache": "^1.6.2",
     "axios": "^0.21.1",
     "body-parser": "^1.19.0",
@@ -34,7 +35,7 @@
     "express": "^4.17.1",
     "jimp": "^0.12.1",
     "jsdom": "^19.0.0",
-    "knex": "^0.95.14",
+    "knex": "^1.0.1",
     "lodash": "^4.17.21",
     "match-sorter": "^2.3.0",
     "moment": "^2.22.2",

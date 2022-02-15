@@ -24,7 +24,7 @@ app.get('/api/category/:id', async (req, res) => {
       .withGraphFetched('[contributions, attributes]')
     );
     resolveCategories(categories, req.query.locale);
-    return res.send(categories);
+    return res.send(categories[0]);
   } catch (error) {
     console.error(error);
     return res.sendStatus(500);

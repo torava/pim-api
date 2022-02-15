@@ -1,7 +1,6 @@
 import {Model} from 'objection';
 
 export default class Conversion extends Model {
-
 	static get tableName() {
 		return 'Conversion';
 	}
