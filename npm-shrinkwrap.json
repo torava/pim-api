@@ -1,6 +1,6 @@
 {
   "name": "@torava/product-api",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "lockfileVersion": 1,
   "requires": true,
   "dependencies": {
@@ -5179,8 +5179,8 @@
     },
     "@torava/product-utils": {
       "version": "1.0.5",
-      "resolved": false,
-      "integrity": "sha512-At/2NwVkkCvIoTEiG3Cs4zdyksDUa14e6Ku8UOTTbPTmK+xcaYUJKHRQumSIIbXPofTTJawI5qWzuDQ3as/uFg==",
+      "resolved": "https://gitlab.com/api/v4/projects/32804813/packages/npm/@torava/product-utils/-/@torava/product-utils-1.0.5.tgz",
+      "integrity": "sha1-8PElW4KYUz68GQNZU3DLn/VT52g=",
       "requires": {
         "canvas": "^2.8.0",
         "classnames": "^2.2.6",
