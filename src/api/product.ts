@@ -13,8 +13,6 @@ import { CategoryContributionPartialShape } from '../models/CategoryContribution
 
 export default async (app: express.Application) => {
 
-const strippedCategories = await getStrippedChildCategories();
-
 app.get('/api/product/all', async (req, res) => {
   try {
     let products = await Product.query();
@@ -94,7 +92,7 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductPa
     measure,
     unit,
     attributeCodes,
-    foodUnitAttributeCode
+    foodUnitAttributeCode = 'PORTM'
   } = req.query;
   const name = req.query.name?.trim();
   const contributionList = req.query.contributionList?.trim();
@@ -157,12 +155,14 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductPa
         [product] = getClosestProduct(name, productEntries);
       }
 
-      const contentLanguage = req.headers['accept-language'];
+      const contentLanguage = req.headers['accept-language'].toString().split(',')[0];
 
       console.log(contentLanguage);
 
       let contributions = [];
 
+      const strippedCategories = await getStrippedChildCategories();
+      
       if (!product) {
         let [category] = getClosestCategory(name, strippedCategories, contentLanguage as Locale);
         if (category) {
@@ -220,8 +220,8 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductPa
             ...contribution.contribution,
             attributes: undefined
           }
-        })),
-        categoryId: product.categoryId,*/
+        })),*/
+        categoryId: product.categoryId,
         measure: measure || product.measure,
         unit: measure ? 'kg' : product.unit,
         attributes: productAttributes || product.attributes
