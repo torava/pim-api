@@ -1,4 +1,5 @@
 import { stringSimilarity } from "string-similarity-js";
+import { flattenObject } from "./entities";
 
 import { LevenshteinDistance } from "./levenshteinDistance";
 import { measureRegExp } from './receipts';
@@ -46,8 +47,11 @@ export const getDetails = (manufacturers = []) => {
     grated: ['grated']
   };
   details.serving = {
-    servedWith: ['served with', 'kanssa'],
-    includes: ['includes', 'sisältää']
+    with: ['served with', 'kanssa'],
+    includes: ['includes', 'sisältää'],
+    mix: ['a mix of', 'mix', 'sekoitus'],
+    dressed: ['dressed with'],
+    in: [' in ']
   };
   details.spicing = {
     salted: ['suolattu', 'suolaa'],
@@ -60,7 +64,7 @@ export const getDetails = (manufacturers = []) => {
     nonflavored: ['maustamaton', 'naturel']
   };
   details.description = {
-    fresh: ['fresh', 'raikas'],
+    refreshing: ['refreshing', 'raikas'],
     soft: ['soft', 'pehmeä']
   };
   details.type = {
@@ -128,6 +132,12 @@ export const getDetails = (manufacturers = []) => {
   };
 
   return details;
+};
+
+export const getDetailList = () => {
+  const detailList = flattenObject(getDetails());
+  detailList.sort((a, b) => a.length < b.length ? 1 : -1);
+  return detailList;
 };
 
 export function getNameLocale(name, locale, strict) {

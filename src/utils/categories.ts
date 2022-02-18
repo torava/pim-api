@@ -320,14 +320,14 @@ export const getContributionsFromList = (
           contribution.unit = unit;
         }
       }
-    }
-    if (contributionToken) {
-      while (contributionContribution && contributionToken && strippedContributionToken) {
-        console.log('contributionContribution', contributionContribution?.name, 'contributionToken', contributionToken, 'strippedContributionToken', strippedContributionToken);
-        contributionToken = contributionToken.replace(new RegExp(token.substring, 'i'), '').trim();
-        strippedContributionToken = stripDetails(contributionToken).replace(new RegExp(token.substring, 'i'), '').trim();
+      if (contribution) {
         contributions.push(contribution);
-        [contributionContribution, token] = getClosestCategory(contributionToken, categories, contentLanguage);
+      }
+    }
+    while (contributionContribution && contributionToken && strippedContributionToken) {
+      console.log('contributionContribution', contributionContribution?.name, 'contributionToken', contributionToken, 'strippedContributionToken', strippedContributionToken);
+      [contributionContribution, token] = getClosestCategory(contributionToken, categories, contentLanguage);
+      if (contributionContribution) {
         contribution = {
           contribution: contributionContribution,
           contributionId: contributionContribution?.id
@@ -343,11 +343,12 @@ export const getContributionsFromList = (
             contribution.amount = measure;
             contribution.unit = unit;
           }
+          contributions.push(contribution);
         }
+        contributionToken = contributionToken.replace(new RegExp(token.substring, 'i'), '').trim();
+        strippedContributionToken = stripDetails(contributionToken).replace(new RegExp(token.substring, 'i'), '').trim();
       }
       console.log('contributionContribution', contributionContribution?.name, 'contributionToken', contributionToken, 'strippedContributionToken', strippedContributionToken);
-    } else if (contribution) {
-      contributions.push(contribution);
     }
   });
   return contributions;

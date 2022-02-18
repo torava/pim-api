@@ -82,6 +82,7 @@ Cereals,,,,,,,,,"0,7",Plant based groceries,2
 "Cheese, Emmental, 27-30% Fat, Red-Label",,"[""Maasdam""]",,,,,,,,,
 "Cheese, Gouda, Average, 28-30% Fat",,"[""Gouda"", ""Vanha gouda""]",,,,,,,,,
 "Cheese, Hard Cheese, Goat Cheese, 20-25% Fat",,"[""Manchego""]",,,,,,,,,
+"Cheese, Mozzarella Cheese, 20% Fat",,"[""Burrata cheese"", ""Burrata""]",,,,,,,,,
 "Cheese, ripened cheese <= 17 %",,,,,10,,,,,Juusto,9
 "Cheese, ripened cheese <= 17 %",,,,,"8,55",,,,,"Cheese, median",1
 "Cheese, ripened cheese <= 17 %",,,,,,,,,"2,44",Dairy products and ice cream,2
@@ -129,6 +130,7 @@ Colour Collector Cloth,Liankerääjä,"[""Tekst.pesu- & Puhd.ain.""]",Hygiene pr
 Commerce,Kaupankäynti,,Services,,,,,,,,
 Condiments,,,,,,,,,"0,7",Plant based groceries,2
 Construction,Rakentaminen,,Supplies,,,,,,,,
+"Cooking Cream, 15% Fat",,"[""Creamy""]",,,,,,,,,
 "Cooking Cream, Vegetable Fat, 13% Fat, Low-Lactose",,"[""Oatly iMat"", ""Kauraruoka""]",Oat and oat products,,"0,56",,,,,Oatly iMat,29
 "Corn Cookie, Lentil and Sea Salt",Maissikakut Linssi ja Merisuola,,Savoury biscuits,,,,,,,,
 "Corn Snack, Puffed, Corn Puffs Without Added Salt",,"[""Maissikakku""]",,,,,,,,,
@@ -223,6 +225,7 @@ Flowers,Kukat,,Supplies,,,,,,,,
 "French Fries, Frozen",,,,,,,,,"0,7",Plant based groceries,2
 "French Fries, Oven-Baked",,"[""Kuorellinen tikkuperuna pakaste""]",,,,,,,"0,7",Plant based groceries,2
 "Fresh Pasta, Contains Egg",,,,,,,,,"1,1",Animal based groceries,2
+"Fresh Pasta, Contains Egg",,"[""Fettuccine"", ""Fettuccine pasta""]",,,,,,,,,
 Fried onions,Paahdettu sipulirouhe,,Spices,,,,,,,,
 "Frozen Vegetable Mix, Average, Boiled Without Salt",,"[""Lämpimiä kasviksia"", ""Lämpimät kasvikset""]",,,,,,,,,
 "Frozen Vegetable Mix, Broccoli-Carrot-Sweet Pepper, Kartanon Kasvikset",,"[""Cooked vegetables"", ""Keitetyt kasvikset""]",,,,,,,,,
@@ -261,7 +264,7 @@ Housekeeping tools,Kodinhoitotyökalut,,Supplies,,,,,,"0,5",Tools and appliances
 "Hummus, Chick Pea Paste",,"[""Hummus""]",,,,,,,"0,7",Plant based groceries,2
 Hygiene products,Hygieniatuotteet,"[""Nestesaippua"", ""Käsisaippua""]",Supplies,,,,,,"0,4",Personal items,2
 "Ice Cream, Cream Based",,,,,,,,"4,2",,"Ice cream, vanilla regular",22
-Iceberg Lettuce,,"[""Jäävuorisalaatti"", ""Jääsalaatti""]",,,"0,56",,,,,Including waste,8
+Iceberg Lettuce,,"[""Jäävuorisalaatti"", ""Jääsalaatti"", ""Green salad""]",,,"0,56",,,,,Including waste,8
 Interior design,Sisustus,,Supplies,,,,,,"0,67","Kodintaloustekstiilit, sisustus, astiat keskiarvo",2
 iPhone 12 128GB,iPhone 12 128 Gt,,Smartphone,75,,,,,,,23
 iPhone 12 256GB,iPhone 12 256 Gt,,Smartphone,85,,,,,,,23
@@ -562,6 +565,7 @@ Wheat,,,,,"0,5",,,,,"Vehnäjauhot, ryynit",4
 Wheat bread,,,,,"1,55",,,,,"Bread, cradle-to-grave, 0.6-2.5 kg",6
 Wheat Tortilla,,"[""Tortilla""]",,,"1,55",,,,,"Bread, cradle-to-grave, 0.6-2.5 kg",6
 Wheat Tortilla,,,,,,,,,"0,7",Plant based groceries,2
+"White Sauce, Low-Fat Milk, Thickened With Flour And Butter",,"[""White sauce"", ""Valkokastike""]",,,,,,,,,
 Whiting,Valkoturska,,Fish,,"2,66",,,,,"Whiting, median",1
 Wines,,,,,,,,"1,70666667",,"1.28 kgCO₂e wine bottle, cradle-to-grave",42
 "Wok-Vegetables, Carrot-Pea-Water Chestnut-Bamboo Shoot-Sweet Pepper-Mushroom",,"[""Wok mix thai""]",,,,,,,,,
