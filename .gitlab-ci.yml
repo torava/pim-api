@@ -16,8 +16,10 @@ deploy:
   script:
     - |
       {
-        echo "@${CI_PROJECT_ROOT_NAMESPACE}:registry=-"
+        echo "@${CI_PROJECT_ROOT_NAMESPACE}:registry=https://gitlab.com/api/v4/projects/32804813/packages/npm/"
+        echo "${CI_API_V4_URL#https?}/projects/packages/npm/:_authToken=\${CI_JOB_TOKEN}"
         echo "${CI_API_V4_URL#https?}/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=\${CI_JOB_TOKEN}"
+        echo "${CI_API_V4_URL#https?}/projects/32804813/packages/npm/:_authToken=\${CI_JOB_TOKEN}"
       } | tee --append .npmrc
     - npm ci
     - npm test
