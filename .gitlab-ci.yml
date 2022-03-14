@@ -15,7 +15,7 @@ deploy:
   stage: deploy
   script:
     - npm config set @$CI_PROJECT_ROOT_NAMESPACE:registry https://gitlab.com/api/v4/projects/32804813/packages/npm/
-    - npm config set -- 'https://gitlab.com/api/v4/projects/32804813/packages/npm/:_authToken' "$NPM_TOKEN"
+    - npm config set -- 'https://gitlab.com/api/v4/projects/32804813/packages/npm/:_authToken' "${NPM_TOKEN}"
     - npm ci
     - npm test
     - npm run build
