@@ -17,7 +17,7 @@ deploy:
     - |
       {
         echo "@${CI_PROJECT_ROOT_NAMESPACE}:registry=https://gitlab.com/api/v4/packages/npm/"
-        echo "${CI_API_V4_URL#https?}/packages/npm/:_authToken=\${CI_JOB_TOKEN}"
+        echo "${CI_API_V4_URL#https?}/packages/npm/:_authToken=${CI_JOB_TOKEN}"
       } | tee --append .npmrc
     - npm ci
     - npm test
