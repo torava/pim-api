@@ -14,15 +14,11 @@ deploy:
   image: node:14
   stage: deploy
   script:
-    - |
-      {
-        echo "@${CI_PROJECT_ROOT_NAMESPACE}:registry=https://gitlab.com/api/v4/projects/32804813/packages/npm/"
-        echo "${CI_API_V4_URL#https?}/projects/32804813/packages/npm/:_authToken=${CI_JOB_TOKEN}"
-      } | tee --append .npmrc
+    - npm config set @$CI_PROJECT_ROOT_NAMESPACE:registry https://gitlab.com/api/v4/packages/npm/
+    - npm config set -- '$CI_API_V4_URL/packages/npm/:_authToken' "$CI_JOB_TOKEN"
     - npm ci
     - npm test
     - npm run build
-    - npm publish
 
 release-image:
   image: docker:19.03.12
