@@ -14,10 +14,8 @@ deploy:
   image: node:14
   stage: deploy
   script:
-    - rm .npmrc
     - |
       {
-        echo "@${CI_PROJECT_ROOT_NAMESPACE}:registry=${CI_API_V4_URL}/projects/32804813/packages/npm/"
         echo "${CI_API_V4_URL#https?}/projects/32804813/packages/npm/:_authToken=\${CI_JOB_TOKEN}"
       } | tee --append .npmrc
     - npm ci
