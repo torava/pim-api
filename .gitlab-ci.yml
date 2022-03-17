@@ -19,7 +19,6 @@ deploy:
         echo "${CI_API_V4_URL#https?}/projects/32804813/packages/npm/:_authToken=\${CI_JOB_TOKEN}"
       } | tee .npmrc
     - npm ci
-    - npm test
     - npm run build
 
 release-image:
