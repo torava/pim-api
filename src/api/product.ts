@@ -10,6 +10,7 @@ import { getLeafIds } from '../utils/entities';
 import { Page } from 'objection';
 import { Locale } from '../utils/types';
 import { CategoryContributionPartialShape } from '../models/CategoryContribution';
+import Brand from '../models/Brand';
 
 export default async (app: express.Application) => {
 
@@ -94,8 +95,8 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductPa
     attributeCodes,
     foodUnitAttributeCode = 'PORTM'
   } = req.query;
-  const name = req.query.name?.trim();
-  const contributionList = req.query.contributionList?.trim();
+  const name = req.query.name?.replace(/\s?-\s?/g, ' ').trim();
+  const contributionList = req.query.contributionList?.replace(/\s?-\s?/g, ' ').trim();
   try {
     let products: Page<Product> | ProductPartialShape[];
     if (!name && !contributionList) {
@@ -163,8 +164,10 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductPa
 
       const strippedCategories = await getStrippedChildCategories();
       
+      const brands = await Brand.query();
+
       if (!product) {
-        let [category] = getClosestCategory(name, strippedCategories, contentLanguage as Locale);
+        let [category] = getClosestCategory(name, strippedCategories, contentLanguage as Locale, undefined, brands);
         if (category) {
           product = {
             ...product,
