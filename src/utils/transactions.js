@@ -116,7 +116,9 @@ export const getDetails = (manufacturers = []) => {
     package: ['paperipakkaus'],
 
     filledPasta: ['täytepasta'],
-    filling: ['filling', 'täyte']
+    filling: ['filling', 'täyte'],
+
+    network: ['4g', '5g']
   };
   details.origin = {
     local: ['kotimainen'],
@@ -129,6 +131,9 @@ export const getDetails = (manufacturers = []) => {
     trademark: ['™'],
     registered: ["®"],
     with: ['with a', 'with']
+  };
+  details.category = {
+    smartphone: ['smartphone']
   };
 
   return details;
@@ -272,7 +277,7 @@ export function stripDetails(name, manufacturers = []) {
 
   const details = getDetails(manufacturers);
 
-  let strippedName = name.replace(measureRegExp, '').replace(/[0-9.,]/g, '');
+  let strippedName = name.replace(measureRegExp, '');//.replace(/[0-9.,]/g, '');
   for (let type in details) {
     for (let detailName in details[type]) {
       details[type][detailName].forEach(detail => {
