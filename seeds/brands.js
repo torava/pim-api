@@ -40,7 +40,8 @@ const brands = [
   { name: 'God Morgon' },
   { name: 'Dentalux' },
   { name: 'Kotipizza' },
-  { name: 'Hesburger' }
+  { name: 'Hesburger' },
+  { name: 'Apple' }
 ];
 
 exports.seed = knex => (
