@@ -43,8 +43,6 @@ export const getProductCategoryMinMaxAttributes = (
   } else if (product?.measure) {
     measure = product.measure;
     unit = product.unit;
-  } else {
-    return;
   }
   
   let minAttributeValue, minCategoryAttribute, maxAttributeValue, maxCategoryAttribute;
@@ -90,6 +88,7 @@ export const resolveProductAttributes = (
       productAttributes: ProductAttributePartialShape[] = [];
 
   const category = categories.find(c => c.id === product.categoryId);
+
   attributeIds.forEach(attributeId => {
     let minValue = 0,
         maxValue = 0,
