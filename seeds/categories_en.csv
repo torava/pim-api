@@ -266,9 +266,15 @@ Hygiene products,Hygieniatuotteet,"[""Nestesaippua"", ""Käsisaippua""]",Supplie
 "Ice Cream, Cream Based",,,,,,,,"4,2",,"Ice cream, vanilla regular",22
 Iceberg Lettuce,,"[""Jäävuorisalaatti"", ""Jääsalaatti"", ""Green salad""]",,,"0,56",,,,,Including waste,8
 Interior design,Sisustus,,Supplies,,,,,,"0,67","Kodintaloustekstiilit, sisustus, astiat keskiarvo",2
+iPhone 11 128GB,iPhone 11 128 Gt,,Smartphone,77,,,,,,,56
+iPhone 11 256GB,iPhone 11 256 Gt,,Smartphone,89,,,,,,,56
+iPhone 11 64GB,iPhone 11 64 Gt,,Smartphone,72,,,,,,,56
 iPhone 12 128GB,iPhone 12 128 Gt,,Smartphone,75,,,,,,,23
 iPhone 12 256GB,iPhone 12 256 Gt,,Smartphone,85,,,,,,,23
 iPhone 12 64GB,iPhone 12 64 Gt,,Smartphone,,,,,,,,23
+iPhone XR 128GB,iPhone XR 128 Gt,,Smartphone,73,,,,,,,56
+iPhone XR 256GB,iPhone XR 256 Gt,,Smartphone,82,,,,,,,56
+iPhone XR 64GB,iPhone XR 64 Gt,,Smartphone,68,,,,,,,56
 Jams,,,,,,,,,"0,7",Plant based groceries,2
 Jerusalem Artichoke,Maa-artisokka,,,,"0,48",,,,,"Artichokes, median",1
 Juices,Juomat,,,,,,,,"0,7",Alkoholittomat juomat,2
@@ -447,6 +453,7 @@ Salami,"Meetvursti tai salami, kevyt rasvaa, 22 %","[""Pepperoni"", ""Pepperoni 
 Salmon fillet,,,,,"3,47",,,,,"Salmon, median",1
 "Salmon, Farmed",,,,,"11,9",,,,,"Kirjolohi, kasvatettu",27
 "Salmon, Whole",,,,,"3,47",,,,,"Salmon, median",1
+Samsung Galaxy S20 128GB,Samsung Galaxy S20 128 Gt,,,25,,,,,,,57
 "Sardine, Average, In Oil And Tomato Sauce",,,,,"1,1",,,,,"Pilchard, median",1
 Saucepan,Kasari,,Housekeeping tools,,,,,,,,
 Sausages,,,,,"5,64",,,,,"Grilled sausage, high meat content, life cycle, cradle to grave, approximate value",28
