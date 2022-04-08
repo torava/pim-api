@@ -14,6 +14,7 @@ import CategoryAttribute, { CategoryAttributePartialShape, CategoryAttributeShap
 import { Locale, NameTranslations, ObjectEntries, Token } from './types';
 import { CategoryContributionPartialShape, CategoryContributionShape } from '../models/CategoryContribution';
 import { getAttributeValues, getMaxAttributeValue, getMinAttributeValue } from './attributes';
+import Brand from '../models/Brand';
 
 export const getAverageRate = (filter: {start_date: string, end_date: string}, averageRange: number) => {
   const {start_date, end_date} = filter;
@@ -202,14 +203,15 @@ export const getClosestCategory = (
     strippedName?: NameTranslations
   })[],
   acceptLocale: Locale,
-  strippedName?: string
+  strippedName?: string,
+  brands: Brand[] = []
 ): [
   CategoryShape | undefined,
   Token | undefined
 ] => {
   if (!name) return [undefined, undefined];
 
-  if (!strippedName) strippedName = stripDetails(name);
+  if (!strippedName) strippedName = stripDetails(name, brands);
 
   let bestToken: Token, bestCategory: CategoryShape;
 
