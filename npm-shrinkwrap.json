@@ -1,6 +1,6 @@
 {
   "name": "@torava/product-api",
-  "version": "1.0.4",
+  "version": "1.0.11",
   "lockfileVersion": 1,
   "requires": true,
   "dependencies": {
@@ -290,12 +290,6 @@
             "node-releases": "^2.0.1",
             "picocolors": "^1.0.0"
           }
-        },
-        "caniuse-lite": {
-          "version": "1.0.30001283",
-          "resolved": "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001283.tgz",
-          "integrity": "sha512-9RoKo841j1GQFSJz/nCXOj0sD7tHBtlowjYlrqIUS812x9/emfBLBt6IyMz1zIaYc/eRL8Cs6HPUVi2Hzq4sIg==",
-          "dev": true
         },
         "electron-to-chromium": {
           "version": "1.4.3",
@@ -5462,11 +5456,6 @@
                 "node-releases": "^2.0.1",
                 "picocolors": "^1.0.0"
               }
-            },
-            "caniuse-lite": {
-              "version": "1.0.30001283",
-              "resolved": "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001283.tgz",
-              "integrity": "sha512-9RoKo841j1GQFSJz/nCXOj0sD7tHBtlowjYlrqIUS812x9/emfBLBt6IyMz1zIaYc/eRL8Cs6HPUVi2Hzq4sIg=="
             },
             "electron-to-chromium": {
               "version": "1.4.3",
@@ -12184,11 +12173,6 @@
           "version": "5.3.1",
           "resolved": "https://registry.npmjs.org/camelcase/-/camelcase-5.3.1.tgz",
           "integrity": "sha512-L28STB170nwWS63UjtlEOE3dldQApaJXZkOI1uMFfzf3rRuPegHaHesyee+YxQ+W6SvRDQV6UrdOdRiR153wJg=="
-        },
-        "caniuse-lite": {
-          "version": "1.0.30001299",
-          "resolved": "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001299.tgz",
-          "integrity": "sha512-iujN4+x7QzqA2NCSrS5VUy+4gLmRd4xv6vbBBsmfVqTx8bLAD8097euLqQgKxSVLvxjSDcvF1T/i9ocgnUFexw=="
         },
         "canvas": {
           "version": "2.8.0",
@@ -22407,10 +22391,9 @@
       "dev": true
     },
     "caniuse-lite": {
-      "version": "1.0.30001325",
-      "resolved": "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001325.tgz",
-      "integrity": "sha512-sB1bZHjseSjDtijV1Hb7PB2Zd58Kyx+n/9EotvZ4Qcz2K3d0lWB8dB4nb8wN/TsOGFq3UuAm0zQZNQ4SoR7TrQ==",
-      "dev": true
+      "version": "1.0.30001358",
+      "resolved": "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001358.tgz",
+      "integrity": "sha512-hvp8PSRymk85R20bsDra7ZTCpSVGN/PAz9pSAjPSjKC+rNmnUk5vCRgJwiTT/O4feQ/yu/drvZYpKxxhbFuChw=="
     },
     "canvas": {
       "version": "2.8.0",
@@ -22871,12 +22854,6 @@
             "node-releases": "^2.0.1",
             "picocolors": "^1.0.0"
           }
-        },
-        "caniuse-lite": {
-          "version": "1.0.30001283",
-          "resolved": "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001283.tgz",
-          "integrity": "sha512-9RoKo841j1GQFSJz/nCXOj0sD7tHBtlowjYlrqIUS812x9/emfBLBt6IyMz1zIaYc/eRL8Cs6HPUVi2Hzq4sIg==",
-          "dev": true
         },
         "electron-to-chromium": {
           "version": "1.4.3",
