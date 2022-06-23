@@ -141,7 +141,7 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductPa
         measure = measureResult.measure;
         unit = measureResult.unit;
       }
-      foodUnitAttribute = findFoodUnitAttribute(name, attributes);
+      foodUnitAttribute = findFoodUnitAttribute(name, attributes) || foodUnitAttribute;
   
       product = {
         measure,
@@ -211,7 +211,6 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductPa
       .modifiers({
         filterByGivenAttributeIds: query => query.modify('filterByAttributeIds', [...attributeIds, foodUnitAttribute.id])
       }));
-
       const productAttributeResult = resolveProductAttributes(product, attributeIds, foodUnitAttribute, categories, attributes);
       const productAttributes = productAttributeResult.productAttributes;
       measure = productAttributeResult.measure;
