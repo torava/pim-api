@@ -1,5 +1,6 @@
 import moment from 'moment';
 import _ from 'lodash';
+import { LevenshteinDistance } from '@torava/product-utils/dist/utils/levenshteinDistance';
 
 import Attribute, { AttributeShape } from '../models/Attribute';
 import Category, { CategoryPartialShape, CategoryShape } from '../models/Category';
@@ -8,7 +9,6 @@ import Source, { SourcePartialShape } from '../models/Source';
 import { convertMeasure } from './entities';
 import { getTranslation } from '../utils/entities';
 import { stripName, stripDetails, getDetails } from './transactions';
-import { LevenshteinDistance } from './levenshteinDistance';
 import { measureRegExp } from './receipts';
 import CategoryAttribute, { CategoryAttributePartialShape, CategoryAttributeShape } from '../models/CategoryAttribute';
 import { Locale, NameTranslations, ObjectEntries, Token } from './types';

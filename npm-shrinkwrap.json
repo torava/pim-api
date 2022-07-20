@@ -1,6 +1,6 @@
 {
   "name": "@torava/product-api",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "lockfileVersion": 1,
   "requires": true,
   "dependencies": {
@@ -5172,9 +5172,9 @@
       "dev": true
     },
     "@torava/product-utils": {
-      "version": "1.0.5",
-      "resolved": "https://gitlab.com/api/v4/projects/32804813/packages/npm/@torava/product-utils/-/@torava/product-utils-1.0.5.tgz",
-      "integrity": "sha1-8PElW4KYUz68GQNZU3DLn/VT52g=",
+      "version": "1.1.2",
+      "resolved": "https://gitlab.com/api/v4/projects/32804813/packages/npm/@torava/product-utils/-/@torava/product-utils-1.1.2.tgz",
+      "integrity": "sha1-lgdfZrUcNLcmc14/xF/D6jenNRg=",
       "requires": {
         "canvas": "^2.8.0",
         "classnames": "^2.2.6",
@@ -11041,6 +11041,11 @@
           "resolved": "https://registry.npmjs.org/@types/tough-cookie/-/tough-cookie-4.0.1.tgz",
           "integrity": "sha512-Y0K95ThC3esLEYD6ZuqNek29lNX2EM1qxV8y2FTLUB0ff5wWrk7az+mLrnNFUnaXcgKye22+sFBRXOgpPILZNg=="
         },
+        "@types/underscore": {
+          "version": "1.11.4",
+          "resolved": "https://registry.npmjs.org/@types/underscore/-/underscore-1.11.4.tgz",
+          "integrity": "sha512-uO4CD2ELOjw8tasUrAhvnn2W4A0ZECOvMjCivJr4gA9pGgjv+qxKWY9GLTMVEK8ej85BxQOocUyE7hImmSQYcg=="
+        },
         "@types/yargs": {
           "version": "16.0.4",
           "resolved": "https://registry.npmjs.org/@types/yargs/-/yargs-16.0.4.tgz",
@@ -12173,6 +12178,11 @@
           "version": "5.3.1",
           "resolved": "https://registry.npmjs.org/camelcase/-/camelcase-5.3.1.tgz",
           "integrity": "sha512-L28STB170nwWS63UjtlEOE3dldQApaJXZkOI1uMFfzf3rRuPegHaHesyee+YxQ+W6SvRDQV6UrdOdRiR153wJg=="
+        },
+        "caniuse-lite": {
+          "version": "1.0.30001367",
+          "resolved": "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001367.tgz",
+          "integrity": "sha512-XDgbeOHfifWV3GEES2B8rtsrADx4Jf+juKX2SICJcaUhjYBO3bR96kvEIHa15VU6ohtOhBZuPGGYGbXMRn0NCw=="
         },
         "canvas": {
           "version": "2.8.0",
@@ -22393,7 +22403,8 @@
     "caniuse-lite": {
       "version": "1.0.30001358",
       "resolved": "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001358.tgz",
-      "integrity": "sha512-hvp8PSRymk85R20bsDra7ZTCpSVGN/PAz9pSAjPSjKC+rNmnUk5vCRgJwiTT/O4feQ/yu/drvZYpKxxhbFuChw=="
+      "integrity": "sha512-hvp8PSRymk85R20bsDra7ZTCpSVGN/PAz9pSAjPSjKC+rNmnUk5vCRgJwiTT/O4feQ/yu/drvZYpKxxhbFuChw==",
+      "dev": true
     },
     "canvas": {
       "version": "2.8.0",
