@@ -1,6 +1,6 @@
 {
   "name": "@torava/product-api",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "lockfileVersion": 1,
   "requires": true,
   "dependencies": {
@@ -10264,7 +10264,8 @@
             },
             "jpeg-js": {
               "version": "0.4.0",
-              "resolved": ""
+              "resolved": "https://registry.npmjs.org/jpeg-js/-/jpeg-js-0.4.0.tgz",
+              "integrity": "sha512-960VHmtN1vTpasX/1LupLohdP5odwAT7oK/VSm6mW0M58LbrBnowLAPWAZhWGhDAGjzbMnPXZxzB/QYgBwkN0w=="
             },
             "regenerator-runtime": {
               "version": "0.13.5",
@@ -11740,7 +11741,8 @@
           "dependencies": {
             "async": {
               "version": "3.2.0",
-              "resolved": ""
+              "resolved": "https://registry.npmjs.org/async/-/async-3.2.0.tgz",
+              "integrity": "sha512-TR2mEZFVOj2pLStYxLht7TyfuRzaydfpxr3k9RpHIzMgw7A64dzsdqCxH1WJyQdoe8T10nDXd9wnEigmiuHIZw=="
             },
             "readable-stream": {
               "version": "3.6.0",
@@ -17788,7 +17790,8 @@
         },
         "jsprim": {
           "version": "1.4.1",
-          "resolved": "",
+          "resolved": "https://registry.npmjs.org/jsprim/-/jsprim-1.4.1.tgz",
+          "integrity": "sha512-4Dj8Rf+fQ+/Pn7C5qeEX02op1WfOss3PKTE9Nsop3Dx+6UPxlm1dr/og7o2cRa5hNN07CACr4NFzRLtj/rjWog==",
           "requires": {
             "assert-plus": "1.0.0",
             "extsprintf": "1.3.0",
@@ -18175,7 +18178,8 @@
           "dependencies": {
             "minimist": {
               "version": "1.2.5",
-              "resolved": ""
+              "resolved": "https://registry.npmjs.org/minimist/-/minimist-1.2.5.tgz",
+              "integrity": "sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw=="
             }
           }
         },
