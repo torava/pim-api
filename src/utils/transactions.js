@@ -1,7 +1,7 @@
-import { stringSimilarity } from "string-similarity-js";
-import { flattenObject } from "./entities";
+import { stringSimilarity } from 'string-similarity-js';
+import { LevenshteinDistance } from '@torava/product-utils/dist/utils/levenshteinDistance';
 
-import { LevenshteinDistance } from "./levenshteinDistance";
+import { flattenObject } from './entities';
 import { measureRegExp } from './receipts';
 
 export const getDetails = (manufacturers = []) => {

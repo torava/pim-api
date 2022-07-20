@@ -1,5 +1,6 @@
 import moment from "moment";
 import stringSimilarity from "string-similarity-js";
+import { LevenshteinDistance } from '@torava/product-utils/dist/utils/levenshteinDistance';
 
 import { stripDetails, stripName } from "./transactions";
 import Category, { CategoryShape } from "../models/Category";
@@ -8,7 +9,6 @@ import Product, { ProductPartialShape, ProductShape } from "../models/Product";
 import { getAttributeValues, getMaxAttributeValue, getMinAttributeValue } from "./attributes";
 import { getCategoriesWithAttributes } from "./categories";
 import { convertMeasure } from "./entities";
-import { LevenshteinDistance } from './levenshteinDistance';
 import { AttributeShape } from "../models/Attribute";
 import { CategoryContributionShape } from "../models/CategoryContribution";
 import { ProductAttributePartialShape } from "../models/ProductAttribute";

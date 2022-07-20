@@ -1,8 +1,8 @@
 import moment from 'moment';
+import { stringSimilarity } from 'string-similarity-js';
+import { LevenshteinDistance } from '@torava/product-utils/dist/utils/levenshteinDistance';
 
 import Category from '../models/Category';
-import { stringSimilarity } from "string-similarity-js";
-import { LevenshteinDistance } from "./levenshteinDistance";
 
 export const measureRegExp = /(\d+([.|,]\d+)?)\s?((kg)|(g)|(l))/;
 
