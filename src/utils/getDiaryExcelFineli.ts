@@ -1,7 +1,7 @@
 import Excel from 'exceljs';
 import CategoryShape from '@torava/product-utils/dist/models/Category';
 import { Locale } from '@torava/product-utils/dist/utils/types';
-import { getCategoryMinMaxAttributes, getCategoryWithAttributes } from '@torava/product-utils/dist/utils/categories';
+import { getCategoryMinMaxAttributes, getCategoryMinMaxAttributesWithMeasure, getCategoryWithAttributes } from '@torava/product-utils/dist/utils/categories';
 import Knex from 'knex';
 import { Model } from 'objection';
 
@@ -16,14 +16,11 @@ export const getDiaryExcelFineli = async (filename: string, categories: Category
   const worksheet = workbook.worksheets[0];
   worksheet.eachRow(row => {
     const food = row.getCell(4).value;
-    const unit = row.getCell(8).value;
-    const mass = row.getCell(9).value;
+    const mass = parseFloat(row.getCell(9).value.toString());
     const category = categories.find(category => category.name?.[locale] === food);
     if (category) {
-      const ghgCategoryAttribute = getCategoryWithAttributes(categories, category.id, 1);
-      const portionAttribute = attributes.find(attribute => attribute.code === unit);
       const initialProductAttributes = category.attributes?.filter(productAttribute => productAttribute.attributeId === 1);
-      const ghgResult = getCategoryMinMaxAttributes(category, undefined, portionAttribute, 1, categories, initialProductAttributes, attributes);
+      const ghgResult = getCategoryMinMaxAttributesWithMeasure(category, mass, 'g', 1, categories, initialProductAttributes, attributes);
       console.log(food, ghgResult.minAttributeValue, ghgResult.minCategoryAttribute?.unit, ghgResult.maxAttributeValue, ghgResult.maxCategoryAttribute?.unit);
     } else {
       console.log(food, 'not found');
