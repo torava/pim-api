@@ -1,33 +1,68 @@
 import Excel from 'exceljs';
 import CategoryShape from '@torava/product-utils/dist/models/Category';
 import { Locale } from '@torava/product-utils/dist/utils/types';
-import { getCategoryMinMaxAttributes, getCategoryMinMaxAttributesWithMeasure, getCategoryWithAttributes, resolveCategoryAttributes } from '@torava/product-utils/dist/utils/categories';
+import { resolveCategoryAttributes } from '@torava/product-utils/dist/utils/categories';
+import AttributeShape from '@torava/product-utils/dist/models/Attribute';
 import Knex from 'knex';
 import { Model } from 'objection';
 
 import knexConfig from '../../knexfile';
 import Category from '../models/Category';
 import Attribute from '../models/Attribute';
-import AttributeShape from '@torava/product-utils/dist/models/Attribute';
 
-export const getDiaryExcelFineli = async (filename: string, categories: CategoryShape[] = [], attributes: AttributeShape[] = [], locale: Locale = Locale['fi-FI']) => {
+export const getDiaryExcelFineli = async (
+  filename: string,
+  categories: CategoryShape[] = [],
+  attributes: AttributeShape[] = [],
+  locale: Locale = Locale['fi-FI']
+) => {
   const workbook = new Excel.Workbook();
   await workbook.xlsx.readFile(filename);
   const worksheet = workbook.worksheets[0];
-  worksheet.eachRow(row => {
+  let totalMin = 0,
+      totalMax = 0,
+      totalMeasure = 0;
+  worksheet.eachRow((row) => {
+    //const row = worksheet.getRows(40, 1)[0];
     const food = row.getCell(4).value;
     const unit = row.getCell(8).value;
-    const mass = row.getCell(9).value;
-    const category = categories.find(category => category.name?.[locale] === food);
-    if (category) {
-      const portionAttribute = attributes.find(attribute => attribute.code === unit);
-      const { categoryAttributes } = resolveCategoryAttributes(category, [1], portionAttribute, categories, attributes);
-      console.log(
-        food,
-        categoryAttributes[0]?.value, categoryAttributes[0]?.unit, categoryAttributes[0]?.type,
-        categoryAttributes[1]?.value, categoryAttributes[1]?.unit, categoryAttributes[1]?.type);
+    if (!food) {
+      console.log('total', totalMin, totalMax, totalMeasure);
+      totalMin = 0;
+      totalMax = 0;
+      totalMeasure = 0;
     } else {
-      console.log(food, 'not found');
+      const category = categories.find(
+        (category) => category.name?.[locale] === food
+      );
+      if (category) {
+        const portionAttribute = attributes.find(
+          (attribute) => attribute.code === unit
+        );
+        const { categoryAttributes, measure } = resolveCategoryAttributes(
+          category,
+          [1],
+          portionAttribute,
+          categories,
+          attributes,
+          0.9
+        );
+        console.log(
+          food,
+          categoryAttributes[0]?.value,
+          categoryAttributes[0]?.unit,
+          categoryAttributes[0]?.type,
+          categoryAttributes[1]?.value,
+          categoryAttributes[1]?.unit,
+          categoryAttributes[1]?.type,
+          measure
+        );
+        totalMin+= categoryAttributes[0]?.value || 0;
+        totalMax+= categoryAttributes[1]?.value || categoryAttributes[0]?.value || 0;
+        totalMeasure+= measure;
+      } else {
+        console.log(food, "not found");
+      }
     }
   });
 };
