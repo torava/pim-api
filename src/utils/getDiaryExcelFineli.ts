@@ -27,40 +27,46 @@ export const getDiaryExcelFineli = async (
       totalMealMeasure = 0,
       totalDayMeasure = 0;
   const headerRow = worksheet.getRow(1);
-  headerRow.getCell(65).value = 'Min. GHG (kgCO₂e)';
-  headerRow.getCell(66).value = 'Max. GHG (kgCO₂e)';
-  headerRow.getCell(67).value = 'Min. GHG/weight (kgCO₂e/kg)';
-  headerRow.getCell(68).value = 'Max. GHG/weight (kgCO₂e/kg)';
+  worksheet.spliceColumns(10, 0, [], [])
+  headerRow.getCell(10).value = 'Min. GHG (kgCO₂e)';
+  headerRow.getCell(11).value = 'Max. GHG (kgCO₂e)';
+  headerRow.getCell(10).alignment = {vertical: 'top'};
+  headerRow.getCell(11).alignment = {vertical: 'top'};
+  // headerRow.getCell(12).value = 'Min. GHG/weight (kgCO₂e/kg)';
+  // headerRow.getCell(13).value = 'Max. GHG/weight (kgCO₂e/kg)';
   worksheet.eachRow((row) => {
     //const row = worksheet.getRows(40, 1)[0];
     const food = row.getCell(4).value;
     const unit = row.getCell(8).value;
-    const minGhgCell = row.getCell(65);
-    const maxGhgCell = row.getCell(66);
-    const minGhgPerMeasureCell = row.getCell(67);
-    const maxGhgPerMeasureCell = row.getCell(68);
+    const minGhgCell = row.getCell(10);
+    const maxGhgCell = row.getCell(11);
+    const minGhgPerMeasureCell = row.getCell(12);
+    const maxGhgPerMeasureCell = row.getCell(13);
+    minGhgCell.alignment = {vertical: 'top'};
+    maxGhgCell.alignment = {vertical: 'top'};
     if (!food) {
       if (!totalMealMin) {
         console.log('total day', totalDayMin, totalDayMax, totalDayMeasure);
         minGhgCell.value = totalDayMin;
         maxGhgCell.value = totalDayMax || totalDayMin;
-        minGhgPerMeasureCell.value = totalDayMin/totalDayMeasure;
-        maxGhgPerMeasureCell.value = (totalDayMax || totalDayMin)/totalDayMeasure;
+        //minGhgPerMeasureCell.value = totalDayMin/totalDayMeasure;
+        //maxGhgPerMeasureCell.value = (totalDayMax || totalDayMin)/totalDayMeasure;
         totalDayMin = 0;
         totalDayMax = 0;
         totalDayMeasure = 0;
+      } else {
+        console.log('total meal', totalMealMin, totalMealMax, totalMealMeasure);
+        minGhgCell.value = totalMealMin;
+        maxGhgCell.value = totalMealMax || totalMealMin;
+        //minGhgPerMeasureCell.value = totalMealMin/totalMealMeasure;
+        //maxGhgPerMeasureCell.value = (totalMealMax || totalMealMin)/totalMealMeasure;
+        totalDayMin+= totalMealMin;
+        totalDayMax+= totalMealMax;
+        totalDayMeasure+= totalMealMeasure;
+        totalMealMin = 0;
+        totalMealMax = 0;
+        totalMealMeasure = 0;
       }
-      console.log('total meal', totalMealMin, totalMealMax, totalMealMeasure);
-      minGhgCell.value = totalMealMin;
-      maxGhgCell.value = totalMealMax || totalMealMin;
-      minGhgPerMeasureCell.value = totalMealMin/totalMealMeasure;
-      maxGhgPerMeasureCell.value = (totalMealMax || totalMealMin)/totalMealMeasure;
-      totalDayMin+= totalMealMin;
-      totalDayMax+= totalMealMax;
-      totalDayMeasure+= totalMealMeasure;
-      totalMealMin = 0;
-      totalMealMax = 0;
-      totalMealMeasure = 0;
     } else {
       const category = categories.find(
         (category) => category.name?.[locale] === food
