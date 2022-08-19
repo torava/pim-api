@@ -9,23 +9,44 @@ import { Model } from 'objection';
 import knexConfig from '../../knexfile';
 import Category from '../models/Category';
 import Attribute from '../models/Attribute';
-import { min } from 'lodash';
 
-export const getDiaryExcelFineli = async (
+export const getDiaryExcelFineliBuffer = async (
+  buffer: Buffer,
+  locale: Locale = Locale['fi-FI']
+) => {
+  const categories = await Category.query()
+  .withGraphFetched('[contributions, attributes]')
+  const attributes = await Attribute.query();
+  const workbook = new Excel.Workbook();
+  await workbook.xlsx.load(buffer);
+  getDiaryExcelFineliWorkbook(workbook, categories, attributes, locale);
+  return await workbook.xlsx.writeBuffer();
+};
+export const writeDiaryExcelFineliFile = async (
   filename: string,
+  locale: Locale = Locale['fi-FI']
+) => {
+  const categories = await Category.query()
+  .withGraphFetched('[contributions, attributes]')
+  const attributes = await Attribute.query();
+  const workbook = new Excel.Workbook();
+  await workbook.xlsx.readFile(filename);
+  getDiaryExcelFineliWorkbook(workbook, categories, attributes, locale);
+  await workbook.xlsx.writeFile(`${filename}_ghg.xlsx`);
+}
+export const getDiaryExcelFineliWorkbook = (
+  workbook: Excel.Workbook,
   categories: CategoryShape[] = [],
   attributes: AttributeShape[] = [],
   locale: Locale = Locale['fi-FI']
 ) => {
-  const workbook = new Excel.Workbook();
-  await workbook.xlsx.readFile(filename);
-  const worksheet = workbook.worksheets[0];
   let totalMealMin = 0,
       totalMealMax = 0,
       totalDayMin = 0,
       totalDayMax = 0,
       totalMealMeasure = 0,
       totalDayMeasure = 0;
+  const worksheet = workbook.worksheets[0];
   const headerRow = worksheet.getRow(1);
   worksheet.spliceColumns(10, 0, [], [])
   headerRow.getCell(10).value = 'Min. GHG (kgCO₂e)';
@@ -105,7 +126,6 @@ export const getDiaryExcelFineli = async (
       }
     }
   });
-  await workbook.xlsx.writeFile(`${filename}_ghg.xlsx`);
 };
 
 // Initialize knex.
@@ -117,8 +137,8 @@ const knex = Knex(knexConfig.development);
 Model.knex(knex);
 
 (async () => {
-  const categories = await Category.query()
-  .withGraphFetched('[contributions, attributes]')
-  const attributes = await Attribute.query();
-  getDiaryExcelFineli(process.env.FILENAME, categories, attributes);
+  const filename = process.env.DIARY_FILENAME;
+  if (filename) {
+    writeDiaryExcelFineliFile(filename);
+  }
 })();

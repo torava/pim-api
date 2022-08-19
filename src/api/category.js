@@ -1,5 +1,8 @@
+import { PassThrough } from 'stream';
+
 import Category from '../models/Category';
 import { resolveCategories, resolveCategoryPrices } from '../utils/categories';
+import { getDiaryExcelFineliBuffer } from '../utils/getDiaryExcelFineli';
 
 export default app => {
 
@@ -89,6 +92,22 @@ app.get('/api/category', async (req, res) => {
       return res.sendStatus(500);
     }
   }
+});
+
+app.post('/api/category/diary', async (req, res) => {
+  console.log(req.files);
+  // from https://stackoverflow.com/a/46520271/3136897
+  const buffer = req.files.upload.data;
+  const updatedBuffer = await getDiaryExcelFineliBuffer(buffer);
+
+  // from https://stackoverflow.com/a/45922316/3136897
+  const readStream = new PassThrough();
+  readStream.end(updatedBuffer);
+
+  res.set('Content-disposition', `attachment; filename="${req.files.upload.name}_ghg.xlsx"`);
+  res.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+  readStream.pipe(res);
 });
 
 };
