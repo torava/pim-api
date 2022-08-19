@@ -11,6 +11,7 @@ import path from 'path';
 import bodyParser from 'body-parser';
 import swaggerUi from 'swagger-ui-express';
 import pg from 'pg';
+import fileUpload from 'express-fileupload';
 
 import knexConfig from '../knexfile';
 import registerApi from './api';
@@ -48,6 +49,7 @@ export const app = express();
 app.use(cors());
 app.use(compression());
 app.use(morgan('dev'));
+app.use(fileUpload());
 
 // Initialize knex.
 const knex = Knex(knexConfig.development);
@@ -166,7 +168,7 @@ function loadOpenCV() {
 }
 
 installDOM();
-loadOpenCV();
+//loadOpenCV();
 
 global.createCanvas = (width: number, height: number) => createCanvas(width, height);
 
