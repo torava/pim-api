@@ -285,6 +285,7 @@ Kitchen paper,Talouspaperi,,Kitchen,"0,03",,,,,,Paper towel per piece,24
 "Kiwi Fruit, With Skin",,,,,"0,36",,,,,"Kiwi fruit, median",1
 Lamb/mutton,Lammas,,,,"25,58",,,,,"Lamb: world average, median",1
 Leaf vegetables,,,,,"0,5",,,,,Greens,46
+"Lemon Juice, Unsweetened, Undiluted",,,,,"1,5",,,,,"Lemon juice concentrate, Italy",29
 "Lemon, With Skin",,"[""Sitruuna""]",,,"0,26",,,,,"Lemons and limes, median",1
 "Lentils, Green/Brown Dried","Linssi, vihreä/ruskea, kuivattu",,,,"1,03",,,,,"Lentils, median",1
 "Lentils, Red, Cooked","Linssi, punainen, keitetty",,,,"1,03",,,,,"Lentils, median",1
@@ -327,6 +328,9 @@ Milks >2% fat,,,,,"1,29",,,,,"Milk: world average, median",1
 Milks >2% fat,,,,,1,,,,,,26
 Milks skimmed,,,,,"1,29",,,,,"Milk: world average, median",1
 Milks skimmed,,,,,1,,,,,,26
+Modified cheeses,,,,,10,,,,,Juusto,9
+Modified cheeses,,,,,"8,55",,,,,"Cheese, median",1
+Modified cheeses,,,,,,,,,"2,44",Dairy products and ice cream,2
 Motor fuel,Ajoneuvojen polttoaine,,Travel,,,,,,,,
 "Muesli, Basic",,"[""Luomumysli""]",,,,,,,,,
 "Multigrain Bread, Bread Roll",,,,,,,,,,,
@@ -383,6 +387,7 @@ Pencil lead,Irtolyijy,,Office supplies,,,,,,"0,46",Factory products,2
 Phone case,Puhelimen suojakotelo,,Electronics,,,,,,,,
 Phone screen protector,Puhelimen näytönsuoja,,Electronics,,,,,,,,
 "Pickled Cucumber, Sweet, Flavoured",,"[""Pickled cucumber"", ""Maustekurkku""]",,,,,,,,,
+"Pickled Cucumber, Sweet, Flavoured ",,,,,3,,,,,"Pickled cucumber, drained, Sweden, CarbonCloud Benchmark, Foodprint at store",29
 "Pineapple, Canned, In Own Juice",,,,,"0,5",,,,,"Pineapples, median",1
 "Pineapple, With Skin",,,,,"0,5",,,,,"Pineapples, median",1
 "Pineapple, without skin",,"[""Pineapple"", ""Ananas""]",,,"0,5",,,,,"Pineapples, median",1
@@ -434,6 +439,7 @@ Raspberry,Vadelma,,,,"0,84",,,,,"Rasberries, median",1
 "Ravioli With Spinach Filling, Boiled",,"[""de Angelis tortell""]",,,,,,,"0,7",Plant based groceries,2
 Recreational products,Vapaa-ajan tuotteet,,Supplies,,,,,,"0,8",Large scale durable goods for recreational and cultural activities,2
 Recreational services,Vapaa-ajan palvelut,,Services,,,,,,"0,2",Recreational and culture services,2
+Reindeer,,,,,14,,,,,Reindeer meat,58
 Renovation,Remontointi,,Construction,,,,,,"0,02",Remontointi,2
 Restaurant,Ravintola,,Services,,,,,,"0,49",Ravintolapalvelut,2
 Rhombus,Silokampela,,Fish,,"8,41",,,,,"Rhombus, median",
@@ -528,6 +534,12 @@ Toilet paper,Vessapaperi,"[""Wc-paperi"", ""Wcpaperi""]",Hygiene products,"0,03"
 Tomato,Tomaatti,"[""Kirsikkatomaatti"", ""Luumutomaatti"", ""Miniluumutomaatti"", ""Terttutomaatti"", ""Tomaatti irto""]",,,5,,,,,"Tomaatti, kurkku (kasvihuone talvella)",4
 Tomato,,,,,"0,51",,,,,"Tomatoes: passive greenhouse, median",1
 Tomato,,,,,"0,45",,,,,"Tomatoes, median",1
+Tomato Ketchup,,,,,"1,489473684",,,,,,59
+Tomato Ketchup,,,,,"2,410526316",,,,,,59
+Tomato Ketchup,,,,,"1,1",,,,,"Ketchup, Sweden, CarbonCloud Benchmark, Footprint at store",29
+"Tomato Ketchup, Reduced Salt And Sugar",,,,,"1,489473684",,,,,,59
+"Tomato Ketchup, Reduced Salt And Sugar",,,,,"2,410526316",,,,,,59
+"Tomato Ketchup, Reduced Salt And Sugar",,,,,"1,1",,,,,"Ketchup, Sweden, CarbonCloud Benchmark, Footprint at store",29
 Tomato Puree,,,,,"0,868",,,,,"1 kg packed product, processed and canned",48
 Tomato Salsa,,"[""Salsa"", ""Pico de gallo""]",,,,,,,,,
 Tomato Sauce,,"[""Tomaattikastikkeessa"", ""Marinara""]",,,,,,,,,

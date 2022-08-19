@@ -1,0 +1,144 @@
+import Excel from 'exceljs';
+import CategoryShape from '@torava/product-utils/dist/models/Category';
+import { Locale } from '@torava/product-utils/dist/utils/types';
+import { resolveCategoryAttributes } from '@torava/product-utils/dist/utils/categories';
+import AttributeShape from '@torava/product-utils/dist/models/Attribute';
+import Knex from 'knex';
+import { Model } from 'objection';
+
+import knexConfig from '../../knexfile';
+import Category from '../models/Category';
+import Attribute from '../models/Attribute';
+
+export const getDiaryExcelFineliBuffer = async (
+  buffer: Buffer,
+  locale: Locale = Locale['fi-FI']
+) => {
+  const categories = await Category.query()
+  .withGraphFetched('[contributions, attributes]')
+  const attributes = await Attribute.query();
+  const workbook = new Excel.Workbook();
+  await workbook.xlsx.load(buffer);
+  getDiaryExcelFineliWorkbook(workbook, categories, attributes, locale);
+  return await workbook.xlsx.writeBuffer();
+};
+export const writeDiaryExcelFineliFile = async (
+  filename: string,
+  locale: Locale = Locale['fi-FI']
+) => {
+  const categories = await Category.query()
+  .withGraphFetched('[contributions, attributes]')
+  const attributes = await Attribute.query();
+  const workbook = new Excel.Workbook();
+  await workbook.xlsx.readFile(filename);
+  getDiaryExcelFineliWorkbook(workbook, categories, attributes, locale);
+  await workbook.xlsx.writeFile(`${filename}_ghg.xlsx`);
+}
+export const getDiaryExcelFineliWorkbook = (
+  workbook: Excel.Workbook,
+  categories: CategoryShape[] = [],
+  attributes: AttributeShape[] = [],
+  locale: Locale = Locale['fi-FI']
+) => {
+  let totalMealMin = 0,
+      totalMealMax = 0,
+      totalDayMin = 0,
+      totalDayMax = 0,
+      totalMealMeasure = 0,
+      totalDayMeasure = 0;
+  const worksheet = workbook.worksheets[0];
+  const headerRow = worksheet.getRow(1);
+  worksheet.spliceColumns(10, 0, [], [])
+  headerRow.getCell(10).value = 'Min. GHG (kgCO₂e)';
+  headerRow.getCell(11).value = 'Max. GHG (kgCO₂e)';
+  headerRow.getCell(10).alignment = {vertical: 'top'};
+  headerRow.getCell(11).alignment = {vertical: 'top'};
+  // headerRow.getCell(12).value = 'Min. GHG/weight (kgCO₂e/kg)';
+  // headerRow.getCell(13).value = 'Max. GHG/weight (kgCO₂e/kg)';
+  worksheet.eachRow((row) => {
+    //const row = worksheet.getRows(40, 1)[0];
+    const food = row.getCell(4).value;
+    const unit = row.getCell(8).value;
+    const minGhgCell = row.getCell(10);
+    const maxGhgCell = row.getCell(11);
+    const minGhgPerMeasureCell = row.getCell(12);
+    const maxGhgPerMeasureCell = row.getCell(13);
+    minGhgCell.alignment = {vertical: 'top'};
+    maxGhgCell.alignment = {vertical: 'top'};
+    if (!food) {
+      if (!totalMealMin) {
+        console.log('total day', totalDayMin, totalDayMax, totalDayMeasure);
+        minGhgCell.value = totalDayMin;
+        maxGhgCell.value = totalDayMax || totalDayMin;
+        //minGhgPerMeasureCell.value = totalDayMin/totalDayMeasure;
+        //maxGhgPerMeasureCell.value = (totalDayMax || totalDayMin)/totalDayMeasure;
+        totalDayMin = 0;
+        totalDayMax = 0;
+        totalDayMeasure = 0;
+      } else {
+        console.log('total meal', totalMealMin, totalMealMax, totalMealMeasure);
+        minGhgCell.value = totalMealMin;
+        maxGhgCell.value = totalMealMax || totalMealMin;
+        //minGhgPerMeasureCell.value = totalMealMin/totalMealMeasure;
+        //maxGhgPerMeasureCell.value = (totalMealMax || totalMealMin)/totalMealMeasure;
+        totalDayMin+= totalMealMin;
+        totalDayMax+= totalMealMax;
+        totalDayMeasure+= totalMealMeasure;
+        totalMealMin = 0;
+        totalMealMax = 0;
+        totalMealMeasure = 0;
+      }
+    } else {
+      const category = categories.find(
+        (category) => category.name?.[locale] === food
+      );
+      if (category) {
+        const portionAttribute = attributes.find(
+          (attribute) => attribute.code === unit
+        );
+        const { categoryAttributes, measure } = resolveCategoryAttributes(
+          category,
+          [1],
+          portionAttribute,
+          categories,
+          attributes,
+          0.9
+        );
+        console.log(
+          food,
+          categoryAttributes[0]?.value,
+          categoryAttributes[0]?.unit,
+          categoryAttributes[0]?.type,
+          categoryAttributes[1]?.value,
+          categoryAttributes[1]?.unit,
+          categoryAttributes[1]?.type,
+          measure
+        );
+        minGhgCell.value = categoryAttributes[0]?.value;
+        maxGhgCell.value = categoryAttributes[1]?.value || categoryAttributes[0]?.value;
+        minGhgPerMeasureCell.value = categoryAttributes[0]?.value/measure;
+        maxGhgPerMeasureCell.value = (categoryAttributes[1]?.value || categoryAttributes[0]?.value)/measure;
+        totalMealMin+= categoryAttributes[0]?.value || 0;
+        totalMealMax+= categoryAttributes[1]?.value || categoryAttributes[0]?.value || 0;
+        totalMealMeasure+= measure;
+      } else {
+        console.log(food, "not found");
+      }
+    }
+  });
+};
+
+// Initialize knex.
+const knex = Knex(knexConfig.development);
+
+// Bind all Models to a knex instance. If you only have one database in
+// your server this is all you have to do. For multi database systems, see
+// the Model.bindKnex method.
+Model.knex(knex);
+
+(async () => {
+  const filename = process.env.DIARY_FILENAME;
+  if (filename) {
+    writeDiaryExcelFineliFile(filename);
+  }
+})();
