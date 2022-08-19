@@ -104,7 +104,7 @@ app.post('/api/category/diary', async (req, res) => {
   const readStream = new PassThrough();
   readStream.end(updatedBuffer);
 
-  res.set('Content-disposition', `attachment; filename="${req.files.upload.name}_ghg.xlsx"`);
+  res.set('Content-disposition', `attachment; filename="${req.files.upload.name}_price_ghg.xlsx"`);
   res.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
   readStream.pipe(res);
