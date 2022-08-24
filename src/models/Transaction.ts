@@ -1,12 +1,14 @@
 import {Model} from 'objection';
 import moment from 'moment';
+import TransactionShape from '@torava/product-utils/dist/models/Transaction';
 
 import Party from './Party';
 import Receipt from './Receipt';
 import Item from './Item';
 import Group from './Group';
 
-export default class Transaction extends Model {
+interface Transaction extends TransactionShape {}
+class Transaction extends Model {
 	static get tableName() {
 		return 'Transaction';
 	}
@@ -61,3 +63,5 @@ export default class Transaction extends Model {
 		}
 	}
 }
+
+export default Transaction;
