@@ -188,7 +188,7 @@ exports.up = (knex) => (
     table.increments('id').primary();
     table.string('referenceDate');
     table.string('referenceUrl');
-    table.string('note');
+    table.text('note');
     table.string('countryCode');
     table
       .integer('attributeId')
