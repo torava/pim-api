@@ -95,7 +95,7 @@ app.get('/api/category', async (req, res) => {
 });
 
 app.post('/api/category/diary', async (req, res) => {
-  console.log(req.files);
+  console.log(req.body, req.files);
   // from https://stackoverflow.com/a/46520271/3136897
   const buffer = req.files.upload.data;
   const updatedBuffer = await getDiaryExcelFineliBuffer(buffer);

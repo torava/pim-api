@@ -56,7 +56,7 @@ export const getDiaryExcelFineliWorkbook = (
       totalDayPrice = 0;
   const worksheet = workbook.worksheets[0];
   const headerRow = worksheet.getRow(1);
-  worksheet.spliceColumns(10, 0, [], []);
+  worksheet.spliceColumns(10, 0, [], [], []);
   headerRow.getCell(10).value = 'Price (EUR)';
   headerRow.getCell(11).value = 'Min. GHG (kgCO₂e)';
   headerRow.getCell(12).value = 'Max. GHG (kgCO₂e)';

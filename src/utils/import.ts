@@ -1,4 +1,5 @@
 import CategoryAttributeSourceShape from '@torava/product-utils/dist/models/CategoryAttributeSource';
+import PartyShape from '@torava/product-utils/dist/models/Party';
 import parse from 'csv-parse/lib/sync';
 import fs from 'fs';
 import moment from 'moment';
@@ -25,9 +26,9 @@ export const getEntitiesFromCsv = (csv: string | Buffer, options = {}) => {
 };
 
 export const insertFromRecords = async (
-  records: {[key: string]: string}[],
+  records: PartyShape[],
   model: typeof Party,
-  recordIdMap: {[key: string]: Party} = {}) => {
+  recordIdMap: {[key: string]: PartyShape} = {}) => {
   for (const record of records) {
     const entity = await model.query().insertAndFetch({
       ...record,

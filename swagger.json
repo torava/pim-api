@@ -105,15 +105,17 @@
       "post": {
         "description": "Returns Fineli diary file with GHG from uploaded diary file",
         "consumes": "multipart/form-data",
-        "parameters": [
-          {
-            "name": "upload",
-            "in": "formData",
-            "required": true,
-            "type": "file",
-            "description": "Diary file to upload"
-          }
-        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "Successful response",

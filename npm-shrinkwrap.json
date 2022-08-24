@@ -1,15 +1,15 @@
 {
   "name": "@torava/product-api",
-  "version": "1.1.0",
+  "version": "1.1.2",
   "lockfileVersion": 2,
   "requires": true,
   "packages": {
     "": {
       "name": "@torava/product-api",
-      "version": "1.1.0",
+      "version": "1.1.2",
       "license": "UNLICENSED",
       "dependencies": {
-        "@torava/product-utils": "^1.1.3",
+        "@torava/product-utils": "^1.2.0",
         "apicache": "^1.6.3",
         "axios": "^0.27.2",
         "body-parser": "^1.19.0",
@@ -30,7 +30,7 @@
         "moment": "^2.29.4",
         "morgan": "^1.10.0",
         "natural": "^5.1.0",
-        "objection": "^3.0.0",
+        "objection": "^3.0.1",
         "path": "^0.12.7",
         "pdfjs-dist": "^2.6.347",
         "pg": "^8.5.1",
@@ -5977,9 +5977,9 @@
       }
     },
     "node_modules/@torava/product-utils": {
-      "version": "1.1.3",
-      "resolved": "https://gitlab.com/api/v4/projects/32804813/packages/npm/@torava/product-utils/-/@torava/product-utils-1.1.3.tgz",
-      "integrity": "sha1-4YszJ7eRAdNWlNWIasvGNepZSUk=",
+      "version": "1.2.0",
+      "resolved": "https://gitlab.com/api/v4/projects/32804813/packages/npm/@torava/product-utils/-/@torava/product-utils-1.2.0.tgz",
+      "integrity": "sha1-w8UQMo4OS7vdRN2ZLFVjv0RbUG0=",
       "dependencies": {
         "canvas": "^2.8.0",
         "classnames": "^2.2.6",
@@ -15679,9 +15679,9 @@
       }
     },
     "node_modules/objection": {
-      "version": "3.0.0",
-      "resolved": "https://registry.npmjs.org/objection/-/objection-3.0.0.tgz",
-      "integrity": "sha512-dIQZKlWQ24SWQSLkd8t/h+MUTr3P3ziVT9rztRtZT/tt/SGFyj4Zgvp+TN/SXfxgVMSfBLQxeLlioe0n64suMg==",
+      "version": "3.0.1",
+      "resolved": "https://registry.npmjs.org/objection/-/objection-3.0.1.tgz",
+      "integrity": "sha512-rqNnyQE+C55UHjdpTOJEKQHJGZ/BGtBBtgxdUpKG4DQXRUmqxfmgS/MhPWxB9Pw0mLSVLEltr6soD4c0Sddy0Q==",
       "dependencies": {
         "ajv": "^8.6.2",
         "db-errors": "^0.2.3"
@@ -24283,9 +24283,9 @@
       }
     },
     "@torava/product-utils": {
-      "version": "1.1.3",
-      "resolved": "https://gitlab.com/api/v4/projects/32804813/packages/npm/@torava/product-utils/-/@torava/product-utils-1.1.3.tgz",
-      "integrity": "sha1-4YszJ7eRAdNWlNWIasvGNepZSUk=",
+      "version": "1.2.0",
+      "resolved": "https://gitlab.com/api/v4/projects/32804813/packages/npm/@torava/product-utils/-/@torava/product-utils-1.2.0.tgz",
+      "integrity": "sha1-w8UQMo4OS7vdRN2ZLFVjv0RbUG0=",
       "requires": {
         "canvas": "^2.8.0",
         "classnames": "^2.2.6",
@@ -31792,9 +31792,9 @@
       }
     },
     "objection": {
-      "version": "3.0.0",
-      "resolved": "https://registry.npmjs.org/objection/-/objection-3.0.0.tgz",
-      "integrity": "sha512-dIQZKlWQ24SWQSLkd8t/h+MUTr3P3ziVT9rztRtZT/tt/SGFyj4Zgvp+TN/SXfxgVMSfBLQxeLlioe0n64suMg==",
+      "version": "3.0.1",
+      "resolved": "https://registry.npmjs.org/objection/-/objection-3.0.1.tgz",
+      "integrity": "sha512-rqNnyQE+C55UHjdpTOJEKQHJGZ/BGtBBtgxdUpKG4DQXRUmqxfmgS/MhPWxB9Pw0mLSVLEltr6soD4c0Sddy0Q==",
       "requires": {
         "ajv": "^8.6.2",
         "db-errors": "^0.2.3"

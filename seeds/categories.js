@@ -17,7 +17,7 @@ exports.seed = async knex => {
   const sourcesCsv = fs.readFileSync(`${__dirname}/sources.csv`, 'utf8');
   const sources = getEntitiesFromCsv(sourcesCsv);
   
-  const categoriesCsv = fs.readFileSync(`${__dirname}/categories_en.csv`, 'utf8');
+  const categoriesCsv = fs.readFileSync(`${__dirname}/categories.csv`, 'utf8');
   const categories = getEntitiesFromCsv(categoriesCsv);
 
   try {
