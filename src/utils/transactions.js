@@ -4,6 +4,10 @@ import { LevenshteinDistance } from '@torava/product-utils/dist/utils/levenshtei
 import { flattenObject } from './entities';
 import { measureRegExp } from './receipts';
 
+export const getNumber = (value) => {
+  return parseFloat(value.replace('−', '-').replace(',', '.'));
+};
+
 export const getDetails = (manufacturers = []) => {
   const details = {};
 
