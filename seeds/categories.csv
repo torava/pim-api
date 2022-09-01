@@ -107,7 +107,8 @@ Chick Pea In Unsalted Water,Kikherne suolattomassa vedessä,,,,"0,77",,,,,"Chick
 Chicken,Kana,,,,5,,,,,"Broileri, raaka",4
 Chicken,Kana,,,,"3,65",,,,,"Chicken, median",1
 Chicken,Kana,,,,"2,12",,,,,"Chicken, whole",1
-Chicken Breast With Skin,"Broileri, rintaleike, nahkoineen",,,,"2,77",,,,,Chicken breast,1
+Chicken Breast Strips Without Skin,,,,,"3,5",,,,,"Chicken fillet, fresh, Finland, CarbonCloud Benchmark, Footprint at store",29
+Chicken Breast With Skin,"Broileri, rintaleike, nahkoineen",,,,"3,5",,,,,"Chicken fillet, fresh, Finland, CarbonCloud Benchmark, Footprint at store",29
 Chicken eggs,Kananmunat,"[""Ulkomuna"", ""Kultamuna"", ""Vapaan kanan munat""]",,,"3,46",,,,,"Eggs, median",1
 Chicken eggs,Kananmunat,,,,"2,5",,,,,,10
 Chicken Fillet In Honey Marinade,,,,,"3,5",,,,,"Chicken fillet, fresh, Finland, CarbonCloud Benchmark, Footprint at store",29
@@ -301,6 +302,7 @@ Lima bean,Limanpapu,"[""Butter bean"", ""Voipapu""]",Pulses vegetables,,"0,39",,
 Lime,Limetti,,Citrus fruit,,"0,26",,,,,"Lemons and limes, median",1
 Ling,Molva,,Fish,,"6,45",,,,,"Ling common, median",1
 "Liquorice, licorice",,,,,,,,,"0,7",Plant based groceries,2
+"Liquorice, licorice",,,,,"2,6",,,,,Including waste,7
 Literature,Kirjallisuus,"[""Book"", ""Kirja""]",Supplies,,,,,,"0,4","Sanomalehdet, kirjat ja paperitarvikkeet",2
 Lobster,Hummeri,,,,"27,8",,,,,"Lobster, median",1
 Lottery tickets,Arvat,"[""Arpa"", ""Arpamyynti""]",Commerce,,,,,,,,
@@ -378,6 +380,7 @@ Onion-family vegetables,,,,,"0,17",,,,,"Onion, median",1
 "Onion, Red Onion",,,,,"0,17",,,,,"Onion, median",1
 "Onion, Red Onion",,"[""Punasipuli""]",,,,,,,,,
 "Orange Juice, Unsweetened, Vitamin C",,"[""Appelsiini-verigreippi-täysmehu""]",,,,,,"0,19",,"Orange juice, with resetting",30
+Orange Marmalade,,,,,"0,715",,,,,"Combined, orange 50%, sugar 50%",
 "Orange, Average, With Skin",,"[""Appelsiini"", ""Veriappelsiini""]",,,"0,33",,,,,"Orange, median",1
 Other alcoholic beverages,,,,,,,,,"0,3",Alcohol drinks,2
 Palm Oil,Palmuöljy,,,,,,,,"0,7",Plant based groceries,2
@@ -386,12 +389,12 @@ Pasta,,,,,"1,564",,,,,Pasta,47
 "Pasta, Spaghetti, Boiled Without Salt",,"[""Spaghetti""]",,,,,,,,,
 "Pea, Green",,,,,"0,38",,,,,"Peas, median",1
 "Pea, Green",,,,,2,,,,,"Green peas, Finland, At farm",29
+"Pea, Green, Dried","Herne, vihreä, kuivattu",,,,"0,38",,,,,"Peas, median",1
+"Pea, Green, Dried",,,,,"1,5",,,,,"Dry peas, Finland, At farm",29
 "Peach/Nectarine, Average, With Stone",,,,,"0,43",,,,,"Peaches and nectarines, median",1
 Peanut Butter Without Added Salt,,"[""Maapähkinävoi smooth""]",,,"2,5",,,,,Maapähkinävoi,27
 Peanut Oil,Maapähkinäöljy,,,,,,,,"0,7",Plant based groceries,2
 "Pear, With Skin",Päärynä,,,,"0,31",,,,,"Pears, median",1
-"Peas, Green, Dried","Herne, vihreä, kuivattu",,,,"0,38",,,,,"Peas, median",1
-"Peas, Green, Dried",,,,,"1,5",,,,,"Dry peas, Finland, At farm",29
 "Pelmeni, Dumpling Filled With Minced Meat",,"[""Pelmienit""]",,,,,,,,,
 Pencil lead,Irtolyijy,,Office supplies,,,,,,"0,46",Factory products,2
 "Pesto Sauce, Herb Sauce",,,,,,,,,"0,7",Plant based groceries,2
@@ -400,6 +403,7 @@ Phone screen protector,Puhelimen näytönsuoja,,Electronics,,,,,,,,
 "Pickled Cucumber, Sweet, Flavoured",,"[""Pickled cucumber"", ""Maustekurkku""]",,,,,,,,,
 "Pickled Cucumber, Sweet, Flavoured ",,,,,3,,,,,"Pickled cucumber, drained, Sweden, CarbonCloud Benchmark, Foodprint at store",29
 "Pineapple, Canned, In Own Juice",,,,,"0,5",,,,,"Pineapples, median",1
+"Pineapple, Canned, In Syrup",,,,,"0,5",,,,,"Pineapples, median",1
 "Pineapple, With Skin",,,,,"0,5",,,,,"Pineapples, median",1
 "Pineapple, without skin",,"[""Pineapple"", ""Ananas""]",,,"0,5",,,,,"Pineapples, median",1
 Pinto bean,Pintopapu,,Pulses vegetables,,"0,73",,,,,"Beans: pinto USA dried, median",1
@@ -472,7 +476,7 @@ Salami,"Meetvursti tai salami, kevyt rasvaa, 22 %","[""Pepperoni"", ""Pepperoni 
 Salmon fillet,,,,,"3,47",,,,,"Salmon, median",1
 "Salmon, Farmed",,,,,"11,9",,,,,"Kirjolohi, kasvatettu",27
 "Salmon, Whole",,,,,"3,47",,,,,"Salmon, median",1
-Samsung Galaxy S20 128GB,Samsung Galaxy S20 128 Gt,,,25,,,,,,,57
+Samsung Galaxy S20 128GB,,,Smartphone,25,,,,,,,57
 "Sardine, Average, In Oil And Tomato Sauce",,,,,"1,1",,,,,"Pilchard, median",1
 Saucepan,Kasari,,Housekeeping tools,,,,,,,,
 Sausages,,,,,"5,64",,,,,"Grilled sausage, high meat content, life cycle, cradle to grave, approximate value",28
