@@ -376,6 +376,7 @@ export const getCategoriesFromCsv = async (records: {[key: string]: string}[], s
     for (const columns of records) {
       item = {};
       note = '';
+      const ids = [];
       for (const [columnName, column] of ObjectEntries(columns)) {
         if (columnName !== '' && column !== '') {
           attribute = columnName.match(/^attribute:(.*)(\s\((.*)\))/i) ||
@@ -449,11 +450,11 @@ export const getCategoriesFromCsv = async (records: {[key: string]: string}[], s
             }
           } else if (name && locale) {
             if (!item.id) {
-              for (const i in categories) {
-                if (categories[i].name?.[locale] && categories[i].name[locale].toLowerCase().trim() === column?.toLowerCase().trim()) {
-                  item.id = categories[i].id;
+              for (const category of categories) {
+                if (category.name?.[locale] && category.name[locale].toLowerCase().trim() === column?.toLowerCase().trim()) {
+                  item.id = category.id;
+                  ids.push(category.id);
                   delete item.name;
-                  break;
                 }
               }
               if (!item.id) {
@@ -475,10 +476,19 @@ export const getCategoriesFromCsv = async (records: {[key: string]: string}[], s
           }
         }
       }
-      await Category.query().upsertGraph(item as Category, {
-        noDelete: true,
-        relate: true
-      });
+      if (ids.length > 1) {
+        for await (const id of ids) {
+          await Category.query().upsertGraph({...item, id} as Category, {
+            noDelete: true,
+            relate: true
+          });
+        }
+      } else {
+        await Category.query().upsertGraph(item as Category, {
+          noDelete: true,
+          relate: true
+        });
+      }
       categories = await Category.query();
       attributes = await Attribute.query();
     }
