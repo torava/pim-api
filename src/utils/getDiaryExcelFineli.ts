@@ -134,7 +134,7 @@ export const getDiaryExcelFineliWorkbook = (
           price,
           measure
         );
-        priceCell.value = price;
+        priceCell.value = price*measure;
         minGhgCell.value = categoryAttributes[0]?.value;
         maxGhgCell.value = categoryAttributes[1]?.value || categoryAttributes[0]?.value;
         minGhgPerMeasureCell.value = categoryAttributes[0]?.value/measure;
@@ -142,7 +142,7 @@ export const getDiaryExcelFineliWorkbook = (
         totalMealMin+= categoryAttributes[0]?.value || 0;
         totalMealMax+= categoryAttributes[1]?.value || categoryAttributes[0]?.value || 0;
         totalMealMeasure+= measure;
-        totalMealPrice+= price;
+        totalMealPrice+= price*measure;
       } else {
         console.log(food, "not found");
       }
