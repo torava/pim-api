@@ -229,6 +229,7 @@ Flowers,Kukat,,Supplies,,,,,,,,
 "French Fries, Deep-Fried",,"[""French fries"", ""Ranskanperunat"", ""Ranskalaiset""]",,,"0,46",,,,,Fries,51
 "French Fries, Deep-Fried",,,,,,,,,"0,7",Plant based groceries,2
 "French Fries, Frozen",,,,,,,,,"0,7",Plant based groceries,2
+"French Fries, Frozen",,,,,"0,18",,,,,"Potatoes, median",1
 "French Fries, Oven-Baked",,"[""Kuorellinen tikkuperuna pakaste""]",,,,,,,"0,7",Plant based groceries,2
 "Fresh Pasta, Contains Egg",,,,,,,,,"1,1",Animal based groceries,2
 "Fresh Pasta, Contains Egg",,"[""Fettuccine"", ""Fettuccine pasta""]",,,,,,,,,
@@ -269,7 +270,8 @@ Housekeeping products,Kodinhoitotuotteet,,Supplies,,,,,,"0,4",Housekeeping produ
 Housekeeping tools,Kodinhoitotyökalut,,Supplies,,,,,,"0,5",Tools and appliances for housekeeping and gardening,2
 "Hummus, Chick Pea Paste",,"[""Hummus""]",,,,,,,"0,7",Plant based groceries,2
 Hygiene products,Hygieniatuotteet,"[""Nestesaippua"", ""Käsisaippua""]",Supplies,,,,,,"0,4",Personal items,2
-"Ice Cream Bar, Cream Based, Chocolate Flavoured",,,,"4,2",,,,,,"Ice cream, vanilla regular",22
+"Ice Cream Bar, Cream Based, Chocolate Flavoured",,,,,"4,2",,,,,"Ice cream, vanilla regular",22
+"Ice Cream Bar, Cream Based, Chocolate-Coated",,,,,"4,2",,,,,"Ice cream, vanilla regular",
 "Ice Cream, Cream Based",,,,,,,,"4,2",,"Ice cream, vanilla regular",22
 Iceberg Lettuce,,"[""Jäävuorisalaatti"", ""Jääsalaatti"", ""Green salad""]",,,"0,56",,,,,Including waste,8
 Interior design,Sisustus,,Supplies,,,,,,"0,67","Kodintaloustekstiilit, sisustus, astiat keskiarvo",2
@@ -322,6 +324,7 @@ Margarine and fat spread >= 55%,,,,,"1,75",,,,,"Margarine, 60% fat, including wa
 "Meal Replacement, Protein Bar, Average, C. 40% Protein",,"[""Barebells proteiinipatukka""]",,,,,,,,,
 "Meal Replacement, Whey Protein Powder, 85% Protein",,,,,"8,9",,,,,"Whey protein, 80% protein, Sweden, CarbonCloud Benchmark, Footprint at store",29
 Meat dishes,,,,,,,,,"1,1",Animal based groceries,2
+"Meatball, Industrial",,,,,21,,,,,"Beef meatballs, raw, Sweden, CarbonCloud Benchmark, Footprint at store",29
 Media duplication services,Tallenteiden jäljentämispalvelut,,Services,,,,,,"0,9",,2
 Medicine,Lääkkeet,,Supplies,,,,,,"0,48","Medicine, raw materials and chemicals",2
 Melon,Meloni,,Other fruits,,"1,43",,,,,"Melons: passive greenhouse, median",1
