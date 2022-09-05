@@ -1,13 +1,10 @@
 import _ from 'lodash';
 import express from 'express';
-import ItemShape from '@torava/product-utils/dist/models/Item';
-import ProductShape from '@torava/product-utils/dist/models/Product';
-import { NameTranslations } from '@torava/product-utils/dist/utils/types';
 import TransactionShape from '@torava/product-utils/dist/models/Transaction';
 import moment from 'moment';
 
 import { CSVToArray, getNumber, resolveCategories, toTitleCase } from '../utils/transactions';
-import Category, { CategoryShape } from '../models/Category';
+import Category from '../models/Category';
 import Item from '../models/Item';
 import Manufacturer from '../models/Manufacturer';
 import Product from '../models/Product';
@@ -25,7 +22,7 @@ const TRANSACTION_CSV_STARTING_ROW = {
   
 
 const TRANSACTION_CSV_COLUMNS = {
-  sryhma: (i: string) => [
+  sryhma: (i: number) => [
     'date_fi_FI',
     'time',
     'party.name',
@@ -38,7 +35,7 @@ const TRANSACTION_CSV_COLUMNS = {
     null,
     `items[${i}].price`
   ],
-  kesko: (i: string) => [
+  kesko: (i: number) => [
     'id',
     'date_fi_FI',
     'party.name',
@@ -46,7 +43,7 @@ const TRANSACTION_CSV_COLUMNS = {
     `items[${i}].quantity_or_measure`,
     `items[${i}].price`
   ],
-  default: (i: string) => [
+  default: (i: number) => [
     'id',
     'date',
     'receipts[0].id',
@@ -119,7 +116,7 @@ app.get('/api/transaction', async (req, res) => {
 
 app.post('/api/transaction', async (req, res) => {
   if ('fromcsv' in req.query) {
-    let transaction: TransactionShape = {};
+    let transaction: Record<string, TransactionShape> = {};
     const template = (req.query.template || 'default') as keyof typeof TRANSACTION_CSV_INDEXES;
     const indexes = TRANSACTION_CSV_INDEXES[template] || [0];
     const startingRow = TRANSACTION_CSV_STARTING_ROW[template] || 1;
@@ -127,7 +124,7 @@ app.post('/api/transaction', async (req, res) => {
     let columns: string[],
         tokens,
         measure,
-        item_index = 0,
+        itemIndex = 0,
         rows = CSVToArray(req.body.transaction, CSV_SEPARATOR[template] || ';'),
         categoryRefs: string[] = [];
 
@@ -139,68 +136,69 @@ app.post('/api/transaction', async (req, res) => {
             columnKey+= columns[index];
         });
         if (!(columnKey in transaction)) {
-          item_index = 0;
-          transaction[columnKey as keyof TransactionShape] = {items: [], party: {}, receipts: [], total_price: 0};
+          itemIndex = 0;
+          transaction[columnKey] = {items: [], party: {}, receipts: [], totalPrice: 0};
         }
         for (let n in columns) {
-          let column_name = TRANSACTION_CSV_COLUMNS[template](item_index)[n];
+          let columnName = TRANSACTION_CSV_COLUMNS[template](itemIndex)[n];
 
           let value = columns[n];
+          let numberValue: number;
 
-          if (!column_name || !value) continue;
+          if (!columnName || !value) continue;
 
-          console.log(i, column_name, value);
+          console.log(i, columnName, value);
 
-          if (column_name.split('.').includes('name') || column_name.split('.').includes(`name['fi-FI']`)) {
+          if (columnName.split('.').includes('name') || columnName.split('.').includes(`name['fi-FI']`)) {
             value = toTitleCase(value);
 
-            if (column_name.split('.').includes('category')) {
+            if (columnName.split('.').includes('category')) {
               if (categoryRefs.some(ref => ref === value)) {
-                column_name = column_name.replace(`name['fi-FI']`, '#ref');
+                columnName = columnName.replace(`name['fi-FI']`, '#ref');
               }
               else {
                 categoryRefs.push(value);
-                _.set(transaction[columnKey], column_name.replace(`name['fi-FI']`, '#id'), value);
+                _.set(transaction[columnKey], columnName.replace(`name['fi-FI']`, '#id'), value);
               }
             }
 
             tokens = value.match(/(\d{1,4})\s?((m|k)?((g|9)|(l|1)))/);
             measure = tokens && parseFloat(tokens[1]);
             if (measure) {
-              _.set(transaction[columnKey], `items[${item_index}].measure`, measure);
-              _.set(transaction[columnKey], `items[${item_index}].unit`, tokens[2]);
+              _.set(transaction[columnKey], `items[${itemIndex}].measure`, measure);
+              _.set(transaction[columnKey], `items[${itemIndex}].unit`, tokens[2]);
             }
           }
 
-          if (column_name.split('.')[1] === 'quantity_or_measure') {
+          if (columnName.split('.')[1] === 'quantity_or_measure') {
             if (value.match(/^\d+\.\d{3}$/)) {
-              column_name = column_name.replace('quantity_or_measure', 'measure');
-              value = getNumber(value);
+              columnName = columnName.replace('quantity_or_measure', 'measure');
+              numberValue = getNumber(value);
             }
             else {
-              column_name = column_name.replace('quantity_or_measure', 'quantity');
-              value = parseFloat(value);
+              columnName = columnName.replace('quantity_or_measure', 'quantity');
+              numberValue = parseFloat(value);
             }
           }
-          else if (column_name === 'date_fi_FI') {
+          else if (columnName === 'date_fi_FI') {
             let date = value.split('.');
             value = moment().format(`${date[2]}-${date[1].padStart(2, '0')}-${date[0].padStart(2, '0')}`);
-            column_name = 'date';
+            columnName = 'date';
           }
-          else if (column_name === 'time') {
+          else if (columnName === 'time') {
             let time = value.split(':');
             value = moment(transaction[columnKey].date).add(time[0], 'hours').add(time[1], 'minutes').format();
-            column_name = 'date';
+            columnName = 'date';
           }
-          else if (column_name.split('.')[1] === 'price') {
-            value = getNumber(value);
-            transaction[columnKey].total_price += value;
+          else if (columnName.split('.')[1] === 'price') {
+            numberValue = getNumber(value);
+            transaction[columnKey].totalPrice += numberValue;
           }
-          if (column_name !== 'id') {
-            _.set(transaction[columnKey], column_name, value);
+          if (columnName !== 'id') {
+            _.set(transaction[columnKey], columnName, numberValue || value);
           }
         }
-        item_index++;
+        itemIndex++;
       }
     } catch (error) {
       console.error(error);
