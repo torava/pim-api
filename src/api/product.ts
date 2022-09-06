@@ -1,11 +1,16 @@
 import express, { Request } from 'express';
 
 import Product, { ProductPartialShape } from '../models/Product';
-import { findFoodUnitAttribute, findMeasure, getClosestCategory, getContributionsFromList } from '../utils/categories';
+import {
+  findFoodUnitAttribute,
+  findMeasure,
+  getClosestCategory,
+  getContributionsFromList,
+  getStrippedChildCategories,
+} from "@torava/product-utils/dist/utils/categories";
 import Attribute, { AttributeShape } from '../models/Attribute';
 import Category from '../models/Category';
 import { resolveProductAttributes, getClosestProduct } from '../utils/products';
-import { getStrippedChildCategories } from '../utils/categories';
 import { getLeafIds } from '../utils/entities';
 import { Page } from 'objection';
 import { Locale } from '../utils/types';

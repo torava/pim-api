@@ -21,7 +21,7 @@
   "author": "Teemu Orava",
   "license": "UNLICENSED",
   "dependencies": {
-    "@torava/product-utils": "^1.2.0",
+    "@torava/product-utils": "^1.2.2",
     "apicache": "^1.6.3",
     "axios": "^0.27.2",
     "body-parser": "^1.19.0",

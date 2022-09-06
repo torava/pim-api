@@ -2,8 +2,8 @@ import _ from 'lodash';
 import express from 'express';
 import TransactionShape from '@torava/product-utils/dist/models/Transaction';
 import moment from 'moment';
+import { CSVToArray, getNumber, resolveCategories, toTitleCase } from '@torava/product-utils/dist/utils/transactions';
 
-import { CSVToArray, getNumber, resolveCategories, toTitleCase } from '../utils/transactions';
 import Category from '../models/Category';
 import Item from '../models/Item';
 import Manufacturer from '../models/Manufacturer';
@@ -13,11 +13,13 @@ import Transaction from '../models/Transaction';
 export default (app: express.Application) => {
 
 const TRANSACTION_CSV_INDEXES = {
-  sryhma: [0, 1]
+  sryhma: [0, 1],
+  default: [0]
 };
 
 const TRANSACTION_CSV_STARTING_ROW = {
-  sryhma: 10
+  sryhma: 10,
+  default: 1
 };
   
 
@@ -89,11 +91,11 @@ app.get('/api/transaction', async (req, res) => {
       let response = [['SEP='+CSV_SEPARATOR], TRANSACTION_CSV_COLUMN_NAMES.join(CSV_SEPARATOR.default)];
       const transactions = await Transaction.query()
       .withGraphFetched('[items.[product.[category, manufacturer, attributes]], party, receipts]');
-      for (let n in transactions) {
+      for (const n in transactions) {
         let items = transactions[n].items;
-        for (let i in items) {
+        for (const i in items) {
           // transaction id, transaction date, party id, party name, product name, item price
-          response.push(_.at(transactions[n], TRANSACTION_CSV_COLUMNS.default(i) as (keyof TransactionShape)[]).join(CSV_SEPARATOR.default));
+          response.push(_.at(transactions[n], TRANSACTION_CSV_COLUMNS.default(Number(i)) as (keyof TransactionShape)[]).join(CSV_SEPARATOR.default));
         }
       }
       res.send(response.join('\n'));
@@ -117,15 +119,18 @@ app.get('/api/transaction', async (req, res) => {
 app.post('/api/transaction', async (req, res) => {
   if ('fromcsv' in req.query) {
     let transaction: Record<string, TransactionShape> = {};
-    const template = (req.query.template || 'default') as keyof typeof TRANSACTION_CSV_INDEXES;
-    const indexes = TRANSACTION_CSV_INDEXES[template] || [0];
-    const startingRow = TRANSACTION_CSV_STARTING_ROW[template] || 1;
+    const template = req.query.template || 'default';
+    const indexes = TRANSACTION_CSV_INDEXES[template as keyof typeof TRANSACTION_CSV_INDEXES];
+    const startingRow = (
+      TRANSACTION_CSV_STARTING_ROW[template as keyof typeof TRANSACTION_CSV_STARTING_ROW] ||
+      TRANSACTION_CSV_STARTING_ROW['default']
+    );
 
     let columns: string[],
         tokens,
         measure,
         itemIndex = 0,
-        rows = CSVToArray(req.body.transaction, CSV_SEPARATOR[template] || ';'),
+        rows = CSVToArray(req.body.transaction, CSV_SEPARATOR[template as keyof typeof CSV_SEPARATOR]),
         categoryRefs: string[] = [];
 
     try {
@@ -140,7 +145,7 @@ app.post('/api/transaction', async (req, res) => {
           transaction[columnKey] = {items: [], party: {}, receipts: [], totalPrice: 0};
         }
         for (let n in columns) {
-          let columnName = TRANSACTION_CSV_COLUMNS[template](itemIndex)[n];
+          let columnName = TRANSACTION_CSV_COLUMNS[template as keyof typeof TRANSACTION_CSV_COLUMNS](itemIndex)[n];
 
           let value = columns[n];
           let numberValue: number;
