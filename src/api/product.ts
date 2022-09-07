@@ -1,20 +1,22 @@
 import express, { Request } from 'express';
-
-import Product, { ProductPartialShape } from '../models/Product';
+import ProductShape from '@torava/product-utils/dist/models/Product';
+import AttributeShape from '@torava/product-utils/dist/models/Attribute';
+import CategoryContributionShape from '@torava/product-utils/dist/models/CategoryContribution';
 import {
   findFoodUnitAttribute,
   findMeasure,
   getClosestCategory,
   getContributionsFromList,
   getStrippedChildCategories,
-} from "@torava/product-utils/dist/utils/categories";
-import Attribute, { AttributeShape } from '../models/Attribute';
+} from '@torava/product-utils/dist/utils/categories';
+import { Page } from 'objection';
+
+import Product from '../models/Product';
+import Attribute from '../models/Attribute';
 import Category from '../models/Category';
 import { resolveProductAttributes, getClosestProduct } from '../utils/products';
 import { getLeafIds } from '../utils/entities';
-import { Page } from 'objection';
 import { Locale } from '../utils/types';
-import { CategoryContributionPartialShape } from '../models/CategoryContribution';
 import Brand from '../models/Brand';
 
 export default async (app: express.Application) => {
@@ -31,7 +33,7 @@ app.get('/api/product/all', async (req, res) => {
   
 app.get('/api/product/:id', async (req: Request<
   { id: string },
-  ProductPartialShape,
+  ProductShape,
   undefined,
   {
     foodUnitAttributeCode: string,
@@ -62,7 +64,7 @@ app.get('/api/product/:id', async (req: Request<
 
     const {productAttributes, measure} = resolveProductAttributes(product, attributeIds, foodUnitAttribute, categories, attributes);
 
-    const resolvedProduct: ProductPartialShape = {
+    const resolvedProduct: ProductShape = {
       ...product,
       measure: measure || product.measure,
       unit: measure ? 'kg' : product.unit,
@@ -76,7 +78,7 @@ app.get('/api/product/:id', async (req: Request<
   }
 });
 
-app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductPartialShape[], undefined, {
+app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductShape[], undefined, {
   pageNumber: number,
   productsPerPage: number,
   brand: string,
@@ -103,7 +105,7 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductPa
   const name = req.query.name?.replace(/\s?-\s?/g, ' ').trim();
   const contributionList = req.query.contributionList?.replace(/\s?-\s?/g, ' ').trim();
   try {
-    let products: Page<Product> | ProductPartialShape[];
+    let products: Page<Product> | ProductShape[];
     if (!name && !contributionList) {
       products = (
         await Product.query()
@@ -139,7 +141,7 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductPa
 
       const productEntries = await Product.query().withGraphFetched('[attributes.[attribute], brand]');
 
-      let product: ProductPartialShape;
+      let product: ProductShape;
 
       const measureResult = findMeasure(name);
       if (measureResult.unit) {
@@ -172,7 +174,7 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductPa
       const brands = await Brand.query();
 
       if (!product) {
-        let [category] = getClosestCategory(name, strippedCategories, contentLanguage as Locale, undefined, brands);
+        let [category] = getClosestCategory(name, strippedCategories, contentLanguage as Locale, undefined);
         if (category) {
           product = {
             ...product,
@@ -332,7 +334,7 @@ app.post('/api/product', async (req, res) => {
     const strippedCategories = await getStrippedChildCategories();
     
     let category,
-        contributions: CategoryContributionPartialShape[] = [];
+        contributions: CategoryContributionShape[] = [];
     if (contributionList) {
       console.log(contributionList);
       contributions = getContributionsFromList(contributionList, contentLanguage, strippedCategories);

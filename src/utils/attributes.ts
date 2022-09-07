@@ -1,17 +1,18 @@
-import { AttributeShape } from "../models/Attribute";
-import { CategoryAttributePartialShape } from "../models/CategoryAttribute";
-import { ProductAttributePartialShape } from "../models/ProductAttribute";
+import AttributeShape from "@torava/product-utils/dist/models/Attribute";
+import CategoryAttributeShape from "@torava/product-utils/dist/models/CategoryAttribute";
+import ProductAttributeShape from "@torava/product-utils/dist/models/ProductAttribute";
+
 import { convertMeasure } from "./entities";
 
 export const getAttributeValues = (
-  unit: CategoryAttributePartialShape['unit'],
+  unit: CategoryAttributeShape['unit'],
   measure: number,
   quantity: number = 1,
   price: number = undefined,
-  attributeValues: ProductAttributePartialShape[] | CategoryAttributePartialShape[] = [],
+  attributeValues: ProductAttributeShape[] | CategoryAttributeShape[] = [],
   attributes: AttributeShape[] = []
 ) => {
-  const result: [number, CategoryAttributePartialShape][] = [];
+  const result: [number, CategoryAttributeShape][] = [];
   for (const categoryAttribute of attributeValues) {
     const foundAttributes = attributes.filter(a => a.id === categoryAttribute.attributeId);
     foundAttributes.forEach(() => {
@@ -35,9 +36,9 @@ export const getAttributeValues = (
   return result;
 };
 
-export const getMinAttributeValue = (attributeResult: [number, CategoryAttributePartialShape][]): [number?, CategoryAttributePartialShape?] => (
+export const getMinAttributeValue = (attributeResult: [number, CategoryAttributeShape][]): [number?, CategoryAttributeShape?] => (
   attributeResult.reduce((a, b) => a[0] < b[0] ? a : b) || [undefined, undefined]
 );
-export const getMaxAttributeValue = (attributeResult: [number, CategoryAttributePartialShape][]): [number?, CategoryAttributePartialShape?] => (
+export const getMaxAttributeValue = (attributeResult: [number, CategoryAttributeShape][]): [number?, CategoryAttributeShape?] => (
   attributeResult.reduce((a, b) => a[0] > b[0] ? a : b) || [undefined, undefined]
 );

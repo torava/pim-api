@@ -3,13 +3,14 @@ import CategoryShape from '@torava/product-utils/dist/models/Category';
 import { Locale } from '@torava/product-utils/dist/utils/types';
 import { resolveCategoryAttributes } from '@torava/product-utils/dist/utils/categories';
 import AttributeShape from '@torava/product-utils/dist/models/Attribute';
+import ProductShape from '@torava/product-utils/dist/models/Product';
 import Knex from 'knex';
 import { Model } from 'objection';
 
 import knexConfig from '../../knexfile';
 import Category from '../models/Category';
 import Attribute from '../models/Attribute';
-import Product, { ProductShape } from '../models/Product';
+import Product from '../models/Product';
 
 export const getDiaryExcelFineliBuffer = async (
   buffer: Buffer,

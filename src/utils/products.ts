@@ -1,28 +1,30 @@
 import moment from "moment";
 import stringSimilarity from "string-similarity-js";
 import { LevenshteinDistance } from '@torava/product-utils/dist/utils/levenshteinDistance';
+import CategoryShape from "@torava/product-utils/dist/models/Category";
+import ProductContributionShape from "@torava/product-utils/dist/models/ProductContribution";
+import ProductShape from "@torava/product-utils/dist/models/Product";
+import AttributeShape from "@torava/product-utils/dist/models/Attribute";
+import ProductAttributeShape from "@torava/product-utils/dist/models/ProductAttribute";
+import CategoryContributionShape from "@torava/product-utils/dist/models/CategoryContribution";
 
-import { stripDetails, stripName } from "./transactions";
-import Category, { CategoryShape } from "../models/Category";
+import Category from "../models/Category";
 import Manufacturer from "../models/Manufacturer";
-import Product, { ProductPartialShape, ProductShape } from "../models/Product";
+import Product from "../models/Product";
 import { getAttributeValues, getMaxAttributeValue, getMinAttributeValue } from "./attributes";
-import { getCategoriesWithAttributes } from "./categories";
 import { convertMeasure } from "./entities";
-import { AttributeShape } from "../models/Attribute";
-import { CategoryContributionShape } from "../models/CategoryContribution";
-import { ProductAttributePartialShape } from "../models/ProductAttribute";
 import { NameTranslations, ObjectEntries, Token } from "./types";
-import { ProductContributionPartialShape } from "../models/ProductContribution";
+import { getCategoriesWithAttributes } from "@torava/product-utils/dist/utils/categories";
+import { stripDetails, stripName } from "@torava/product-utils/dist/utils/transactions";
 
 export const getProductCategoryMinMaxAttributes = (
   category?: CategoryShape,
-  contribution?: ProductContributionPartialShape,
-  product?: ProductPartialShape,
+  contribution?: ProductContributionShape,
+  product?: ProductShape,
   foodUnitAttribute?: AttributeShape,
   attributeId?: AttributeShape['id'],
   categories: CategoryShape[] = [],
-  productAttributes: ProductAttributePartialShape[] = [],
+  productAttributes: ProductAttributeShape[] = [],
   attributes: AttributeShape[] = []
 ) => {
   let unit: CategoryContributionShape['unit'] | ProductShape['unit'],
@@ -78,14 +80,14 @@ export const getProductCategoryMinMaxAttributes = (
 };
 
 export const resolveProductAttributes = (
-  product: ProductPartialShape,
+  product: ProductShape,
   attributeIds: AttributeShape['id'][],
   foodUnitAttribute: AttributeShape,
   categories: CategoryShape[] = [],
   attributes: AttributeShape[] = []
 ) => {
   let measure,
-      productAttributes: ProductAttributePartialShape[] = [];
+      productAttributes: ProductAttributeShape[] = [];
 
   const category = categories.find(c => c.id === product.categoryId);
 
