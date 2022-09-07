@@ -1,16 +1,18 @@
 import { PassThrough } from 'stream';
+import express from 'express';
+import { resolveCategories, resolveCategoryPrices } from '@torava/product-utils/dist/utils/categories';
+import { Locale } from '@torava/product-utils/dist/utils/types';
 
 import Category from '../models/Category';
-import { resolveCategories, resolveCategoryPrices } from '../utils/categories';
 import { getDiaryExcelFineliBuffer } from '../utils/getDiaryExcelFineli';
 
-export default app => {
+export default (app: express.Application) => {
 
 app.get('/api/category/all', async (req, res) => {
   try {
     let categories = await Category.query()
     .withGraphFetched('[contributions, attributes]');
-    resolveCategories(categories, req.query.locale);
+    resolveCategories(categories, req.query.locale as Locale);
     return res.send(categories);
   } catch (error) {
     console.error(error);
@@ -26,7 +28,7 @@ app.get('/api/category/:id', async (req, res) => {
       .where('id', req.params.id)
       .withGraphFetched('[contributions, attributes]')
     );
-    resolveCategories(categories, req.query.locale);
+    resolveCategories(categories, req.query.locale as Locale);
     return res.send(categories[0]);
   } catch (error) {
     console.error(error);
@@ -44,11 +46,11 @@ app.get('/api/category', async (req, res) => {
   } = req.query;
   if ('parent' in req.query) {
     return Category.query()
-    .where('parentId', parent || null)
+    .where('parentId', Number(parent) || null)
     .modify('getAttributes')
     .withGraphFetched('[products.[items], contributions.[contribution], attributes, children(getAttributes)]')
     .then(categories => {
-      resolveCategories(categories, req.query.locale);
+      resolveCategories(categories, req.query.locale as Locale);
       return res.send(categories);
     })
     .catch(error => {
@@ -63,7 +65,7 @@ app.get('/api/category', async (req, res) => {
     .withGraphFetched('[attributes, children(getTransactions)]')
     .then(categories => {
       resolveCategoryPrices(categories);
-      resolveCategories(categories, req.query.locale);
+      resolveCategories(categories, req.query.locale as Locale);
       return res.send(categories);
     })
     .catch(error => {
@@ -76,16 +78,18 @@ app.get('/api/category', async (req, res) => {
       let categories = await Category.query();
       if (name?.length) {
         categories = categories.filter(category => (
-          Object.values(category.name).find(n => n.toLowerCase().match(name.toLowerCase()))
+          Object.values(category.name).find(n => n.toLowerCase().match(String(name).toLowerCase()))
         ));
       }
-      const results = categories.slice(pageNumber*categoriesPerPage, pageNumber*categoriesPerPage+categoriesPerPage);
-      categories = {
+      resolveCategories(categories, req.query.locale as Locale);
+      const results = categories.slice(
+        Number(pageNumber) * Number(categoriesPerPage),
+        Number(pageNumber) * Number(categoriesPerPage) + Number(categoriesPerPage)
+      );
+      return res.send({
         results,
         total: results.length
-      };
-      resolveCategories(categories, req.query.locale);
-      return res.send(categories);
+      });
     }
     catch (error) {
       console.error(error);
@@ -97,6 +101,7 @@ app.get('/api/category', async (req, res) => {
 app.post('/api/category/diary', async (req, res) => {
   console.log(req.body, req.files);
   // from https://stackoverflow.com/a/46520271/3136897
+  // @ts-ignore
   const buffer = req.files.upload.data;
   const updatedBuffer = await getDiaryExcelFineliBuffer(buffer);
 
@@ -104,6 +109,7 @@ app.post('/api/category/diary', async (req, res) => {
   const readStream = new PassThrough();
   readStream.end(updatedBuffer);
 
+  // @ts-ignore
   res.set('Content-disposition', `attachment; filename="${req.files.upload.name}_price_ghg.xlsx"`);
   res.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
