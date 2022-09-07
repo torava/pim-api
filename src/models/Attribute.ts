@@ -1,22 +1,7 @@
+import AttributeShape from '@torava/product-utils/dist/models/Attribute';
 import { Model } from 'objection';
-import { DeepPartial, NameTranslations } from '../utils/types';
 
-export interface AttributeShape {
-	id: number;
-	
-	code?: string;
-	name: NameTranslations;
-	
-	children?: AttributeShape[];
-	parent?: AttributeShape;
-	parentId?: Attribute['id'];
-}
-
-interface Attribute extends Pick<AttributeShape, 'id' | 'code' | 'name' | 'parentId'> {
-	children?: Attribute[];
-	parent?: Attribute;
-}
-// eslint-disable-next-line no-redeclare
+interface Attribute extends AttributeShape {}
 class Attribute extends Model {
 	static get tableName() {
 		return 'Attribute';
@@ -53,7 +38,5 @@ class Attribute extends Model {
 		}
 	}
 }
-
-export type AttributePartialShape = DeepPartial<AttributeShape>;
 
 export default Attribute;

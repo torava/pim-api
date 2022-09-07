@@ -1,16 +1,20 @@
+import AttributeShape from '@torava/product-utils/dist/models/Attribute';
+import CategoryShape from '@torava/product-utils/dist/models/Category';
+import CategoryAttributeShape from '@torava/product-utils/dist/models/CategoryAttribute';
 import CategoryAttributeSourceShape from '@torava/product-utils/dist/models/CategoryAttributeSource';
 import PartyShape from '@torava/product-utils/dist/models/Party';
+import SourceShape from '@torava/product-utils/dist/models/Source';
 import parse from 'csv-parse/lib/sync';
 import fs from 'fs';
 import moment from 'moment';
 
-import Attribute, { AttributePartialShape, AttributeShape } from '../models/Attribute';
-import Category, { CategoryPartialShape, CategoryShape } from '../models/Category';
-import CategoryAttribute, { CategoryAttributeShape } from '../models/CategoryAttribute';
+import Attribute from '../models/Attribute';
+import Category from '../models/Category';
+import CategoryAttribute from '../models/CategoryAttribute';
 import CategoryContribution from '../models/CategoryContribution';
 import Party from '../models/Party';
-import Source, { SourceShape } from '../models/Source';
-import { Id, NameTranslations, Parent } from './types';
+import Source from '../models/Source';
+import { Id, Ids, NameTranslations, Parent } from './types';
 
 function convertFirstLetterCapital(text: string) {
   return text ? text.substring(0,1).toUpperCase()+text.substring(1).toLowerCase() : text;
@@ -118,20 +122,20 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
         attrRef: string,
         attributeCount = 0,
         value: NameTranslations,
-        attribute: AttributePartialShape,
+        attribute: AttributeShape,
         food_row,
         row,
         id, refId,
         parent: Parent,
         attributeIndex = 1,
-        categories: Record<string, CategoryPartialShape> = {},
+        categories: Record<string, CategoryShape> = {},
         attributes: Record<string, CategoryShape> = {},
         /*contributionValues = [],
         sources,
         sourceRef,
         sourceRefs = {},
         source,*/
-        baseSources: SourceShape[] = [
+        baseSources: (Source | Ids<Source>)[] = [
           {
             '#id': 'sfineli',
             name: 'Fineli',
@@ -139,7 +143,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
             publicationDate: '2018'
           }
         ],
-        baseCategories: CategoryShape[] = [
+        baseCategories: (Category | Ids<Category>)[] = [
           {
             '#id': 'c4food',
             name: {

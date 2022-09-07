@@ -1,21 +1,8 @@
 
+import BrandShape from '@torava/product-utils/dist/models/Brand';
 import { Model } from 'objection';
 
-export interface BrandShape {
-	id: number;
-
-	name?: string;
-	aliases?: string[];
-	factoryLocation?: string;
-	headquartersLocation?: string;
-
-	parent?: BrandShape;
-}
-
-interface Brand extends Omit<BrandShape, 'parent'> {
-	parent?: Brand;
-}
-// eslint-disable-next-line no-redeclare
+interface Brand extends BrandShape {}
 class Brand extends Model {
 	static get tableName() {
 		return 'Brand';

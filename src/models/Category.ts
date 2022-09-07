@@ -1,31 +1,12 @@
+import CategoryShape from '@torava/product-utils/dist/models/Category';
 import {Model, QueryBuilder} from 'objection';
 
-import Product, { ProductShape } from './Product';
-import CategoryAttribute, { CategoryAttributeShape } from './CategoryAttribute';
-import CategoryContribution, { CategoryContributionShape } from './CategoryContribution';
-import { DeepPartial, Ids, NameTranslations, Reference } from '../utils/types';
+import CategoryAttribute from './CategoryAttribute';
+import CategoryContribution from './CategoryContribution';
+import Product from './Product';
 
 // https://dev.to/tylerlwsmith/using-a-typescript-interface-to-define-model-properties-in-objection-js-1231
-export interface CategoryShape extends Ids {	
-	name?: NameTranslations;
-	aliases?: string[];
-
-	products?: ProductShape[];
-	attributes?: CategoryAttributeShape[];
-	contributions?: CategoryContributionShape[];
-	children?: CategoryShape[];
-	parent?: CategoryShape & Reference;
-	parentId?: number;
-}
-
-interface Category extends Pick<CategoryShape, 'id' | 'name' | 'aliases' | 'parentId'> {
-	products?: Product[];
-	attributes?: CategoryAttribute[];
-	contributions?: CategoryContribution[];
-	children?: Category[];
-	parent?: Category;
-}
-// eslint-disable-next-line no-redeclare
+interface Category extends CategoryShape {}
 class Category extends Model {
 	static get tableName() {
 		return 'Category';
@@ -99,7 +80,5 @@ class Category extends Model {
 		}
 	}
 }
-
-export type CategoryPartialShape = DeepPartial<CategoryShape>;
 
 export default Category;

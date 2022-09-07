@@ -1,17 +1,10 @@
+import PartyShape from '@torava/product-utils/dist/models/Party';
 import {Model} from 'objection';
+
 import Transaction from './Transaction';
 
-export default class Party extends Model {
-	id!: number;
-	name?: string;
-	vat?: string;
-	street_name?: string;
-	street_number?: string;
-	postal_code?: string;
-	city?: string;
-	phone_number?: string;
-	email?: string;
-
+interface Party extends PartyShape {}
+class Party extends Model {
 	static get tableName() {
 		return 'Party';
 	}
@@ -48,3 +41,5 @@ export default class Party extends Model {
 		}
 	}
 }
+
+export default Party;

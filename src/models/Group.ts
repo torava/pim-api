@@ -1,8 +1,10 @@
+import GroupShape from '@torava/product-utils/dist/models/Group';
 import {Model} from 'objection';
 
 import Transaction from './Transaction';
 
-export default class Group extends Model {
+interface Group extends GroupShape {}
+class Group extends Model {
 	static get tableName() {
 		return 'Group';
 	}
@@ -30,3 +32,5 @@ export default class Group extends Model {
 		}
 	}
 }
+
+export default Group;

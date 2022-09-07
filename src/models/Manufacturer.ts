@@ -1,20 +1,7 @@
+import ManufacturerShape from '@torava/product-utils/dist/models/Manufacturer';
 import { Model } from 'objection';
 
-export interface ManufacturerShape {
-	id: number;
-
-	name?: string;
-	aliases?: string[];
-	factoryLocation?: string[];
-	headquartersLocation?: string[];
-
-	parent?: ManufacturerShape;
-}
-
-interface Manufacturer extends Omit<ManufacturerShape, 'parent'> {
-	parent?: Manufacturer;
-}
-// eslint-disable-next-line no-redeclare
+interface Manufacturer extends ManufacturerShape {}
 class Manufacturer extends Model {
 	static get tableName() {
 		return 'Manufacturer';

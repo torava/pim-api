@@ -1,30 +1,12 @@
 import { Model } from 'objection';
+import ProductAttributeShape from '@torava/product-utils/dist/models/ProductAttribute';
 
-import Product, { ProductShape } from './Product';
-import Attribute, { AttributeShape } from './Attribute';
-import ProductAttributeSource, { ProductAttributeSourceShape } from './ProductAttributeSource';
+import Product from './Product';
+import Attribute from './Attribute';
+import ProductAttributeSource from './ProductAttributeSource';
 import { DeepPartial } from '../utils/types';
 
-export interface ProductAttributeShape {
-	id: number;
-	
-	value?: number;
-	unit?: string;
-	type?: string;
-
-	product?: ProductShape;
-	productId?: ProductShape['id'];
-	attribute?: AttributeShape;
-	attributeId?: AttributeShape['id'];
-	sources?: ProductAttributeSourceShape[];
-}
-
-interface ProductAttribute extends Omit<ProductAttributeShape, 'product' | 'attribute' | 'sources'> {
-	product?: Product;
-	attribute?: Attribute;
-	sources?: ProductAttributeSource[];
-}
-// eslint-disable-next-line no-redeclare
+interface ProductAttribute extends ProductAttributeShape {}
 class ProductAttribute extends Model {
 	static get tableName() {
 		return 'ProductAttribute';
@@ -72,7 +54,5 @@ class ProductAttribute extends Model {
     }
   }
 }
-
-export type ProductAttributePartialShape = DeepPartial<ProductAttributeShape>;
 
 export default ProductAttribute;

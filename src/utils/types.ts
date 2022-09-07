@@ -6,11 +6,12 @@ export interface Reference {
   '#ref'?: string;
   id?: Id;
 }
-export interface Ids {
+export interface Ids<T> {
   '#id'?: string;
   id?: Id;
+  parent?: T | Reference;
 }
-export interface IdsWithParentId extends Ids {
+export interface IdsWithParentId<T> extends Ids<T> {
   parentId: Id
 }
 

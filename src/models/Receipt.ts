@@ -1,7 +1,10 @@
+import ReceiptShape from '@torava/product-utils/dist/models/Receipt';
 import {Model} from 'objection';
+
 import Transaction from './Transaction';
 
-export default class Receipt extends Model {
+interface Receipt extends ReceiptShape {}
+class Receipt extends Model {
 	static get tableName() {
 		return 'Receipt';
 	}
@@ -32,3 +35,5 @@ export default class Receipt extends Model {
 		}
 	}
 }
+
+export default Receipt;

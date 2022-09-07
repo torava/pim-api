@@ -1,27 +1,10 @@
 
+import CategoryContributionShape from '@torava/product-utils/dist/models/CategoryContribution';
 import { Model } from 'objection';
-import { DeepPartial } from '../utils/types';
 
-import Category, { CategoryShape } from './Category';
+import Category from './Category';
 
-export interface CategoryContributionShape {
-	id: number;
-
-	amount?: number;
-	unit?: string;
-
-	category?: CategoryShape;
-	categoryId?: CategoryShape['id'];
-	contribution?: CategoryShape;
-	contributionId?: CategoryShape['id'];
-}
-
-interface CategoryContribution extends Omit<CategoryContributionShape, 'category' | 'contribution'> {
-	category?: Category;
-	contribution?: Category;
-}
-
-// eslint-disable-next-line no-redeclare
+interface CategoryContribution extends CategoryContributionShape {}
 class CategoryContribution extends Model {
 	static get tableName() {
 		return 'CategoryContribution';
@@ -60,7 +43,5 @@ class CategoryContribution extends Model {
     }
   }
 }
-
-export type CategoryContributionPartialShape = DeepPartial<CategoryContributionShape>;
 
 export default CategoryContribution;

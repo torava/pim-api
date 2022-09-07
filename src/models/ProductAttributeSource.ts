@@ -1,26 +1,12 @@
 
 
+import ProductAttributeSourceShape from '@torava/product-utils/dist/models/ProductAttributeSource';
 import { Model } from 'objection';
-import ProductAttribute, { ProductAttributeShape } from './ProductAttribute';
-import Source, { SourceShape } from './Source';
 
-export interface ProductAttributeSourceShape {
-	id: number;
+import ProductAttribute from './ProductAttribute';
+import Source from './Source';
 
-	referenceUrl?: string;
-	referenceDate?: string;
-	note?: string;
-	countryCode?: string;
-
-	attribute?: ProductAttributeShape;
-	source?: SourceShape;
-}
-
-interface ProductAttributeSource extends Omit<ProductAttributeSourceShape, 'attribute' | 'source'> {
-	attribute?: ProductAttribute;
-	source?: Source;
-}
-// eslint-disable-next-line no-redeclare
+interface ProductAttributeSource extends ProductAttributeSourceShape {}
 class ProductAttributeSource extends Model {
 	static get tableName() {
 		return 'ProductAttributeSource';

@@ -1,6 +1,6 @@
 import {Model} from 'objection';
 
-export default class Conversion extends Model {
+class Conversion extends Model {
 	static get tableName() {
 		return 'Conversion';
 	}
@@ -20,3 +20,5 @@ export default class Conversion extends Model {
 		}
 	}
 }
+
+export default Conversion;

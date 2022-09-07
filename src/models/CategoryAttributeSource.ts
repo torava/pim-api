@@ -5,7 +5,6 @@ import CategoryAttribute from './CategoryAttribute';
 import Source from './Source';
 
 interface CategoryAttributeSource extends CategoryAttributeSourceShape {}
-// eslint-disable-next-line no-redeclare
 class CategoryAttributeSource extends Model {
 	static get tableName() {
 		return 'CategoryAttributeSource';

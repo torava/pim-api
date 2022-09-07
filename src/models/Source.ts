@@ -1,21 +1,9 @@
+import SourceShape from '@torava/product-utils/dist/models/Source';
 import { Model } from 'objection';
 
-import { DeepPartial } from '../utils/types';
-
-export interface SourceShape {
-	id?: number;
-
-	'#id'?: string;
-	
-	name?: string;
-	authors?: string;
-	publicationUrl?: string;
-	publicationDate?: string;
-	countryCode?: string;
+interface Source extends SourceShape {
+	'#id'?: string
 }
-
-interface Source extends SourceShape {}
-// eslint-disable-next-line no-redeclare
 class Source extends Model {
 	static get tableName() {
 		return 'Source';
@@ -36,7 +24,5 @@ class Source extends Model {
 		}
 	}
 }
-
-export type SourcePartialShape = DeepPartial<SourceShape>;
 
 export default Source;
