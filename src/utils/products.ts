@@ -7,15 +7,16 @@ import ProductShape from "@torava/product-utils/dist/models/Product";
 import AttributeShape from "@torava/product-utils/dist/models/Attribute";
 import ProductAttributeShape from "@torava/product-utils/dist/models/ProductAttribute";
 import CategoryContributionShape from "@torava/product-utils/dist/models/CategoryContribution";
+import { getCategoriesWithAttributes } from "@torava/product-utils/dist/utils/categories";
+import { stripDetails, stripName } from "@torava/product-utils/dist/utils/transactions";
+import { NameTranslations, Token } from "@torava/product-utils/dist/utils/types";
 
 import Category from "../models/Category";
 import Manufacturer from "../models/Manufacturer";
 import Product from "../models/Product";
 import { getAttributeValues, getMaxAttributeValue, getMinAttributeValue } from "./attributes";
 import { convertMeasure } from "./entities";
-import { NameTranslations, ObjectEntries, Token } from "./types";
-import { getCategoriesWithAttributes } from "@torava/product-utils/dist/utils/categories";
-import { stripDetails, stripName } from "@torava/product-utils/dist/utils/transactions";
+import { ObjectEntries } from "./types";
 
 export const getProductCategoryMinMaxAttributes = (
   category?: CategoryShape,

@@ -9,6 +9,7 @@ import {
   getContributionsFromList,
   getStrippedChildCategories,
 } from '@torava/product-utils/dist/utils/categories';
+import { Locale } from '@torava/product-utils/dist/utils/types';
 import { Page } from 'objection';
 
 import Product from '../models/Product';
@@ -16,7 +17,6 @@ import Attribute from '../models/Attribute';
 import Category from '../models/Category';
 import { resolveProductAttributes, getClosestProduct } from '../utils/products';
 import { getLeafIds } from '../utils/entities';
-import { Locale } from '../utils/types';
 import Brand from '../models/Brand';
 
 export default async (app: express.Application) => {

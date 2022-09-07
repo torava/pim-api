@@ -3,7 +3,7 @@ import CategoryShape from '@torava/product-utils/dist/models/Category';
 import CategoryAttributeShape from '@torava/product-utils/dist/models/CategoryAttribute';
 import CategoryAttributeSourceShape from '@torava/product-utils/dist/models/CategoryAttributeSource';
 import PartyShape from '@torava/product-utils/dist/models/Party';
-import SourceShape from '@torava/product-utils/dist/models/Source';
+import { NameTranslations } from '@torava/product-utils/dist/utils/types';
 import parse from 'csv-parse/lib/sync';
 import fs from 'fs';
 import moment from 'moment';
@@ -14,7 +14,7 @@ import CategoryAttribute from '../models/CategoryAttribute';
 import CategoryContribution from '../models/CategoryContribution';
 import Party from '../models/Party';
 import Source from '../models/Source';
-import { Id, Ids, NameTranslations, Parent } from './types';
+import { Id, Ids, Parent } from './types';
 
 function convertFirstLetterCapital(text: string) {
   return text ? text.substring(0,1).toUpperCase()+text.substring(1).toLowerCase() : text;
