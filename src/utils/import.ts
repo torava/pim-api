@@ -4,6 +4,7 @@ import CategoryAttributeShape from '@torava/product-utils/dist/models/CategoryAt
 import CategoryAttributeSourceShape from '@torava/product-utils/dist/models/CategoryAttributeSource';
 import PartyShape from '@torava/product-utils/dist/models/Party';
 import { NameTranslations } from '@torava/product-utils/dist/utils/types';
+import csvParse from 'csv-parse';
 import parse from 'csv-parse/lib/sync';
 import fs from 'fs';
 import moment from 'moment';
@@ -20,7 +21,7 @@ function convertFirstLetterCapital(text: string) {
   return text ? text.substring(0,1).toUpperCase()+text.substring(1).toLowerCase() : text;
 }
 
-export const getEntitiesFromCsv = (csv: string | Buffer, options = {}) => {
+export const getEntitiesFromCsv = (csv: string | Buffer, options: csvParse.Options = {}) => {
   const records = parse(csv, {
     columns: true,
     skipEmptyLines: true,

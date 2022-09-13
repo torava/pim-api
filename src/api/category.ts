@@ -2,6 +2,7 @@ import { PassThrough } from 'stream';
 import express from 'express';
 import { resolveCategories, resolveCategoryPrices } from '@torava/product-utils/dist/utils/categories';
 import { Locale } from '@torava/product-utils/dist/utils/types';
+import { UploadedFile } from 'express-fileupload';
 
 import Category from '../models/Category';
 import { getDiaryExcelFineliBuffer } from '../utils/getDiaryExcelFineli';
@@ -99,9 +100,13 @@ app.get('/api/category', async (req, res) => {
 });
 
 app.post('/api/category/diary', async (req, res) => {
+  // https://github.com/DefinitelyTyped/DefinitelyTyped/pull/40915#issuecomment-563917863
+  if (Array.isArray(req.files.upload)) {
+    throw new Error('Please upload only one file');
+  }
+
   console.log(req.body, req.files);
   // from https://stackoverflow.com/a/46520271/3136897
-  // @ts-ignore
   const buffer = req.files.upload.data;
   const updatedBuffer = await getDiaryExcelFineliBuffer(buffer);
 

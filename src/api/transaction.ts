@@ -2,13 +2,14 @@ import _ from 'lodash';
 import express from 'express';
 import TransactionShape from '@torava/product-utils/dist/models/Transaction';
 import moment from 'moment';
-import { CSVToArray, getNumber, resolveCategories, toTitleCase } from '@torava/product-utils/dist/utils/transactions';
+import { getNumber, resolveCategories, toTitleCase } from '@torava/product-utils/dist/utils/transactions';
 
 import Category from '../models/Category';
 import Item from '../models/Item';
 import Manufacturer from '../models/Manufacturer';
 import Product from '../models/Product';
 import Transaction from '../models/Transaction';
+import { getEntitiesFromCsv } from '../utils/import';
 
 export default (app: express.Application) => {
 
@@ -118,6 +119,10 @@ app.get('/api/transaction', async (req, res) => {
 
 app.post('/api/transaction', async (req, res) => {
   if ('fromcsv' in req.query) {
+    // https://github.com/DefinitelyTyped/DefinitelyTyped/pull/40915#issuecomment-563917863
+    if (Array.isArray(req.files.transactions)) {
+      throw new Error('Please upload only one file');
+    }
     let transaction: Record<string, TransactionShape> = {};
     const template = req.query.template || 'default';
     const indexes = TRANSACTION_CSV_INDEXES[template as keyof typeof TRANSACTION_CSV_INDEXES];
@@ -130,7 +135,10 @@ app.post('/api/transaction', async (req, res) => {
         tokens,
         measure,
         itemIndex = 0,
-        rows = CSVToArray(req.body.transaction, CSV_SEPARATOR[template as keyof typeof CSV_SEPARATOR]),
+        rows = getEntitiesFromCsv(req.files.transactions.data, {
+          delimiter: CSV_SEPARATOR[template as keyof typeof CSV_SEPARATOR],
+          columns: false
+        }),
         categoryRefs: string[] = [];
 
     try {
