@@ -39,7 +39,7 @@ export const writeDiaryExcelFineliFile = async (
   await workbook.xlsx.readFile(filename);
   getDiaryExcelFineliWorkbook(workbook, categories, attributes, products, locale);
   await workbook.xlsx.writeFile(`${filename}_price_ghg.xlsx`);
-}
+};
 export const getDiaryExcelFineliWorkbook = (
   workbook: Excel.Workbook,
   categories: CategoryShape[] = [],
