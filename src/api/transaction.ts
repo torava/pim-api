@@ -117,150 +117,150 @@ app.get('/api/transaction', async (req, res) => {
   }
 });
 
-app.post('/api/transaction', async (req, res) => {
-  if ('fromcsv' in req.query) {
-    // https://github.com/DefinitelyTyped/DefinitelyTyped/pull/40915#issuecomment-563917863
-    if (Array.isArray(req.files.transactions)) {
-      throw new Error('Please upload only one file');
-    }
-    let transaction: Record<string, TransactionShape> = {};
-    const template = req.query.template || 'default';
-    const indexes = TRANSACTION_CSV_INDEXES[template as keyof typeof TRANSACTION_CSV_INDEXES];
-    const startingRow = (
-      TRANSACTION_CSV_STARTING_ROW[template as keyof typeof TRANSACTION_CSV_STARTING_ROW] ||
-      TRANSACTION_CSV_STARTING_ROW['default']
-    );
+app.post('/api/transaction/csv', async (req, res) => {
+  // https://github.com/DefinitelyTyped/DefinitelyTyped/pull/40915#issuecomment-563917863
+  if (Array.isArray(req.files.transactions)) {
+    throw new Error('Please upload only one file');
+  }
+  let transaction: Record<string, TransactionShape> = {};
+  const template = req.query.template || 'default';
+  const indexes = TRANSACTION_CSV_INDEXES[template as keyof typeof TRANSACTION_CSV_INDEXES];
+  const startingRow = (
+    TRANSACTION_CSV_STARTING_ROW[template as keyof typeof TRANSACTION_CSV_STARTING_ROW] ||
+    TRANSACTION_CSV_STARTING_ROW['default']
+  );
 
-    let columns: string[],
-        tokens,
-        measure,
-        itemIndex = 0,
-        rows = getEntitiesFromCsv(req.files.transactions.data, {
-          delimiter: CSV_SEPARATOR[template as keyof typeof CSV_SEPARATOR],
-          columns: false
-        }),
-        categoryRefs: string[] = [];
+  let columns: string[],
+      tokens,
+      measure,
+      itemIndex = 0,
+      rows = getEntitiesFromCsv(req.files.transactions.data, {
+        delimiter: CSV_SEPARATOR[template as keyof typeof CSV_SEPARATOR],
+        columns: false
+      }),
+      categoryRefs: string[] = [];
 
-    try {
-      for (let i = startingRow; i < rows.length; i++) {
-        let columnKey = '';
-        columns = rows[i];
-        indexes.forEach(index => {
-            columnKey+= columns[index];
-        });
-        if (!(columnKey in transaction)) {
-          itemIndex = 0;
-          transaction[columnKey] = {items: [], party: {}, receipts: [], totalPrice: 0};
-        }
-        for (let n in columns) {
-          let columnName = TRANSACTION_CSV_COLUMNS[template as keyof typeof TRANSACTION_CSV_COLUMNS](itemIndex)[n];
+  try {
+    for (let i = startingRow; i < rows.length; i++) {
+      let columnKey = '';
+      columns = rows[i];
+      indexes.forEach(index => {
+          columnKey+= columns[index];
+      });
+      if (!(columnKey in transaction)) {
+        itemIndex = 0;
+        transaction[columnKey] = {items: [], party: {}, receipts: [], totalPrice: 0};
+      }
+      for (let n in columns) {
+        let columnName = TRANSACTION_CSV_COLUMNS[template as keyof typeof TRANSACTION_CSV_COLUMNS](itemIndex)[n];
 
-          let value = columns[n];
-          let numberValue: number;
+        let value = columns[n];
+        let numberValue: number;
 
-          if (!columnName || !value) continue;
+        if (!columnName || !value) continue;
 
-          console.log(i, columnName, value);
+        console.log(i, columnName, value);
 
-          if (columnName.split('.').includes('name') || columnName.split('.').includes(`name['fi-FI']`)) {
-            value = toTitleCase(value);
+        if (columnName.split('.').includes('name') || columnName.split('.').includes(`name['fi-FI']`)) {
+          value = toTitleCase(value);
 
-            if (columnName.split('.').includes('category')) {
-              if (categoryRefs.some(ref => ref === value)) {
-                columnName = columnName.replace(`name['fi-FI']`, '#ref');
-              }
-              else {
-                categoryRefs.push(value);
-                _.set(transaction[columnKey], columnName.replace(`name['fi-FI']`, '#id'), value);
-              }
-            }
-
-            tokens = value.match(/(\d{1,4})\s?((m|k)?((g|9)|(l|1)))/);
-            measure = tokens && parseFloat(tokens[1]);
-            if (measure) {
-              _.set(transaction[columnKey], `items[${itemIndex}].measure`, measure);
-              _.set(transaction[columnKey], `items[${itemIndex}].unit`, tokens[2]);
-            }
-          }
-
-          if (columnName.split('.')[1] === 'quantity_or_measure') {
-            if (value.match(/^\d+\.\d{3}$/)) {
-              columnName = columnName.replace('quantity_or_measure', 'measure');
-              numberValue = getNumber(value);
+          if (columnName.split('.').includes('category')) {
+            if (categoryRefs.some(ref => ref === value)) {
+              columnName = columnName.replace(`name['fi-FI']`, '#ref');
             }
             else {
-              columnName = columnName.replace('quantity_or_measure', 'quantity');
-              numberValue = parseFloat(value);
+              categoryRefs.push(value);
+              _.set(transaction[columnKey], columnName.replace(`name['fi-FI']`, '#id'), value);
             }
           }
-          else if (columnName === 'date_fi_FI') {
-            let date = value.split('.');
-            value = moment().format(`${date[2]}-${date[1].padStart(2, '0')}-${date[0].padStart(2, '0')}`);
-            columnName = 'date';
-          }
-          else if (columnName === 'time') {
-            let time = value.split(':');
-            value = moment(transaction[columnKey].date).add(time[0], 'hours').add(time[1], 'minutes').format();
-            columnName = 'date';
-          }
-          else if (columnName.split('.')[1] === 'price') {
-            numberValue = getNumber(value);
-            transaction[columnKey].totalPrice += numberValue;
-          }
-          if (columnName !== 'id') {
-            _.set(transaction[columnKey], columnName, numberValue || value);
+
+          tokens = value.match(/(\d{1,4})\s?((m|k)?((g|9)|(l|1)))/);
+          measure = tokens && parseFloat(tokens[1]);
+          if (measure) {
+            _.set(transaction[columnKey], `items[${itemIndex}].measure`, measure);
+            _.set(transaction[columnKey], `items[${itemIndex}].unit`, tokens[2]);
           }
         }
-        itemIndex++;
-      }
-    } catch (error) {
-      console.error(error);
-    }
-    
-    let promises = [];
-    for (let i in transaction) {
-      try {
-        await resolveCategories(transaction[i]);
-      } catch (error) {
-        console.error(error);
-        return res.sendStatus(500);
-      }
 
-      promises.push(
-        Transaction.query()
-        .upsertGraph(transaction[i], {relate: true})
-      );
+        if (columnName.split('.')[1] === 'quantity_or_measure') {
+          if (value.match(/^\d+\.\d{3}$/)) {
+            columnName = columnName.replace('quantity_or_measure', 'measure');
+            numberValue = getNumber(value);
+          }
+          else {
+            columnName = columnName.replace('quantity_or_measure', 'quantity');
+            numberValue = parseFloat(value);
+          }
+        }
+        else if (columnName === 'date_fi_FI') {
+          let date = value.split('.');
+          value = moment().format(`${date[2]}-${date[1].padStart(2, '0')}-${date[0].padStart(2, '0')}`);
+          columnName = 'date';
+        }
+        else if (columnName === 'time') {
+          let time = value.split(':');
+          value = moment(transaction[columnKey].date).add(time[0], 'hours').add(time[1], 'minutes').format();
+          columnName = 'date';
+        }
+        else if (columnName.split('.')[1] === 'price') {
+          numberValue = getNumber(value);
+          transaction[columnKey].totalPrice += numberValue;
+        }
+        if (columnName !== 'id') {
+          _.set(transaction[columnKey], columnName, numberValue || value);
+        }
+      }
+      itemIndex++;
     }
-    return Promise.all(promises)
-    .then(transaction => {
-      console.dir(transaction, {depth:null});
-      return res.send(transaction);
-    })
-    .catch(error => {
-      console.dir(transaction, {depth:null});
-      console.error(error);
-      return res.sendStatus(500);
-    });
-  } else {
-    const transaction = req.body[0];
+  } catch (error) {
+    console.error(error);
+  }
+  
+  let promises = [];
+  for (let i in transaction) {
     try {
-      const items = await Item.query()
-      .withGraphFetched('[product.[category]]');
-      const categories = await Category.query()
-      .withGraphFetched('[children, parent]');
-      const products = await Product.query();
-      const manufacturers = await Manufacturer.query();
-
-      await resolveCategories(transaction, items, products, categories, manufacturers);
-
-      console.dir(transaction, {depth:null});
-
-      return res.send(transaction);
+      await resolveCategories(transaction[i]);
     } catch (error) {
-      console.dir(transaction, {depth:null});
       console.error(error);
       return res.sendStatus(500);
     }
+
+    promises.push(
+      Transaction.query()
+      .upsertGraph(transaction[i], {relate: true})
+    );
+  }
+  return Promise.all(promises)
+  .then(transaction => {
+    console.dir(transaction, {depth:null});
+    return res.send(transaction);
+  })
+  .catch(error => {
+    console.dir(transaction, {depth:null});
+    console.error(error);
+    return res.sendStatus(500);
+  });
+});
+
+app.post('/api/transaction', async (req, res) => {
+  const transaction = req.body[0];
+  try {
+    const items = await Item.query()
+    .withGraphFetched('[product.[category]]');
+    const categories = await Category.query()
+    .withGraphFetched('[children, parent]');
+    const products = await Product.query();
+    const manufacturers = await Manufacturer.query();
+
+    await resolveCategories(transaction, items, products, categories, manufacturers);
+
+    console.dir(transaction, {depth:null});
+
+    return res.send(transaction);
+  } catch (error) {
+    console.dir(transaction, {depth:null});
+    console.error(error);
+    return res.sendStatus(500);
   }
 });
 
