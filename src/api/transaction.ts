@@ -10,6 +10,7 @@ import Manufacturer from '../models/Manufacturer';
 import Product from '../models/Product';
 import Transaction from '../models/Transaction';
 import { getEntitiesFromCsv } from '../utils/import';
+import { DeepPartial } from '@torava/product-utils/dist/utils/types';
 
 export default (app: express.Application) => {
 
@@ -31,7 +32,7 @@ const TRANSACTION_CSV_COLUMNS = {
     'party.name',
     `items[${i}].product.category.name['fi-FI']`,
     `items[${i}].product.name`,
-    `items[${i}].product.product_number`,
+    `items[${i}].product.productNumber`,
     null,
     `items[${i}].quantity_or_measure`,
     null,
@@ -122,7 +123,7 @@ app.post('/api/transaction/csv', async (req, res) => {
   if (Array.isArray(req.files.transactions)) {
     throw new Error('Please upload only one file');
   }
-  let transaction: Record<string, TransactionShape> = {};
+  let transactions: Record<string, DeepPartial<Transaction>> = {};
   const template = req.query.template || 'default';
   const indexes = TRANSACTION_CSV_INDEXES[template as keyof typeof TRANSACTION_CSV_INDEXES];
   const startingRow = (
@@ -137,8 +138,7 @@ app.post('/api/transaction/csv', async (req, res) => {
       rows = getEntitiesFromCsv(req.files.transactions.data, {
         delimiter: CSV_SEPARATOR[template as keyof typeof CSV_SEPARATOR],
         columns: false
-      }),
-      categoryRefs: string[] = [];
+      });
 
   try {
     for (let i = startingRow; i < rows.length; i++) {
@@ -147,9 +147,9 @@ app.post('/api/transaction/csv', async (req, res) => {
       indexes.forEach(index => {
           columnKey+= columns[index];
       });
-      if (!(columnKey in transaction)) {
+      if (!(columnKey in transactions)) {
         itemIndex = 0;
-        transaction[columnKey] = {items: [], party: {}, receipts: [], totalPrice: 0};
+        transactions[columnKey] = {items: [], party: {}, receipts: [], totalPrice: 0};
       }
       for (let n in columns) {
         let columnName = TRANSACTION_CSV_COLUMNS[template as keyof typeof TRANSACTION_CSV_COLUMNS](itemIndex)[n];
@@ -164,26 +164,16 @@ app.post('/api/transaction/csv', async (req, res) => {
         if (columnName.split('.').includes('name') || columnName.split('.').includes(`name['fi-FI']`)) {
           value = toTitleCase(value);
 
-          if (columnName.split('.').includes('category')) {
-            if (categoryRefs.some(ref => ref === value)) {
-              columnName = columnName.replace(`name['fi-FI']`, '#ref');
-            }
-            else {
-              categoryRefs.push(value);
-              _.set(transaction[columnKey], columnName.replace(`name['fi-FI']`, '#id'), value);
-            }
-          }
-
           tokens = value.match(/(\d{1,4})\s?((m|k)?((g|9)|(l|1)))/);
           measure = tokens && parseFloat(tokens[1]);
           if (measure) {
-            _.set(transaction[columnKey], `items[${itemIndex}].measure`, measure);
-            _.set(transaction[columnKey], `items[${itemIndex}].unit`, tokens[2]);
+            _.set(transactions[columnKey], `items[${itemIndex}].measure`, measure);
+            _.set(transactions[columnKey], `items[${itemIndex}].unit`, tokens[2]);
           }
         }
 
         if (columnName.split('.')[1] === 'quantity_or_measure') {
-          if (value.match(/^\d+\.\d{3}$/)) {
+          if (value.match(/^\d+(\.|,)\d+$/)) {
             columnName = columnName.replace('quantity_or_measure', 'measure');
             numberValue = getNumber(value);
           }
@@ -199,15 +189,15 @@ app.post('/api/transaction/csv', async (req, res) => {
         }
         else if (columnName === 'time') {
           let time = value.split(':');
-          value = moment(transaction[columnKey].date).add(time[0], 'hours').add(time[1], 'minutes').format();
+          value = moment(transactions[columnKey].date).add(time[0], 'hours').add(time[1], 'minutes').format();
           columnName = 'date';
         }
         else if (columnName.split('.')[1] === 'price') {
           numberValue = getNumber(value);
-          transaction[columnKey].totalPrice += numberValue;
+          transactions[columnKey].totalPrice += numberValue;
         }
         if (columnName !== 'id') {
-          _.set(transaction[columnKey], columnName, numberValue || value);
+          _.set(transactions[columnKey], columnName, numberValue || value);
         }
       }
       itemIndex++;
@@ -215,31 +205,55 @@ app.post('/api/transaction/csv', async (req, res) => {
   } catch (error) {
     console.error(error);
   }
+
+  const items = await Item.query();
+  const products = await Product.query();
+  const categories = await Category.query().withGraphFetched('[attributes]');
+  const manufacturers = await Manufacturer.query();
   
   let promises = [];
-  for (let i in transaction) {
+  let categoryIds: Record<string, number> = {};
+  for await (let transaction of Object.values(transactions)) {
     try {
-      await resolveCategories(transaction[i]);
+      await resolveCategories(transaction, items, products, categories, manufacturers);
     } catch (error) {
       console.error(error);
       return res.sendStatus(500);
     }
 
+    for await (const item of transaction.items) {
+      if (!item.product.categoryId) {
+        const name = item.product.category.name['fi-FI'];
+        if (!categoryIds[name]) {
+          const insertedCategory = await Category.query().insert({
+            name: {
+              'fi-FI': name
+            }
+          });
+          categoryIds[name] = insertedCategory.id;
+        } else {
+          item.product.categoryId = categoryIds[name];
+          delete item.product.category;
+        }
+      }
+    }
+
     promises.push(
       Transaction.query()
-      .upsertGraph(transaction[i], {relate: true})
+      .insertGraph(transaction, {relate: true})
     );
   }
-  return Promise.all(promises)
-  .then(transaction => {
-    console.dir(transaction, {depth:null});
-    return res.send(transaction);
-  })
-  .catch(error => {
-    console.dir(transaction, {depth:null});
+  
+  try {
+    const transactions = await Promise.all(promises);
+    console.dir(transactions, {depth:null});
+    res.send(transactions);
+  }
+  catch (error) {
+    console.dir(transactions, {depth:null});
     console.error(error);
-    return res.sendStatus(500);
-  });
+    res.sendStatus(500);
+  }
 });
 
 app.post('/api/transaction', async (req, res) => {
