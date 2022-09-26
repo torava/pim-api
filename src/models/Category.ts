@@ -6,7 +6,10 @@ import CategoryContribution from './CategoryContribution';
 import Product from './Product';
 
 // https://dev.to/tylerlwsmith/using-a-typescript-interface-to-define-model-properties-in-objection-js-1231
-interface Category extends CategoryShape {}
+interface Category extends CategoryShape {
+	'#id': string;
+	'#ref': string;
+}
 class Category extends Model {
 	static get tableName() {
 		return 'Category';

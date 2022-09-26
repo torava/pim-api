@@ -4,7 +4,10 @@ import ItemShape from '@torava/product-utils/dist/models/Item';
 import Transaction from './Transaction';
 import Product from './Product';
 
-interface Item extends ItemShape {}
+interface Item extends ItemShape {
+	transaction: Transaction;
+	product: Product;
+}
 class Item extends Model {
 	static get tableName() {
 		return 'Item';

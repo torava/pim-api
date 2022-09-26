@@ -7,9 +7,15 @@ import Category from './Category';
 import Manufacturer from './Manufacturer';
 import ProductContribution from './ProductContribution';
 import Brand from './Brand';
-import { DeepPartial } from '../utils/types';
 
-interface Product extends ProductShape {}
+interface Product extends ProductShape {
+	items: Item[];
+	attributes: ProductAttribute[];
+	category: Category;
+	manufacturer: Manufacturer;
+	brand: Brand;
+	contributions: ProductContribution[];
+}
 class Product extends Model {
 	static get tableName() {
 		return 'Product';

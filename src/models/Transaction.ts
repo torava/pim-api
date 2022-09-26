@@ -7,7 +7,12 @@ import Receipt from './Receipt';
 import Item from './Item';
 import Group from './Group';
 
-interface Transaction extends TransactionShape {}
+interface Transaction extends TransactionShape {
+	party: Party;
+	group: Group;
+	receipts: Receipt[];
+	items: Item[];
+}
 class Transaction extends Model {
 	static get tableName() {
 		return 'Transaction';
