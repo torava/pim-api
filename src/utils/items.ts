@@ -72,10 +72,10 @@ export const getItemMeasure = (item: ItemShape) => item.measure || item.product.
 export const getItemUnit = (item: ItemShape) => item.unit || item.product.unit;
 
 export const getItemsFromCsv = async (
-  itemRecords: ItemShape[],
+  itemRecords: Item[],
   productRecords: {[key: string]: any}[],
   partyRecords: PartyShape[],
-  transactionRecords: TransactionShape[],
+  transactionRecords: Transaction[],
   sourceRecords: SourceShape[] = []
 ) => {
   let transactionRecordIdMap: {[key: number]: Transaction} = {},
@@ -95,7 +95,7 @@ export const getItemsFromCsv = async (
     const entity = await Transaction.query()
       .insertAndFetch({
         ...record,
-        id: undefined,
+        id: undefined
       })
       .returning("*");
     transactionRecordIdMap[record.id] = entity;
