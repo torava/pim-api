@@ -221,20 +221,11 @@ app.post('/api/transaction/csv', async (req, res) => {
       return res.sendStatus(500);
     }
 
-    for await (const item of transaction.items) {
+    for (const item of transaction.items) {
       if (!item.product.categoryId) {
         const name = item.product.category.name['fi-FI'];
-        if (!categoryIds[name]) {
-          const insertedCategory = await Category.query().insert({
-            name: {
-              'fi-FI': name
-            }
-          });
-          categoryIds[name] = insertedCategory.id;
-        } else {
-          item.product.categoryId = categoryIds[name];
-          delete item.product.category;
-        }
+        console.log('Skipping orphan category', name);
+        delete item.product.category;
       }
     }
 
