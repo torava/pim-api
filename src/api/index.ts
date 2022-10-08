@@ -10,6 +10,7 @@ import brand from './brand';
 import manufacturer from './manufacturer';
 import party from './party';
 import group from './group';
+import receipt from './receipt';
 
 export default (app: express.Application) => {
   product(app);
@@ -22,4 +23,5 @@ export default (app: express.Application) => {
   manufacturer(app);
   party(app);
   group(app);
+  receipt(app);
 }

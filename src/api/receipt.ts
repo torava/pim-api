@@ -5,17 +5,17 @@ import child_process from 'child_process';
 import _ from 'lodash';
 import { extractBarCode, getCVSrcFromBase64, rotate, getBufferFromCVSrc, decodeBase64Image } from '@torava/product-utils/dist/utils/imageProcessing';
 import { extractTextFromFile, getTransactionsFromReceipt, processReceiptImage } from '@torava/product-utils/dist/utils/receipts';
+import CategoryShape from '@torava/product-utils/dist/models/Category';
+import ProductShape from '@torava/product-utils/dist/models/Product';
+import ManufacturerShape from '@torava/product-utils/dist/models/Manufacturer';
+import ReceiptShape from '@torava/product-utils/dist/models/Receipt';
+import TransactionShape from '@torava/product-utils/dist/models/Transaction';
 
 import Transaction from '../models/Transaction';
 import Product from '../models/Product';
 import Category from '../models/Category';
 import Manufacturer from '../models/Manufacturer';
 import Receipt from '../models/Receipt';
-import CategoryShape from '@torava/product-utils/dist/models/Category';
-import ProductShape from '@torava/product-utils/dist/models/Product';
-import ManufacturerShape from '@torava/product-utils/dist/models/Manufacturer';
-import ReceiptShape from '@torava/product-utils/dist/models/Receipt';
-import TransactionShape from '@torava/product-utils/dist/models/Transaction';
 
 export default (app: express.Application) => {
 
@@ -217,7 +217,11 @@ app.post('/api/receipt/osd/', function(req, res) {
 });
 
 app.post('/api/receipt/recognize/', async (req, res) => {
-  const base64Data = req.body.src;
+  if (Array.isArray(req.files.receipt)) {
+    console.error('Please upload only one file');
+    return res.sendStatus(500);
+  }
+  const buffer = req.files.receipt.data;
   const id: string = req.body.id;
   const name = `${id}_pre`;
   const path = `${RECEIPT_UPLOAD_PATH}/${name}`;
@@ -228,7 +232,7 @@ app.post('/api/receipt/recognize/', async (req, res) => {
   //console.log('cv', cv.getBuildInformation());
 
   try {
-    uploadReceiptFromBase64(name, base64Data);
+    uploadReceipt(name, buffer);
   } catch (error) {
     console.error(error);
     return res.sendStatus(500);
@@ -250,21 +254,21 @@ app.post('/api/receipt/recognize/', async (req, res) => {
     console.log('stdout', stdout);
 
     try {
-      let src = getCVSrcFromBase64(base64Data);
+      let src = getCVSrcFromBase64(buffer.toString('base64'));
       const rotation = stdout.match(/Rotate: (\d+)/);
       console.log('rotate', rotation);
       if (rotation && parseInt(rotation[1])) {
         const angle = 360-parseInt(rotation[1]);
         src = rotate(src, angle);
-        const buffer = getBufferFromCVSrc(src);
-        await uploadReceipt(name, buffer);
+        const rotatedBuffer = getBufferFromCVSrc(src);
+        uploadReceipt(name, rotatedBuffer);
       }
       
       src = extractBarCode(src);
   
-      const buffer = getBufferFromCVSrc(src);
-      console.log('buffer', buffer);
-      await uploadReceipt(nameNoBarcode, buffer);
+      const extractedBuffer = getBufferFromCVSrc(src);
+      console.log('buffer', extractedBuffer);
+      uploadReceipt(nameNoBarcode, extractedBuffer);
   
       src.delete();
     } catch(error) {
