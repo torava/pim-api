@@ -1,7 +1,7 @@
 import Excel from 'exceljs';
 import CategoryShape from '@torava/product-utils/dist/models/Category';
 import { Locale } from '@torava/product-utils/dist/utils/types';
-import { resolveCategoryAttributes } from '@torava/product-utils/dist/utils/categories';
+import { resolveCategoryAttributes, resolveCategoryContributionPrices } from '@torava/product-utils/dist/utils/categories';
 import AttributeShape from '@torava/product-utils/dist/models/Attribute';
 import ProductShape from '@torava/product-utils/dist/models/Product';
 import Knex from 'knex';
@@ -11,19 +11,22 @@ import knexConfig from '../../knexfile';
 import Category from '../models/Category';
 import Attribute from '../models/Attribute';
 import Product from '../models/Product';
+import Item from '../models/Item';
+import ItemShape from '@torava/product-utils/dist/models/Item';
 
 export const getDiaryExcelFineliBuffer = async (
   buffer: Buffer,
   locale: Locale = Locale['fi-FI']
 ) => {
   const categories = await Category.query()
-  .withGraphFetched('[contributions, attributes]');
+  .withGraphFetched('[contributions.[contribution.[products]], attributes]');
   const products = await Product.query()
   .withGraphFetched('[items]');
   const attributes = await Attribute.query();
+  const items = await Item.query();
   const workbook = new Excel.Workbook();
   await workbook.xlsx.load(buffer);
-  getDiaryExcelFineliWorkbook(workbook, categories, attributes, products, locale);
+  getDiaryExcelFineliWorkbook(workbook, categories, attributes, products, items, locale);
   return await workbook.xlsx.writeBuffer();
 };
 export const writeDiaryExcelFineliFile = async (
@@ -34,10 +37,11 @@ export const writeDiaryExcelFineliFile = async (
   .withGraphFetched('[contributions, attributes]');
   const products = await Product.query()
   .withGraphFetched('[items]');
+  const items = await Item.query();
   const attributes = await Attribute.query();
   const workbook = new Excel.Workbook();
   await workbook.xlsx.readFile(filename);
-  getDiaryExcelFineliWorkbook(workbook, categories, attributes, products, locale);
+  getDiaryExcelFineliWorkbook(workbook, categories, attributes, products, items, locale);
   await workbook.xlsx.writeFile(`${filename}_price_ghg.xlsx`);
 };
 export const getDiaryExcelFineliWorkbook = (
@@ -45,6 +49,7 @@ export const getDiaryExcelFineliWorkbook = (
   categories: CategoryShape[] = [],
   attributes: AttributeShape[] = [],
   products: ProductShape[] = [],
+  items: ItemShape[] = [],
   locale: Locale = Locale['fi-FI']
 ) => {
   let totalMealMin = 0,
@@ -112,7 +117,7 @@ export const getDiaryExcelFineliWorkbook = (
       );
       if (category) {
         const categoryProduct = products.find(product => product.categoryId === category.id);
-        const price = categoryProduct?.items[0]?.price;
+        const price = resolveCategoryContributionPrices(category, products, items) || categoryProduct?.items[0]?.price;
         const portionAttribute = attributes.find(
           (attribute) => attribute.code === unit
         );
