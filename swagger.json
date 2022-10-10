@@ -29,6 +29,29 @@
         }
       }
     },
+    "/api/item": {
+      "get": {
+        "description": "Returns a list of items",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Item"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
     "/api/category/{id}": {
       "get": {
         "description": "Returns category by id",
