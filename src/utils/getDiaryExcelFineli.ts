@@ -115,22 +115,22 @@ export const getDiaryExcelFineliWorkbook = (
       const category = categories.find(
         (category) => category.name?.[locale] === food
       );
-      if (category) {
+      console.log(food, unit);
+      const foodUnitAttribute = attributes.find(
+        (attribute) => attribute.code === unit
+      );
+      if (category && foodUnitAttribute) {
         const categoryProduct = products.find(product => product.categoryId === category.id);
-        const price = resolveCategoryContributionPrices(category, products, items) || categoryProduct?.items[0]?.price;
-        const portionAttribute = attributes.find(
-          (attribute) => attribute.code === unit
-        );
+        const price = resolveCategoryContributionPrices(category, products, items, foodUnitAttribute, 0.9) || categoryProduct?.items[0]?.price;
         const { categoryAttributes, measure } = resolveCategoryAttributes(
           category,
           [1],
-          portionAttribute,
+          foodUnitAttribute,
           categories,
           attributes,
           0.9
         );
         console.log(
-          food,
           categoryAttributes[0]?.value,
           categoryAttributes[0]?.unit,
           categoryAttributes[0]?.type,
