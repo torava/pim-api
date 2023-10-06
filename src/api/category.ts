@@ -2,6 +2,8 @@ import { PassThrough } from 'stream';
 import express from 'express';
 import { resolveCategories, resolveCategoryPrices } from '@torava/product-utils/dist/utils/categories';
 import { Locale } from '@torava/product-utils/dist/utils/types';
+import bodyParser from 'body-parser';
+import fileUpload from 'express-fileupload';
 
 import Category from '../models/Category';
 import { getDiaryExcelFineliBuffer } from '../utils/getDiaryExcelFineli';
@@ -19,6 +21,39 @@ app.get('/api/category/all', async (req, res) => {
     res.sendStatus(500);
   }
 });
+
+app.post(
+  "/api/category/diary",
+  bodyParser.raw({
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    limit: '50mb'
+  }),
+  async (req, res) => {
+    // @ts-ignore
+    // https://github.com/DefinitelyTyped/DefinitelyTyped/pull/40915#issuecomment-563917863
+    if (Array.isArray(req.files.upload)) {
+      throw new Error('Please upload only one file');
+    }
+    
+    const updatedBuffer = await getDiaryExcelFineliBuffer(req.files.upload.data);
+
+    // from https://stackoverflow.com/a/45922316/3136897
+    const readStream = new PassThrough();
+    readStream.end(updatedBuffer);
+
+    // @ts-ignore
+    res.set(
+      "Content-disposition",
+      `attachment; filename="${req.files.upload.name}_price_ghg.xlsx"`
+    );
+    res.set(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+
+    readStream.pipe(res);
+  }
+);
 
 app.get('/api/category/:id', async (req, res) => {
   console.log(req.query, req.params);
@@ -96,28 +131,6 @@ app.get('/api/category', async (req, res) => {
       return res.sendStatus(500);
     }
   }
-});
-
-app.post('/api/category/diary', async (req, res) => {
-  // https://github.com/DefinitelyTyped/DefinitelyTyped/pull/40915#issuecomment-563917863
-  if (Array.isArray(req.files.upload)) {
-    throw new Error('Please upload only one file');
-  }
-
-  console.log(req.body, req.files);
-  // from https://stackoverflow.com/a/46520271/3136897
-  const buffer = req.files.upload.data;
-  const updatedBuffer = await getDiaryExcelFineliBuffer(buffer);
-
-  // from https://stackoverflow.com/a/45922316/3136897
-  const readStream = new PassThrough();
-  readStream.end(updatedBuffer);
-
-  // @ts-ignore
-  res.set('Content-disposition', `attachment; filename="${req.files.upload.name}_price_ghg.xlsx"`);
-  res.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-
-  readStream.pipe(res);
 });
 
 };

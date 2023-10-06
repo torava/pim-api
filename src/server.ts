@@ -6,7 +6,7 @@ import apicache from 'apicache';
 import Knex from 'knex';
 import {Model} from 'objection';
 import {JSDOM} from 'jsdom';
-import { Canvas, createCanvas, Image, ImageData } from 'canvas';
+import { Canvas, createCanvas, Image, ImageData } from '@napi-rs/canvas';
 import path from 'path';
 import bodyParser from 'body-parser';
 import swaggerUi from 'swagger-ui-express';
@@ -152,17 +152,20 @@ function installDOM() {
   const dom = new JSDOM();
   global.document = dom.window.document;
   // The rest enables DOM image and canvas and is provided by node-canvas
-  global.Image = Image;
-  global.HTMLCanvasElement = Canvas;
-  global.ImageData = ImageData;
+  // @ts-ignore
+  global.Image = Image; // @ts-ignore
+  global.HTMLCanvasElement = Canvas; // @ts-ignore
+  global.ImageData = ImageData; // @ts-ignore
   global.HTMLImageElement = Image;
 }
 
 function loadOpenCV() {
   return new Promise(resolve => {
+    // @ts-ignore
     global.Module = {
       onRuntimeInitialized: resolve
     };
+    // @ts-ignore
     global.cv = require('./static/lib/opencv.js');
   });
 }
@@ -170,6 +173,7 @@ function loadOpenCV() {
 installDOM();
 //loadOpenCV();
 
+// @ts-ignore
 global.createCanvas = (width: number, height: number) => createCanvas(width, height);
 
 app.listen(port, () => {
