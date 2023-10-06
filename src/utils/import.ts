@@ -17,7 +17,7 @@ import Party from '../models/Party';
 import Source from '../models/Source';
 import { Id, Ids, Parent } from './types';
 
-function convertFirstLetterCapital(text: string) {
+const convertFirstLetterCapital = (text: string) => {
   return text ? text.substring(0,1).toUpperCase()+text.substring(1).toLowerCase() : text;
 }
 

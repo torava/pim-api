@@ -222,6 +222,45 @@ exports.up = (knex) => (
       .inTable('Source');
     table.unique(['attributeId', 'sourceId']);
   }))
+  .then(() => createTableIfNotExists(knex, 'Recommendation', table => {
+    table.increments('id').primary();
+    table.float('value');
+    table.string('type');
+    table.string('unit');
+    table.string('perUnit');
+    table.integer('minimumAge');
+    table.integer('maximumAge');
+    table.string('sex');
+    table.float('weight');
+    table.integer('pav');
+    table.float('pal');
+    table.string('note');
+    table
+      .integer('attributeId')
+      .unsigned()
+      .references('id')
+      .inTable('Attribute')
+      .onDelete('CASCADE');
+  }))
+  .then(() => createTableIfNotExists(knex, 'RecommendationSource', table => {
+    table.increments('id').primary();
+    table.string('referenceDate');
+    table.string('referenceUrl');
+    table.string('note');
+    table.string('countryCode');
+    table
+      .integer('recommendationId')
+      .unsigned()
+      .references('id')
+      .inTable('Recommendation')
+      .onDelete('CASCADE');
+    table
+      .integer('sourceId')
+      .unsigned()
+      .references('id')
+      .inTable('Source');
+    table.unique(['recommendationId', 'sourceId']);
+  }))
   /*.then(() => createTableIfNotExists(knex, 'User', table => {
     table.increments('id').primary();
     table.string('name');
@@ -250,4 +289,6 @@ exports.down = knex => (
     .dropTableIfExists('Source')
     .dropTableIfExists('CategoryAttributeSource')
     .dropTableIfExists('ProductAttributeSource')
+    .dropTableIfExists('Recommendation')
+    .dropTableIfExists('RecommendationSource')
 );

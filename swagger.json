@@ -6,6 +6,29 @@
   },
   "host": "localhost:42808",
   "paths": {
+    "/api/recommendation": {
+      "get": {
+        "description": "Returns a list of recommendations",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Recommendation"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
     "/api/attribute": {
       "get": {
         "description": "Returns a list of attributes",
@@ -804,6 +827,45 @@
             "items": {
               "$ref": "#/components/schemas/Item"
             }
+          }
+        }
+      },
+      "Recommendation": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "value": {
+            "type": "integer"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "perUnit": {
+            "type": "string"
+          },
+          "minimumAge": {
+            "type": "number"
+          },
+          "maximumAge": {
+            "type": "number"
+          },
+          "sex": {
+            "type": "string"
+          },
+          "weight": {
+            "type": "number"
+          },
+          "pav": {
+            "type": "boolean"
+          },
+          "pal": {
+            "type": "number"
+          },
+          "note": {
+            "type": "string"
           }
         }
       }

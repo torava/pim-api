@@ -10,7 +10,7 @@ import Manufacturer from '../models/Manufacturer';
 import Source from '../models/Source';
 import { ObjectEntries } from './types';
 
-export const getCategoriesFromCsv = async (records: {[key: string]: string}[], sourceRecords: {[key: string]: string}[]) => {
+export const getCategoriesFromCsv = async (records: {[key: string]: string}[], sourceRecords: {[key: string]: string}[], sourceRecordIdMap: {[key: string]: SourceShape} = {}) => {
   try {
     let item: CategoryShape,
         found,
@@ -18,9 +18,22 @@ export const getCategoriesFromCsv = async (records: {[key: string]: string}[], s
         note,
         attributes = await Attribute.query(),
         categories = await Category.query(),
-        sourceRecordIdMap: {[key: string]: SourceShape} = {},
         attributeObject,
         value;
+
+    for await (const sourceRecord of sourceRecords) {
+      let source = sourceRecordIdMap[sourceRecord.id];
+      if (!source) {
+        const sourceRecordWithoutId: SourceShape = {...sourceRecord};
+        delete sourceRecordWithoutId.id;
+        try {
+          source = await Source.query().insertAndFetch(sourceRecordWithoutId).returning('*');
+          sourceRecordIdMap[sourceRecord.id] = {id: source.id};
+        } catch (error) {
+          console.error('Error while adding source', sourceRecord);
+        }
+      }
+    }
 
     for (const columns of records) {
       item = {};
@@ -72,25 +85,14 @@ export const getCategoriesFromCsv = async (records: {[key: string]: string}[], s
             note = column;
           } else if (columnName.toLowerCase() === 'sourceid') {
             const sourceRecord = sourceRecords.find(source => source.id === column);
+            let source = sourceRecordIdMap[sourceRecord.id];
             if (sourceRecord) {
-              let source = sourceRecordIdMap[sourceRecord.id];
-              if (!source) {
-                const sourceRecordWithoutId: SourceShape = {...sourceRecord};
-                delete sourceRecordWithoutId.id;
-                try {
-                  source = await Source.query().insertAndFetch(sourceRecordWithoutId).returning('*');
-                  sourceRecordIdMap[sourceRecord.id] = {id: source.id};
-                } catch (error) {
-                  console.error('Error while adding source', sourceRecord);
-                }
-              }
-              
               for (const m in item.attributes) {
                 if (!item.attributes[m].sources) {
                   item.attributes[m].sources = [];
                 }
                 item.attributes[m].sources.push({
-                  source,
+                  sourceId: source.id,
                   note
                 });
               }

@@ -11,8 +11,10 @@ import manufacturer from './manufacturer';
 import party from './party';
 import group from './group';
 import receipt from './receipt';
+import recommendation from './recommendation';
 
 export default (app: express.Application) => {
+  recommendation(app);
   product(app);
   transaction(app);
   item(app);
