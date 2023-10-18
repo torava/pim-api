@@ -125,11 +125,12 @@ app.post('/api/transaction/csv', async (req, res) => {
   }
   let transactions: Record<string, DeepPartial<Transaction>> = {};
   const template = req.query.template || 'default';
-  const indexes = TRANSACTION_CSV_INDEXES[template as keyof typeof TRANSACTION_CSV_INDEXES];
-  const startingRow = (
+  const indexes =
+    TRANSACTION_CSV_INDEXES[template as keyof typeof TRANSACTION_CSV_INDEXES] ||
+    TRANSACTION_CSV_INDEXES.default;
+  const startingRow =
     TRANSACTION_CSV_STARTING_ROW[template as keyof typeof TRANSACTION_CSV_STARTING_ROW] ||
-    TRANSACTION_CSV_STARTING_ROW['default']
-  );
+    TRANSACTION_CSV_STARTING_ROW.default;
 
   let columns: string[],
       tokens,
@@ -221,13 +222,13 @@ app.post('/api/transaction/csv', async (req, res) => {
       return res.sendStatus(500);
     }
 
-    for (const item of transaction.items) {
+    /*for (const item of transaction.items) {
       if (!item.product.categoryId) {
         const name = item.product.category.name['fi-FI'];
         console.log('Skipping orphan category', name);
         delete item.product.category;
       }
-    }
+    }*/
 
     promises.push(
       Transaction.query()

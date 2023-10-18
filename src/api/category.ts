@@ -29,19 +29,17 @@ app.post(
     limit: '50mb'
   }),
   async (req, res) => {
-    // @ts-ignore
     // https://github.com/DefinitelyTyped/DefinitelyTyped/pull/40915#issuecomment-563917863
     if (Array.isArray(req.files.upload)) {
       throw new Error('Please upload only one file');
     }
     
-    const updatedBuffer = await getDiaryExcelFineliBuffer(req.files.upload.data);
+    const updatedBuffer = await getDiaryExcelFineliBuffer(req.files.upload.data, req.query.locale as Locale);
 
     // from https://stackoverflow.com/a/45922316/3136897
     const readStream = new PassThrough();
     readStream.end(updatedBuffer);
 
-    // @ts-ignore
     res.set(
       "Content-disposition",
       `attachment; filename="${req.files.upload.name}_price_ghg.xlsx"`
