@@ -1,5 +1,126 @@
-code,name
-GHG,"{""en-US"": ""GHG"", ""fi-FI"": ""KHK"", ""sv-SE"": ""VHG""}"
-LAND,"{""en-US"": ""Land use"", ""fi-FI"": ""Maankäyttö"", ""sv-SE"": ""Markanvändning""}"
-EUTRO,"{""en-US"": ""Eutrophication"", ""fi-FI"": ""Rehevöityminen"", ""sv-SE"": ""Övergödning""}"
-FRESHW,"{""en-US"": ""Freshwater footprint"", ""fi-FI"": ""Makean veden jalanjälki"", ""sv-SE"": ""Sötvattenfotavtryck""}"
+"id","code","name","parentId"
+1,"GHG","{""en-US"": ""GHG"", ""fi-FI"": ""KHK"", ""sv-SE"": ""VHG""}",NULL
+2,"LAND","{""en-US"": ""Land use"", ""fi-FI"": ""Maankäyttö"", ""sv-SE"": ""Markanvändning""}",NULL
+3,"EUTRO","{""en-US"": ""Eutrophication"", ""fi-FI"": ""Rehevöityminen"", ""sv-SE"": ""Övergödning""}",NULL
+4,"FRESHW","{""en-US"": ""Freshwater footprint"", ""fi-FI"": ""Makean veden jalanjälki"", ""sv-SE"": ""Sötvattenfotavtryck""}",NULL
+5,"FOODUNITS","{""en-US"": ""Food units"", ""fi-FI"": ""Elintarvikkeiden yksiköt"", ""sv-SE"": ""Livsmedelsenheter""}",NULL
+6,"MACROCMP","{""en-US"": ""Macro-components"", ""fi-FI"": ""Perusravintoaineet"", ""sv-SE"": ""Makrokomponenter""}",NULL
+7,"ENERGY","{""en-US"": ""Energy"", ""fi-FI"": ""Energia"", ""sv-SE"": ""Energi""}",6
+8,"ENERC","{""en-US"": ""Energy,calculated"", ""fi-FI"": ""Energia, laskennallinen"", ""sv-SE"": ""Energi, beräknad""}",7
+9,"TOTALFAT","{""en-US"": ""Fat, total"", ""fi-FI"": ""Rasva"", ""sv-SE"": ""Fett, totalt""}",6
+10,"FAT","{""en-US"": ""Fat, total"", ""fi-FI"": ""Rasva"", ""sv-SE"": ""Fett, totalt""}",9
+11,"TOTALCAR","{""en-US"": ""Carbohydrates, total"", ""fi-FI"": ""Kokonaishiilihydraatti"", ""sv-SE"": ""Kolhydrater, totalt""}",6
+12,"CHOAVL","{""en-US"": ""Carbohydrate, available"", ""fi-FI"": ""Hiilihydraatti imeytyvä"", ""sv-SE"": ""Kolhydrater, digererbara""}",11
+13,"CHOCDF","{""en-US"": ""Carbohydrate, difference"", ""fi-FI"": ""Hiilihydraatti erotuksena"", ""sv-SE"": ""Kolhydrater, differensmetod""}",11
+14,"PROTEIN","{""en-US"": ""Protein"", ""fi-FI"": ""Proteiini"", ""sv-SE"": ""Protein""}",6
+15,"PROT","{""en-US"": ""Protein, total"", ""fi-FI"": ""Proteiini"", ""sv-SE"": ""Protein, totalt""}",14
+16,"ALCOHOL","{""en-US"": ""Alcohol"", ""fi-FI"": ""Alkoholi"", ""sv-SE"": ""Alkohol""}",6
+17,"ALC","{""en-US"": ""Alcohol"", ""fi-FI"": ""Alkoholi"", ""sv-SE"": ""Alkohol""}",16
+18,"ASH","{""en-US"": ""Ash"", ""fi-FI"": ""Tuhka"", ""sv-SE"": ""Aska""}",6
+19,"ASH","{""en-US"": ""Ash (minerals)"", ""fi-FI"": ""Tuhka (kivennäisaineet)"", ""sv-SE"": ""Aska (mineralämnen)""}",18
+20,"WATER","{""en-US"": ""Water"", ""fi-FI"": ""Vesi"", ""sv-SE"": ""Vatten""}",6
+21,"WATER","{""en-US"": ""Water (moisture)"", ""fi-FI"": ""Vesi (kosteus)"", ""sv-SE"": ""Vatten (fuktighet)""}",20
+22,"CARBOCMP","{""en-US"": ""Carbohydrate components"", ""fi-FI"": ""Hiilihydraattifraktiot"", ""sv-SE"": ""Kolhydrater, komponenter""}",NULL
+23,"ORGACID","{""en-US"": ""Organic acids"", ""fi-FI"": ""Orgaaniset hapot"", ""sv-SE"": ""Organiska syror""}",22
+24,"OA","{""en-US"": ""Organic acids, total"", ""fi-FI"": ""Orgaaniset hapot"", ""sv-SE"": ""Organiska syror, totalt""}",23
+25,"POLYOL","{""en-US"": ""Polyols"", ""fi-FI"": ""Polyolit"", ""sv-SE"": ""Polyoler""}",22
+26,"SUGOH","{""en-US"": ""Sugar alcohols"", ""fi-FI"": ""Sokerialkoholi"", ""sv-SE"": ""Sockeralkoholer""}",25
+27,"SUGARS","{""en-US"": ""Sugars"", ""fi-FI"": ""Sokerit"", ""sv-SE"": ""Sockerarter""}",22
+28,"SUGAR","{""en-US"": ""Sugars, total"", ""fi-FI"": ""Sokerit"", ""sv-SE"": ""Sockerarter, totalt""}",27
+29,"FRUS","{""en-US"": ""Fructose"", ""fi-FI"": ""Fruktoosi"", ""sv-SE"": ""Fruktos""}",27
+30,"GALS","{""en-US"": ""Galactose"", ""fi-FI"": ""Galaktoosi"", ""sv-SE"": ""Galaktos""}",27
+31,"GLUS","{""en-US"": ""Glucose"", ""fi-FI"": ""Glukoosi"", ""sv-SE"": ""Glukos""}",27
+32,"LACS","{""en-US"": ""Lactose"", ""fi-FI"": ""Laktoosi"", ""sv-SE"": ""Laktos""}",27
+33,"MALS","{""en-US"": ""Maltose"", ""fi-FI"": ""Maltoosi"", ""sv-SE"": ""Maltos""}",27
+34,"SUCS","{""en-US"": ""Sucrose"", ""fi-FI"": ""Sakkaroosi"", ""sv-SE"": ""Sackaros""}",27
+35,"STARCH","{""en-US"": ""Starch"", ""fi-FI"": ""Tärkkelys"", ""sv-SE"": ""Stärkelse""}",22
+36,"STARCH","{""en-US"": ""Starch, total"", ""fi-FI"": ""Tärkkelys"", ""sv-SE"": ""Stärkelse, totalt""}",35
+37,"FIBRE","{""en-US"": ""Fibre"", ""fi-FI"": ""Kuitu"", ""sv-SE"": ""Fiber""}",22
+38,"FIBC","{""en-US"": ""Fibre, total"", ""fi-FI"": ""Kuitu, kokonais-"", ""sv-SE"": ""Fiber, totalt""}",37
+39,"FIBT","{""en-US"": ""Fibre, total dietary"", ""fi-FI"": ""Kuitu yhteissumma"", ""sv-SE"": ""Fiber, totalt""}",37
+40,"FIBINS","{""en-US"": ""Fibre, water-insoluble"", ""fi-FI"": ""Kuitu veteen liukenematon"", ""sv-SE"": ""Fiber, olöslig""}",37
+41,"POLYSACC","{""en-US"": ""Polysaccharides"", ""fi-FI"": ""Polysakkaridit"", ""sv-SE"": ""Polysackarider""}",22
+42,"PSACNCS","{""en-US"": ""Polysaccharides, non-cellulosic, water-soluble"", ""fi-FI"": ""Polysakkaridi, vesiliukoinen ei-selluloosa"", ""sv-SE"": ""Polysackarider, icke-cellulosa, lösliga""}",41
+43,"VITAM","{""en-US"": ""Vitamins"", ""fi-FI"": ""Vitamiinit"", ""sv-SE"": ""Vitaminer""}",NULL
+44,"WSVITAM","{""en-US"": ""Water soluble vitamins"", ""fi-FI"": ""Vesiliukoiset vitamiinit"", ""sv-SE"": ""Vattenlösliga vitaminer""}",43
+45,"FOL","{""en-US"": ""Folate, total"", ""fi-FI"": ""Folaatti, kokonais-"", ""sv-SE"": ""Folat, total""}",44
+46,"NIAEQ","{""en-US"": ""Niacin equivalents, total"", ""fi-FI"": ""Niasiiniekvivalentti ne"", ""sv-SE"": ""Niacinekvivalenter""}",44
+47,"NIA","{""en-US"": ""Niacin, preformed (nicotinic acid + nicotinamide)"", ""fi-FI"": ""Niasiini (nikotiinihappo + nikotiiniamidi)"", ""sv-SE"": ""Niacin (nikotinsyra+nikotinamid)""}",44
+48,"VITPYRID","{""en-US"": ""Vitamers pyridoxine (hydrochloride)"", ""fi-FI"": ""Pyridoksiini vitameerit (vetykloridi) (b6)"", ""sv-SE"": ""Pyridoxin vitamerer (hydroklorid)""}",44
+49,"RIBF","{""en-US"": ""Riboflavine"", ""fi-FI"": ""Riboflaviini (b2)"", ""sv-SE"": ""Riboflavin""}",44
+50,"THIA","{""en-US"": ""Thiamin (vitamin b1)"", ""fi-FI"": ""Tiamiini (b1)"", ""sv-SE"": ""Tiamin (vitamin b1)""}",44
+51,"FSVITAM","{""en-US"": ""Fat soluble vitamins"", ""fi-FI"": ""Rasvaliukoiset vitamiinit"", ""sv-SE"": ""Fettlösliga vitaminer""}",43
+52,"VITA","{""en-US"": ""Vitamin a  retinol activity equivalents"", ""fi-FI"": ""A-vitamiini rae"", ""sv-SE"": ""Vitamin a rae""}",51
+53,"RETOL","{""en-US"": ""Retinol"", ""fi-FI"": ""Retinoli"", ""sv-SE"": ""Retinol""}",51
+54,"CAROTENS","{""en-US"": ""Carotenoids, total"", ""fi-FI"": ""Karotenoidit"", ""sv-SE"": ""Karotenoider, totalt""}",51
+55,"CARTB","{""en-US"": ""Beta-carotene, total"", ""fi-FI"": ""Beetakaroteeni, yhteensä"", ""sv-SE"": ""Beta-karoten, totalt""}",51
+56,"VITB12","{""en-US"": ""Vitamin b-12 (cobalamin)"", ""fi-FI"": ""B12-vitamiini (kobalamiini)"", ""sv-SE"": ""Vitamin b12 (kobalamin)""}",44
+57,"VITC","{""en-US"": ""Vitamin c (ascorbic acid)"", ""fi-FI"": ""C-vitamiini"", ""sv-SE"": ""Vitamin c (askorbinsyra)""}",44
+58,"VITD","{""en-US"": ""Vitamin d"", ""fi-FI"": ""D-vitamiini"", ""sv-SE"": ""Vitamin d""}",51
+59,"VITE","{""en-US"": ""Vitamin e  alphatocopherol"", ""fi-FI"": ""E-vitamiini alfatokoferoli"", ""sv-SE"": ""Vitamin e, alfatokoferol""}",51
+60,"VITK","{""en-US"": ""Vitamin k, total"", ""fi-FI"": ""K-vitamiini"", ""sv-SE"": ""Vitamin k, totalt""}",51
+61,"MINERAL","{""en-US"": ""Minerals"", ""fi-FI"": ""Kivennäis- ja hivenaineet"", ""sv-SE"": ""Mineralämnen""}",NULL
+62,"MACROELM","{""en-US"": ""Macroelements"", ""fi-FI"": ""Kivennäisaineet"", ""sv-SE"": ""Makroelement""}",61
+63,"CA","{""en-US"": ""Calcium"", ""fi-FI"": ""Kalsium"", ""sv-SE"": ""Kalcium""}",62
+64,"TRACEELM","{""en-US"": ""Trace elements"", ""fi-FI"": ""Hivenaineet"", ""sv-SE"": ""Spårelement""}",61
+65,"CR","{""en-US"": ""Chromium"", ""fi-FI"": ""Kromi"", ""sv-SE"": ""Krom""}",64
+66,"CU","{""en-US"": ""Copper"", ""fi-FI"": ""Kupari"", ""sv-SE"": ""Koppar""}",64
+67,"FD","{""en-US"": ""Fluoride (fluorine)"", ""fi-FI"": ""Fluoridi"", ""sv-SE"": ""Fluorid (fluor)""}",64
+68,"FE","{""en-US"": ""Iron, total"", ""fi-FI"": ""Rauta"", ""sv-SE"": ""Järn""}",64
+69,"ID","{""en-US"": ""Iodide (iodine)"", ""fi-FI"": ""Jodidi (jodi)"", ""sv-SE"": ""Jodid (jod)""}",64
+70,"K","{""en-US"": ""Potassium"", ""fi-FI"": ""Kalium"", ""sv-SE"": ""Kalium""}",62
+71,"MG","{""en-US"": ""Magnesium"", ""fi-FI"": ""Magnesium"", ""sv-SE"": ""Magnesium""}",62
+72,"MN","{""en-US"": ""Manganese"", ""fi-FI"": ""Mangaani"", ""sv-SE"": ""Mangan""}",64
+73,"MO","{""en-US"": ""Molybdenum"", ""fi-FI"": ""Molybdeeni"", ""sv-SE"": ""Molybden""}",64
+74,"NA","{""en-US"": ""Sodium"", ""fi-FI"": ""Natrium"", ""sv-SE"": ""Natrium""}",62
+75,"NACL","{""en-US"": ""Salt"", ""fi-FI"": ""Suola"", ""sv-SE"": ""Salt""}",62
+76,"NITROCMP","{""en-US"": ""Nitrogen components"", ""fi-FI"": ""Typpiyhdisteet"", ""sv-SE"": ""Kväveföreningar""}",NULL
+77,"NITROGEN","{""en-US"": ""Nitrogen"", ""fi-FI"": ""Typpi"", ""sv-SE"": ""Kväve""}",76
+78,"NT","{""en-US"": ""Nitrogen, total"", ""fi-FI"": ""Typpi, yhteensä"", ""sv-SE"": ""Kväve, totalt""}",77
+79,"P","{""en-US"": ""Phosphorus"", ""fi-FI"": ""Fosfori"", ""sv-SE"": ""Fosfor""}",62
+80,"SE","{""en-US"": ""Selenium, total"", ""fi-FI"": ""Seleeni"", ""sv-SE"": ""Selen""}",64
+81,"ZN","{""en-US"": ""Zinc"", ""fi-FI"": ""Sinkki"", ""sv-SE"": ""Zink""}",64
+82,"FAT","{""en-US"": ""Fat"", ""fi-FI"": ""Rasva"", ""sv-SE"": ""Fett""}",NULL
+83,"FATACID","{""en-US"": ""Fatty acids"", ""fi-FI"": ""Rasvahapot"", ""sv-SE"": ""Fettsyror""}",82
+84,"FAFRE","{""en-US"": ""Fatty acids, total"", ""fi-FI"": ""Rasvahapot yhteensä"", ""sv-SE"": ""Fettsyror, totalt""}",83
+85,"TRIGLYSE","{""en-US"": ""Triglycerides"", ""fi-FI"": ""Triglyseridit"", ""sv-SE"": ""Triglycerider""}",82
+86,"FACIDCTG","{""en-US"": ""Fatty acids, total, calculated as tag equivalents"", ""fi-FI"": ""Rasvahapot yhteensä, laskettu tag ekvivalenteiksi"", ""sv-SE"": ""Fettsyror, totalt, beräknade som tag ekvivalenter""}",85
+87,"FAPU","{""en-US"": ""Fatty acids, total polyunsaturated"", ""fi-FI"": ""Rasvahapot monityydyttymättömät"", ""sv-SE"": ""Fettsyror, fleromättade""}",83
+88,"FAMCIS","{""en-US"": ""Fatty acids, total monounsaturated cis"", ""fi-FI"": ""Rasvahapot yksittäistyydyttymättömät cis"", ""sv-SE"": ""Fettsyror, enkelomättade cis""}",83
+89,"FASAT","{""en-US"": ""Fatty acids, total saturated"", ""fi-FI"": ""Rasvahapot tyydyttyneet"", ""sv-SE"": ""Fettsyror, mättade""}",83
+90,"FATRN","{""en-US"": ""Fatty acids, total trans"", ""fi-FI"": ""Rasvahapot trans"", ""sv-SE"": ""Fettsyror, trans""}",83
+91,"FAPUN3","{""en-US"": ""Fatty acids, total n-3 polyunsaturated"", ""fi-FI"": ""Rasvahapot n-3 monityydyttymättömät"", ""sv-SE"": ""Fettsyror, n-3 fleromättade""}",83
+92,"FAPUN6","{""en-US"": ""Fatty acids, total n-6 polyunsaturated"", ""fi-FI"": ""Rasvahapot n-6 monityydyttymättömät"", ""sv-SE"": ""Fettsyror, n-6 fleromättade""}",83
+93,"FAS18","{""en-US"": ""Fatty acid isomers 18:0"", ""fi-FI"": ""Rasvahappoisomeerit 18:0"", ""sv-SE"": ""Fettsyra isomerer 18:0""}",83
+94,"F16D0T","{""en-US"": ""Fatty acid isomers 16:0"", ""fi-FI"": ""Rasvahappoisomeerit 16:0"", ""sv-SE"": ""Fettsyra isomerer 16:0""}",83
+95,"F18D1T","{""en-US"": ""Fatty acid isomers 18:1"", ""fi-FI"": ""Rasvahappoisomeerit 18:1"", ""sv-SE"": ""Fettsyra isomerer 18:1""}",83
+96,"F18D2CN6","{""en-US"": ""Fatty acid 18:2 cis,cis n-6 (linoleic acid)"", ""fi-FI"": ""Rasvahappo 18:2 cis,cis n-6 (linolihappo)"", ""sv-SE"": ""Fettsyra 18:2 cis,cis n-6 (linolsyra)""}",83
+97,"F18D3N3","{""en-US"": ""Fatty acid 18:3 n-3 (alpha-linolenic acid)"", ""fi-FI"": ""Rasvahappo 18:3 n-3 (alfalinoleenihappo)"", ""sv-SE"": ""Fettsyra 18:3 n-3 (alfa-linolensyra)""}",83
+98,"F20D4N6","{""en-US"": ""Fatty acid 20:4 n-6 (arachidonic acid)"", ""fi-FI"": ""Rasvahappo 20:4 n-6 (arakidonihappo)"", ""sv-SE"": ""Fettsyra 20:4 n-6 (arakidonsyra)""}",83
+99,"F20D5N3","{""en-US"": ""Fatty acid 20:5 n-3 (epa)"", ""fi-FI"": ""Rasvahappo 20:5 n-3 (epa)"", ""sv-SE"": ""Fettsyra 20:5 n-3 (epa)""}",83
+100,"F22D6N3","{""en-US"": ""Fatty acid 22:6 n-3 (dha)"", ""fi-FI"": ""Rasvahappo 22:6 n-3 (dha)"", ""sv-SE"": ""Fettsyra 22:6 n-3 (dha)""}",83
+101,"STEROL","{""en-US"": ""Sterols"", ""fi-FI"": ""Sterolit"", ""sv-SE"": ""Steroler""}",82
+102,"CHOLE","{""en-US"": ""Cholesterol (gc)"", ""fi-FI"": ""Kolesteroli (gc)"", ""sv-SE"": ""Kolesterol (gc)""}",101
+103,"STERT","{""en-US"": ""Sterols, total"", ""fi-FI"": ""Sterolit"", ""sv-SE"": ""Steroler, totalt""}",101
+104,"AMACID","{""en-US"": ""Amino acids"", ""fi-FI"": ""Aminohapot"", ""sv-SE"": ""Aminosyror""}",76
+105,"TRP","{""en-US"": ""Tryptophan"", ""fi-FI"": ""Tryptofaani"", ""sv-SE"": ""Tryptofan""}",104
+106,"NATINHCN","{""en-US"": ""Natural/inherent constituents"", ""fi-FI"": ""Luontainen ainesosa"", ""sv-SE"": ""Naturliga ingredienser""}",NULL
+107,"FLAVON","{""en-US"": ""Flavonoids"", ""fi-FI"": ""Flavonoidit"", ""sv-SE"": ""Flavonoider""}",106
+108,"MYRIC","{""en-US"": ""Myricetin"", ""fi-FI"": ""Myrisetiini"", ""sv-SE"": ""Myricetin""}",107
+109,"QUERCE","{""en-US"": ""Quercetin"", ""fi-FI"": ""Kversetiini"", ""sv-SE"": ""Kversetin""}",107
+110,"KG","{""en-US"": ""kg"", ""fi-FI"": ""kilogramma"", ""sv-SE"": ""kilogram""}",5
+111,"DL","{""en-US"": ""decilitre"", ""fi-FI"": ""desilitra"", ""sv-SE"": ""deciliter""}",5
+112,"L","{""en-US"": ""l"", ""fi-FI"": ""litra"", ""sv-SE"": ""liter""}",5
+113,"RKL","{""en-US"": ""tablespoon"", ""fi-FI"": ""ruokalusikka"", ""sv-SE"": ""matsked""}",5
+114,"TL","{""en-US"": ""teaspoon"", ""fi-FI"": ""teelusikka"", ""sv-SE"": ""tesked""}",5
+115,"KPL_S","{""en-US"": ""small piece"", ""fi-FI"": ""pieni (kpl)"", ""sv-SE"": ""litet stycke""}",5
+116,"KPL_M","{""en-US"": ""medium-sized piece"", ""fi-FI"": ""keskikokoinen (kpl)"", ""sv-SE"": ""medelstort stycke""}",5
+117,"KPL_L","{""en-US"": ""big piece"", ""fi-FI"": ""iso (kpl)"", ""sv-SE"": ""stort stycke""}",5
+118,"KPL_VALM","{""en-US"": ""Manufacturer (piece)"", ""fi-FI"": ""Valmistaja (kpl)"", ""sv-SE"": ""Producent (stycke)""}",5
+119,"PORTS","{""en-US"": ""small portion"", ""fi-FI"": ""pieni annos"", ""sv-SE"": ""liten portion""}",5
+120,"PORTM","{""en-US"": ""medium-sized portion"", ""fi-FI"": ""keskikokoinen annos"", ""sv-SE"": ""medelstor portion""}",5
+121,"PORTL","{""en-US"": ""big portion"", ""fi-FI"": ""iso annos"", ""sv-SE"": ""stor portion""}",5
+122,"PORTTBL","{""en-US"": ""Food composition table portion"", ""fi-FI"": ""Elintarviketaulukossa käytetty annos"", ""sv-SE"": ""Portion i livsmedels tabell""}",5
+123,"SPLPORT","{""en-US"": ""pieces of portion"", ""fi-FI"": ""kappaletta annosta"", ""sv-SE"": ""stycke av portion""}",5
+124,"PORT1000KJ","{""en-US"": ""Portion equivalent with 1000 kJ energy"", ""fi-FI"": ""Annoksen koko, joka vastaa 1000kJ"", ""sv-SE"": ""Portion som motsvarar 1000kJ energi""}",5
+125,NULL,"{""en-US"": ""Freshwater withdrawal"", ""fi-FI"": ""Freshwater withdrawal""}",NULL

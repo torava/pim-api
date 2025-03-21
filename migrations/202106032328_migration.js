@@ -225,7 +225,9 @@ exports.up = (knex) => (
   .then(() => createTableIfNotExists(knex, 'Recommendation', table => {
     table.increments('id').primary();
     table.float('value');
-    table.string('type');
+    table.float('minValue');
+    table.float('maxValue');
+    table.float('avgValue');
     table.string('unit');
     table.string('perUnit');
     table.integer('minimumAge');

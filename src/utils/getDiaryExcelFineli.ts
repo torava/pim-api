@@ -16,6 +16,16 @@ import Product from '../models/Product';
 import Item from '../models/Item';
 import Recommendation from '../models/Recommendation';
 
+/**
+ * Food component energy density, MJ/g
+ */
+const componentEnergyMap = {
+  fat: 0.037,
+  protein: 0.017,
+  carbohydrate: 0.017,
+  fibre: 0.008
+};
+
 export const getDiaryExcelFineliBuffer = async (
   buffer: Buffer,
   locale: Locale = Locale['fi-FI']
@@ -73,6 +83,7 @@ export const getDiaryExcelFineliWorkbook = (
   });
   const worksheet = workbook.worksheets[0];
   const headerRow = worksheet.getRow(1);
+  // @ts-ignore
   worksheet.spliceColumns.apply(worksheet, [10, 0, [], ...attributeCells.map(() => [[], [], [], []]).flat()]);
   headerRow.getCell(10).value = 'Price (EUR)';
   headerRow.getCell(10).alignment = {vertical: 'top'};
@@ -88,22 +99,11 @@ export const getDiaryExcelFineliWorkbook = (
     headerRow.getCell(11+index*4+3).alignment = {vertical: 'top'};
   });
   worksheet.eachRow((row) => {
-    /*worksheet.eachColumnKey((col, index) => {
-      const attribute = attributes.find(attribute => (
-        Object.entries(attribute.name).find(([value]) => (
-          headerRow.getCell(index).value === value
-        ))
-      ));
-      const recommendation = recommendations.find(recommendation => recommendation.attributeId === attribute.id);
-      row.getCell(index).fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        bgColor: `ff${}00${}`
-      }
-    });*/
     //const row = worksheet.getRows(40, 1)[0];
     const food = row.getCell(4).value;
     const unit = row.getCell(8).value;
+    const perUnit = row.getCell(9).value;
+    const energy = Number(row.getCell(10).value);
     const priceCell = row.getCell(10);
     priceCell.alignment = {vertical: 'top'};
     attributeCells.forEach((attributeCell, index) => {
@@ -115,6 +115,30 @@ export const getDiaryExcelFineliWorkbook = (
     if (!food) {
       if (!totalMealMeasure) {
         console.log('total day', totalDayMeasure, totalDayPrice);
+
+        worksheet.eachColumnKey((col, index) => {
+          const attribute = attributes.find(attribute => (
+            Object.entries(attribute.name).find(([value]) => (
+              headerRow.getCell(index).value === value
+            ))
+          ));
+          const recommendation = recommendations.find(recommendation => recommendation.attributeId === attribute.id);
+          const cellValue = Number(row.getCell(index).value);
+          let value = cellValue;
+          if (unit === 'percent' && perUnit === 'energy') {
+            const componentEnergy = Object.entries(componentEnergyMap).find(([component]) => attribute.name['en-US'].includes(component))?.[1];
+            value = cellValue * componentEnergy / energy * 100;
+          }
+          const isGood = (!recommendation.minValue || value > recommendation.minValue) && (!recommendation.maxValue || value < recommendation.maxValue); 
+          row.getCell(index).fill = {
+            type: "pattern",
+            pattern: "solid",
+            bgColor: {
+              argb: `ff${isGood ? "00" : "ff"}${isGood ? "ff" : "00"}00`,
+            },
+          };
+        });
+
         priceCell.value = totalDayPrice;
         attributeCells.forEach((attributeCell, index) => {
           row.getCell(11+index*4).value = attributeCell.totalDayMin;
