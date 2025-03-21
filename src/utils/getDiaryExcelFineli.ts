@@ -1,7 +1,11 @@
 import Excel from 'exceljs';
 import CategoryShape from '@torava/product-utils/dist/models/Category';
 import { Locale } from '@torava/product-utils/dist/utils/types';
-import { getCategoryMeasure, resolveCategoryAttributes, resolveCategoryContributionPrices } from '@torava/product-utils/dist/utils/categories';
+import {
+  getCategoryMeasure,
+  resolveCategoryAttributes,
+  resolveCategoryContributionPrices,
+} from '@torava/product-utils/dist/utils/categories';
 import AttributeShape from '@torava/product-utils/dist/models/Attribute';
 import ProductShape from '@torava/product-utils/dist/models/Product';
 import Knex from 'knex';
@@ -23,17 +27,12 @@ const componentEnergyMap = {
   fat: 0.037,
   protein: 0.017,
   carbohydrate: 0.017,
-  fibre: 0.008
+  fibre: 0.008,
 };
 
-export const getDiaryExcelFineliBuffer = async (
-  buffer: Buffer,
-  locale: Locale = Locale['fi-FI']
-) => {
-  const categories = await Category.query()
-  .withGraphFetched('[contributions.[contribution.[products]], attributes]');
-  const products = await Product.query()
-  .withGraphFetched('[items]');
+export const getDiaryExcelFineliBuffer = async (buffer: Buffer, locale: Locale = Locale['fi-FI']) => {
+  const categories = await Category.query().withGraphFetched('[contributions.[contribution.[products]], attributes]');
+  const products = await Product.query().withGraphFetched('[items]');
   const attributes = await Attribute.query();
   const items = await Item.query();
   const recommendations = await Recommendation.query();
@@ -42,14 +41,9 @@ export const getDiaryExcelFineliBuffer = async (
   getDiaryExcelFineliWorkbook(workbook, categories, attributes, products, items, recommendations, locale);
   return await workbook.xlsx.writeBuffer();
 };
-export const writeDiaryExcelFineliFile = async (
-  filename: string,
-  locale: Locale = Locale['fi-FI']
-) => {
-  const categories = await Category.query()
-  .withGraphFetched('[contributions, attributes]');
-  const products = await Product.query()
-  .withGraphFetched('[items]');
+export const writeDiaryExcelFineliFile = async (filename: string, locale: Locale = Locale['fi-FI']) => {
+  const categories = await Category.query().withGraphFetched('[contributions, attributes]');
+  const products = await Product.query().withGraphFetched('[items]');
   const items = await Item.query();
   const attributes = await Attribute.query();
   const recommendations = await Recommendation.query();
@@ -68,11 +62,11 @@ export const getDiaryExcelFineliWorkbook = (
   locale: Locale = Locale['fi-FI']
 ) => {
   let totalMealMeasure = 0,
-      totalMealPrice = 0,
-      totalDayMeasure = 0,
-      totalDayPrice = 0;
+    totalMealPrice = 0,
+    totalDayMeasure = 0,
+    totalDayPrice = 0;
   const attributeCells = ['GHG', 'LAND', 'EUTRO', 'FRESHW'].map((code) => {
-    const attribute = attributes.find(attribute => attribute.code === code);
+    const attribute = attributes.find((attribute) => attribute.code === code);
     return {
       attribute,
       totalMealMin: 0,
@@ -86,17 +80,17 @@ export const getDiaryExcelFineliWorkbook = (
   // @ts-ignore
   worksheet.spliceColumns.apply(worksheet, [10, 0, [], ...attributeCells.map(() => [[], [], [], []]).flat()]);
   headerRow.getCell(10).value = 'Price (EUR)';
-  headerRow.getCell(10).alignment = {vertical: 'top'};
+  headerRow.getCell(10).alignment = { vertical: 'top' };
   attributeCells.forEach((attributeCell, index) => {
-    const attribute = attributes.find(attribute => attribute.code === attributeCell.attribute.code);
-    headerRow.getCell(11+index*4).value = `Min. ${attribute.name[locale]}`;
-    headerRow.getCell(11+index*4+1).value = `Max. ${attribute.name[locale]}`;
-    headerRow.getCell(11+index*4+2).value = `Min. ${attribute.name[locale]}/weight`;
-    headerRow.getCell(11+index*4+3).value = `Max. ${attribute.name[locale]}/weight`;
-    headerRow.getCell(11+index*4).alignment = {vertical: 'top'};
-    headerRow.getCell(11+index*4+1).alignment = {vertical: 'top'};
-    headerRow.getCell(11+index*4+2).alignment = {vertical: 'top'};
-    headerRow.getCell(11+index*4+3).alignment = {vertical: 'top'};
+    const attribute = attributes.find((attribute) => attribute.code === attributeCell.attribute.code);
+    headerRow.getCell(11 + index * 4).value = `Min. ${attribute.name[locale]}`;
+    headerRow.getCell(11 + index * 4 + 1).value = `Max. ${attribute.name[locale]}`;
+    headerRow.getCell(11 + index * 4 + 2).value = `Min. ${attribute.name[locale]}/weight`;
+    headerRow.getCell(11 + index * 4 + 3).value = `Max. ${attribute.name[locale]}/weight`;
+    headerRow.getCell(11 + index * 4).alignment = { vertical: 'top' };
+    headerRow.getCell(11 + index * 4 + 1).alignment = { vertical: 'top' };
+    headerRow.getCell(11 + index * 4 + 2).alignment = { vertical: 'top' };
+    headerRow.getCell(11 + index * 4 + 3).alignment = { vertical: 'top' };
   });
   worksheet.eachRow((row) => {
     //const row = worksheet.getRows(40, 1)[0];
@@ -105,46 +99,49 @@ export const getDiaryExcelFineliWorkbook = (
     const perUnit = row.getCell(9).value;
     const energy = Number(row.getCell(10).value);
     const priceCell = row.getCell(10);
-    priceCell.alignment = {vertical: 'top'};
+    priceCell.alignment = { vertical: 'top' };
     attributeCells.forEach((attributeCell, index) => {
-      row.getCell(11+index*4).alignment = {vertical: 'top'};
-      row.getCell(11+index*4+1).alignment = {vertical: 'top'};
-      row.getCell(11+index*4+2).alignment = {vertical: 'top'};
-      row.getCell(11+index*4+3).alignment = {vertical: 'top'};
+      row.getCell(11 + index * 4).alignment = { vertical: 'top' };
+      row.getCell(11 + index * 4 + 1).alignment = { vertical: 'top' };
+      row.getCell(11 + index * 4 + 2).alignment = { vertical: 'top' };
+      row.getCell(11 + index * 4 + 3).alignment = { vertical: 'top' };
     });
     if (!food) {
       if (!totalMealMeasure) {
         console.log('total day', totalDayMeasure, totalDayPrice);
 
         worksheet.eachColumnKey((col, index) => {
-          const attribute = attributes.find(attribute => (
-            Object.entries(attribute.name).find(([value]) => (
-              headerRow.getCell(index).value === value
-            ))
-          ));
-          const recommendation = recommendations.find(recommendation => recommendation.attributeId === attribute.id);
+          const attribute = attributes.find((attribute) =>
+            Object.entries(attribute.name).find(([value]) => headerRow.getCell(index).value === value)
+          );
+          const recommendation = recommendations.find((recommendation) => recommendation.attributeId === attribute.id);
           const cellValue = Number(row.getCell(index).value);
           let value = cellValue;
           if (unit === 'percent' && perUnit === 'energy') {
-            const componentEnergy = Object.entries(componentEnergyMap).find(([component]) => attribute.name['en-US'].includes(component))?.[1];
-            value = cellValue * componentEnergy / energy * 100;
+            const componentEnergy = Object.entries(componentEnergyMap).find(([component]) =>
+              attribute.name['en-US'].includes(component)
+            )?.[1];
+            value = ((cellValue * componentEnergy) / energy) * 100;
           }
-          const isGood = (!recommendation.minValue || value > recommendation.minValue) && (!recommendation.maxValue || value < recommendation.maxValue); 
+          const isGood =
+            (!recommendation.minValue || value > recommendation.minValue) &&
+            (!recommendation.maxValue || value < recommendation.maxValue);
           row.getCell(index).fill = {
-            type: "pattern",
-            pattern: "solid",
+            type: 'pattern',
+            pattern: 'solid',
             bgColor: {
-              argb: `ff${isGood ? "00" : "ff"}${isGood ? "ff" : "00"}00`,
+              argb: `ff${isGood ? '00' : 'ff'}${isGood ? 'ff' : '00'}00`,
             },
           };
         });
 
         priceCell.value = totalDayPrice;
         attributeCells.forEach((attributeCell, index) => {
-          row.getCell(11+index*4).value = attributeCell.totalDayMin;
-          row.getCell(11+index*4+1).value = attributeCell.totalDayMax;
-          row.getCell(11+index*4+2).value = attributeCell.totalDayMin/totalDayMeasure;
-          row.getCell(11+index*4+3).value = (attributeCell.totalDayMax || attributeCell.totalDayMin)/totalDayMeasure;
+          row.getCell(11 + index * 4).value = attributeCell.totalDayMin;
+          row.getCell(11 + index * 4 + 1).value = attributeCell.totalDayMax;
+          row.getCell(11 + index * 4 + 2).value = attributeCell.totalDayMin / totalDayMeasure;
+          row.getCell(11 + index * 4 + 3).value =
+            (attributeCell.totalDayMax || attributeCell.totalDayMin) / totalDayMeasure;
           attributeCell.totalDayMin = 0;
           attributeCell.totalDayMax = 0;
         });
@@ -154,38 +151,35 @@ export const getDiaryExcelFineliWorkbook = (
         console.log('total meal', totalMealMeasure, totalMealPrice);
         priceCell.value = totalMealPrice;
         attributeCells.forEach((attributeCell, index) => {
-          row.getCell(11+index*4).value = attributeCell.totalMealMin;
-          row.getCell(11+index*4+1).value = attributeCell.totalMealMax || attributeCell.totalMealMin;
-          row.getCell(11+index*4+2).value = attributeCell.totalMealMin/totalMealMeasure;
-          row.getCell(11+index*4+3).value = (attributeCell.totalMealMax || attributeCell.totalMealMin)/totalMealMeasure;
-          attributeCell.totalDayMin+= attributeCell.totalMealMin;
-          attributeCell.totalDayMax+= attributeCell.totalMealMax;
+          row.getCell(11 + index * 4).value = attributeCell.totalMealMin;
+          row.getCell(11 + index * 4 + 1).value = attributeCell.totalMealMax || attributeCell.totalMealMin;
+          row.getCell(11 + index * 4 + 2).value = attributeCell.totalMealMin / totalMealMeasure;
+          row.getCell(11 + index * 4 + 3).value =
+            (attributeCell.totalMealMax || attributeCell.totalMealMin) / totalMealMeasure;
+          attributeCell.totalDayMin += attributeCell.totalMealMin;
+          attributeCell.totalDayMax += attributeCell.totalMealMax;
           attributeCell.totalMealMin = 0;
           attributeCell.totalMealMax = 0;
         });
-        totalDayMeasure+= totalMealMeasure;
-        totalDayPrice+= totalMealPrice;
+        totalDayMeasure += totalMealMeasure;
+        totalDayPrice += totalMealPrice;
         totalMealMeasure = 0;
         totalMealPrice = 0;
       }
     } else {
-      const category = categories.find(
-        (category) => category.name?.[locale] === food
-      );
+      const category = categories.find((category) => category.name?.[locale] === food);
       console.log(food, unit);
-      const foodUnitAttribute = attributes.find(
-        (attribute) => attribute.code === unit
-      );
+      const foodUnitAttribute = attributes.find((attribute) => attribute.code === unit);
       if (category && foodUnitAttribute) {
-        const categoryProduct = products.find(product => product.categoryId === category.id);
-        const price = (
+        const categoryProduct = products.find((product) => product.categoryId === category.id);
+        const price =
           resolveCategoryContributionPrices(category, products, items, foodUnitAttribute, 0.9) ||
-          categoryProduct?.items[0]?.price || 0
-        );
+          categoryProduct?.items[0]?.price ||
+          0;
         const measure = getCategoryMeasure(category, foodUnitAttribute, categories);
-        priceCell.value = price*measure;
-        totalMealMeasure+= measure;
-        totalMealPrice+= price*measure;
+        priceCell.value = price * measure;
+        totalMealMeasure += measure;
+        totalMealPrice += price * measure;
         console.log(price, measure);
         attributeCells.forEach((attributeCell, index) => {
           const { categoryAttributes, measure } = resolveCategoryAttributes(
@@ -205,12 +199,13 @@ export const getDiaryExcelFineliWorkbook = (
             categoryAttributes[1]?.type,
             measure
           );
-          row.getCell(11+index*4).value = categoryAttributes[0]?.value;
-          row.getCell(11+index*4+1).value = categoryAttributes[1]?.value || categoryAttributes[0]?.value;
-          row.getCell(11+index*4+2).value = categoryAttributes[0]?.value/measure;
-          row.getCell(11+index*4+3).value = (categoryAttributes[1]?.value || categoryAttributes[0]?.value)/measure;
-          attributeCell.totalMealMin+= categoryAttributes[0]?.value || 0;
-          attributeCell.totalMealMax+= categoryAttributes[1]?.value || categoryAttributes[0]?.value || 0;
+          row.getCell(11 + index * 4).value = categoryAttributes[0]?.value;
+          row.getCell(11 + index * 4 + 1).value = categoryAttributes[1]?.value || categoryAttributes[0]?.value;
+          row.getCell(11 + index * 4 + 2).value = categoryAttributes[0]?.value / measure;
+          row.getCell(11 + index * 4 + 3).value =
+            (categoryAttributes[1]?.value || categoryAttributes[0]?.value) / measure;
+          attributeCell.totalMealMin += categoryAttributes[0]?.value || 0;
+          attributeCell.totalMealMax += categoryAttributes[1]?.value || categoryAttributes[0]?.value || 0;
         });
       } else {
         console.log(food, 'not found');
