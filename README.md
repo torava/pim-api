@@ -1,5 +1,13 @@
 # Installing
+```
+psql
+DROP DATABASE "product-api"; CREATE DATABASE "product-api"; \q
+npm run knex migrate:latest
+npm run knex seed:run
+npm run dev
+```
 
+# Deployment
 ```
 sudo yum update -y
 sudo apt-get install 
