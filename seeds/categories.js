@@ -50,22 +50,26 @@ exports.seed = async knex => {
     const sourceId = sourceRecordIdMap[entity.sourceId]?.id || undefined;
     delete entity['attribute.name["en-US"]'];
     delete entity.sourceId;
-    const recommendation = await Recommendation.query().insert({
-      ...entity,
-      attributeId,
-      value: parseFloat(entity.value),
-      value: parseFloat(entity.minValue),
-      value: parseFloat(entity.maxValue),
-      value: parseFloat(entity.avgValue),
-      minimumAge: parseInt(entity.minimumAge) || undefined,
-      maximumAge: parseInt(entity.maximumAge) || undefined,
-      weight: parseFloat(entity.weight) || undefined,
-      pav: parseInt(entity.pav) || undefined,
-      pal: parseFloat(entity.pal) || undefined
-    });
-    await RecommendationSource.query().insert({
-      recommendationId: recommendation.id,
-      sourceId
-    });
+    try {
+      const recommendation = await Recommendation.query().insert({
+        ...entity,
+        attributeId,
+        value: parseFloat(entity.value) || undefined,
+        minValue: parseFloat(entity.minValue) || undefined,
+        maxValue: parseFloat(entity.maxValue) || undefined,
+        avgValue: parseFloat(entity.avgValue) || undefined,
+        minimumAge: parseInt(entity.minimumAge) || undefined,
+        maximumAge: parseInt(entity.maximumAge) || undefined,
+        weight: parseFloat(entity.weight) || undefined,
+        pav: parseInt(entity.pav) || undefined,
+        pal: parseFloat(entity.pal) || undefined
+      });
+      await RecommendationSource.query().insert({
+        recommendationId: recommendation.id,
+        sourceId
+      });
+    } catch (error) {
+      console.error('error while adding recommendations', error);
+    }
   });
 };
