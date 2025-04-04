@@ -97,6 +97,7 @@ export const getDiaryExcelFineliWorkbook = (
     const food = row.getCell(4).value;
     const unit = row.getCell(8).value;
     const perUnit = row.getCell(9).value;
+    const mass = Number(row.getCell(9).value);
     const energy = Number(row.getCell(10).value);
     const priceCell = row.getCell(10);
     priceCell.alignment = { vertical: 'top' };
@@ -114,25 +115,31 @@ export const getDiaryExcelFineliWorkbook = (
           const attribute = attributes.find((attribute) =>
             Object.entries(attribute.name).find(([value]) => headerRow.getCell(index).value === value)
           );
-          const recommendation = recommendations.find((recommendation) => recommendation.attributeId === attribute.id);
-          const cellValue = Number(row.getCell(index).value);
-          let value = cellValue;
-          if (unit === 'percent' && perUnit === 'energy') {
-            const componentEnergy = Object.entries(componentEnergyMap).find(([component]) =>
-              attribute.name['en-US'].includes(component)
-            )?.[1];
-            value = ((cellValue * componentEnergy) / energy) * 100;
+          if (attribute) {
+            const recommendation = recommendations.find((recommendation) => recommendation.attributeId === attribute.id);
+            const cellValue = Number(row.getCell(index).value);
+            let value = cellValue;
+            if (unit === 'percent' && perUnit === 'energy') {
+              const componentEnergy = Object.entries(componentEnergyMap).find(([component]) =>
+                attribute.name['en-US'].includes(component)
+              )?.[1];
+              value = ((cellValue * componentEnergy) / energy) * 100;
+            } else if (unit === 'g' && perUnit === 'MJ') {
+              value = cellValue / (energy * 1000);
+            } else if (perUnit === 'kg') {
+              value = cellValue / (mass * 1000);
+            }
+            const isGood =
+              (!recommendation.minValue || value > recommendation.minValue) &&
+              (!recommendation.maxValue || value < recommendation.maxValue);
+            row.getCell(index).fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              bgColor: {
+                argb: `ff${isGood ? '00' : 'ff'}${isGood ? 'ff' : '00'}00`,
+              },
+            };
           }
-          const isGood =
-            (!recommendation.minValue || value > recommendation.minValue) &&
-            (!recommendation.maxValue || value < recommendation.maxValue);
-          row.getCell(index).fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            bgColor: {
-              argb: `ff${isGood ? '00' : 'ff'}${isGood ? 'ff' : '00'}00`,
-            },
-          };
         });
 
         priceCell.value = totalDayPrice;
