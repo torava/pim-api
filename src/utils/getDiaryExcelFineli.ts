@@ -61,6 +61,7 @@ export const getDiaryExcelFineliWorkbook = (
   recommendations: RecommendationShape[] = [],
   locale: Locale = Locale['fi-FI']
 ) => {
+  console.log('recommendations!', recommendations);
   let totalMealMeasure = 0,
     totalMealPrice = 0,
     totalDayMeasure = 0,
@@ -92,6 +93,26 @@ export const getDiaryExcelFineliWorkbook = (
     headerRow.getCell(11 + index * 4 + 2).alignment = { vertical: 'top' };
     headerRow.getCell(11 + index * 4 + 3).alignment = { vertical: 'top' };
   });
+
+  worksheet.columns.forEach((col, index) => {
+    console.log('headerCell', headerRow.getCell(index + 1).value);
+    const attribute = attributes.filter((attribute) => attribute.parentId !== 6).find((attribute) =>
+      Object.entries(attribute.name).find(([, value]) =>
+        headerRow.getCell(index + 1).value?.toString().toLocaleLowerCase().includes(value.toLocaleLowerCase())) &&
+        recommendations.find((recommendation) => recommendation.attributeId === attribute.id)
+    );
+    if (attribute) {
+      console.log('attribute', attribute);
+      const recommendation = recommendations.find((recommendation) => recommendation.attributeId === attribute.id);
+      if (recommendation) {
+        headerRow.getCell(index + 1).value =
+          `${headerRow.getCell(index + 1).value} [${
+            recommendation.minValue || ''}-${recommendation.maxValue || ''} ${
+              recommendation.unit}${recommendation.perUnit ? `/${recommendation.perUnit}` : ''}]`;
+      }
+    }
+  });
+
   worksheet.eachRow((row) => {
     //const row = worksheet.getRows(40, 1)[0];
     const food = row.getCell(4).value;
@@ -111,13 +132,30 @@ export const getDiaryExcelFineliWorkbook = (
       if (!totalMealMeasure) {
         console.log('total day', totalDayMeasure, totalDayPrice);
 
-        worksheet.eachColumnKey((col, index) => {
-          const attribute = attributes.find((attribute) =>
-            Object.entries(attribute.name).find(([value]) => headerRow.getCell(index).value === value)
+        priceCell.value = totalDayPrice;
+        attributeCells.forEach((attributeCell, index) => {
+          row.getCell(11 + index * 4).value = attributeCell.totalDayMin;
+          row.getCell(11 + index * 4 + 1).value = attributeCell.totalDayMax;
+          row.getCell(11 + index * 4 + 2).value = attributeCell.totalDayMin / totalDayMeasure;
+          row.getCell(11 + index * 4 + 3).value =
+            (attributeCell.totalDayMax || attributeCell.totalDayMin) / totalDayMeasure;
+          attributeCell.totalDayMin = 0;
+          attributeCell.totalDayMax = 0;
+        });
+
+        worksheet.columns.forEach((col, index) => {
+          console.log('headerCell', headerRow.getCell(index + 1).value);
+          const attribute = attributes.filter((attribute) => attribute.parentId !== 6).find((attribute) =>
+            Object.entries(attribute.name).find(([, value]) =>
+              headerRow.getCell(index + 1).value?.toString().toLocaleLowerCase().includes(value.toLocaleLowerCase())) &&
+              recommendations.find((recommendation) => recommendation.attributeId === attribute.id)
           );
           if (attribute) {
+            console.log('attribute', attribute);
             const recommendation = recommendations.find((recommendation) => recommendation.attributeId === attribute.id);
-            const cellValue = Number(row.getCell(index).value);
+            console.log('recommendation', recommendation);
+            const cellValue = Number(row.getCell(index + 1).value);
+            console.log('cellValue', row.getCell(index + 1).value);
             let value = cellValue;
             if (unit === 'percent' && perUnit === 'energy') {
               const componentEnergy = Object.entries(componentEnergyMap).find(([component]) =>
@@ -129,29 +167,22 @@ export const getDiaryExcelFineliWorkbook = (
             } else if (perUnit === 'kg') {
               value = cellValue / (mass * 1000);
             }
-            const isGood =
-              (!recommendation.minValue || value > recommendation.minValue) &&
-              (!recommendation.maxValue || value < recommendation.maxValue);
-            row.getCell(index).fill = {
-              type: 'pattern',
-              pattern: 'solid',
-              bgColor: {
-                argb: `ff${isGood ? '00' : 'ff'}${isGood ? 'ff' : '00'}00`,
-              },
-            };
+            if (recommendation) {
+              console.log('value', value, recommendation.minValue, recommendation.maxValue);
+              const isGood =
+                (!recommendation.minValue || value > recommendation.minValue) &&
+                (!recommendation.maxValue || value < recommendation.maxValue);
+              row.getCell(index + 1).fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: {
+                  argb: `FF${isGood ? '00' : 'FF'}${isGood ? 'FF' : '00'}00`,
+                },
+              };
+            }
           }
         });
 
-        priceCell.value = totalDayPrice;
-        attributeCells.forEach((attributeCell, index) => {
-          row.getCell(11 + index * 4).value = attributeCell.totalDayMin;
-          row.getCell(11 + index * 4 + 1).value = attributeCell.totalDayMax;
-          row.getCell(11 + index * 4 + 2).value = attributeCell.totalDayMin / totalDayMeasure;
-          row.getCell(11 + index * 4 + 3).value =
-            (attributeCell.totalDayMax || attributeCell.totalDayMin) / totalDayMeasure;
-          attributeCell.totalDayMin = 0;
-          attributeCell.totalDayMax = 0;
-        });
         totalDayMeasure = 0;
         totalDayPrice = 0;
       } else {
@@ -168,6 +199,47 @@ export const getDiaryExcelFineliWorkbook = (
           attributeCell.totalMealMin = 0;
           attributeCell.totalMealMax = 0;
         });
+
+        worksheet.columns.forEach((col, index) => {
+          console.log('headerCell', headerRow.getCell(index + 1).value);
+          const attribute = attributes.filter((attribute) => attribute.parentId !== 6).find((attribute) =>
+            Object.entries(attribute.name).find(([, value]) =>
+              headerRow.getCell(index + 1).value?.toString().toLocaleLowerCase().includes(value.toLocaleLowerCase())) &&
+              recommendations.find((recommendation) => recommendation.attributeId === attribute.id)
+          );
+          if (attribute) {
+            console.log('attribute', attribute);
+            const recommendation = recommendations.find((recommendation) => recommendation.attributeId === attribute.id);
+            console.log('recommendation', recommendation);
+            const cellValue = Number(row.getCell(index + 1).value);
+            console.log('cellValue', row.getCell(index + 1).value);
+            let value = cellValue;
+            if (unit === 'percent' && perUnit === 'energy') {
+              const componentEnergy = Object.entries(componentEnergyMap).find(([component]) =>
+                attribute.name['en-US'].includes(component)
+              )?.[1];
+              value = ((cellValue * componentEnergy) / energy) * 100;
+            } else if (unit === 'g' && perUnit === 'MJ') {
+              value = cellValue / (energy * 1000);
+            } else if (perUnit === 'kg') {
+              value = cellValue / (mass * 1000);
+            }
+            if (recommendation) {
+              console.log('value', value, recommendation.minValue, recommendation.maxValue);
+              const isGood =
+                (!recommendation.minValue || value > recommendation.minValue) &&
+                (!recommendation.maxValue || value < recommendation.maxValue);
+              row.getCell(index + 1).fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: {
+                  argb: `FF${isGood ? '00' : 'FF'}${isGood ? 'FF' : '00'}00`,
+                },
+              };
+            }
+          }
+        });
+
         totalDayMeasure += totalMealMeasure;
         totalDayPrice += totalMealPrice;
         totalMealMeasure = 0;

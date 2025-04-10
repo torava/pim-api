@@ -45,8 +45,8 @@ exports.seed = async knex => {
   const attributes = await Attribute.query();
 
   const recommendationsCsv = fs.readFileSync(`${__dirname}/recommendations.csv`, 'utf8');
-  getEntitiesFromCsv(recommendationsCsv, { delimiter: ';' }).filter(entity => entity.value).forEach(async entity => {
-    const attributeId = attributes.find(attribute => attribute.name['en-US'].toLocaleLowerCase() === entity['attribute.name["en-US"]'])?.id;
+  getEntitiesFromCsv(recommendationsCsv, { delimiter: ';' }).filter(entity => entity.minValue || entity.maxValue).forEach(async entity => {
+    const attributeId = attributes.find(attribute => attribute.name['en-US'].toLocaleLowerCase() === entity['attribute.name["en-US"]'].toLocaleLowerCase())?.id;
     const sourceId = sourceRecordIdMap[entity.sourceId]?.id || undefined;
     delete entity['attribute.name["en-US"]'];
     delete entity.sourceId;
@@ -54,7 +54,6 @@ exports.seed = async knex => {
       const recommendation = await Recommendation.query().insert({
         ...entity,
         attributeId,
-        value: parseFloat(entity.value) || undefined,
         minValue: parseFloat(entity.minValue) || undefined,
         maxValue: parseFloat(entity.maxValue) || undefined,
         avgValue: parseFloat(entity.avgValue) || undefined,
