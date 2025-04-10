@@ -7,6 +7,8 @@ npm run knex seed:run
 npm run dev
 ```
 
+Open http://localhost:42809/api-docs in browser.
+
 # Deployment
 ```
 sudo yum update -y
