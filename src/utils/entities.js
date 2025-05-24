@@ -67,14 +67,12 @@ export const convertMeasure = (measure, fromUnit, toUnit) => {
   }
   if (fromUnit && fromUnit.length > 1) {
     fromUnit = fromUnit.substring(0,1);
-    fromUnit = fromUnit.toLowerCase();
   }
   else {
     fromUnit = '';
   }
   if (toUnit && toUnit.length > 1) {
     toUnit = toUnit.substring(0,1);
-    toUnit = toUnit.toLowerCase();
   }
   else {
     toUnit = '';

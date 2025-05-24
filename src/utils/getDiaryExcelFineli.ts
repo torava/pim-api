@@ -19,6 +19,7 @@ import Attribute from '../models/Attribute';
 import Product from '../models/Product';
 import Item from '../models/Item';
 import Recommendation from '../models/Recommendation';
+import { convertMeasure } from './entities';
 
 /**
  * Food component energy density, MJ/g
@@ -113,13 +114,16 @@ export const getDiaryExcelFineliWorkbook = (
     }
   });
 
+  const energyAttribute = attributes.find((attribute) => attribute.code === 'ENERC');
+  const energyRecommendation = recommendations.find((recommendation) => recommendation.attributeId === energyAttribute.id && recommendation.sex === 'male');
+
   worksheet.eachRow((row) => {
     //const row = worksheet.getRows(40, 1)[0];
     const food = row.getCell(4).value;
     const unit = row.getCell(8).value;
     const perUnit = row.getCell(9).value;
     const mass = Number(row.getCell(9).value);
-    const energy = Number(row.getCell(10).value);
+    const energy = Number(row.getCell(11 + 16).value);
     const priceCell = row.getCell(10);
     priceCell.alignment = { vertical: 'top' };
     attributeCells.forEach((attributeCell, index) => {
@@ -155,8 +159,8 @@ export const getDiaryExcelFineliWorkbook = (
             const recommendation = recommendations.find((recommendation) => recommendation.attributeId === attribute.id);
             console.log('recommendation', recommendation);
             const cellValue = Number(row.getCell(index + 1).value);
-            console.log('cellValue', row.getCell(index + 1).value);
-            let value = cellValue;
+            console.log('cellValue', row.getCell(index + 1).value, energy, energyRecommendation.minValue, energyRecommendation.unit, convertMeasure(energyRecommendation.minValue, energyRecommendation.unit, 'kJ'));
+            let value = cellValue * energy / convertMeasure(energyRecommendation.minValue, energyRecommendation.unit, 'kJ');
             if (unit === 'percent' && perUnit === 'energy') {
               const componentEnergy = Object.entries(componentEnergyMap).find(([component]) =>
                 attribute.name['en-US'].includes(component)
@@ -212,8 +216,8 @@ export const getDiaryExcelFineliWorkbook = (
             const recommendation = recommendations.find((recommendation) => recommendation.attributeId === attribute.id);
             console.log('recommendation', recommendation);
             const cellValue = Number(row.getCell(index + 1).value);
-            console.log('cellValue', row.getCell(index + 1).value);
-            let value = cellValue;
+            console.log('cellValue', row.getCell(index + 1).value, energy, convertMeasure(energyRecommendation.minValue, energyRecommendation.unit, 'kJ'));
+            let value = cellValue * energy / convertMeasure(energyRecommendation.minValue, energyRecommendation.unit, 'kJ');
             if (unit === 'percent' && perUnit === 'energy') {
               const componentEnergy = Object.entries(componentEnergyMap).find(([component]) =>
                 attribute.name['en-US'].includes(component)
