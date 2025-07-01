@@ -80,19 +80,15 @@ export const getDiaryExcelFineliWorkbook = (
   const worksheet = workbook.worksheets[0];
   const headerRow = worksheet.getRow(1);
   // @ts-ignore
-  worksheet.spliceColumns.apply(worksheet, [10, 0, [], ...attributeCells.map(() => [[], [], [], []]).flat()]);
+  worksheet.spliceColumns.apply(worksheet, [10, 0, [], ...attributeCells.map(() => [[], []]).flat()]);
   headerRow.getCell(10).value = 'Price (EUR)';
   headerRow.getCell(10).alignment = { vertical: 'top' };
   attributeCells.forEach((attributeCell, index) => {
     const attribute = attributes.find((attribute) => attribute.code === attributeCell.attribute.code);
-    headerRow.getCell(11 + index * 4).value = `Min. ${attribute.name[locale]}`;
-    headerRow.getCell(11 + index * 4 + 1).value = `Max. ${attribute.name[locale]}`;
-    headerRow.getCell(11 + index * 4 + 2).value = `Min. ${attribute.name[locale]}/weight`;
-    headerRow.getCell(11 + index * 4 + 3).value = `Max. ${attribute.name[locale]}/weight`;
-    headerRow.getCell(11 + index * 4).alignment = { vertical: 'top' };
-    headerRow.getCell(11 + index * 4 + 1).alignment = { vertical: 'top' };
-    headerRow.getCell(11 + index * 4 + 2).alignment = { vertical: 'top' };
-    headerRow.getCell(11 + index * 4 + 3).alignment = { vertical: 'top' };
+    headerRow.getCell(11 + index * 2).value = `Min. ${attribute.name[locale]}`;
+    headerRow.getCell(11 + index * 2 + 1).value = `Max. ${attribute.name[locale]}`;
+    headerRow.getCell(11 + index * 2).alignment = { vertical: 'top' };
+    headerRow.getCell(11 + index * 2 + 1).alignment = { vertical: 'top' };
   });
 
   worksheet.columns.forEach((col, index) => {
@@ -127,10 +123,8 @@ export const getDiaryExcelFineliWorkbook = (
     const priceCell = row.getCell(10);
     priceCell.alignment = { vertical: 'top' };
     attributeCells.forEach((attributeCell, index) => {
-      row.getCell(11 + index * 4).alignment = { vertical: 'top' };
-      row.getCell(11 + index * 4 + 1).alignment = { vertical: 'top' };
-      row.getCell(11 + index * 4 + 2).alignment = { vertical: 'top' };
-      row.getCell(11 + index * 4 + 3).alignment = { vertical: 'top' };
+      row.getCell(11 + index * 2).alignment = { vertical: 'top' };
+      row.getCell(11 + index * 2 + 1).alignment = { vertical: 'top' };
     });
     if (!food) {
       if (!totalMealMeasure) {
@@ -138,11 +132,8 @@ export const getDiaryExcelFineliWorkbook = (
 
         priceCell.value = totalDayPrice;
         attributeCells.forEach((attributeCell, index) => {
-          row.getCell(11 + index * 4).value = attributeCell.totalDayMin;
-          row.getCell(11 + index * 4 + 1).value = attributeCell.totalDayMax;
-          row.getCell(11 + index * 4 + 2).value = attributeCell.totalDayMin / totalDayMeasure;
-          row.getCell(11 + index * 4 + 3).value =
-            (attributeCell.totalDayMax || attributeCell.totalDayMin) / totalDayMeasure;
+          row.getCell(11 + index * 2).value = attributeCell.totalDayMin;
+          row.getCell(11 + index * 2 + 1).value = attributeCell.totalDayMax;
           attributeCell.totalDayMin = 0;
           attributeCell.totalDayMax = 0;
         });
@@ -193,11 +184,8 @@ export const getDiaryExcelFineliWorkbook = (
         console.log('total meal', totalMealMeasure, totalMealPrice);
         priceCell.value = totalMealPrice;
         attributeCells.forEach((attributeCell, index) => {
-          row.getCell(11 + index * 4).value = attributeCell.totalMealMin;
-          row.getCell(11 + index * 4 + 1).value = attributeCell.totalMealMax || attributeCell.totalMealMin;
-          row.getCell(11 + index * 4 + 2).value = attributeCell.totalMealMin / totalMealMeasure;
-          row.getCell(11 + index * 4 + 3).value =
-            (attributeCell.totalMealMax || attributeCell.totalMealMin) / totalMealMeasure;
+          row.getCell(11 + index * 2).value = attributeCell.totalMealMin;
+          row.getCell(11 + index * 2 + 1).value = attributeCell.totalMealMax || attributeCell.totalMealMin;
           attributeCell.totalDayMin += attributeCell.totalMealMin;
           attributeCell.totalDayMax += attributeCell.totalMealMax;
           attributeCell.totalMealMin = 0;
@@ -282,11 +270,8 @@ export const getDiaryExcelFineliWorkbook = (
             categoryAttributes[1]?.type,
             measure
           );
-          row.getCell(11 + index * 4).value = categoryAttributes[0]?.value;
-          row.getCell(11 + index * 4 + 1).value = categoryAttributes[1]?.value || categoryAttributes[0]?.value;
-          row.getCell(11 + index * 4 + 2).value = categoryAttributes[0]?.value / measure;
-          row.getCell(11 + index * 4 + 3).value =
-            (categoryAttributes[1]?.value || categoryAttributes[0]?.value) / measure;
+          row.getCell(11 + index * 2).value = categoryAttributes[0]?.value;
+          row.getCell(11 + index * 2 + 1).value = categoryAttributes[1]?.value || categoryAttributes[0]?.value;
           attributeCell.totalMealMin += categoryAttributes[0]?.value || 0;
           attributeCell.totalMealMax += categoryAttributes[1]?.value || categoryAttributes[0]?.value || 0;
         });
