@@ -1,4 +1,4 @@
-"name[""en-US""]","name[""fi-FI""]",aliases,parent,attribute:GHG (kgCO₂e),attribute:GHG (kgCO₂e/kg),attribute:GHG (kgCO₂/kWh),attribute:GHG (kgCO₂e/km),attribute:GHG (kgCO₂e/l),attribute:GHG (kgCO₂e/EUR),attribute:Land use (m²/kg),attribute:Land use (m²/l),attribute:Eutrophication (gPO₄eq/kg),attribute:Eutrophication (gPO₄eq/l),attribute:Freshwater footprint (l/kg),attribute:Freshwater withdrawal (l/l),note,sourceId
+"name[""en-US""]","name[""fi-FI""]",aliases,parent,attribute:GHG (kgCO₂e),attribute:GHG (kgCO₂e/kg),attribute:GHG (kgCO₂/kWh),attribute:GHG (kgCO₂e/km),attribute:GHG (kgCO₂e/l),attribute:GHG (kgCO₂e/EUR),attribute:Land use (m²/kg),attribute:Land use (m²/l),attribute:Eutrophication (gPO₄eq/kg),attribute:Eutrophication (gPO₄eq/l),attribute:Freshwater footprint (l/kg),attribute:Freshwater footprint (l/l),note,sourceId
 Almond,Manteli,,,,"1,54",,,,,,,,,,,"Almonds, median",1
 "Almond Drink, Unsweetened, Alrpo","Mantelijuoma, makeuttamaton, alpro","[""Mantelijuoma""]",,,,,,"0,42",,,,,,,,"Almond/coconut milk, median",1
 Animal feed,Eläinruoka,"[""Kierretikku"", ""Softies herkkupala""]",Supplies,,,,,,"3,36",,,,,,,Products for domestic animals,2
@@ -327,6 +327,7 @@ Housekeeping products,Kodinhoitotuotteet,,Supplies,,,,,,"0,4",,,,,,,Housekeeping
 Housekeeping tools,Kodinhoitotyökalut,,Supplies,,,,,,"0,5",,,,,,,Tools and appliances for housekeeping and gardening,2
 "Hummus, Chick Pea Paste",,"[""Hummus""]",,,,,,,"0,7",,,,,,,Plant based groceries,2
 Hygiene products,Hygieniatuotteet,"[""Nestesaippua"", ""Käsisaippua""]",Supplies,,,,,,"0,4",,,,,,,Personal items,2
+"Härkis, Broad Bean Product",,,,,"1,9",,,,,,,,,,,Härkis® Original,65
 "Ice Cream Bar, Cream Based, Chocolate Flavoured",,,,,"4,2",,,,,,,,,,,"Ice cream, vanilla regular",22
 "Ice Cream Bar, Cream Based, Chocolate-Coated",,,,,"4,2",,,,,,,,,,,"Ice cream, vanilla regular",
 "Ice Cream, Cream Based",,,,,,,,"4,2",,,,,,,,"Ice cream, vanilla regular",22
@@ -351,6 +352,8 @@ Kitchen paper,Talouspaperi,,Kitchen,"0,03",,,,,,,,,,,,Paper towel per piece,24
 "Kiwi Fruit, With Skin",,,,,"0,36",,,,,,,,,,,"Kiwi fruit, median",1
 Lamb/mutton,Lammas,,,,"25,58",,,,,,,,,,,"Lamb: world average, median",1
 Lamb/mutton,,,,,,,,,,"369,81",,,,,,Lamb & Mutton,63
+Lamb/mutton,,,,,,,,,,,,"97,13",,,,Lamb & Mutton,63
+Lamb/mutton,,,,,,,,,,,,,,1803,,Lamb & Mutton,63
 Leaf vegetables,,,,,"0,5",,,,,,,,,,,Greens,46
 "Lemon Juice, Unsweetened, Undiluted",,,,,"1,5",,,,,,,,,,,"Lemon juice concentrate, Italy",29
 "Lemon, With Skin",,"[""Sitruuna""]",,,"0,26",,,,,,,,,,,"Lemons and limes, median",1
@@ -394,14 +397,20 @@ Milk desserts,,,,,,,,,"1,1",,,,,,,Animal based groceries,2
 "Milk, 1.5% Fat, Low-Lactose, 1 Ug Added Vitamin D",,"[""Kevytmaito hyla"", ""Kevytmaito vähälaktoosinen""]",,,,,,,,,,,,,,,
 "Milk, 3.5% Fat, 1 Ug Added Vitamin D",,"[""Täysmaito""]",,,,,,,,,,,,,,,
 Milks <= 2% fat,,,,,"1,29",,,,,,,,,,,"Milk: world average, median",1
-Milks <= 2% fat,,,,,1,,,,,,,,,,,,26
-Milks <= 2% fat,,,,,,,,,,"8,95",,,,,,,63
+Milks <= 2% fat,,,,,1,,,,,,,,,,,Milk,26
+Milks <= 2% fat,,,,,,,,,,"8,95",,,,,,Milk,63
+Milks <= 2% fat,,,,,,,,,,,,"10,65",,,,Milk,63
+Milks <= 2% fat,,,,,,,,,,,,,,628,,Milk,63
 Milks >2% fat,,,,,"1,29",,,,,,,,,,,"Milk: world average, median",1
-Milks >2% fat,,,,,1,,,,,,,,,,,,26
-Milks >2% fat,,,,,,,,,,"8,95",,,,,,,63
+Milks >2% fat,,,,,1,,,,,,,,,,,Milk,26
+Milks >2% fat,,,,,,,,,,"8,95",,,,,,Milk,63
+Milks >2% fat,,,,,,,,,,,,"10,65",,,,Milk,63
+Milks >2% fat,,,,,,,,,,,,,,628,,Milk,63
 Milks skimmed,,,,,"1,29",,,,,,,,,,,"Milk: world average, median",1
-Milks skimmed,,,,,1,,,,,,,,,,,,26
-Milks skimmed,,,,,,,,,,"8,95",,,,,,,63
+Milks skimmed,,,,,1,,,,,,,,,,,Milk,26
+Milks skimmed,,,,,,,,,,"8,95",,,,,,Milk,63
+Milks skimmed,,,,,,,,,,,,"10,65",,,,Milk,63
+Milks skimmed,,,,,,,,,,,,,,628,,Milk,63
 Modified cheeses,,,,,10,,,,,,,,,,,Juusto,9
 Modified cheeses,,,,,"8,55",,,,,,,,,,,"Cheese, median",1
 Modified cheeses,,,,,,,,,"2,44",,,,,,,Dairy products and ice cream,2
@@ -591,9 +600,6 @@ Services,Palvelut,,,,,,,,"0,3",,,,,,,Muut palvelut,2
 "Sesame Seed, With Hull","Seesaminsiemen, kuorineen",,,,"0,88",,,,,,,,,,,"Sesame seed, median",1
 Shoes,Jalkineet,,Clothes,,,,,,"0,64",,,,,,,Jalkineet,2
 Shrimp,Katkarapu,,,,"7,8",,,,,,,,,,,"Prawns/shrimp, median",1
-Shrimp,,,,,,,,,,"2,97",,,,,,Prawns (farmed),63
-Shrimp,,,,,,,,,,,,"227,22",,,,Prawns (farmed),63
-Shrimp,,,,,,,,,,,,,,3515,,Prawns (farmed),63
 Skincare products,Ihonhoitotuotteet,,Hygiene products,,,,,,,,,,,,,,
 "Slicing Sausage, Balkan, 21.5% Fat",,"[""Alpenfest lihaleikkele""]",,,,,,,,,,,,,,,
 Small engine fuel,Pienkonepolttoaine,,Supplies,,,,,,,,,,,,,,
@@ -647,6 +653,8 @@ Sweet Bakery,,,,,,,,,"1,1",,,,,,,Animal based groceries,2
 Sweet biscuits,,,,,"2,5",,,,,,,,,,,"Biscuit, including waste, secondary source",7
 Sweet Corn Kernels,,,,,"0,47",,,,,,,,,,,"Maize/corn, median",1
 Sweet Corn Kernels,,,,,,,,,,"2,94",,,,,,Maize,63
+Sweet Corn Kernels,,,,,,,,,,,,"4,03",,,,Maize,63
+Sweet Corn Kernels,,,,,,,,,,,,,,216,,Maize,63
 "Sweet Corn, Cob, Grilled",,"[""Grilled corn"", ""Grillattu maissi"", ""Grillattua maissia"", ""Pariloitua maissia""]",,,,,,,,,,,,,,,
 "Sweet Corn, Corn On The Cob","Maissintähkä, kokonainen","[""Maissintähkä""]",,,"0,47",,,,,,,,,,,"Maize/corn, median",1
 "Sweet Corn, Corn On The Cob",,,,,,,,,,"2,94",,,,,,Maize,63
@@ -663,7 +671,7 @@ Tangerine,Tangeriini,,Citrus fruit,,"0,51",,,,,,,,,,,"Tangerines/mandarins, medi
 Tapioca,,,,,"1,32",,,,,,,,,,,Cassava,63
 Tapioca,,,,,,,,,,"1,81",,,,,,Cassava,63
 Taxi,Taksi,,Public transport,,,,,,"0,8",,,,,,,Taxi trips,2
-Tea,,"[""Rooibos"", ""Yrttitee""]",,,"7,035",,,,,,,,,,,,38
+Tea,,"[""Rooibos"", ""Yrttitee""]",,"0,01407",,,,,,,,,,,,For 2g bag,38
 Tea,,,,,,,,"0,33",,,,,,,,,7
 Telecommunication services,Tietoliikennepalvelut,,Services,,,,,,"0,28",,,,,,,"Telephone, the internet, etc. (communication)",2
 Textiles,Tekstiilit,,Supplies,,,,,,"0,67",,,,,,,"Kodintaloustekstiilit, sisustus, astiat keskiarvo",2
