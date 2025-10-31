@@ -22,8 +22,8 @@ class Recommendation extends Model {
 
 			properties: {
 				id: {type: 'integer'},
-				value: {type: 'number'},
-				type: {type: ['string', 'null']},
+				minValue: {type: 'number'},
+				maxValue: {type: 'number'},
 				unit: {type: 'string'},
 				perUnit: {type: ['string', 'null']},
 				minimumAge: {type: ['number', 'null']},
