@@ -1,4 +1,5 @@
 "attribute.name[""en-US""]";sourceId;minValue;maxValue;unit;perUnit;minimumAge;maximumAge;sex;weight;pav;pal;note
+price;66;;10.1;euro;;;;;;;;male or female under 45 years living alone average
 ghg;63;;4,68;kg;;;;;;;;global food footprint average
 freshwater footprint;65;;156;l;;;;;;;;global food footprint average
 land use;66;;5,2;m²;;;;;;;;global cropland average
