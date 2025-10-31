@@ -383,6 +383,14 @@
       "post": {
         "description": "Creates new products from CSV file",
         "consumes": "multipart/form-data",
+        "parameters": [
+          {
+            "name": "template",
+            "in": "query",
+            "type": "string",
+            "description": "CSV template (sryhma, kesko, default)"
+          }
+        ],
         "requestBody": {
           "content": {
             "multipart/form-data": {
