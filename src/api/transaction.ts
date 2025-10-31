@@ -125,6 +125,7 @@ app.post('/api/transaction/csv', async (req, res) => {
   }
   let transactions: Record<string, DeepPartial<Transaction>> = {};
   const template = req.query.template || 'default';
+  console.log('template', template);
   const indexes =
     TRANSACTION_CSV_INDEXES[template as keyof typeof TRANSACTION_CSV_INDEXES] ||
     TRANSACTION_CSV_INDEXES.default;
@@ -138,7 +139,7 @@ app.post('/api/transaction/csv', async (req, res) => {
       itemIndex = 0,
       rows = getEntitiesFromCsv(req.files.transactions.data, {
         delimiter: CSV_SEPARATOR[template as keyof typeof CSV_SEPARATOR],
-        columns: false
+        columns: false,
       });
 
   try {
@@ -166,7 +167,7 @@ app.post('/api/transaction/csv', async (req, res) => {
           value = toTitleCase(value);
 
           tokens = value.match(/(\d{1,4})\s?((m|k)?((g|9)|(l|1)))/);
-          measure = tokens && parseFloat(tokens[1]);
+          measure = tokens && getNumber(tokens[1]);
           if (measure) {
             _.set(transactions[columnKey], `items[${itemIndex}].measure`, measure);
             _.set(transactions[columnKey], `items[${itemIndex}].unit`, tokens[2]);
@@ -174,13 +175,13 @@ app.post('/api/transaction/csv', async (req, res) => {
         }
 
         if (columnName.split('.')[1] === 'quantity_or_measure') {
-          if (value.match(/^\d+(\.|,)\d+$/)) {
+          if (value.match(/^-?\d+(\.|,)\d+$/)) {
             columnName = columnName.replace('quantity_or_measure', 'measure');
             numberValue = getNumber(value);
           }
           else {
             columnName = columnName.replace('quantity_or_measure', 'quantity');
-            numberValue = parseFloat(value);
+            numberValue = getNumber(value);
           }
         }
         else if (columnName === 'date_fi_FI') {
@@ -198,7 +199,11 @@ app.post('/api/transaction/csv', async (req, res) => {
           transactions[columnKey].totalPrice += numberValue;
         }
         if (columnName !== 'id') {
-          _.set(transactions[columnKey], columnName, numberValue || value);
+          if (typeof numberValue === 'number') {
+            _.set(transactions[columnKey], columnName, numberValue);
+          } else {
+            _.set(transactions[columnKey], columnName, value);
+          }
         }
       }
       itemIndex++;
@@ -215,6 +220,7 @@ app.post('/api/transaction/csv', async (req, res) => {
   let promises = [];
   let categoryIds: Record<string, number> = {};
   for await (let transaction of Object.values(transactions)) {
+    transaction.items = transaction.items.filter((item) => item);
     try {
       await resolveCategories(transaction, items, products, categories, manufacturers);
     } catch (error) {
@@ -230,6 +236,8 @@ app.post('/api/transaction/csv', async (req, res) => {
       }
     }*/
 
+    console.log('transaction', transaction);
+
     promises.push(
       Transaction.query()
       .insertGraph(transaction, {relate: true})
@@ -242,7 +250,6 @@ app.post('/api/transaction/csv', async (req, res) => {
     res.send(transactions);
   }
   catch (error) {
-    console.dir(transactions, {depth:null});
     console.error(error);
     res.sendStatus(500);
   }
