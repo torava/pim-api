@@ -24,10 +24,10 @@ Baby toy,Vauvanlelu,"[""Vauvan- Ja Kehityslelut""]",Children's supplies,,,,,,,,,
 Baking paper,Leivinpaperi,,Kitchen,,,,,,"0,72",,,,,,,"Paper, carton and cardboard products",2
 "Baking Yeast, Fresh",,"[""Kuivahiiva""]",,,,,,,"0,7",,,,,,,Plant based groceries,2
 "Bamboo Shoots, Canned",,"[""Bamboo"", ""Bambu"", ""Bambuja""]",,,,,,,,,,,,,,,
-"Banana, With Skin",,"[""Banaani""]",,,"0,72",,,,,,,,,,,"Musa, bananas, median",1
-"Banana, With Skin",,,,,,,,,,"1,93",,,,,,Bananas,63
-"Banana, With Skin",,,,,,,,,,,,"3,29",,,,Bananas,63
-"Banana, With Skin",,,,,,,,,,,,,,115,,Bananas,63
+"Banana, Without Skin",,"[""Banaani""]",,,"0,72",,,,,,,,,,,"Musa, bananas, median",1
+"Banana, Without Skin",,,,,,,,,,"1,93",,,,,,Bananas,63
+"Banana, Without Skin",,,,,,,,,,,,"3,29",,,,Bananas,63
+"Banana, Without Skin",,,,,,,,,,,,,,115,,Bananas,63
 Barber,Parturi,,Recreational services,,,,,,,,,,,,,,
 "Barley, Rolled, Barley Flakes",,,,,"0,43",,,,,,,,,,,"Barley, median",1
 "Barley, Rolled, Barley Flakes",,,,,,,,,,"1,11",,,,,,Barley,63
@@ -49,7 +49,7 @@ Beef,,,,,,,,,,,,,,2714,,Beef (dairy herd),63
 "Beef Steak, Fried",,"[""Beef"", ""Beef steak""]",,,,,,,,,,,,,,,
 "Beef, Cured, 2.8% Fat",,"[""Paahtopaisti""]",,,"26,61",,,,,,,,,,,"Beef: world average, median",1
 "Beef, Cured, 2.8% Fat",,,,,15,,,,,,,,,,,"Beef, raw",4
-"Beer, Alcohol-Free, 0.0% Volume",,"[""Pils alkoholiton"", ""Crisp IPA""]",,,,,,"0,54",,,,,,,,"Beer, cradle-to-grave",5
+"Beer, Alcohol-Free, 0.0% Volume",,"[""Pils alkoholiton"", ""Crisp IPA 0,5%"", ""Karhu 0,0%"", ""Karhu Tumma 0%""]",,,,,,"0,54",,,,,,,,"Beer, cradle-to-grave",5
 "Beer, Lager, Medium Strength, 4.5% Volume",,"[""Beer"", ""Olut"", ""Lager"", ""Pils""]",,,,,,,,,,,,,,,
 "Beer, Lager, Strong, 5-5.5% Volume",,"[""NEIPA""]",,,,,,,,,,,,,,,
 Beers,,,,,,,,"0,54",,,,,,,,"Beer, cradle-to-grave",5
@@ -59,6 +59,10 @@ Berries,,,,,,,,,,"2,41",,,,,,Berries & Grapes,63
 Berries,,,,,,,,,,,,"6,12",,,,Berries & Grapes,63
 Berries,,,,,,,,,,,,,,420,,Berries & Grapes,63
 "Berry, Average","[""Pakkasmarja marjaseos""]",,,,,,,,,,,,,,,,
+Birds,,,,,"9,87",,,,,,,,,,,Poultry Meat,63
+Birds,,,,,,,,,,"12,22",,,,,,Poultry Meat,63
+Birds,,,,,,,,,,,,"48,7",,,,Poultry Meat,63
+Birds,,,,,,,,,,,,,,660,,Poultry Meat,63
 Biscuit,,"[""Sydänhyvä pikkuleipä""]",,,,,,,,,,,,,,,
 Blackcurrant,Mustaherukka,,,,"0,84",,,,,,,,,,,"Currants and gooseberries, median",1
 Blended spread >= 55 %,,,,,"9,25",,,,,,,,,,,"Butter, median",1
@@ -81,10 +85,6 @@ Buns,,,,,"2,5",,,,,,,,,,,"Pastry, including waste, secondary source",7
 "Bus, long-distance",,,,,,,,,"0,8",,,,,,,Bus trips,2
 "Bus, long-distance","Linja-auto, pitkänmatkanliikenne",,Public transport,,,,"0,054",,,,,,,,,"Linja-auto, pitkänmatkanliikenne",8
 Butter,Voi,,,,"9,25",,,,,,,,,,,"Butter, median",1
-Birds,,,,,"9,87",,,,,,,,,,,Poultry Meat,63
-Birds,,,,,,,,,,"12,22",,,,,,Poultry Meat,63
-Birds,,,,,,,,,,,,"48,7",,,,Poultry Meat,63
-Birds,,,,,,,,,,,,,,660,,Poultry Meat,63
 Café,Kahvila,,Services,,,,,,"0,49",,,,,,,Ravintolapalvelut,2
 "Cake, Mocha Cake",,"[""Brownie""]",,,,,,,,,,,,,,,
 Canned fruits,,,,,,,,,"0,7",,,,,,,Plant based groceries,2
@@ -160,6 +160,7 @@ Chocolate,Chocolate,,,,"3,55",,,,,,,,,,,"Chocolate, 2.9–4.2 kg CO2 eq./kg",11
 "Chocolate, Plain, Dark Chocolate",,,,,,,,,,"68,96",,,,,,Dark Chocolate,63
 "Chocolate, Plain, Dark Chocolate",,,,,,,,,,,,"87,08",,,,Dark Chocolate,63
 "Chocolate, Plain, Dark Chocolate",,,,,,,,,,,,,,541,,Dark Chocolate,63
+"Cider, 0.7% Volume",,,,,,,,"0,77",,,,,,,,"Belle de Boskoop 0,5%, 24x27,5cl",29
 Citrus fruit,,,,,,,,,,"0,86",,,,,,Citrus Fruit,63
 Citrus fruit,,,,,,,,,,,,"2,24",,,,Citrus Fruit,63
 Citrus fruit,,,,,,,,,,,,,,83,,Citrus Fruit,63
@@ -246,6 +247,7 @@ Electric cable,Sähköjohto,"[""Jatkojohto""]",Supplies,,,,,,"0,73",,,,,,,Insula
 Electricity,Sähkö,,Services,,,"0,08414",,,,,,,,,,Sold electricity production average CO2 emissions,43
 Electricity,Sähkö,,Services,,,"0,22",,,,,,,,,,Specific carbon dioxide emissions,52
 Electronics,Elektroniikka,,Supplies,,,,,,"0,82",,,,,,,Elektroniikka,2
+Elk,,,,,"0,97",,,,,,,,,,,"Moose meat, average, footprint at store",29
 Eraser,Pyyhemuovi,,Supplies,,,,,,"1,01",,,,,,,Plastic products,2
 "Fermented milk products, other",,,,,"1,31",,,,,,,,,,,"Yoghurt, median",1
 Ferry,,,,,,,,,"1,4",,,,,,,Boat trips,2
@@ -277,11 +279,12 @@ Flour,,,,,,,,,"0,7",,,,,,,Plant based groceries,2
 "Flour, Whole Wheat Flour",,,,,"0,5",,,,,,,,,,,"Vehnäjauhot, ryynit",4
 Flowers,Kukat,,Supplies,,,,,,"0,6",,,,,,,Garden supplies,2
 Flowers,Kukat,,Supplies,,,,,,,,,,,,,,
-"French Fries, Deep-Fried",,"[""French fries"", ""Ranskanperunat"", ""Ranskalaiset""]",,,"0,46",,,,,,,,,,,Fries,51
+"French Fries, Deep-Fried",,"[""French fries"", ""Ranskanperunat"", ""Ranskalaiset"", ""Maalaisranskanperunat""]",,,"0,46",,,,,,,,,,,Fries,51
 "French Fries, Deep-Fried",,,,,,,,,"0,7",,,,,,,Plant based groceries,2
 "French Fries, Frozen",,,,,,,,,"0,7",,,,,,,Plant based groceries,2
 "French Fries, Frozen",,,,,"0,18",,,,,,,,,,,"Potatoes, median",1
 "French Fries, Oven-Baked",,"[""Kuorellinen tikkuperuna pakaste""]",,,,,,,"0,7",,,,,,,Plant based groceries,2
+"French Fries, Oven-Baked",,,,,"0,18",,,,,,,,,,,"Potatoes, median",1
 "Fresh Pasta, Contains Egg",,,,,,,,,"1,1",,,,,,,Animal based groceries,2
 "Fresh Pasta, Contains Egg",,"[""Fettuccine"", ""Fettuccine pasta""]",,,,,,,,,,,,,,,
 Fried onions,Paahdettu sipulirouhe,,Spices,,,,,,,,,,,,,,
@@ -322,7 +325,7 @@ Headphones,Kuulokkeet,,Electronics,,,,,,,,,,,,,,
 Healthcare products,Terveydenhoitotuotteet,,Supplies,,,,,,"0,51",,,,,,,"Kestokulutustavarat, terveydenhoitotuotteet keskiarvo",2
 Healthcare services,Terveydenhuoltopalvelut,,Services,,,,,,"0,2",,,,,,,Terveydenhuolto- ja eläinlääkintäpalvelut,2
 "Herring, Pickled/Salted, Average",,,,,"1,16",,,,,,,,,,,"Herring, median",1
-Honey,Hunaja,"[""Kuningatarhunaja""]",,,"0,75",,,,,,,,,,,"Honey, average, 140-1800 miles",15
+Honey,Hunaja,"[""Kuningatarhunaja"", ""Hunajayhtymä suodat hunaja""]",,,"0,75",,,,,,,,,,,"Honey, average, 140-1800 miles",15
 Housekeeping products,Kodinhoitotuotteet,,Supplies,,,,,,"0,4",,,,,,,Housekeeping products and services,2
 Housekeeping tools,Kodinhoitotyökalut,,Supplies,,,,,,"0,5",,,,,,,Tools and appliances for housekeeping and gardening,2
 "Hummus, Chick Pea Paste",,"[""Hummus""]",,,,,,,"0,7",,,,,,,Plant based groceries,2
@@ -445,6 +448,7 @@ Nuts and seeds,,,,,,,,,,"12,96",,,,,,Nuts,63
 Oat Bran,"Lese, kauralese",,,,"0,38",,,,,,,,,,,"Oats, median",1
 "Oat Drink Without Milk, Average Of Industrial Products",Kaurajuoma,,,,,,,"1,01",,,,,,,,"Oat drink, vitamin D and Ca added, CO2 equivalent",28
 "Oat Drink Without Milk, Oatly Ikaffe, Calcium, Vitamins",,,,,,,,"0,55",,,,,,,,"Cradle-to-gate (upstream), Carbon footprint of the product considering all stages of life cycle from field to the gate of the grocery store, incl. transport and packaging.",29
+"Oat Drink Without Milk, With Added Calcium And Vitamins",,,,,,,,"0,55",,,,,,,,"Cradle-to-gate (upstream), Carbon footprint of the product considering all stages of life cycle from field to the gate of the grocery store, incl. transport and packaging.",29
 "Oats, Rolled, Oat Flakes",Kaurahiutale,"[""Iso kaurahiutale"", ""Lempeä pikakaurahiutale""]",,,"0,38",,,,,,,,,,,"Oats, median",1
 "Oats, Rolled, Oat Flakes",,,,,,,,,,"7,6",,,,,,Oatmeal,63
 "Oats, Rolled, Oat Flakes",,,,,,,,,,,,"11,23",,,,Oatmeal,63
@@ -543,6 +547,7 @@ Pulses vegetables,,,,,,,,,,"15,57",,,,,,Other Pulses,63
 Pulses vegetables,,,,,,,,,,,,"17,08",,,,Other Pulses,63
 Pulses vegetables,,,,,,,,,,,,,,436,,Other Pulses,63
 Pumpkin,Kurpitsa,,,,"0,25",,,,,,,,,,,"Pumpkins, median",1
+Pumpkin Seed,,"[""Kurpitsansiemenet""]",,,,,,,,,,,,,,,
 Quark,Rahka,,,,10,,,,,,,,,,,Juusto,9
 Quark,,,,,,,,,"1,1",,,,,,,Animal based groceries,2
 Quinces,Kvitteni,,Malaceous fruit,,"0,31",,,,,,,,,,,"Quinces, median",1
@@ -575,6 +580,7 @@ Rye,,,,,,,,,,"3,85",,,,,,Wheat & Rye,63
 Rye,,,,,,,,,,,,"7,16",,,,Wheat & Rye,63
 Rye,,,,,,,,,,,,,,648,,Wheat & Rye,63
 Rye bread,"Leipä, ruis-",,,,"1,3",,,,,,,,,,,Ruisleipä,9
+"Rye Bread, Oululainen Jälkiuunipala, Fazer",,"[""Jälkiuuni aito ruis""]",,,,,,,,,,,,,,,
 "Rye Bread, Reissumies, Oululainen, Fazer",,"[""Reissumies""]",,,,,,,,,,,,,,,
 Salad dressings and mayonnaises,,,,,,,,,"1,1",,,,,,,Animal based groceries,2
 "Salad, Coleslaw, Home-Made",,"[""Coleslaw"", ""Coleslaw-salaatti""]",,,,,,,,,,,,,,,
@@ -671,7 +677,7 @@ Tangerine,Tangeriini,,Citrus fruit,,"0,51",,,,,,,,,,,"Tangerines/mandarins, medi
 Tapioca,,,,,"1,32",,,,,,,,,,,Cassava,63
 Tapioca,,,,,,,,,,"1,81",,,,,,Cassava,63
 Taxi,Taksi,,Public transport,,,,,,"0,8",,,,,,,Taxi trips,2
-Tea,,"[""Rooibos"", ""Yrttitee""]",,"0,01407",,,,,,,,,,,,For 2g bag,38
+Tea,,"[""Rooibos"", ""Yrttitee"", ""Nordqvist tee rooibos""]",,"0,01407",,,,,,,,,,,,For 2g bag,38
 Tea,,,,,,,,"0,33",,,,,,,,,7
 Telecommunication services,Tietoliikennepalvelut,,Services,,,,,,"0,28",,,,,,,"Telephone, the internet, etc. (communication)",2
 Textiles,Tekstiilit,,Supplies,,,,,,"0,67",,,,,,,"Kodintaloustekstiilit, sisustus, astiat keskiarvo",2
@@ -700,6 +706,7 @@ Tomato Ketchup,,,,,"1,1",,,,,,,,,,,"Ketchup, Sweden, CarbonCloud Benchmark, Foot
 "Tomato Ketchup, Reduced Salt And Sugar",,,,,"1,1",,,,,,,,,,,"Ketchup, Sweden, CarbonCloud Benchmark, Footprint at store",29
 Tomato Puree,,,,,"0,868",,,,,,,,,,,"1 kg packed product, processed and canned",48
 Tomato Salsa,,"[""Salsa"", ""Pico de gallo""]",,,,,,,,,,,,,,,
+"Tomato Salsa, Industrial",,,,,"1,11",,,,,,,,,,,Salsa,29
 Tomato Sauce,,"[""Tomaattikastikkeessa"", ""Marinara""]",,,,,,,,,,,,,,,
 "Tomatoes, Crushed, Canned",,,,,"0,868",,,,,,,,,,,"1 kg packed product, processed and canned",48
 Tools,Työkalut,,Supplies,,,,,,"0,51",,,,,,,Kodinkoneet ja työkalut,2
