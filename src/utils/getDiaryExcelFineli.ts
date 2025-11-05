@@ -31,7 +31,9 @@ const componentEnergyMap = {
   fibre: 0.008,
 };
 
-export const getDiaryExcelFineliBuffer = async (buffer: Buffer, locale: Locale = Locale['fi-FI']) => {
+const FOOD_UNITS_ID = 6;
+
+export const getDiaryExcelFineliBuffer = async (buffer: ArrayBuffer, locale: Locale = Locale['fi-FI']) => {
   const categories = await Category.query().withGraphFetched('[contributions.[contribution.[products]], attributes]');
   const products = await Product.query().withGraphFetched('[items]');
   const attributes = await Attribute.query();
@@ -62,7 +64,6 @@ export const getDiaryExcelFineliWorkbook = (
   recommendations: RecommendationShape[] = [],
   locale: Locale = Locale['fi-FI']
 ) => {
-  console.log('recommendations!', recommendations);
   let totalMealMeasure = 0,
     totalMealPrice = 0,
     totalDayMeasure = 0,
@@ -93,7 +94,11 @@ export const getDiaryExcelFineliWorkbook = (
 
   worksheet.columns.forEach((col, index) => {
     console.log('headerCell', headerRow.getCell(index + 1).value);
-    const attribute = attributes.filter((attribute) => attribute.parentId !== 6).find((attribute) =>
+    if (index === 9) {
+      headerRow.getCell(index + 1).value = `${headerRow.getCell(index + 1).value} [-10,1 EUR]`;
+      return true;
+    }
+    const attribute = attributes.filter((attribute) => attribute.parentId !== FOOD_UNITS_ID).find((attribute) =>
       Object.entries(attribute.name).find(([, value]) =>
         headerRow.getCell(index + 1).value?.toString().toLocaleLowerCase().includes(value.toLocaleLowerCase())) &&
         recommendations.find((recommendation) => recommendation.attributeId === attribute.id)
@@ -111,7 +116,9 @@ export const getDiaryExcelFineliWorkbook = (
   });
 
   const energyAttribute = attributes.find((attribute) => attribute.code === 'ENERC');
-  const energyRecommendation = recommendations.find((recommendation) => recommendation.attributeId === energyAttribute.id && recommendation.sex === 'male');
+  const energyRecommendation = recommendations.find(
+    (recommendation) => recommendation.attributeId === energyAttribute.id && recommendation.sex === 'male'
+  );
 
   worksheet.eachRow((row) => {
     //const row = worksheet.getRows(40, 1)[0];
@@ -140,7 +147,20 @@ export const getDiaryExcelFineliWorkbook = (
 
         worksheet.columns.forEach((col, index) => {
           console.log('headerCell', headerRow.getCell(index + 1).value);
-          const attribute = attributes.filter((attribute) => attribute.parentId !== 6).find((attribute) =>
+          if (index === 9) {
+            // price;66;;10.1;euro;;;;;;;;male or female under 45 years living alone average
+            const cellValue = Number(row.getCell(index + 1).value);
+            const isGood = cellValue < 10.1;
+            row.getCell(10).fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: {
+                argb: `FF${isGood ? '00' : 'FF'}${isGood ? 'FF' : '00'}00`,
+              },
+            };
+            return true;
+          }
+          const attribute = attributes.filter((attribute) => attribute.parentId !== FOOD_UNITS_ID).find((attribute) =>
             Object.entries(attribute.name).find(([, value]) =>
               headerRow.getCell(index + 1).value?.toString().toLocaleLowerCase().includes(value.toLocaleLowerCase())) &&
               recommendations.find((recommendation) => recommendation.attributeId === attribute.id)
@@ -194,6 +214,19 @@ export const getDiaryExcelFineliWorkbook = (
 
         worksheet.columns.forEach((col, index) => {
           console.log('headerCell', headerRow.getCell(index + 1).value);
+          if (index === 9) {
+            // price;66;;10.1;euro;;;;;;;;male or female under 45 years living alone average
+            const cellValue = Number(row.getCell(index + 1).value);
+            const isGood = cellValue < 10.1 * energy / convertMeasure(energyRecommendation.minValue, energyRecommendation.unit, 'kJ');
+            row.getCell(10).fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: {
+                argb: `FF${isGood ? '00' : 'FF'}${isGood ? 'FF' : '00'}00`,
+              },
+            };
+            return true;
+          }
           const attribute = attributes.filter((attribute) => attribute.parentId !== 6).find((attribute) =>
             Object.entries(attribute.name).find(([, value]) =>
               headerRow.getCell(index + 1).value?.toString().toLocaleLowerCase().includes(value.toLocaleLowerCase())) &&
@@ -238,8 +271,10 @@ export const getDiaryExcelFineliWorkbook = (
         totalMealPrice = 0;
       }
     } else {
-      const category = categories.find((category) => category.name?.[locale] === food);
-      console.log(food, unit);
+      const category = categories.find(
+        (category) => category.name?.[locale] === food && !categories.some((child) => child.parentId === category.id)
+      );
+      console.log('food, unit, category ID', food, unit, category?.id);
       const foodUnitAttribute = attributes.find((attribute) => attribute.code === unit);
       if (category && foodUnitAttribute) {
         const categoryProduct = products.find((product) => product.categoryId === category.id);
@@ -251,7 +286,7 @@ export const getDiaryExcelFineliWorkbook = (
         priceCell.value = price * measure;
         totalMealMeasure += measure;
         totalMealPrice += price * measure;
-        console.log(price, measure);
+        console.log('price, measure', price, measure);
         attributeCells.forEach((attributeCell, index) => {
           const { categoryAttributes, measure } = resolveCategoryAttributes(
             category,
