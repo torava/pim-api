@@ -34,7 +34,7 @@ app.post(
       throw new Error('Please upload only one file');
     }
     
-    const updatedBuffer = await getDiaryExcelFineliBuffer(req.files.upload.data, req.query.locale as Locale);
+    const updatedBuffer = await getDiaryExcelFineliBuffer(req.files.upload.data as unknown as ArrayBuffer, req.query.locale as Locale);
 
     // from https://stackoverflow.com/a/45922316/3136897
     const readStream = new PassThrough();

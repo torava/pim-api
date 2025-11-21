@@ -171,7 +171,7 @@ export const getDiaryExcelFineliWorkbook = (
             console.log('recommendation', recommendation);
             const cellValue = Number(row.getCell(index + 1).value);
             console.log('cellValue', row.getCell(index + 1).value, energy, energyRecommendation.minValue, energyRecommendation.unit, convertMeasure(energyRecommendation.minValue, energyRecommendation.unit, 'kJ'));
-            let value = cellValue * energy / convertMeasure(energyRecommendation.minValue, energyRecommendation.unit, 'kJ');
+            let value = cellValue;
             if (unit === 'percent' && perUnit === 'energy') {
               const componentEnergy = Object.entries(componentEnergyMap).find(([component]) =>
                 attribute.name['en-US'].includes(component)
@@ -277,7 +277,8 @@ export const getDiaryExcelFineliWorkbook = (
       console.log('food, unit, category ID', food, unit, category?.id);
       const foodUnitAttribute = attributes.find((attribute) => attribute.code === unit);
       if (category && foodUnitAttribute) {
-        const categoryProduct = products.find((product) => product.categoryId === category.id);
+        const categoryProduct = products.find((product) => product.categoryId === category.id && product.items.length);
+        console.log('categoryProduct', categoryProduct);
         const price =
           resolveCategoryContributionPrices(category, products, items, foodUnitAttribute, 0.9) ||
           categoryProduct?.items[0]?.price ||
