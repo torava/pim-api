@@ -378,7 +378,7 @@ Mackerel,Makrilli,,Fish,,"1,8",,,,,,,,,,,"Mackerel, median",1
 Magazine paper,Aikakausilehti,,Literature,,,,,,"0,32",,,,,,,,2
 Magazine paper,,,,"0,83",,,,,,,,,,,,National Geographic magazine,24
 "Mandarin, Average, With Skin",,"[""Mandariini""]",,,"0,45",,,,,,,,,,,"Mandarin, median",1
-"Mango, Without Skin",,,,,"1,1",,,,,,,,,,,"Mango, whole fruit, Sweden, CarbonCloud Benchmark, Footprint at store",29
+"Mango, Without Skin",,"[""Mango""]",,,"1,1",,,,,,,,,,,"Mango, whole fruit, Sweden, CarbonCloud Benchmark, Footprint at store",29
 Margarine and fat spread  < 55%,,,,,"1,75",,,,,,,,,,,"Margarine, 60% fat, including waste",7
 Margarine and fat spread >= 55%,,,,,"1,75",,,,,,,,,,,"Margarine, 60% fat, including waste",7
 "Mayonnaise, 60% Fat",,"[""American dressing"", ""Big tasty -kastike""]",,,,,,"4,23",,,,,,,,2.0 kgCO₂eq per 473 mL pot of mayonnaise,49
@@ -473,7 +473,7 @@ Other alcoholic beverages,,,,,,,,,"0,3",,,,,,,Alcohol drinks,2
 Palm Oil,Palmuöljy,,,,,,,,"0,7",,,,,,,Plant based groceries,2
 Paper bag,Paperikassi,"[""Lahjakassi karto""]",Supplies,"0,01",,,,,,,,,,,,,33
 Pasta,,,,,"1,564",,,,,,,,,,,Pasta,47
-"Pasta, Spaghetti, Boiled Without Salt",,"[""Spaghetti""]",,,,,,,,,,,,,,,
+"Pasta, Spaghetti, Macaroni",,"[""Spaghetti"", ""Täysjyväspagetti""]",,,,,,,,,,,,,,,
 "Pea, Green",,,,,"0,38",,,,,,,,,,,"Peas, median",1
 "Pea, Green",,,,,2,,,,,,,,,,,"Green peas, Finland, At farm",29
 "Pea, Green",,,,,,,,,,"7,46",,,,,,Peas,63
@@ -684,6 +684,8 @@ Telecommunication services,Tietoliikennepalvelut,,Services,,,,,,"0,28",,,,,,,"Te
 Textiles,Tekstiilit,,Supplies,,,,,,"0,67",,,,,,,"Kodintaloustekstiilit, sisustus, astiat keskiarvo",2
 "Thin Spinach Pancake, Spinach Crepes, Atria/Pirkka",,"[""Pinaattiohukainen""]",,,"2,5",,,,,,,,,,,"Pastry, including waste, secondary source",7
 "Tikka Masala, Uncle Ben'S",,"[""Masalakastike""]",,,,,,,,,,,,,,,
+"Toast, Rye Toast, Vaasan 100% Ruispaahto",,"[""Vaasan taika tumma ohut paahto""]",,,,,,,,,,,,,,,
+"Toast, Wheat Toast, Vaasan Arkipaahto",,"[""K-Menu vehnäpaahto""]",,,,,,,,,,,,,,,
 "Tofu, Firm, Soya Product","Tofu, kova/kiinteä, soijavalmiste",,,,2,,,,,,,,,,,Tofu,27
 "Tofu, Firm, Soya Product",,,,,,,,,,"3,52",,,,,,Tofu,63
 "Tofu, Firm, Soya Product",,,,,,,,,,,,"6,16",,,,Tofu,63
