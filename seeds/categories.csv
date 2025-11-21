@@ -59,10 +59,6 @@ Berries,,,,,,,,,,"2,41",,,,,,Berries & Grapes,63
 Berries,,,,,,,,,,,,"6,12",,,,Berries & Grapes,63
 Berries,,,,,,,,,,,,,,420,,Berries & Grapes,63
 "Berry, Average","[""Pakkasmarja marjaseos""]",,,,,,,,,,,,,,,,
-Birds,,,,,"9,87",,,,,,,,,,,Poultry Meat,63
-Birds,,,,,,,,,,"12,22",,,,,,Poultry Meat,63
-Birds,,,,,,,,,,,,"48,7",,,,Poultry Meat,63
-Birds,,,,,,,,,,,,,,660,,Poultry Meat,63
 Biscuit,,"[""Sydänhyvä pikkuleipä""]",,,,,,,,,,,,,,,
 Blackcurrant,Mustaherukka,,,,"0,84",,,,,,,,,,,"Currants and gooseberries, median",1
 Blended spread >= 55 %,,,,,"9,25",,,,,,,,,,,"Butter, median",1
@@ -139,6 +135,10 @@ Chestnut,Kastanja,,,,"0,43",,,,,,,,,,,"Chestnuts, median",1
 Chewing gum,Purukumi,,Hygiene products,,"2,6",,,,,,,,,,,"Including waste, secondary source",7
 Chick Pea In Unsalted Water,Kikherne suolattomassa vedessä,,,,"0,77",,,,,,,,,,,"Chick peas, median",1
 "Chick Pea, Dried","Kikherne, kuivattu",,,,"0,77",,,,,,,,,,,"Chick peas, median",1
+Chicken,,,,,"9,87",,,,,,,,,,,Poultry Meat,63
+Chicken,,,,,,,,,,"12,22",,,,,,Poultry Meat,63
+Chicken,,,,,,,,,,,,"48,7",,,,Poultry Meat,63
+Chicken,,,,,,,,,,,,,,660,,Poultry Meat,63
 Chicken,Kana,,,,5,,,,,,,,,,,"Broileri, raaka",4
 Chicken,Kana,,,,"3,65",,,,,,,,,,,"Chicken, median",1
 Chicken,Kana,,,,"2,12",,,,,,,,,,,"Chicken, whole",1
@@ -279,7 +279,7 @@ Flour,,,,,,,,,"0,7",,,,,,,Plant based groceries,2
 "Flour, Whole Wheat Flour",,,,,"0,5",,,,,,,,,,,"Vehnäjauhot, ryynit",4
 Flowers,Kukat,,Supplies,,,,,,"0,6",,,,,,,Garden supplies,2
 Flowers,Kukat,,Supplies,,,,,,,,,,,,,,
-"French Fries, Deep-Fried",,"[""French fries"", ""Ranskanperunat"", ""Ranskalaiset"", ""Maalaisranskanperunat""]",,,"0,46",,,,,,,,,,,Fries,51
+"French Fries, Deep-Fried",,"[""French fries"", ""Ranskanperunat"", ""Ranskalaiset"", ""Mummon maalaisranskanperunat""]",,,"0,46",,,,,,,,,,,Fries,51
 "French Fries, Deep-Fried",,,,,,,,,"0,7",,,,,,,Plant based groceries,2
 "French Fries, Frozen",,,,,,,,,"0,7",,,,,,,Plant based groceries,2
 "French Fries, Frozen",,,,,"0,18",,,,,,,,,,,"Potatoes, median",1
@@ -677,8 +677,9 @@ Tangerine,Tangeriini,,Citrus fruit,,"0,51",,,,,,,,,,,"Tangerines/mandarins, medi
 Tapioca,,,,,"1,32",,,,,,,,,,,Cassava,63
 Tapioca,,,,,,,,,,"1,81",,,,,,Cassava,63
 Taxi,Taksi,,Public transport,,,,,,"0,8",,,,,,,Taxi trips,2
-Tea,,"[""Rooibos"", ""Yrttitee"", ""Nordqvist tee rooibos""]",,"0,01407",,,,,,,,,,,,For 2g bag,38
+Tea,,"[""Earl Grey"", ""Vihreä tee"", ""Twinings tee Earl Grey"", ""Twinings vihreä tee"", ""Nordqvist Earl Grey""]",,"0,01407",,,,,,,,,,,,For 2g bag,38
 Tea,,,,,,,,"0,33",,,,,,,,,7
+"Tea, Herbal Tea",,"[""Rooibos"", ""Yrttitee"", ""Nordqvist tee rooibos"", ""ruusunmarjatee""]",,,,,,,,,,,,,,,
 Telecommunication services,Tietoliikennepalvelut,,Services,,,,,,"0,28",,,,,,,"Telephone, the internet, etc. (communication)",2
 Textiles,Tekstiilit,,Supplies,,,,,,"0,67",,,,,,,"Kodintaloustekstiilit, sisustus, astiat keskiarvo",2
 "Thin Spinach Pancake, Spinach Crepes, Atria/Pirkka",,"[""Pinaattiohukainen""]",,,"2,5",,,,,,,,,,,"Pastry, including waste, secondary source",7
