@@ -34,7 +34,7 @@ const componentEnergyMap = {
 const FOOD_UNITS_ID = 6;
 
 export const getDiaryExcelFineliBuffer = async (buffer: ArrayBuffer, locale: Locale = Locale['fi-FI']) => {
-  const categories = await Category.query().withGraphFetched('[contributions.[contribution.[products]], attributes]');
+  const categories = await Category.query().withGraphFetched('[contributions.[contribution.[products, contributions]], attributes]');
   const products = await Product.query().withGraphFetched('[items]');
   const attributes = await Attribute.query();
   const items = await Item.query();
@@ -88,8 +88,8 @@ export const getDiaryExcelFineliWorkbook = (
     const attribute = attributes.find((attribute) => attribute.code === attributeCell.attribute.code);
     headerRow.getCell(11 + index * 2).value = `Min. ${attribute.name[locale]}`;
     headerRow.getCell(11 + index * 2 + 1).value = `Max. ${attribute.name[locale]}`;
-    headerRow.getCell(11 + index * 2).alignment = { vertical: 'top' };
-    headerRow.getCell(11 + index * 2 + 1).alignment = { vertical: 'top' };
+    headerRow.getCell(11 + index * 2).alignment = { vertical: 'top', wrapText: true };
+    headerRow.getCell(11 + index * 2 + 1).alignment = { vertical: 'top', wrapText: true };
   });
 
   worksheet.columns.forEach((col, index) => {
@@ -280,7 +280,7 @@ export const getDiaryExcelFineliWorkbook = (
         const categoryProduct = products.find((product) => product.categoryId === category.id && product.items.length);
         console.log('categoryProduct', categoryProduct);
         const price =
-          resolveCategoryContributionPrices(category, products, items, foodUnitAttribute, 0.9) ||
+          resolveCategoryContributionPrices(category, products, items, foodUnitAttribute, 0.8) ||
           categoryProduct?.items[0]?.price ||
           0;
         const measure = getCategoryMeasure(category, foodUnitAttribute, categories);
