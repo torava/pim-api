@@ -166,11 +166,15 @@ app.post('/api/transaction/csv', async (req, res) => {
         if (columnName.split('.').includes('name') || columnName.split('.').includes(`name['fi-FI']`)) {
           value = toTitleCase(value);
 
-          tokens = value.match(/(\d{1,4})\s?((m|k)?((g|9)|(l|1)))/);
+          tokens = value.toLocaleLowerCase().match(/(\d{1,4})\s?((m|k)?(g|l))(\s|$)/);
           measure = tokens && getNumber(tokens[1]);
           if (measure) {
             _.set(transactions[columnKey], `items[${itemIndex}].measure`, measure);
             _.set(transactions[columnKey], `items[${itemIndex}].unit`, tokens[2]);
+          }
+          const measureTokens = value.toLocaleLowerCase().match(/\s((m|k)?(g|l))(\s|$)/);
+          if (measureTokens) {
+            _.set(transactions[columnKey], `items[${itemIndex}].unit`, measureTokens[1]);
           }
         }
 
