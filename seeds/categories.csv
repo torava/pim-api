@@ -222,7 +222,7 @@ Diesel,,,Motor fuel,,,,,"3,24",,,,,,,,Usage and production,53
 "Diesel, small engine",,,Small engine fuel,,,,,"2,64",,,,,,,,,17
 "Diesel, small engine",,,Small engine fuel,,,,,"2,66",,,,,,,,,16
 "Diesel, small engine",,,Small engine fuel,,,,,"2,68",,,,,,,,,3
-"Dipmix, Milk-Free",,,,,,,,,"0,7",,,,,,,Plant based groceries,2
+"Dipmix, Milk-Free",,"[""Pirkka Dipmix Valkosipuli""]",,,,,,,"0,7",,,,,,,Plant based groceries,2
 Discount,Alennus,,Commerce,,,,,,,,,,,,,,
 Disposable Dish,Kertakäyttöastiat,"[""Kertak.kattaustuott.""]",Kitchen,,,,,,,,,,,,,,
 District heating,Kaukolämpö,,Services,,,"0,173",,,,,,,,,,District heating production CO2 emissions,43
@@ -302,7 +302,7 @@ Fruits,,,,,,,,,,,,"2,43",,,,Other Fruit,63
 Fruits,,,,,,,,,,,,,,154,,Other Fruit,63
 Furniture,Huonekalut,,Interior design,,,,,,"0,42",,,,,,,"Huonekalut, matot",2
 Garden Lettuce,,,,,"3,7",,,,,,,,,,,"Lettuce: heated greenhouse, median",1
-Garlic,Valkosipuli,,,,"0,57",,,,,,,,,,,"Garlic, median",1
+Garlic,,"[""Pirkka valkosipuli""]",,,"0,57",,,,,,,,,,,"Garlic, median",1
 "Gasoline, petrol",Bensiini,,Motor fuel,,,,,"2,29",,,,,,,,,16
 "Gasoline, petrol, small engine","Bensiini, pienkone",,Small engine fuel,,,,,"2,29",,,,,,,,,16
 "Ginger Root, Raw","Inkivääri, juurakko, raaka",,,,"0,88",,,,,,,,,,,"Ginger, median",1
