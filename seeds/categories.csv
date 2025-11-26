@@ -55,6 +55,7 @@ Beef,,,,,,,,,,,,,,2714,,Beef (dairy herd),63
 Beers,,,,,,,,"0,54",,,,,,,,"Beer, cradle-to-grave",5
 "Beetroot, Red Beet",Punajuuri,,,,"0,24",,,,,,,,,,,"Beetroot, median",1
 Berries,,,,,,,,,"0,7",,,,,,,Plant based groceries,2
+Berries,,,,,"1,53",,,,,,,,,,,Berries & Grapes,63
 Berries,,,,,,,,,,"2,41",,,,,,Berries & Grapes,63
 Berries,,,,,,,,,,,,"6,12",,,,Berries & Grapes,63
 Berries,,,,,,,,,,,,,,420,,Berries & Grapes,63
@@ -373,6 +374,7 @@ Literature,Kirjallisuus,"[""Book"", ""Kirja""]",Supplies,,,,,,"0,4",,,,,,,"Sanom
 Lobster,Hummeri,,,,"27,8",,,,,,,,,,,"Lobster, median",1
 Lottery tickets,Arvat,"[""Arpa"", ""Arpamyynti""]",Commerce,,,,,,,,,,,,,,
 "Macaroni, Dark, Whole Wheat And Dark Wheat Flour",,"[""Täysjyväspagetti""]",,,,,,,,,,,,,,,
+"Macaroni, Whole Wheat",,"[""Makaroni tumma""]",,,,,,,,,,,,,,,
 "Macbook Pro 13"" M2 2012 256GB SSD","Macbook Pro 13"" M2 2012 256 Gt SSD",,Electronics,185,,,,,,,,,,,,"MacBook Pro (13-inch, M1, 2020) with 256GB / 512GB storage",25
 Mackerel,Makrilli,,Fish,,"1,8",,,,,,,,,,,"Mackerel, median",1
 Magazine paper,Aikakausilehti,,Literature,,,,,,"0,32",,,,,,,,2
@@ -632,6 +634,7 @@ Soy Sauce,,,,,,,,,"0,7",,,,,,,Plant based groceries,2
 "Soya Drink, Plain, Average Of Industrial Products",,,,,,,,,,,,"1,06",,,,Soy milk,63
 "Soya Drink, Plain, Average Of Industrial Products",,,,,,,,,,,,,,28,,Soy milk,63
 "Soya mince, white or dark",,,,,"0,49",,,,,,,,,,,"Soybean, median",1
+"Soya Product, Non-Dairy Cream Substitute, 17.5% Fat",,"[""Soijavalmiste ruoanlaittoon""]",,,,,,,,,,,,,,,
 Spices,,"[""Spice Mix"", ""Mausteseos"", ""Sipulijauhe"", ""Chipotle""]",,,,,,,"0,7",,,,,,,Plant based groceries,2
 Spinach,Pinaatti,"[""Lehtipinaatti""]",,,"0,54",,,,,,,,,,,"Spinach, median",1
 "Spirit, Brandy/Rum/Whisky 40% Volume",,,,,,,,2,,,,,,,,"Captain Morgan, Rum, Life cycle (Cradle-to-Grave)",61
