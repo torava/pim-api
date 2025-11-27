@@ -1,5 +1,5 @@
 const brands = [
-  { name: 'Dan Sukker' },
+  { name: 'Dansukker' },
   { name: 'Vitasia' },
   { name: 'PohjolanMeijeri' },
   { name: 'Myllykivi' },
@@ -41,7 +41,11 @@ const brands = [
   { name: 'Dentalux' },
   { name: 'Kotipizza' },
   { name: 'Hesburger' },
-  { name: 'Apple' }
+  { name: 'Apple' },
+  { name: 'Nordqvist' },
+  { name: 'Old El Paso' },
+  { name: 'Fazer' },
+  { name: 'Sportlife' }
 ];
 
 exports.seed = knex => (

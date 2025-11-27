@@ -169,7 +169,7 @@ Cleaning Services,Siivouspalvelut,,Services,,,,,,"0,1",,,,,,,Siivouspalvelut arv
 Clothes,Vaatteet,"[""Käsineet"", ""Sukat"", ""Tights""]",Supplies,,,,,,"0,4",,,,,,,Vaatteet,2
 Cocoa powder with sugar,,,,,"1,6895",,,,,,,,,,,"Cocoa 2.04-4.66 kg, sugar 73.8%",12
 Cocoa powder with sugar,,,,,,,,,,,,,,,,,
-"Cocoa Powder, Unsweetened",,,,,"3,35",,,,,,,,,,,Cocoa 2.04-4.66 kg,12
+"Cocoa Powder, Unsweetened",,"[""Kaakaojauhe""]",,,"3,35",,,,,,,,,,,Cocoa 2.04-4.66 kg,12
 Coconut Milk,,"[""Coconut cream"", ""Coconut creamy"", ""Kookoskerma"", ""Kookoskermaisessa""]",,,"0,42",,,,,,,,,,,"Almond/coconut milk, median",1
 Coconut Oil,Kookosöljy,,,,"1,78",,,,"0,7",,,,,,,Plant based groceries,2
 "Coconut Water, Unsweetened",,"[""Kookosvesi maustamaton luomu""]",,,,,,,,,,,,,,,
@@ -325,7 +325,7 @@ Hairdresser,Kampaamo,,Recreational services,,,,,,"0,2",,,,,,,,
 Headphones,Kuulokkeet,,Electronics,,,,,,,,,,,,,,
 Healthcare products,Terveydenhoitotuotteet,,Supplies,,,,,,"0,51",,,,,,,"Kestokulutustavarat, terveydenhoitotuotteet keskiarvo",2
 Healthcare services,Terveydenhuoltopalvelut,,Services,,,,,,"0,2",,,,,,,Terveydenhuolto- ja eläinlääkintäpalvelut,2
-"Herring, Pickled/Salted, Average",,,,,"1,16",,,,,,,,,,,"Herring, median",1
+"Herring, Pickled/Salted, Average",,"[""Tomaattisilli""]",,,"1,16",,,,,,,,,,,"Herring, median",1
 Honey,Hunaja,"[""Kuningatarhunaja"", ""Hunajayhtymä suodat hunaja""]",,,"0,75",,,,,,,,,,,"Honey, average, 140-1800 miles",15
 Housekeeping products,Kodinhoitotuotteet,,Supplies,,,,,,"0,4",,,,,,,Housekeeping products and services,2
 Housekeeping tools,Kodinhoitotyökalut,,Supplies,,,,,,"0,5",,,,,,,Tools and appliances for housekeeping and gardening,2
@@ -388,7 +388,7 @@ Margarine and fat spread >= 55%,,,,,"1,75",,,,,,,,,,,"Margarine, 60% fat, includ
 "Mayonnaise, Home-Made",,"[""Majoneesi"", ""Majoneesidippi"", ""Mayonnaise"", ""Mayonnaise dip""]",,,,,,,,,,,,,,,
 "Meal Replacement, Protein Bar, Average, C. 20% Protein",,,,,,,,,"0,7",,,,,,,Plant based groceries,2
 "Meal Replacement, Protein Bar, Average, C. 40% Protein",,"[""Barebells proteiinipatukka""]",,,,,,,,,,,,,,,
-"Meal Replacement, Whey Protein Powder, 85% Protein",,,,,"8,9",,,,,,,,,,,"Whey protein, 80% protein, Sweden, CarbonCloud Benchmark, Footprint at store",29
+"Meal Replacement, Whey Protein Powder, 85% Protein",,"[""Sportlife Whey100 maustamaton""]",,,"8,9",,,,,,,,,,,"Whey protein, 80% protein, Sweden, CarbonCloud Benchmark, Footprint at store",29
 Meat dishes,,,,,,,,,"1,1",,,,,,,Animal based groceries,2
 "Meatball, Industrial",,,,,21,,,,,,,,,,,"Beef meatballs, raw, Sweden, CarbonCloud Benchmark, Footprint at store",29
 Media duplication services,Tallenteiden jäljentämispalvelut,,Services,,,,,,"0,9",,,,,,,,2
@@ -619,9 +619,9 @@ Soft drink with caffeine,,,,,,,,"0,2",,,,,,,,Virvoitusjuomat,36
 Soil,Multa,"[""Kukkamulta""]",Supplies,,,,,,"0,6",,,,,,,Garden supplies,2
 Soup vegetables,Kuivatut keittovihannekset,"[""Kuivattu keittovihannes""]",Spices,,,,,,,,,,,,,,
 Soured Cucumber,,,,,5,,,,,,,,,,,"Tomaatti, kurkku (kasvihuone talvella)",4
-"Soy Product, Alpro Go On, Soured, Plain, Fat 3.6%",,"[""Go On Soijavalmiste Maustamaton""]",,,,,,,,,,,,,,,
-"Soy Product, Alpro Natural, Soured, Plain, Added Vitamin And Calcium",,"[""Soijavalmiste maustamaton""]",,,,,,,,,,,,,,,
-"Soy Product, Soured, 2% Fat, Calcium",,"[""Soijavalmiste vad-omena""]",,,,,,,,,,,,,,,
+"Soy Product, Alpro Go On, Soured, Plain, Fat 3.6%",,"[""Go On Soijavalmiste Maustamaton""]",,,"0,55",,,,,,,,,,,Plain Plantbased Soy Yoghurt,29
+"Soy Product, Alpro Natural, Soured, Plain, Added Vitamin And Calcium",,"[""Soijavalmiste"", ""Soijavalmiste maustamaton""]",,,"0,55",,,,,,,,,,,Plain Plantbased Soy Yoghurt,29
+"Soy Product, Soured, 2% Fat, Calcium",,"[""Soijavalmiste vad-omena""]",,,"0,55",,,,,,,,,,,Plain Plantbased Soy Yoghurt,29
 Soy Sauce,,,,,,,,,"0,7",,,,,,,Plant based groceries,2
 "Soya Bean Patty, Fried",,"[""Grillatut kasvisfileet"", ""Vegaaninen Pihvi Soija- Ja Vehnäproteiinista"", ""Soijapihvi"", ""Soy steak""]",,,,,,,,,,,,,,,2
 "Soya Beans, Dried","Soijapapu, kuivattu","[""Soijapapu""]",,,"0,49",,,,,,,,,,,"Soybean, median",1
@@ -647,7 +647,7 @@ Sportdrinks,,,,,,,,,"0,84",,,,,,,Other groceries,2
 Sports equipment,Urheiluvälineet,,Supplies,,,,,,"0,52",,,,,,,,2
 Strawberry,Mansikka,,,,"1,64",,,,,,,,,,,"Strawberries: heated greenhouse, median",1
 Strawberry,Mansikka,,,,"0,58",,,,,,,,,,,"Strawberries, median",1
-Sugar,Sokeri,"[""Taloussokeri""]",,,"1,1",,,,,,,,,,,,10
+Sugar,Sokeri,"[""Taloussokeri"", ""Ruokosokeri""]",,,"1,1",,,,,,,,,,,,10
 Sugar,,,,,,,,,,"1,83",,,,,,Beet Sugar,63
 Sugar,,,,,,,,,,"2,04",,,,,,Cane Sugar,63
 Sugar,,,,,,,,,,,,"5,41",,,,Beet Sugar,63
@@ -711,14 +711,14 @@ Tomato Ketchup,,,,,"1,1",,,,,,,,,,,"Ketchup, Sweden, CarbonCloud Benchmark, Foot
 "Tomato Ketchup, Reduced Salt And Sugar",,,,,"2,410526316",,,,,,,,,,,,59
 "Tomato Ketchup, Reduced Salt And Sugar",,,,,"1,1",,,,,,,,,,,"Ketchup, Sweden, CarbonCloud Benchmark, Footprint at store",29
 Tomato Puree,,,,,"0,868",,,,,,,,,,,"1 kg packed product, processed and canned",48
-Tomato Salsa,,"[""Salsa"", ""Pico de gallo""]",,,,,,,,,,,,,,,
-"Tomato Salsa, Industrial",,,,,"1,11",,,,,,,,,,,Salsa,29
+Tomato Salsa,,"[""Pico de gallo""]",,,,,,,,,,,,,,,
+"Tomato Salsa, Industrial",,"[""Salsa"", ""Salsa Hot""]",,,"1,11",,,,,,,,,,,Salsa,29
 Tomato Sauce,,"[""Tomaattikastikkeessa"", ""Marinara""]",,,,,,,,,,,,,,,
 "Tomatoes, Crushed, Canned",,,,,"0,868",,,,,,,,,,,"1 kg packed product, processed and canned",48
 Tools,Työkalut,,Supplies,,,,,,"0,51",,,,,,,Kodinkoneet ja työkalut,2
 Tooth brush,Hammasharja,,Hygiene products,,,,,,,,,,,,,,
 Toothpaste,Hammastahna,,Hygiene products,,,,,,,,,,,,,,
-"Tortilla Chips, Taco Shell",,"[""Tacos"", ""Taco""]",,,"1,55",,,,,,,,,,,"Bread, cradle-to-grave, 0.6-2.5 kg",6
+"Tortilla Chips, Taco Shell",,"[""Tacos"", ""Taco"", ""Tortilla Nachips""]",,,"1,55",,,,,,,,,,,"Bread, cradle-to-grave, 0.6-2.5 kg",6
 "Train, local",,,Public transport,,,,,,"0,6",,,,,,,"Train, tram, subway trips",2
 "Train, local",Lähijuna,,Public transport,,,,"0,001",,,,,,,,,,39
 "Train, long-distance",,,Public transport,,,,,,"0,6",,,,,,,"Train, tram, subway trips",2
