@@ -279,22 +279,20 @@ export const getDiaryExcelFineliWorkbook = (
       if (category && foodUnitAttribute) {
         const categoryProduct = products.find((product) =>
           product.categoryId === category.id && product.items.length &&
-          product.items.some((item) => item.price && item.measure && item.unit)
+          product.items.some((item) => item.price && (item.measure && item.unit || item.quantity > 1))
         );
-        const categoryProductItem = categoryProduct?.items.find((item) => item.price && item.measure && item.unit);
+        const categoryProductItem = categoryProduct?.items.find((item) => item.price && (item.measure && item.unit || item.quantity > 1));
         console.log('categoryProduct', categoryProduct);
-        const isTea = category.name['en-US'] === 'Tea';
         const price =
           resolveCategoryContributionPrices(category, products, items, foodUnitAttribute, 0.8) ||
           categoryProductItem?.price /
-          (isTea
-            ? 1
-            : convertMeasure(categoryProductItem?.measure, categoryProductItem?.unit, 'kg')) ||
+          (convertMeasure(categoryProductItem?.measure, categoryProductItem?.unit, 'kg') || 1) /
+          (categoryProductItem?.quantity || 1) ||
           0;
         const measure = getCategoryMeasure(category, foodUnitAttribute, categories);
-        priceCell.value = price * (isTea ? 1 : measure);
-        totalMealMeasure += isTea ? 0 : measure;
-        totalMealPrice += price * (isTea ? 1 : measure);
+        priceCell.value = !categoryProductItem?.measure ? price : price * measure;
+        totalMealMeasure += measure;
+        totalMealPrice += price * measure;
         console.log('price, measure', price, measure);
         attributeCells.forEach((attributeCell, index) => {
           const { categoryAttributes, measure } = resolveCategoryAttributes(

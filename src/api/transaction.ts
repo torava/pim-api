@@ -153,7 +153,7 @@ app.post('/api/transaction/csv', async (req, res) => {
         itemIndex = 0;
         transactions[columnKey] = {items: [], party: {}, receipts: [], totalPrice: 0};
       }
-      for (let n in columns) {
+      for (const n in columns) {
         let columnName = TRANSACTION_CSV_COLUMNS[template as keyof typeof TRANSACTION_CSV_COLUMNS](itemIndex)[n];
 
         let value = columns[n];
@@ -166,15 +166,25 @@ app.post('/api/transaction/csv', async (req, res) => {
         if (columnName.split('.').includes('name') || columnName.split('.').includes(`name['fi-FI']`)) {
           value = toTitleCase(value);
 
-          tokens = value.toLocaleLowerCase().match(/(\d{1,4})\s?((m|k)?(g|l))(\s|$)/);
-          measure = tokens && getNumber(tokens[1]);
-          if (measure) {
-            _.set(transactions[columnKey], `items[${itemIndex}].measure`, measure);
-            _.set(transactions[columnKey], `items[${itemIndex}].unit`, tokens[2]);
+          const quantityAndMeasureTokens = value.toLocaleLowerCase().match(/(\d+)x(\d+(,\d+)?)\s?((m|k)?(g|l))(\s|$)/);
+          let quantity = quantityAndMeasureTokens && getNumber(quantityAndMeasureTokens[1]);
+          const quantityTokens = value.toLocaleLowerCase().match(/(\d+)\s?(p|kpl)(\s|$)/);
+          if (quantityTokens) {
+            quantity = getNumber(quantityTokens[1]);
           }
-          const measureTokens = value.toLocaleLowerCase().match(/\s((m|k)?(g|l))(\s|$)/);
-          if (measureTokens) {
-            _.set(transactions[columnKey], `items[${itemIndex}].unit`, measureTokens[1]);
+          if (quantity) {
+            _.set(transactions[columnKey], `items[${itemIndex}].quantity`, quantity);
+          } else {
+            const measureTokens = value.toLocaleLowerCase().match(/\s((m|k)?(g|l))(\s|$)/);
+            if (measureTokens) {
+              _.set(transactions[columnKey], `items[${itemIndex}].unit`, measureTokens[1]);
+            }
+            tokens = value.toLocaleLowerCase().match(/(\d+(,\d+)?)\s?((m|k)?(g|l))(\s|$)/);
+            measure = tokens && getNumber(tokens[1]);
+            if (measure) {
+              _.set(transactions[columnKey], `items[${itemIndex}].measure`, measure);
+              _.set(transactions[columnKey], `items[${itemIndex}].unit`, tokens[3]);
+            }
           }
         }
 
@@ -204,7 +214,11 @@ app.post('/api/transaction/csv', async (req, res) => {
         }
         if (columnName !== 'id') {
           if (typeof numberValue === 'number') {
-            _.set(transactions[columnKey], columnName, numberValue);
+            if (columnName.includes('quantity')) {
+              _.set(transactions[columnKey], columnName, numberValue * (_.get(transactions[columnKey], columnName) || 1));
+            } else {
+              _.set(transactions[columnKey], columnName, numberValue);
+            }
           } else {
             _.set(transactions[columnKey], columnName, value);
           }
@@ -219,14 +233,14 @@ app.post('/api/transaction/csv', async (req, res) => {
   const items = await Item.query();
   const products = await Product.query();
   const categories = await Category.query().withGraphFetched('[attributes]');
+  const leafCategories = categories.filter((parent) => !categories.some((child) => child.parentId === parent.id))
   const manufacturers = await Manufacturer.query();
   
   let promises = [];
-  let categoryIds: Record<string, number> = {};
   for await (let transaction of Object.values(transactions)) {
     transaction.items = transaction.items.filter((item) => item);
     try {
-      await resolveCategories(transaction, items, products, categories, manufacturers);
+      await resolveCategories(transaction, items, products, leafCategories, manufacturers);
     } catch (error) {
       console.error(error);
       return res.sendStatus(500);
@@ -240,7 +254,8 @@ app.post('/api/transaction/csv', async (req, res) => {
       }
     }*/
 
-    console.log('transaction', transaction);
+    console.log('transaction');
+    console.dir(transaction, { depth: null });
 
     promises.push(
       Transaction.query()
