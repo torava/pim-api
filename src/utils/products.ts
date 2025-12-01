@@ -12,11 +12,11 @@ import { stripDetails, stripName } from "@torava/product-utils/dist/utils/transa
 import { NameTranslations, Token } from "@torava/product-utils/dist/utils/types";
 
 import Category from "../models/Category";
-import Manufacturer from "../models/Manufacturer";
 import Product from "../models/Product";
 import { getAttributeValues, getMaxAttributeValue, getMinAttributeValue } from "./attributes";
 import { convertMeasure } from "./entities";
 import { ObjectEntries } from "./types";
+import Brand from "../models/Brand";
 
 export const getProductCategoryMinMaxAttributes = (
   category?: CategoryShape,
@@ -215,13 +215,13 @@ export const getProductsFromOpenFoodFactsRecords = async (records: {
   product_name: string
 }[]) => {
   const categories = (await Category.query().withGraphFetched('attributes')) as (Category & {strippedName?: NameTranslations})[];
-  const manufacturers = await Manufacturer.query();
+  const brands = await Brand.query();
 
   const strippedCategories = categories.filter(category => (
     category.attributes?.length ? true : false
   )).map(category => {
     const name = category.name;
-    category.strippedName = stripName(name, manufacturers);
+    category.strippedName = stripName(name, brands);
     return category;
   });
 

@@ -6,9 +6,9 @@ import { getStrippedCategories } from '@torava/product-utils/dist/utils/categori
 
 import Attribute from '../models/Attribute';
 import Category from '../models/Category';
-import Manufacturer from '../models/Manufacturer';
 import Source from '../models/Source';
 import { ObjectEntries } from './types';
+import Brand from '../models/Brand';
 
 export const getCategoriesFromCsv = async (records: {[key: string]: string}[], sourceRecords: {[key: string]: string}[], sourceRecordIdMap: {[key: string]: SourceShape} = {}) => {
   try {
@@ -206,8 +206,8 @@ export const getStrippedChildCategories = async () => {
   .withGraphFetched('[contributions, children, attributes]'));
 
   const childCategories = categories.filter(category => !category.children?.length);
-  const manufacturers = await Manufacturer.query();
-  const strippedCategories = getStrippedCategories(childCategories, manufacturers);
+  const brands = await Brand.query();
+  const strippedCategories = getStrippedCategories(childCategories, brands);
 
   return strippedCategories;
 };

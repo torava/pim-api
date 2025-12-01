@@ -6,7 +6,7 @@ import { getNumber, resolveCategories, toTitleCase } from '@torava/product-utils
 
 import Category from '../models/Category';
 import Item from '../models/Item';
-import Manufacturer from '../models/Manufacturer';
+import Brand from '../models/Brand';
 import Product from '../models/Product';
 import Transaction from '../models/Transaction';
 import { getEntitiesFromCsv } from '../utils/import';
@@ -234,13 +234,13 @@ app.post('/api/transaction/csv', async (req, res) => {
   const products = await Product.query();
   const categories = await Category.query().withGraphFetched('[attributes]');
   const leafCategories = categories.filter((parent) => !categories.some((child) => child.parentId === parent.id))
-  const manufacturers = await Manufacturer.query();
+  const brands = await Brand.query();
   
   let promises = [];
   for await (let transaction of Object.values(transactions)) {
     transaction.items = transaction.items.filter((item) => item);
     try {
-      await resolveCategories(transaction, items, products, leafCategories, manufacturers);
+      await resolveCategories(transaction, items, products, leafCategories, brands);
     } catch (error) {
       console.error(error);
       return res.sendStatus(500);
@@ -282,9 +282,9 @@ app.post('/api/transaction', async (req, res) => {
     const categories = await Category.query()
     .withGraphFetched('[children, parent]');
     const products = await Product.query();
-    const manufacturers = await Manufacturer.query();
+    const brands = await Brand.query();
 
-    await resolveCategories(transaction, items, products, categories, manufacturers);
+    await resolveCategories(transaction, items, products, categories, brands);
 
     console.dir(transaction, {depth:null});
 
