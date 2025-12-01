@@ -45,7 +45,13 @@ const brands = [
   { name: 'Nordqvist' },
   { name: 'Old El Paso' },
   { name: 'Fazer' },
-  { name: 'Sportlife' }
+  { name: 'Sportlife' },
+  { name: 'Kouvolan' },
+  { name: 'Oddlygood' },
+  { name: 'Sisu' },
+  { name: 'Pirjon Pakarin' },
+  { name: 'Herkkumaa' },
+  { name: 'Vaasan' },
 ];
 
 exports.seed = knex => (

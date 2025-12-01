@@ -28,6 +28,7 @@ Baking paper,Leivinpaperi,,Kitchen,,,,,,"0,72",,,,,,,"Paper, carton and cardboar
 "Banana, Without Skin",,,,,,,,,,"1,93",,,,,,Bananas,63
 "Banana, Without Skin",,,,,,,,,,,,"3,29",,,,Bananas,63
 "Banana, Without Skin",,,,,,,,,,,,,,115,,Bananas,63
+"Barbeque Sausage, Meaty, Average",,"[""Eetvartti""]",,,,,,,,,,,,,,,
 Barber,Parturi,,Recreational services,,,,,,,,,,,,,,
 "Barley, Rolled, Barley Flakes",,,,,"0,43",,,,,,,,,,,"Barley, median",1
 "Barley, Rolled, Barley Flakes",,,,,,,,,,"1,11",,,,,,Barley,63
@@ -205,7 +206,7 @@ Creatine,Kreatiini,"[""Monohydrate""]",Sport food,,,,,,,,,,,,,,
 Cucumber,Kurkku,,,,5,,,,,,,,,,,"Tomaatti, kurkku (kasvihuone talvella)",4
 Cucumber,Kurkku,,,,"2,1",,,,,,,,,,,"Cucumbers and gherkins: heated greenhouse, median",1
 Cucumber,Kurkku,,,,"0,23",,,,,,,,,,,"Cucumber/gherkins, median",1
-"Date, Dried, With Stone",,,,,"0,32",,,,,,,,,,,"Dates, median",1
+"Date, Dried, With Stone",,"[""Lakritsitaateli""]",,,"0,32",,,,,,,,,,,"Dates, median",1
 "Deep-Fried Vegetable Pasty, Hoviruoka",,"[""Vegaaninen piirakka""]",,,,,,,"0,7",,,,,,,Plant based groceries,2
 Delivery,Toimitus,"[""Utkörning""]",Services,,,,,,"0,4",,,,,,,Transportation services,2
 Dental care products,Hammashoitotuotteet,"[""Dental flosh"", ""Hammaslanka"", ""Suuvesi""]",Hygiene products,,,,,,,,,,,,,,
@@ -223,7 +224,7 @@ Diesel,,,Motor fuel,,,,,"3,24",,,,,,,,Usage and production,53
 "Diesel, small engine",,,Small engine fuel,,,,,"2,64",,,,,,,,,17
 "Diesel, small engine",,,Small engine fuel,,,,,"2,66",,,,,,,,,16
 "Diesel, small engine",,,Small engine fuel,,,,,"2,68",,,,,,,,,3
-"Dipmix, Milk-Free",,"[""Pirkka Dipmix Valkosipuli""]",,,,,,,"0,7",,,,,,,Plant based groceries,2
+"Dipmix, Milk-Free",,"[""Dipmix Valkosipuli""]",,,,,,,"0,7",,,,,,,Plant based groceries,2
 Discount,Alennus,,Commerce,,,,,,,,,,,,,,
 Disposable Dish,Kertakäyttöastiat,"[""Kertak.kattaustuott.""]",Kitchen,,,,,,,,,,,,,,
 District heating,Kaukolämpö,,Services,,,"0,173",,,,,,,,,,District heating production CO2 emissions,43
@@ -303,7 +304,7 @@ Fruits,,,,,,,,,,,,"2,43",,,,Other Fruit,63
 Fruits,,,,,,,,,,,,,,154,,Other Fruit,63
 Furniture,Huonekalut,,Interior design,,,,,,"0,42",,,,,,,"Huonekalut, matot",2
 Garden Lettuce,,,,,"3,7",,,,,,,,,,,"Lettuce: heated greenhouse, median",1
-Garlic,,"[""Pirkka valkosipuli""]",,,"0,57",,,,,,,,,,,"Garlic, median",1
+Garlic,,,,,"0,57",,,,,,,,,,,"Garlic, median",1
 "Gasoline, petrol",Bensiini,,Motor fuel,,,,,"2,29",,,,,,,,,16
 "Gasoline, petrol, small engine","Bensiini, pienkone",,Small engine fuel,,,,,"2,29",,,,,,,,,16
 "Ginger Root, Raw","Inkivääri, juurakko, raaka",,,,"0,88",,,,,,,,,,,"Ginger, median",1
@@ -398,7 +399,7 @@ Melon,Meloni,,,,"0,51",,,,,,,,,,,"Melons, median",1
 Metal,Metalli,,Construction,,,,,,"0,81",,,,,,,Other metal products,2
 Milk desserts,,,,,,,,,"1,1",,,,,,,Animal based groceries,2
 "Milk, 1.5% Fat, 1 Ug Added Vitamin D",,"[""Kevytmaito""]",,,,,,,,,,,,,,,
-"Milk, 1.5% Fat, Lactose-Free, 1 Ug Added Vitamin D",,"[""Pirkka laktoositon kevytmaitojuoma""]",,,,,,,,,,,,,,,
+"Milk, 1.5% Fat, Lactose-Free, 1 Ug Added Vitamin D",,"[""Laktoositon kevytmaitojuoma""]",,,,,,,,,,,,,,,
 "Milk, 1.5% Fat, Low-Lactose, 1 Ug Added Vitamin D",,"[""Kevytmaito hyla"", ""Kevytmaito vähälaktoosinen""]",,,,,,,,,,,,,,,
 "Milk, 3.5% Fat, 1 Ug Added Vitamin D",,"[""Täysmaito""]",,,,,,,,,,,,,,,
 Milks <= 2% fat,,,,,"1,29",,,,,,,,,,,"Milk: world average, median",1
@@ -422,6 +423,7 @@ Modified cheeses,,,,,,,,,"2,44",,,,,,,Dairy products and ice cream,2
 Motor fuel,Ajoneuvojen polttoaine,,Travel,,,,,,,,,,,,,,
 "Muesli, Basic",,"[""Luomumysli""]",,,,,,,,,,,,,,,
 "Multigrain Bread, Bread Roll",,,,,,,,,,,,,,,,,
+"Multigrain Bread, Bread Roll, Water, Flour Mix",,"[""Herkkusämpylät"", ""Hampurilaissämpylä""]",,,,,,,,,,,,,,,
 "Multigrain Bread, Buttermilk Bread, Sour Milk, Wheat And Dark Wheat Flour",,"[""Herkkulimppu""]",,,,,,,,,,,,,,,
 "Multigrain Bread, Crushed Grains, Water",,"[""Bread"", ""Leipä""]",,,,,,,,,,,,,,,
 "Multigrain Bread, Oat Bread, Water",,"[""Kauraleipä"", ""Kaurasydän""]",,,,,,,,,,,,,,,
@@ -473,6 +475,7 @@ Orange Marmalade,,,,,"0,715",,,,,,,,,,,"Combined, orange 50%, sugar 50%",
 "Orange, Average, With Skin",,"[""Appelsiini"", ""Veriappelsiini""]",,,"0,33",,,,,,,,,,,"Orange, median",1
 Other alcoholic beverages,,,,,,,,,"0,3",,,,,,,Alcohol drinks,2
 Palm Oil,Palmuöljy,,,,,,,,"0,7",,,,,,,Plant based groceries,2
+Panncakes,,,,,"2,99",,,,,,,,,,,"Pancakes, at store",29
 Paper bag,Paperikassi,"[""Lahjakassi karto""]",Supplies,"0,01",,,,,,,,,,,,,33
 Pasta,,,,,"1,564",,,,,,,,,,,Pasta,47
 "Pasta, Spaghetti, Macaroni",,"[""Spaghetti"", ""Täysjyväspagetti""]",,,,,,,,,,,,,,,
@@ -550,8 +553,9 @@ Pulses vegetables,,,,,,,,,,,,"17,08",,,,Other Pulses,63
 Pulses vegetables,,,,,,,,,,,,,,436,,Other Pulses,63
 Pumpkin,Kurpitsa,,,,"0,25",,,,,,,,,,,"Pumpkins, median",1
 Pumpkin Seed,,"[""Kurpitsansiemenet""]",,,,,,,,,,,,,,,
-Quark,Rahka,,,,10,,,,,,,,,,,Juusto,9
+Quark,,,,,"4,2",,,,,,,,,,,"Quark, at factory",29
 Quark,,,,,,,,,"1,1",,,,,,,Animal based groceries,2
+"Quark, Flavoured, Fat-Free, Artificially Sweetened",,"[""Mansikkarahka""]",,,,,,,,,,,,,,,
 Quinces,Kvitteni,,Malaceous fruit,,"0,31",,,,,,,,,,,"Quinces, median",1
 Quinoa,"Kvinoa, siemen",,,,"1,15",,,,,,,,,,,"Quinoa, median",1
 "Quorn, Fillet, Pieces, Mince",,,,,,,,,"1,1",,,,,,,Animal based groceries,2
@@ -593,6 +597,7 @@ Salmon fillet,,,,,"3,47",,,,,,,,,,,"Salmon, median",1
 "Salmon, Farmed",,,,,,,,,,,,"235,12",,,,Fish (farmed),63
 "Salmon, Farmed",,,,,,,,,,,,,,3691,,Fish (farmed),63
 "Salmon, Whole",,,,,"3,47",,,,,,,,,,,"Salmon, median",1
+Salty Liqourice,,"[""Pätkä sitruspippuri""]",,,,,,,,,,,,,,,
 Samsung Galaxy S20 128GB,,,Smartphone,25,,,,,,,,,,,,,57
 "Sardine, Average, In Oil And Tomato Sauce",,,,,"1,1",,,,,,,,,,,"Pilchard, median",1
 Saucepan,Kasari,,Housekeeping tools,,,,,,,,,,,,,,
@@ -618,14 +623,14 @@ Soft drink with caffeine,,,,,,,,"0,2",,,,,,,,Virvoitusjuomat,36
 "Soft Drink, Lemonade",Virvoitusjuoma,"[""Coca-Cola"", ""Coca Cola"", ""Pepsi"", ""Fanta"", ""Sprite"", ""7up"", ""Jaffa"", ""Soft Drink"", ""Lemonade""]",,,,,,"0,2",,,,,,,,Virvoitusjuomat,36
 Soil,Multa,"[""Kukkamulta""]",Supplies,,,,,,"0,6",,,,,,,Garden supplies,2
 Soup vegetables,Kuivatut keittovihannekset,"[""Kuivattu keittovihannes""]",Spices,,,,,,,,,,,,,,
-Soured Cucumber,,,,,5,,,,,,,,,,,"Tomaatti, kurkku (kasvihuone talvella)",4
+Soured Cucumber,,"[""Maustekurkku""]",,,5,,,,,,,,,,,"Tomaatti, kurkku (kasvihuone talvella)",4
 "Soy Product, Alpro Go On, Soured, Plain, Fat 3.6%",,"[""Go On Soijavalmiste Maustamaton""]",,,"0,55",,,,,,,,,,,Plain Plantbased Soy Yoghurt,29
 "Soy Product, Alpro Natural, Soured, Plain, Added Vitamin And Calcium",,"[""Soijavalmiste"", ""Soijavalmiste maustamaton""]",,,"0,55",,,,,,,,,,,Plain Plantbased Soy Yoghurt,29
 "Soy Product, Soured, 2% Fat, Calcium",,"[""Soijavalmiste vad-omena""]",,,"0,55",,,,,,,,,,,Plain Plantbased Soy Yoghurt,29
 Soy Sauce,,,,,,,,,"0,7",,,,,,,Plant based groceries,2
 "Soya Bean Patty, Fried",,"[""Grillatut kasvisfileet"", ""Vegaaninen Pihvi Soija- Ja Vehnäproteiinista"", ""Soijapihvi"", ""Soy steak""]",,,,,,,,,,,,,,,2
 "Soya Beans, Dried","Soijapapu, kuivattu","[""Soijapapu""]",,,"0,49",,,,,,,,,,,"Soybean, median",1
-"Soya drink,  calcium",,,,,"0,75",,,,,,,,,,,"Soy-milk, median",1
+"Soya drink,  calcium",,"[""Soijajuoma""]",,,"0,75",,,,,,,,,,,"Soy-milk, median",1
 "Soya drink,  calcium",,,,,,,,,,"0,66",,,,,,Soy milk,63
 "Soya drink,  calcium",,,,,,,,,,,,"1,06",,,,Soy milk,63
 "Soya drink,  calcium",,,,,,,,,,,,,,28,,Soy milk,63
@@ -680,15 +685,15 @@ Tangerine,Tangeriini,,Citrus fruit,,"0,51",,,,,,,,,,,"Tangerines/mandarins, medi
 Tapioca,,,,,"1,32",,,,,,,,,,,Cassava,63
 Tapioca,,,,,,,,,,"1,81",,,,,,Cassava,63
 Taxi,Taksi,,Public transport,,,,,,"0,8",,,,,,,Taxi trips,2
-Tea,,"[""Earl Grey"", ""Vihreä tee"", ""Twinings tee Earl Grey"", ""Twinings vihreä tee"", ""Nordqvist Earl Grey""]",,"0,01407",,,,,,,,,,,,For 2g bag,38
+Tea,,"[""Earl Grey"", ""Vihreä tee"", ""Tee Earl Grey""]",,"0,01407",,,,,,,,,,,,For 2g bag,38
 Tea,,,,,,,,"0,33",,,,,,,,,7
-"Tea, Herbal Tea",,"[""Rooibos"", ""Yrttitee"", ""Nordqvist tee rooibos"", ""ruusunmarjatee""]",,,,,,,,,,,,,,,
+"Tea, Herbal Tea",,"[""Rooibos"", ""Yrttitee"", ""Tee rooibos"", ""Ruusunmarjatee""]",,,,,,,,,,,,,,,
 Telecommunication services,Tietoliikennepalvelut,,Services,,,,,,"0,28",,,,,,,"Telephone, the internet, etc. (communication)",2
 Textiles,Tekstiilit,,Supplies,,,,,,"0,67",,,,,,,"Kodintaloustekstiilit, sisustus, astiat keskiarvo",2
 "Thin Spinach Pancake, Spinach Crepes, Atria/Pirkka",,"[""Pinaattiohukainen""]",,,"2,5",,,,,,,,,,,"Pastry, including waste, secondary source",7
 "Tikka Masala, Uncle Ben'S",,"[""Masalakastike""]",,,,,,,,,,,,,,,
-"Toast, Rye Toast, Vaasan 100% Ruispaahto",,"[""Vaasan taika tumma ohut paahto""]",,,,,,,,,,,,,,,
-"Toast, Wheat Toast, Vaasan Arkipaahto",,"[""K-Menu vehnäpaahto""]",,,,,,,,,,,,,,,
+"Toast, Rye Toast, Vaasan 100% Ruispaahto",,"[""Taika tumma ohut paahto""]",,,,,,,,,,,,,,,
+"Toast, Wheat Toast, Vaasan Arkipaahto",,"[""Vehnäpaahto""]",,,,,,,,,,,,,,,
 "Tofu, Firm, Soya Product","Tofu, kova/kiinteä, soijavalmiste",,,,2,,,,,,,,,,,Tofu,27
 "Tofu, Firm, Soya Product",,,,,,,,,,"3,52",,,,,,Tofu,63
 "Tofu, Firm, Soya Product",,,,,,,,,,,,"6,16",,,,Tofu,63
