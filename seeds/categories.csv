@@ -369,7 +369,7 @@ Lettuce,,"[""Sesonkisalaattisekoitus""]",,,"3,7",,,,,,,,,,,"Lettuce: heated gree
 Lima bean,Limanpapu,"[""Butter bean"", ""Voipapu""]",Pulses vegetables,,"0,39",,,,,,,,,,,"Beans: gigante/butter, median",1
 Lime,Limetti,,Citrus fruit,,"0,26",,,,,,,,,,,"Lemons and limes, median",1
 Ling,Molva,,Fish,,"6,45",,,,,,,,,,,"Ling common, median",1
-"Liquorice, licorice",,,,,,,,,"0,7",,,,,,,Plant based groceries,2
+"Liquorice, licorice",,"[""Lakupala"", ""Lakupala mansikka""]",,,,,,,"0,7",,,,,,,Plant based groceries,2
 "Liquorice, licorice",,,,,"2,6",,,,,,,,,,,Including waste,7
 Literature,Kirjallisuus,"[""Book"", ""Kirja""]",Supplies,,,,,,"0,4",,,,,,,"Sanomalehdet, kirjat ja paperitarvikkeet",2
 Lobster,Hummeri,,,,"27,8",,,,,,,,,,,"Lobster, median",1
@@ -717,7 +717,7 @@ Tomato Ketchup,,,,,"1,1",,,,,,,,,,,"Ketchup, Sweden, CarbonCloud Benchmark, Foot
 "Tomato Ketchup, Reduced Salt And Sugar",,,,,"1,1",,,,,,,,,,,"Ketchup, Sweden, CarbonCloud Benchmark, Footprint at store",29
 Tomato Puree,,,,,"0,868",,,,,,,,,,,"1 kg packed product, processed and canned",48
 Tomato Salsa,,"[""Pico de gallo""]",,,,,,,,,,,,,,,
-"Tomato Salsa, Industrial",,"[""Salsa"", ""Salsa Hot""]",,,"1,11",,,,,,,,,,,Salsa,29
+"Tomato Salsa, Industrial",,"[""Salsa"", ""Salsa Hot"", ""Salsadippi"", ""Salsa dip"", ""Tex mex salsa dip""]",,,"1,11",,,,,,,,,,,Salsa,29
 Tomato Sauce,,"[""Tomaattikastikkeessa"", ""Marinara""]",,,,,,,,,,,,,,,
 "Tomatoes, Crushed, Canned",,,,,"0,868",,,,,,,,,,,"1 kg packed product, processed and canned",48
 Tools,Työkalut,,Supplies,,,,,,"0,51",,,,,,,Kodinkoneet ja työkalut,2
