@@ -33,6 +33,10 @@ const componentEnergyMap = {
 
 const FOOD_UNITS_ID = 6;
 
+const PRICE_INDEX = 9;
+
+const PRICE_RECOMMENDATION = 10.1;
+
 export const getDiaryExcelFineliBuffer = async (buffer: ArrayBuffer, locale: Locale = Locale['fi-FI']) => {
   const categories = await Category.query().withGraphFetched('[contributions.[contribution.[products, contributions]], attributes]');
   const products = await Product.query().withGraphFetched('[items]');
@@ -124,9 +128,8 @@ export const getDiaryExcelFineliWorkbook = (
     //const row = worksheet.getRows(40, 1)[0];
     const food = row.getCell(4).value;
     const unit = row.getCell(8).value;
-    const perUnit = row.getCell(9).value;
     const mass = Number(row.getCell(9).value);
-    const energy = Number(row.getCell(11 + 16).value);
+    const energy = Number(row.getCell(9 + 10).value);
     const priceCell = row.getCell(10);
     priceCell.alignment = { vertical: 'top' };
     attributeCells.forEach((attributeCell, index) => {
@@ -147,10 +150,10 @@ export const getDiaryExcelFineliWorkbook = (
 
         worksheet.columns.forEach((col, index) => {
           console.log('headerCell', headerRow.getCell(index + 1).value);
-          if (index === 9) {
+          if (index === PRICE_INDEX) {
             // price;66;;10.1;euro;;;;;;;;male or female under 45 years living alone average
             const cellValue = Number(row.getCell(index + 1).value);
-            const isGood = cellValue < 10.1;
+            const isGood = cellValue < PRICE_RECOMMENDATION;
             row.getCell(10).fill = {
               type: 'pattern',
               pattern: 'solid',
@@ -166,27 +169,18 @@ export const getDiaryExcelFineliWorkbook = (
               recommendations.find((recommendation) => recommendation.attributeId === attribute.id)
           );
           if (attribute) {
-            console.log('attribute', attribute);
             const recommendation = recommendations.find((recommendation) => recommendation.attributeId === attribute.id);
-            console.log('recommendation', recommendation);
-            const cellValue = Number(row.getCell(index + 1).value);
-            console.log('cellValue', row.getCell(index + 1).value, energy, energyRecommendation.minValue, energyRecommendation.unit, convertMeasure(energyRecommendation.minValue, energyRecommendation.unit, 'kJ'));
-            let value = cellValue;
-            if (unit === 'percent' && perUnit === 'energy') {
-              const componentEnergy = Object.entries(componentEnergyMap).find(([component]) =>
-                attribute.name['en-US'].includes(component)
-              )?.[1];
-              value = ((cellValue * componentEnergy) / energy) * 100;
-            } else if (unit === 'g' && perUnit === 'MJ') {
-              value = cellValue / (energy * 1000);
-            } else if (perUnit === 'kg') {
-              value = cellValue / (mass * 1000);
-            }
             if (recommendation) {
-              console.log('value', value, recommendation.minValue, recommendation.maxValue);
-              const isGood =
-                (!recommendation.minValue || value > recommendation.minValue) &&
-                (!recommendation.maxValue || value < recommendation.maxValue);
+              const cellValue = Number(row.getCell(index + 1).value);
+              const value = getDailyAttributeValue(
+                cellValue,
+                energy,
+                mass,
+                recommendation,
+                attribute
+              );
+              const isGood = compareAttributeToRecommendation(value, recommendation);
+              console.log('isGood', isGood);
               row.getCell(index + 1).fill = {
                 type: 'pattern',
                 pattern: 'solid',
@@ -214,10 +208,10 @@ export const getDiaryExcelFineliWorkbook = (
 
         worksheet.columns.forEach((col, index) => {
           console.log('headerCell', headerRow.getCell(index + 1).value);
-          if (index === 9) {
+          if (index === PRICE_INDEX) {
             // price;66;;10.1;euro;;;;;;;;male or female under 45 years living alone average
             const cellValue = Number(row.getCell(index + 1).value);
-            const isGood = cellValue < 10.1 * energy / convertMeasure(energyRecommendation.minValue, energyRecommendation.unit, 'kJ');
+            const isGood = cellValue < PRICE_RECOMMENDATION * energy / convertMeasure(energyRecommendation.minValue, energyRecommendation.unit, 'kJ');
             row.getCell(10).fill = {
               type: 'pattern',
               pattern: 'solid',
@@ -233,27 +227,19 @@ export const getDiaryExcelFineliWorkbook = (
               recommendations.find((recommendation) => recommendation.attributeId === attribute.id)
           );
           if (attribute) {
-            console.log('attribute', attribute);
             const recommendation = recommendations.find((recommendation) => recommendation.attributeId === attribute.id);
-            console.log('recommendation', recommendation);
-            const cellValue = Number(row.getCell(index + 1).value);
-            console.log('cellValue', row.getCell(index + 1).value, energy, convertMeasure(energyRecommendation.minValue, energyRecommendation.unit, 'kJ'));
-            let value = cellValue * energy / convertMeasure(energyRecommendation.minValue, energyRecommendation.unit, 'kJ');
-            if (unit === 'percent' && perUnit === 'energy') {
-              const componentEnergy = Object.entries(componentEnergyMap).find(([component]) =>
-                attribute.name['en-US'].includes(component)
-              )?.[1];
-              value = ((cellValue * componentEnergy) / energy) * 100;
-            } else if (unit === 'g' && perUnit === 'MJ') {
-              value = cellValue / (energy * 1000);
-            } else if (perUnit === 'kg') {
-              value = cellValue / (mass * 1000);
-            }
             if (recommendation) {
-              console.log('value', value, recommendation.minValue, recommendation.maxValue);
-              const isGood =
-                (!recommendation.minValue || value > recommendation.minValue) &&
-                (!recommendation.maxValue || value < recommendation.maxValue);
+              const cellValue = Number(row.getCell(index + 1).value);
+              const value = getMealAttributeValue(
+                cellValue,
+                energy,
+                energyRecommendation,
+                mass,
+                recommendation,
+                attribute
+              );
+              const isGood = compareAttributeToRecommendation(value, recommendation);
+              console.log('isGood', isGood);
               row.getCell(index + 1).fill = {
                 type: 'pattern',
                 pattern: 'solid',
@@ -338,3 +324,56 @@ Model.knex(knex);
     writeDiaryExcelFineliFile(filename);
   }
 })();
+
+export const getDailyAttributeValue = (
+  cellValue: number,
+  energy: number,
+  mass: number,
+  recommendation: RecommendationShape,
+  attribute: AttributeShape) => {
+  let value = cellValue;
+  if (recommendation.unit === 'percent' && recommendation.perUnit === 'energy') {
+    const componentEnergy = Object.entries(componentEnergyMap).find(([component]) =>
+      attribute.name['en-US'].toLocaleLowerCase().includes(component)
+    )?.[1];
+    value = ((cellValue * componentEnergy) / (energy / 1000)) * 100;
+  } else if (recommendation.unit === 'g' && recommendation.perUnit === 'MJ') {
+    value = cellValue / (energy * 1000);
+  } else if (recommendation.perUnit === 'kg') {
+    value = cellValue / (mass * 1000);
+  }
+  console.log('value', value, cellValue, energy, mass, recommendation, attribute);
+  return value;
+};
+
+
+const getMealAttributeValue = (
+  cellValue: number,
+  energy: number,
+  energyRecommendation: RecommendationShape,
+  mass: number,
+  recommendation: RecommendationShape,
+  attribute: AttributeShape) => {
+  let value = cellValue * energy / convertMeasure(energyRecommendation.minValue, energyRecommendation.unit, 'kJ');
+  if (recommendation.unit === 'percent' && recommendation.perUnit === 'energy') {
+    const componentEnergy = Object.entries(componentEnergyMap).find(([component]) =>
+      attribute.name['en-US'].toLocaleLowerCase().includes(component)
+    )?.[1];
+    value = ((cellValue * componentEnergy) / (energy / 1000)) * 100;
+  } else if (recommendation.unit === 'g' && recommendation.perUnit === 'MJ') {
+    value = cellValue / (energy * 1000);
+  } else if (recommendation.perUnit === 'kg') {
+    value = cellValue / (mass * 1000);
+  }
+  return value;
+};
+
+export const compareAttributeToRecommendation = (
+  value: number,
+  recommendation: RecommendationShape) => {
+  console.log('value', value, recommendation);
+  const isGood =
+    (!recommendation.minValue || value > recommendation.minValue) &&
+    (!recommendation.maxValue || value < recommendation.maxValue);
+  return isGood;
+};
