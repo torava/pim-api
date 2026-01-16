@@ -133,16 +133,15 @@ app.post('/api/transaction/csv', async (req, res) => {
     TRANSACTION_CSV_STARTING_ROW[template as keyof typeof TRANSACTION_CSV_STARTING_ROW] ||
     TRANSACTION_CSV_STARTING_ROW.default;
 
-  let columns: string[],
-      tokens,
-      measure,
-      itemIndex = 0,
-      rows = getEntitiesFromCsv(req.files.transactions.data, {
-        delimiter: CSV_SEPARATOR[template as keyof typeof CSV_SEPARATOR],
-        columns: false,
-      });
-
   try {
+    let columns: string[],
+        tokens,
+        measure,
+        itemIndex = 0,
+        rows = getEntitiesFromCsv(req.files.transactions.data, {
+          delimiter: CSV_SEPARATOR[template as keyof typeof CSV_SEPARATOR],
+          columns: false,
+        });
     for (let i = startingRow; i < rows.length; i++) {
       let columnKey = '';
       columns = rows[i];
@@ -168,7 +167,7 @@ app.post('/api/transaction/csv', async (req, res) => {
 
           const quantityAndMeasureTokens = value.toLocaleLowerCase().match(/(\d+)x(\d+(,\d+)?)\s?((m|k)?(g|l))(\s|$)/);
           let quantity = quantityAndMeasureTokens && getNumber(quantityAndMeasureTokens[1]);
-          const quantityTokens = value.toLocaleLowerCase().match(/(\d+)\s?(p|kpl)(\s|$)/);
+          const quantityTokens = value.toLocaleLowerCase().match(/(\d+)\s?(p|ps|pss|kpl)(\s|$)/);
           if (quantityTokens) {
             quantity = getNumber(quantityTokens[1]);
           }
