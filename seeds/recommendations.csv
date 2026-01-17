@@ -6,7 +6,7 @@ eutrophication;63;;21,76;gPO₄eq;kg;;;;;;;food median
 energy,calculated;67;9;;MJ;;25;50;female;64,1;;1,6;
 energy,calculated;67;11,3;;MJ;;25;50;male;74,8;;1,6;
 energia, calculated without fibre;;;;;;;;;;;;
-fat, total;;;;;;;;;;;;
+fat, total;64;25;40;percent;energy;;;;;;;
 carbohydrate, available;64;45;60;percent;energy;;;;;;;
 carbohydrate, difference;;;;;;;;;;;;
 carbohydrate, monosaccharide equivalents;;;;;;;;;;;;
@@ -134,7 +134,7 @@ selenium, total;67;90;;µg;;18;70;male;;;;
 silicon;;;;;;;;;;;;
 strontium;;;;;;;;;;;;
 zinc;67;12,7;;mg;;18;50;male;;;;
-fatty acids, total;64;25;40;percent;energy;;;;;;;
+fatty acids, total;;;;;;;;;;;;
 fatty acids, total, calculated as TAG equivalents;;;;;;;;;;;;
 fatty acids, total polyunsaturated;64;5;10;percent;energy;;;;;;;
 fatty acids, total monounsaturated cis;64;10;20;percent;energy;;;;;;;
