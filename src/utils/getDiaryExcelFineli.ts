@@ -28,6 +28,7 @@ const componentEnergyMap = {
   fat: 0.037,
   protein: 0.017,
   carbohydrate: 0.017,
+  sugar: 0.017,
   fibre: 0.008,
 };
 
@@ -87,17 +88,28 @@ export const getDiaryExcelFineliWorkbook = (
   // @ts-ignore
   worksheet.spliceColumns.apply(worksheet, [10, 0, [], ...attributeCells.map(() => [[], []]).flat()]);
   headerRow.getCell(10).value = 'Price (EUR)';
-  headerRow.getCell(10).alignment = { vertical: 'top' };
+  headerRow.getCell(10).style = {
+    alignment: { vertical: 'top', wrapText: true },
+    font: { bold: true },
+    border: { bottom: { color: { argb: 'FF000000' }, style: 'medium' } },
+  };
   attributeCells.forEach((attributeCell, index) => {
     const attribute = attributes.find((attribute) => attribute.code === attributeCell.attribute.code);
     headerRow.getCell(11 + index * 2).value = `Min. ${attribute.name[locale]}`;
     headerRow.getCell(11 + index * 2 + 1).value = `Max. ${attribute.name[locale]}`;
-    headerRow.getCell(11 + index * 2).alignment = { vertical: 'top', wrapText: true };
-    headerRow.getCell(11 + index * 2 + 1).alignment = { vertical: 'top', wrapText: true };
+    headerRow.getCell(11 + index * 2).style = {
+      alignment: { vertical: 'top', wrapText: true },
+      font: { bold: true },
+      border: { bottom: { color: { argb: 'FF000000' }, style: 'medium' } },
+    };
+    headerRow.getCell(11 + index * 2 + 1).style = {
+      alignment: { vertical: 'top', wrapText: true },
+      font: { bold: true },
+      border: { bottom: { color: { argb: 'FF000000' }, style: 'medium' } },
+    };
   });
 
   worksheet.columns.forEach((col, index) => {
-    console.log('headerCell', headerRow.getCell(index + 1).value);
     if (index === 9) {
       headerRow.getCell(index + 1).value = `${headerRow.getCell(index + 1).value} [-10,1 EUR]`;
       return true;
@@ -125,7 +137,6 @@ export const getDiaryExcelFineliWorkbook = (
   );
 
   worksheet.eachRow((row) => {
-    //const row = worksheet.getRows(40, 1)[0];
     const food = row.getCell(4).value;
     const unit = row.getCell(8).value;
     const mass = Number(row.getCell(9).value);
@@ -138,28 +149,35 @@ export const getDiaryExcelFineliWorkbook = (
     });
     if (!food) {
       if (!totalMealMeasure) {
-        console.log('total day', totalDayMeasure, totalDayPrice);
-
+        // total day
         priceCell.value = totalDayPrice;
+        priceCell.numFmt = totalDayPrice ? '0.00' : '0';
         attributeCells.forEach((attributeCell, index) => {
           row.getCell(11 + index * 2).value = attributeCell.totalDayMin;
           row.getCell(11 + index * 2 + 1).value = attributeCell.totalDayMax;
+          row.getCell(11 + index * 2).numFmt = attributeCell.totalDayMin ? '0.00' : '0';
+          row.getCell(11 + index * 2 + 1).numFmt = attributeCell.totalDayMax ? '0.00' : '0';
           attributeCell.totalDayMin = 0;
           attributeCell.totalDayMax = 0;
         });
 
         worksheet.columns.forEach((col, index) => {
-          console.log('headerCell', headerRow.getCell(index + 1).value);
           if (index === PRICE_INDEX) {
             // price;66;;10.1;euro;;;;;;;;male or female under 45 years living alone average
             const cellValue = Number(row.getCell(index + 1).value);
             const isGood = cellValue < PRICE_RECOMMENDATION;
-            row.getCell(10).fill = {
-              type: 'pattern',
-              pattern: 'solid',
-              fgColor: {
-                argb: `FF${isGood ? '00' : 'FF'}${isGood ? 'FF' : '00'}00`,
+            row.getCell(index + 1).style = {
+              fill: {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: {
+                  argb: `FF${isGood ? '00' : 'FF'}${isGood ? 'FF' : '00'}00`,
+                },
               },
+              numFmt: cellValue ? '0.00' : '0',
+              alignment: { vertical: 'top' },
+              font: { bold: true },
+              border: { bottom: { color: { argb: 'FF000000' }, style: 'medium' } },
             };
             return true;
           }
@@ -181,12 +199,20 @@ export const getDiaryExcelFineliWorkbook = (
               );
               const isGood = compareAttributeToRecommendation(value, recommendation);
               console.log('isGood', isGood);
-              row.getCell(index + 1).fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: {
-                  argb: `FF${isGood ? '00' : 'FF'}${isGood ? 'FF' : '00'}00`,
+              const argb = `FF${isGood ? '00' : 'FF'}${isGood ? 'FF' : '00'}00`;
+              console.log('argb', argb);
+              row.getCell(index + 1).style = {
+                fill: {
+                  type: 'pattern',
+                  pattern: 'solid',
+                  fgColor: {
+                    argb,
+                  },
                 },
+                numFmt: cellValue ? '0.00' : '0',
+                alignment: { vertical: 'top' },
+                font: { bold: true },
+                border: { bottom: { color: { argb: 'FF000000' }, style: 'medium' } },
               };
             }
           }
@@ -195,7 +221,7 @@ export const getDiaryExcelFineliWorkbook = (
         totalDayMeasure = 0;
         totalDayPrice = 0;
       } else {
-        console.log('total meal', totalMealMeasure, totalMealPrice);
+        // total meal
         priceCell.value = totalMealPrice;
         attributeCells.forEach((attributeCell, index) => {
           row.getCell(11 + index * 2).value = attributeCell.totalMealMin;
@@ -207,17 +233,22 @@ export const getDiaryExcelFineliWorkbook = (
         });
 
         worksheet.columns.forEach((col, index) => {
-          console.log('headerCell', headerRow.getCell(index + 1).value);
           if (index === PRICE_INDEX) {
             // price;66;;10.1;euro;;;;;;;;male or female under 45 years living alone average
             const cellValue = Number(row.getCell(index + 1).value);
             const isGood = cellValue < PRICE_RECOMMENDATION * energy / convertMeasure(energyRecommendation.minValue, energyRecommendation.unit, 'kJ');
-            row.getCell(10).fill = {
-              type: 'pattern',
-              pattern: 'solid',
-              fgColor: {
-                argb: `FF${isGood ? '00' : 'FF'}${isGood ? 'FF' : '00'}00`,
+            row.getCell(index + 1).style = {
+              fill: {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: {
+                  argb: `FF${isGood ? '00' : 'FF'}${isGood ? 'FF' : '00'}00`,
+                },
               },
+              numFmt: cellValue ? '0.00' : '0',
+              alignment: { vertical: 'top' },
+              font: { bold: true },
+              border: { bottom: { color: { argb: 'FF000000' }, style: 'thin' } },
             };
             return true;
           }
@@ -239,13 +270,19 @@ export const getDiaryExcelFineliWorkbook = (
                 attribute
               );
               const isGood = compareAttributeToRecommendation(value, recommendation);
-              console.log('isGood', isGood);
-              row.getCell(index + 1).fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: {
-                  argb: `FF${isGood ? '00' : 'FF'}${isGood ? 'FF' : '00'}00`,
+              const argb = `FF${isGood ? '00' : 'FF'}${isGood ? 'FF' : '00'}00`;
+              row.getCell(index + 1).style = {
+                fill: {
+                  type: 'pattern',
+                  pattern: 'solid',
+                  fgColor: {
+                    argb,
+                  },
                 },
+                numFmt: cellValue ? '0.00' : '0',
+                alignment: { vertical: 'top' },
+                font: { bold: true },
+                border: { bottom: { color: { argb: 'FF000000' }, style: 'thin' } },
               };
             }
           }
@@ -260,7 +297,6 @@ export const getDiaryExcelFineliWorkbook = (
       const category = categories.find(
         (category) => category.name?.[locale] === food && !categories.some((child) => child.parentId === category.id)
       );
-      console.log('food, unit, category ID', food, unit, category?.id);
       const foodUnitAttribute = attributes.find((attribute) => attribute.code === unit);
       if (category && foodUnitAttribute) {
         const categoryProduct = products.find((product) =>
@@ -268,7 +304,6 @@ export const getDiaryExcelFineliWorkbook = (
           product.items.some((item) => item.price && (item.measure && item.unit || item.quantity > 1))
         );
         const categoryProductItem = categoryProduct?.items.find((item) => item.price && (item.measure && item.unit || item.quantity > 1));
-        console.log('categoryProduct', categoryProduct);
         const price =
           resolveCategoryContributionPrices(category, products, items, foodUnitAttribute, 0.8) ||
           categoryProductItem?.price /
@@ -276,7 +311,9 @@ export const getDiaryExcelFineliWorkbook = (
           (categoryProductItem?.quantity || 1) ||
           0;
         const measure = getCategoryMeasure(category, foodUnitAttribute, categories);
-        priceCell.value = !categoryProductItem?.measure ? price : price * measure;
+        const priceValue = !categoryProductItem?.measure ? price : price * measure;
+        priceCell.value = priceValue;
+        priceCell.numFmt = priceValue ? '0.00' : '0';
         totalMealMeasure += measure;
         totalMealPrice += price * measure;
         console.log('price, measure', price, measure);
@@ -300,6 +337,8 @@ export const getDiaryExcelFineliWorkbook = (
           );
           row.getCell(11 + index * 2).value = categoryAttributes[0]?.value;
           row.getCell(11 + index * 2 + 1).value = categoryAttributes[1]?.value || categoryAttributes[0]?.value;
+          row.getCell(11 + index * 2).numFmt = categoryAttributes[0]?.value ? '0.00' : '0';
+          row.getCell(11 + index * 2 + 1).numFmt = categoryAttributes[1]?.value || categoryAttributes[0]?.value ? '0.00' : '0';
           attributeCell.totalMealMin += categoryAttributes[0]?.value || 0;
           attributeCell.totalMealMax += categoryAttributes[1]?.value || categoryAttributes[0]?.value || 0;
         });
@@ -371,7 +410,6 @@ const getMealAttributeValue = (
 export const compareAttributeToRecommendation = (
   value: number,
   recommendation: RecommendationShape) => {
-  console.log('value', value, recommendation);
   const isGood =
     (!recommendation.minValue || value > recommendation.minValue) &&
     (!recommendation.maxValue || value < recommendation.maxValue);
