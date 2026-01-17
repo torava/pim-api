@@ -1,8 +1,7 @@
 import _ from 'lodash';
 import express from 'express';
 import TransactionShape from '@torava/product-utils/dist/models/Transaction';
-import moment from 'moment';
-import { getNumber, resolveCategories, toTitleCase } from '@torava/product-utils/dist/utils/transactions';
+import { resolveCategories } from '@torava/product-utils/dist/utils/transactions';
 
 import Category from '../models/Category';
 import Item from '../models/Item';
@@ -11,21 +10,9 @@ import Product from '../models/Product';
 import Transaction from '../models/Transaction';
 import { getEntitiesFromCsv } from '../utils/import';
 import { DeepPartial } from '@torava/product-utils/dist/utils/types';
+import { getTransactionsFromCsv } from '../utils/transactions';
 
-export default (app: express.Application) => {
-
-const TRANSACTION_CSV_INDEXES = {
-  sryhma: [0, 1],
-  default: [0]
-};
-
-const TRANSACTION_CSV_STARTING_ROW = {
-  sryhma: 10,
-  default: 1
-};
-  
-
-const TRANSACTION_CSV_COLUMNS = {
+export const TRANSACTION_CSV_COLUMNS = {
   sryhma: (i: number) => [
     'date_fi_FI',
     'time',
@@ -64,6 +51,19 @@ const TRANSACTION_CSV_COLUMNS = {
     'items['+i+'].unit'
   ]
 };
+
+export default (app: express.Application) => {
+
+const TRANSACTION_CSV_INDEXES = {
+  sryhma: [0, 1],
+  default: [0]
+};
+
+const TRANSACTION_CSV_STARTING_ROW = {
+  sryhma: 10,
+  default: 1
+};
+  
 
 const TRANSACTION_CSV_COLUMN_NAMES = [
   'Id',
@@ -123,8 +123,8 @@ app.post('/api/transaction/csv', async (req, res) => {
   if (Array.isArray(req.files.transactions)) {
     throw new Error('Please upload only one file');
   }
-  let transactions: Record<string, DeepPartial<Transaction>> = {};
-  const template = req.query.template || 'default';
+  let transactions: Record<string, DeepPartial<Transaction>>;
+  const template = String(req.query.template) || 'default';
   console.log('template', template);
   const indexes =
     TRANSACTION_CSV_INDEXES[template as keyof typeof TRANSACTION_CSV_INDEXES] ||
@@ -134,97 +134,11 @@ app.post('/api/transaction/csv', async (req, res) => {
     TRANSACTION_CSV_STARTING_ROW.default;
 
   try {
-    let columns: string[],
-        tokens,
-        measure,
-        itemIndex = 0,
-        rows = getEntitiesFromCsv(req.files.transactions.data, {
-          delimiter: CSV_SEPARATOR[template as keyof typeof CSV_SEPARATOR],
-          columns: false,
-        });
-    for (let i = startingRow; i < rows.length; i++) {
-      let columnKey = '';
-      columns = rows[i];
-      indexes.forEach(index => {
-          columnKey+= columns[index];
-      });
-      if (!(columnKey in transactions)) {
-        itemIndex = 0;
-        transactions[columnKey] = {items: [], party: {}, receipts: [], totalPrice: 0};
-      }
-      for (const n in columns) {
-        let columnName = TRANSACTION_CSV_COLUMNS[template as keyof typeof TRANSACTION_CSV_COLUMNS](itemIndex)[n];
-
-        let value = columns[n];
-        let numberValue: number;
-
-        if (!columnName || !value) continue;
-
-        console.log(i, columnName, value);
-
-        if (columnName.split('.').includes('name') || columnName.split('.').includes(`name['fi-FI']`)) {
-          value = toTitleCase(value);
-
-          const quantityAndMeasureTokens = value.toLocaleLowerCase().match(/(\d+)x(\d+(,\d+)?)\s?((m|k)?(g|l))(\s|$)/);
-          let quantity = quantityAndMeasureTokens && getNumber(quantityAndMeasureTokens[1]);
-          const quantityTokens = value.toLocaleLowerCase().match(/(\d+)\s?(p|ps|pss|kpl)(\s|$)/);
-          if (quantityTokens) {
-            quantity = getNumber(quantityTokens[1]);
-          }
-          if (quantity) {
-            _.set(transactions[columnKey], `items[${itemIndex}].quantity`, quantity);
-          } else {
-            const measureTokens = value.toLocaleLowerCase().match(/\s((m|k)?(g|l))(\s|$)/);
-            if (measureTokens) {
-              _.set(transactions[columnKey], `items[${itemIndex}].unit`, measureTokens[1]);
-            }
-            tokens = value.toLocaleLowerCase().match(/(\d+(,\d+)?)\s?((m|k)?(g|l))(\s|$)/);
-            measure = tokens && getNumber(tokens[1]);
-            if (measure) {
-              _.set(transactions[columnKey], `items[${itemIndex}].measure`, measure);
-              _.set(transactions[columnKey], `items[${itemIndex}].unit`, tokens[3]);
-            }
-          }
-        }
-
-        if (columnName.split('.')[1] === 'quantity_or_measure') {
-          if (value.match(/^-?\d+(\.|,)\d+$/)) {
-            columnName = columnName.replace('quantity_or_measure', 'measure');
-            numberValue = getNumber(value);
-          }
-          else {
-            columnName = columnName.replace('quantity_or_measure', 'quantity');
-            numberValue = getNumber(value);
-          }
-        }
-        else if (columnName === 'date_fi_FI') {
-          let date = value.split('.');
-          value = moment().format(`${date[2]}-${date[1].padStart(2, '0')}-${date[0].padStart(2, '0')}`);
-          columnName = 'date';
-        }
-        else if (columnName === 'time') {
-          let time = value.split(':');
-          value = moment(transactions[columnKey].date).add(time[0], 'hours').add(time[1], 'minutes').format();
-          columnName = 'date';
-        }
-        else if (columnName.split('.')[1] === 'price') {
-          numberValue = getNumber(value);
-          transactions[columnKey].totalPrice += numberValue;
-        }
-        if (columnName !== 'id') {
-          if (typeof numberValue === 'number') {
-            if (columnName.includes('quantity')) {
-              _.set(transactions[columnKey], columnName, numberValue * (_.get(transactions[columnKey], columnName) || 1));
-            } else {
-              _.set(transactions[columnKey], columnName, numberValue);
-            }
-          } else {
-            _.set(transactions[columnKey], columnName, value);
-          }
-        }
-      }
-      itemIndex++;
-    }
+    const rows = getEntitiesFromCsv(req.files.transactions.data, {
+      delimiter: CSV_SEPARATOR[template as keyof typeof CSV_SEPARATOR],
+      columns: false,
+    });
+    transactions = getTransactionsFromCsv(rows, startingRow, indexes, template);
   } catch (error) {
     console.error(error);
   }
