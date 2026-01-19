@@ -1,8 +1,24 @@
 import { Model } from 'objection';
-import ItemShape from '@torava/product-utils/dist/models/Item';
 
-import Transaction from './Transaction';
-import Product from './Product';
+import Transaction, { TransactionShape } from './Transaction';
+import Product, { ProductShape } from './Product';
+
+export interface ItemShape {
+	id?: number;
+
+	itemNumber?: string;
+	text?: string;
+	price?: number;
+	currency?: string;
+	quantity?: number;
+	measure?: number;
+	unit?: string;
+
+	transaction?: TransactionShape;
+	transactionId?: TransactionShape['id'];
+	product?: ProductShape;
+	productId?: ProductShape['id'];
+}
 
 interface Item extends ItemShape {
 	transaction: Transaction;

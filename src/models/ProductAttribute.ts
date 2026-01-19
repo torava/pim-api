@@ -1,10 +1,22 @@
 import { Model } from 'objection';
-import ProductAttributeShape from '@torava/product-utils/dist/models/ProductAttribute';
 
-import Product from './Product';
-import Attribute from './Attribute';
-import ProductAttributeSource from './ProductAttributeSource';
-import { DeepPartial } from '../utils/types';
+import Attribute, { AttributeShape } from './Attribute';
+import ProductAttributeSource, { ProductAttributeSourceShape } from './ProductAttributeSource';
+import Product, { ProductShape } from './Product';
+
+export interface ProductAttributeShape {
+	id?: number;
+	
+	value?: number;
+	unit?: string;
+	type?: string;
+
+	product?: ProductShape;
+	productId?: ProductShape['id'];
+	attribute?: AttributeShape;
+	attributeId?: AttributeShape['id'];
+	sources?: ProductAttributeSourceShape[];
+}
 
 interface ProductAttribute extends ProductAttributeShape {}
 class ProductAttribute extends Model {

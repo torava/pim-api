@@ -1,8 +1,30 @@
 import { Model, QueryBuilder } from 'objection';
-import RecommendationShape from '@torava/product-utils/dist/models/Recommendation';
 
-import Attribute from './Attribute';
-import RecommendationSource from './RecommendationSource';
+import Attribute, { AttributeShape } from './Attribute';
+import RecommendationSource, { RecommendationSourceShape } from './RecommendationSource';
+
+enum Sex {
+	Male = 'male',
+	Female = 'female',
+}
+
+export interface RecommendationShape {
+	id: number;
+	minValue: number;
+	maxValue: number;
+  unit: string;
+	perUnit: string;
+	minimumAge: number;
+	maximumAge: number;
+	sex: Sex;
+	weight: number;
+	pav: boolean;
+	pal: number;
+	note: string;
+
+	attributeId: AttributeShape['id'];
+  sources?: RecommendationSourceShape[];
+}
 
 interface Recommendation extends RecommendationShape {}
 class Recommendation extends Model {

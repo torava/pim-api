@@ -1,5 +1,17 @@
-import AttributeShape from '@torava/product-utils/dist/models/Attribute';
 import { Model } from 'objection';
+
+import { NameTranslations } from '../utils/types';
+
+export interface AttributeShape {
+	id?: number;
+	
+	code?: string;
+	name?: NameTranslations;
+	
+	children?: AttributeShape[];
+	parent?: AttributeShape;
+	parentId?: AttributeShape['id'];
+}
 
 interface Attribute extends AttributeShape {}
 class Attribute extends Model {

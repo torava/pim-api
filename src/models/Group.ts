@@ -1,7 +1,11 @@
-import GroupShape from '@torava/product-utils/dist/models/Group';
 import {Model} from 'objection';
 
-import Transaction from './Transaction';
+import Transaction, { TransactionShape } from './Transaction';
+
+export interface GroupShape {
+	name?: string;
+	transactions?: TransactionShape;
+}
 
 interface Group extends GroupShape {}
 class Group extends Model {

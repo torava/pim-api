@@ -1,8 +1,21 @@
 import { Model } from 'objection';
-import RecommendationSourceShape from '@torava/product-utils/dist/models/RecommendationSource';
 
-import Source from './Source';
-import Recommendation from './Recommendation';
+import Source, { SourceShape } from './Source';
+import Recommendation, { RecommendationShape } from './Recommendation';
+
+export interface RecommendationSourceShape {
+	id?: number;
+
+	referenceUrl?: string;
+	referenceDate?: string;
+	note?: string;
+	countryCode?: string;
+
+	recommendation?: RecommendationShape;
+	recommendationId?: RecommendationShape['id'];
+	source?: SourceShape;
+	sourceId?: SourceShape['id'];
+}
 
 interface RecommendationSource extends RecommendationSourceShape {}
 class RecommendationSource extends Model {

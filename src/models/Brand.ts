@@ -1,6 +1,16 @@
-
-import BrandShape from '@torava/product-utils/dist/models/Brand';
 import { Model } from 'objection';
+
+export interface BrandShape {
+	id?: number;
+
+	name?: string;
+	aliases?: string[];
+	factoryLocation?: string;
+	headquartersLocation?: string;
+
+	parent?: BrandShape;
+	parentId?: BrandShape['id'];
+}
 
 interface Brand extends BrandShape {}
 class Brand extends Model {

@@ -1,5 +1,15 @@
 import {Model} from 'objection';
 
+export interface ConversionShape {
+	id?: number;
+
+	fromLocale?: string;
+	fromCurrency?: string;
+	toLocale?: string;
+	toCurrency?: string;
+	rate?: number;
+}
+
 class Conversion extends Model {
 	static get tableName() {
 		return 'Conversion';

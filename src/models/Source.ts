@@ -1,5 +1,14 @@
-import SourceShape from '@torava/product-utils/dist/models/Source';
 import { Model } from 'objection';
+
+export interface SourceShape {
+	id?: number;
+	
+	name?: string;
+	authors?: string;
+	publicationUrl?: string;
+	publicationDate?: string;
+	countryCode?: string;
+}
 
 interface Source extends SourceShape {
 	'#id'?: string

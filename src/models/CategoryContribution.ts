@@ -1,8 +1,19 @@
 
-import CategoryContributionShape from '@torava/product-utils/dist/models/CategoryContribution';
 import { Model } from 'objection';
 
-import Category from './Category';
+import Category, { CategoryShape } from './Category';
+
+export interface CategoryContributionShape {
+	id?: number;
+
+	amount?: number;
+	unit?: string;
+
+	category?: CategoryShape;
+	categoryId?: CategoryShape['id'];
+	contribution?: CategoryShape;
+	contributionId?: CategoryShape['id'];
+}
 
 interface CategoryContribution extends CategoryContributionShape {}
 class CategoryContribution extends Model {

@@ -1,10 +1,21 @@
-
-
-import ProductAttributeSourceShape from '@torava/product-utils/dist/models/ProductAttributeSource';
 import { Model } from 'objection';
 
-import ProductAttribute from './ProductAttribute';
-import Source from './Source';
+import ProductAttribute, { ProductAttributeShape } from './ProductAttribute';
+import Source, { SourceShape } from './Source';
+
+export interface ProductAttributeSourceShape {
+	id?: number;
+
+	referenceUrl?: string;
+	referenceDate?: string;
+	note?: string;
+	countryCode?: string;
+
+	attribute?: ProductAttributeShape;
+	attributeId?: ProductAttributeShape['id'];
+	source?: SourceShape;
+	sourceId?: SourceShape['id'];
+}
 
 interface ProductAttributeSource extends ProductAttributeSourceShape {}
 class ProductAttributeSource extends Model {

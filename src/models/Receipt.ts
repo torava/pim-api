@@ -1,7 +1,17 @@
-import ReceiptShape from '@torava/product-utils/dist/models/Receipt';
 import {Model} from 'objection';
 
-import Transaction from './Transaction';
+import Transaction, { TransactionShape } from './Transaction';
+
+export interface ReceiptShape {
+	id?: number;
+
+	file?: string;
+	locale?: string;
+	text?: string;
+
+	transaction?: TransactionShape;
+	transactionId?: TransactionShape['id'];
+}
 
 interface Receipt extends ReceiptShape {}
 class Receipt extends Model {

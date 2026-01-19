@@ -1,5 +1,10 @@
 import { Model } from "objection";
 
+export interface UserShape {
+  name: string;
+  password: string;
+}
+
 export default class User extends Model {
   name: string;
   password: string;

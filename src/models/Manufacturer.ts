@@ -1,5 +1,16 @@
-import ManufacturerShape from '@torava/product-utils/dist/models/Manufacturer';
 import { Model } from 'objection';
+
+export interface ManufacturerShape {
+	id?: number;
+
+	name?: string;
+	aliases?: string[];
+	factoryLocation?: string[];
+	headquartersLocation?: string[];
+
+	parent?: ManufacturerShape;
+	parentId?: ManufacturerShape['id'];
+}
 
 interface Manufacturer extends ManufacturerShape {}
 class Manufacturer extends Model {

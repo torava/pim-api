@@ -1,11 +1,24 @@
 import {Model} from 'objection';
 import moment from 'moment';
-import TransactionShape from '@torava/product-utils/dist/models/Transaction';
 
-import Party from './Party';
-import Receipt from './Receipt';
-import Item from './Item';
-import Group from './Group';
+import Party, { PartyShape } from './Party';
+import Receipt, { ReceiptShape } from './Receipt';
+import Item, { ItemShape } from './Item';
+import Group, { GroupShape } from './Group';
+
+export interface TransactionShape {
+	id?: number;
+
+	totalPrice?: number;
+	totalPriceRead?: number;
+	date?: string;
+
+	party?: PartyShape;
+	partyId?: PartyShape['id'];
+	group?: GroupShape;
+	receipts?: ReceiptShape[];
+	items?: ItemShape[];
+}
 
 interface Transaction extends TransactionShape {
 	party: Party;
