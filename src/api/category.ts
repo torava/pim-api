@@ -1,12 +1,12 @@
 import { PassThrough } from 'stream';
 import express from 'express';
-import { resolveCategories, resolveCategoryPrices } from '@torava/product-utils/dist/utils/categories';
-import { Locale } from '@torava/product-utils/dist/utils/types';
 import bodyParser from 'body-parser';
 import fileUpload from 'express-fileupload';
 
 import Category from '../models/Category';
 import { getDiaryExcelFineliBuffer } from '../utils/getDiaryExcelFineli';
+import { resolveCategories, resolveCategoryPrices } from '../utils/categories';
+import { Locale } from '../utils/types';
 
 export default (app: express.Application) => {
 

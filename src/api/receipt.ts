@@ -3,19 +3,14 @@ import express from 'express';
 import fs from 'fs';
 import child_process from 'child_process';
 import _ from 'lodash';
-import { extractBarCode, getCVSrcFromBase64, rotate, getBufferFromCVSrc, decodeBase64Image } from '@torava/product-utils/dist/utils/imageProcessing';
-import { extractTextFromFile, getTransactionsFromReceipt, processReceiptImage } from '@torava/product-utils/dist/utils/receipts';
-import CategoryShape from '@torava/product-utils/dist/models/Category';
-import ProductShape from '@torava/product-utils/dist/models/Product';
-import ManufacturerShape from '@torava/product-utils/dist/models/Manufacturer';
-import ReceiptShape from '@torava/product-utils/dist/models/Receipt';
-import TransactionShape from '@torava/product-utils/dist/models/Transaction';
 
-import Transaction from '../models/Transaction';
-import Product from '../models/Product';
-import Category from '../models/Category';
-import Manufacturer from '../models/Manufacturer';
-import Receipt from '../models/Receipt';
+import Transaction, { TransactionShape } from '../models/Transaction';
+import Product, { ProductShape } from '../models/Product';
+import Category, { CategoryShape } from '../models/Category';
+import Manufacturer, { ManufacturerShape } from '../models/Manufacturer';
+import Receipt, { ReceiptShape } from '../models/Receipt';
+import { decodeBase64Image, getCVSrcFromBase64, rotate, getBufferFromCVSrc, extractBarCode } from '../utils/imageProcessing';
+import { processReceiptImage, extractTextFromFile, getTransactionsFromReceipt } from '../utils/receipts';
 
 export default (app: express.Application) => {
 
@@ -29,8 +24,8 @@ const RECEIPT_UPLOAD_PATH = `${__dirname}/../../resources/uploads`;
 const uploadReceiptFromBase64 = (name: string, base64Data: string) => {
   try {
     const buffer = decodeBase64Image(base64Data);
-    if (buffer && buffer.data) {
-      return uploadReceipt(name, buffer.data);
+    if (buffer && (buffer as { data: Buffer }).data) {
+      return uploadReceipt(name, (buffer as { data: Buffer }).data);
     }
     else console.error('Encountered invalid file while uploading receipt');
   } catch (error) {
@@ -41,7 +36,7 @@ const uploadReceiptFromBase64 = (name: string, base64Data: string) => {
 const uploadReceipt = (name: string, data: Buffer) => {
   const path = `${RECEIPT_UPLOAD_PATH}/${name}`;
   try {
-    fs.writeFileSync(path, data);
+    fs.writeFileSync(path, data as unknown as string);
     console.log(`Uploaded ${path}`);
     return path;
   } catch (error) {

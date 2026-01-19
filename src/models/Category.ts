@@ -2,6 +2,7 @@ import {Model, QueryBuilder} from 'objection';
 
 import CategoryAttribute, { CategoryAttributeShape } from './CategoryAttribute';
 import CategoryContribution, { CategoryContributionShape } from './CategoryContribution';
+import Product from './Product';
 import { NameTranslations } from '../utils/types';
 import ProductShape from './Product';
 

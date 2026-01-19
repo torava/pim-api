@@ -1,22 +1,19 @@
 import moment from "moment";
 import stringSimilarity from "string-similarity-js";
-import { LevenshteinDistance } from '@torava/product-utils/dist/utils/levenshteinDistance';
-import CategoryShape from "@torava/product-utils/dist/models/Category";
-import ProductContributionShape from "@torava/product-utils/dist/models/ProductContribution";
-import ProductShape from "@torava/product-utils/dist/models/Product";
-import AttributeShape from "@torava/product-utils/dist/models/Attribute";
-import ProductAttributeShape from "@torava/product-utils/dist/models/ProductAttribute";
-import CategoryContributionShape from "@torava/product-utils/dist/models/CategoryContribution";
-import { getCategoriesWithAttributes } from "@torava/product-utils/dist/utils/categories";
-import { stripDetails, stripName } from "@torava/product-utils/dist/utils/transactions";
-import { NameTranslations, Token } from "@torava/product-utils/dist/utils/types";
 
-import Category from "../models/Category";
-import Product from "../models/Product";
+import Category, { CategoryShape } from "../models/Category";
+import Product, { ProductShape } from "../models/Product";
 import { getAttributeValues, getMaxAttributeValue, getMinAttributeValue } from "./attributes";
 import { convertMeasure } from "./entities";
-import { ObjectEntries } from "./types";
+import { NameTranslations, ObjectEntries, Token } from "./types";
 import Brand from "../models/Brand";
+import { AttributeShape } from "../models/Attribute";
+import { CategoryContributionShape } from "../models/CategoryContribution";
+import { ProductAttributeShape } from "../models/ProductAttribute";
+import { ProductContributionShape } from "../models/ProductContribution";
+import { getCategoriesWithAttributes } from "./categories";
+import { LevenshteinDistance } from "./levenshteinDistance";
+import { stripDetails, stripName } from "./transactions";
 
 export const getProductCategoryMinMaxAttributes = (
   category?: CategoryShape,

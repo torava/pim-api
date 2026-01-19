@@ -1,7 +1,6 @@
-import AttributeShape from "@torava/product-utils/dist/models/Attribute";
-import CategoryAttributeShape from "@torava/product-utils/dist/models/CategoryAttribute";
-import ProductAttributeShape from "@torava/product-utils/dist/models/ProductAttribute";
-
+import { AttributeShape } from "../models/Attribute";
+import { CategoryAttributeShape } from "../models/CategoryAttribute";
+import { ProductAttributeShape } from "../models/ProductAttribute";
 import { convertMeasure } from "./entities";
 
 export const getAttributeValues = (

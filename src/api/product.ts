@@ -1,23 +1,22 @@
 import express, { Request } from 'express';
-import ProductShape from '@torava/product-utils/dist/models/Product';
-import AttributeShape from '@torava/product-utils/dist/models/Attribute';
-import CategoryContributionShape from '@torava/product-utils/dist/models/CategoryContribution';
-import {
-  findFoodUnitAttribute,
-  findMeasure,
-  getClosestCategory,
-  getContributionsFromList,
-  getStrippedChildCategories,
-} from '@torava/product-utils/dist/utils/categories';
-import { Locale } from '@torava/product-utils/dist/utils/types';
 import { Page } from 'objection';
 
-import Product from '../models/Product';
-import Attribute from '../models/Attribute';
+import Product, { ProductShape } from '../models/Product';
+import Attribute, { AttributeShape } from '../models/Attribute';
 import Category from '../models/Category';
 import { resolveProductAttributes, getClosestProduct } from '../utils/products';
 import { getLeafIds } from '../utils/entities';
 import Brand from '../models/Brand';
+import { CategoryAttributeShape } from '../models/CategoryAttribute';
+import { CategoryContributionShape } from '../models/CategoryContribution';
+import {
+  findMeasure,
+  findFoodUnitAttribute,
+  getStrippedChildCategories,
+  getClosestCategory,
+  getContributionsFromList,
+} from '../utils/categories';
+import { Locale } from '../utils/types';
 
 export default async (app: express.Application) => {
 
@@ -230,7 +229,7 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductSh
         contributions: product.contributions?.map(contribution => ({
           ...contribution, contribution: {
             ...contribution.contribution,
-            attributes: [],
+            attributes: [] as CategoryAttributeShape[],
           }
         })),
       };

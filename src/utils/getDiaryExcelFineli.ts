@@ -1,25 +1,16 @@
 import Excel from 'exceljs';
-import CategoryShape from '@torava/product-utils/dist/models/Category';
-import { Locale } from '@torava/product-utils/dist/utils/types';
-import {
-  getCategoryMeasure,
-  resolveCategoryAttributes,
-  resolveCategoryContributionPrices,
-} from '@torava/product-utils/dist/utils/categories';
-import AttributeShape from '@torava/product-utils/dist/models/Attribute';
-import ProductShape from '@torava/product-utils/dist/models/Product';
 import Knex from 'knex';
 import { Model } from 'objection';
-import ItemShape from '@torava/product-utils/dist/models/Item';
-import RecommendationShape from '@torava/product-utils/dist/models/Recommendation';
 
 import knexConfig from '../../knexfile';
-import Category from '../models/Category';
-import Attribute from '../models/Attribute';
-import Product from '../models/Product';
-import Item from '../models/Item';
-import Recommendation from '../models/Recommendation';
+import Category, { CategoryShape } from '../models/Category';
+import Attribute, { AttributeShape } from '../models/Attribute';
+import Product, { ProductShape } from '../models/Product';
+import Item, { ItemShape } from '../models/Item';
+import Recommendation, { RecommendationShape } from '../models/Recommendation';
 import { convertMeasure } from './entities';
+import { Locale } from './types';
+import { resolveCategoryContributionPrices, getCategoryMeasure, resolveCategoryAttributes } from './categories';
 
 /**
  * Food component energy density, MJ/g

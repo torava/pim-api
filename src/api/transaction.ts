@@ -1,16 +1,14 @@
-import _ from 'lodash';
+import _, { at } from 'lodash';
 import express from 'express';
-import TransactionShape from '@torava/product-utils/dist/models/Transaction';
-import { resolveCategories } from '@torava/product-utils/dist/utils/transactions';
 
 import Category from '../models/Category';
 import Item from '../models/Item';
 import Brand from '../models/Brand';
 import Product from '../models/Product';
-import Transaction from '../models/Transaction';
+import Transaction, { TransactionShape } from '../models/Transaction';
 import { getEntitiesFromCsv } from '../utils/import';
-import { DeepPartial } from '@torava/product-utils/dist/utils/types';
-import { getTransactionsFromCsv } from '../utils/transactions';
+import { getTransactionsFromCsv, resolveTransactionCategories } from '../utils/transactions';
+import { DeepPartial } from '../utils/types';
 
 export const TRANSACTION_CSV_COLUMNS = {
   sryhma: (i: number) => [
@@ -97,7 +95,7 @@ app.get('/api/transaction', async (req, res) => {
         let items = transactions[n].items;
         for (const i in items) {
           // transaction id, transaction date, party id, party name, product name, item price
-          response.push(_.at(transactions[n], TRANSACTION_CSV_COLUMNS.default(Number(i)) as (keyof TransactionShape)[]).join(CSV_SEPARATOR.default));
+          response.push(at(transactions[n], TRANSACTION_CSV_COLUMNS.default(Number(i)) as (keyof TransactionShape)[]).join(CSV_SEPARATOR.default));
         }
       }
       res.send(response.join('\n'));
@@ -153,7 +151,7 @@ app.post('/api/transaction/csv', async (req, res) => {
   for await (let transaction of Object.values(transactions)) {
     transaction.items = transaction.items.filter((item) => item);
     try {
-      await resolveCategories(transaction, items, products, leafCategories, brands);
+      await resolveTransactionCategories(transaction as Transaction, items, products, leafCategories, brands);
     } catch (error) {
       console.error(error);
       return res.sendStatus(500);
@@ -172,7 +170,7 @@ app.post('/api/transaction/csv', async (req, res) => {
 
     promises.push(
       Transaction.query()
-      .insertGraph(transaction, {relate: true})
+      .insertGraph(transaction as Transaction, {relate: true})
     );
   }
   
@@ -197,7 +195,7 @@ app.post('/api/transaction', async (req, res) => {
     const products = await Product.query();
     const brands = await Brand.query();
 
-    await resolveCategories(transaction, items, products, categories, brands);
+    await resolveTransactionCategories(transaction, items, products, categories, brands);
 
     console.dir(transaction, {depth:null});
 

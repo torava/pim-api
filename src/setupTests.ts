@@ -1,8 +1,8 @@
-import AttributeShape from '@torava/product-utils/dist/models/Attribute';
-import CategoryShape from '@torava/product-utils/dist/models/Category';
-import ItemShape from '@torava/product-utils/dist/models/Item';
-import ProductShape from '@torava/product-utils/dist/models/Product';
-import RecommendationShape from '@torava/product-utils/dist/models/Recommendation';
+import { AttributeShape } from './models/Attribute';
+import { CategoryShape } from './models/Category';
+import { ItemShape } from './models/Item';
+import { ProductShape } from './models/Product';
+import { RecommendationShape } from './models/Recommendation';
 
 export const toArrayBuffer = (buffer: Buffer) => {
   const arrayBuffer = new ArrayBuffer(buffer.length);

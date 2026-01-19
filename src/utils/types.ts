@@ -43,3 +43,9 @@ export function ObjectEntries<T extends object>(t: T): Entries<T>[] {
 export type DeepPartial<T> = {
   [P in keyof T]?: DeepPartial<T[P]>;
 };
+
+export interface Token {
+  substring: string;
+  distance: number;
+  accuracy?: number;
+}

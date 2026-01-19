@@ -1,18 +1,12 @@
-import AttributeShape from "@torava/product-utils/dist/models/Attribute";
-import ItemShape from "@torava/product-utils/dist/models/Item";
-import PartyShape from "@torava/product-utils/dist/models/Party";
-import ProductShape from "@torava/product-utils/dist/models/Product";
-import SourceShape from "@torava/product-utils/dist/models/Source";
-import TransactionShape from "@torava/product-utils/dist/models/Transaction";
 import moment from "moment";
 
-import Attribute from "../models/Attribute";
+import Attribute, { AttributeShape } from "../models/Attribute";
 import Brand from "../models/Brand";
 import Category from "../models/Category";
-import Item from "../models/Item";
-import Party from "../models/Party";
-import Product from "../models/Product";
-import Source from "../models/Source";
+import Item, { ItemShape } from "../models/Item";
+import Party, { PartyShape } from "../models/Party";
+import Product, { ProductShape } from "../models/Product";
+import Source, { SourceShape } from "../models/Source";
 import Transaction from "../models/Transaction";
 import { insertFromRecords } from "./import";
 
