@@ -169,12 +169,11 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductSh
 
       let contributions = [];
 
-      const strippedCategories = await getStrippedChildCategories();
-      
+      const categoriesWithChildren = (await Category.query().withGraphFetched('[contributions, children, attributes]'));
       const brands = await Brand.query();
-
+      const strippedCategories = await getStrippedChildCategories(categoriesWithChildren, brands);
       if (!product) {
-        let [category] = getClosestCategory(name, strippedCategories, contentLanguage as Locale, undefined);
+        const [category] = getClosestCategory(name, strippedCategories, contentLanguage as Locale, undefined);
         if (category) {
           product = {
             ...product,
@@ -228,14 +227,12 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductSh
         measure: measure || product.measure,
         unit: measure ? 'kg' : product.unit,
         attributes: productAttributes || product.attributes,
-        ...(process.env.NODE_ENV === 'development' || process.env.DEBUG ? {
-          contributions: product.contributions?.map(contribution => ({
-            ...contribution, contribution: {
-              ...contribution.contribution,
-              attributes: undefined
-            }
-          }))
-        } : {})
+        contributions: product.contributions?.map(contribution => ({
+          ...contribution, contribution: {
+            ...contribution.contribution,
+            attributes: [],
+          }
+        })),
       };
       products = [product];
     }
