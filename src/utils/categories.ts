@@ -599,7 +599,7 @@ export const resolveCategoryAttributes = (
       maxValue = result.maxAttributeValue;
       unit = minCategoryAttribute.unit.split('/')[0];
     } else if (categoryContributionCoverageMeasure/categoryContributionTotalMeasure <= contributionCoverageThreshold) {
-      console.log('insufficient contributions skipped');
+      console.log('insufficient contributions skipped for', category.name['en-US']);
       return true;
     }
     

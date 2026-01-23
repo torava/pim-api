@@ -189,9 +189,7 @@ export const getDiaryExcelFineliWorkbook = (
                 attribute
               );
               const isGood = compareAttributeToRecommendation(value, recommendation);
-              console.log('isGood', isGood);
               const argb = `FF${isGood ? '00' : 'FF'}${isGood ? 'FF' : '00'}00`;
-              console.log('argb', argb);
               row.getCell(index + 1).style = {
                 fill: {
                   type: 'pattern',
@@ -290,11 +288,14 @@ export const getDiaryExcelFineliWorkbook = (
       );
       const foodUnitAttribute = attributes.find((attribute) => attribute.code === unit);
       if (category && foodUnitAttribute) {
+        console.log('category', category.name['en-US']);
         const categoryProduct = products.find((product) =>
           product.categoryId === category.id && product.items.length &&
           product.items.some((item) => item.price && (item.measure && item.unit || item.quantity > 1))
         );
+        console.log('categoryProduct', categoryProduct);
         const categoryProductItem = categoryProduct?.items.find((item) => item.price && (item.measure && item.unit || item.quantity > 1));
+        console.log('categoryProductItem', categoryProductItem);
         const price =
           resolveCategoryContributionPrices(category, products, items, foodUnitAttribute, 0.8) ||
           categoryProductItem?.price /
@@ -355,24 +356,34 @@ Model.knex(knex);
   }
 })();
 
-export const getDailyAttributeValue = (
+export const getAttributeValue = (
   cellValue: number,
   energy: number,
   mass: number,
   recommendation: RecommendationShape,
   attribute: AttributeShape) => {
-  let value = cellValue;
+  let value;
   if (recommendation.unit === 'percent' && recommendation.perUnit === 'energy') {
     const componentEnergy = Object.entries(componentEnergyMap).find(([component]) =>
       attribute.name['en-US'].toLocaleLowerCase().includes(component)
     )?.[1];
     value = ((cellValue * componentEnergy) / (energy / 1000)) * 100;
   } else if (recommendation.unit === 'g' && recommendation.perUnit === 'MJ') {
-    value = cellValue / (energy * 1000);
+    value = cellValue / (energy / 1000);
   } else if (recommendation.perUnit === 'kg') {
-    value = cellValue / (mass * 1000);
+    value = cellValue / (mass / 1000);
   }
-  console.log('value', value, cellValue, energy, mass, recommendation, attribute);
+  return value;
+};
+
+export const getDailyAttributeValue = (
+  cellValue: number,
+  energy: number,
+  mass: number,
+  recommendation: RecommendationShape,
+  attribute: AttributeShape) => {
+  const value = getAttributeValue(cellValue, energy, mass, recommendation, attribute) || cellValue;
+  console.log('daily value', value, cellValue, energy, mass, recommendation, attribute);
   return value;
 };
 
@@ -384,17 +395,9 @@ const getMealAttributeValue = (
   mass: number,
   recommendation: RecommendationShape,
   attribute: AttributeShape) => {
-  let value = cellValue * energy / convertMeasure(energyRecommendation.minValue, energyRecommendation.unit, 'kJ');
-  if (recommendation.unit === 'percent' && recommendation.perUnit === 'energy') {
-    const componentEnergy = Object.entries(componentEnergyMap).find(([component]) =>
-      attribute.name['en-US'].toLocaleLowerCase().includes(component)
-    )?.[1];
-    value = ((cellValue * componentEnergy) / (energy / 1000)) * 100;
-  } else if (recommendation.unit === 'g' && recommendation.perUnit === 'MJ') {
-    value = cellValue / (energy * 1000);
-  } else if (recommendation.perUnit === 'kg') {
-    value = cellValue / (mass * 1000);
-  }
+  let value =
+    getAttributeValue(cellValue, energy, mass, recommendation, attribute) ||
+    (cellValue * energy) / convertMeasure(energyRecommendation.minValue, energyRecommendation.unit, 'kJ');
   return value;
 };
 
