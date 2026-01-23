@@ -52,6 +52,7 @@ const brands = [
   { name: 'Pirjon Pakarin' },
   { name: 'Herkkumaa' },
   { name: 'Vaasan' },
+  { name: 'Teho' },
 ];
 
 exports.seed = knex => (
