@@ -374,12 +374,13 @@ Ling,Molva,,Fish,,"6,45",,,,,,,,,,,"Ling common, median",1
 Literature,Kirjallisuus,"[""Book"", ""Kirja""]",Supplies,,,,,,"0,4",,,,,,,"Sanomalehdet, kirjat ja paperitarvikkeet",2
 Lobster,Hummeri,,,,"27,8",,,,,,,,,,,"Lobster, median",1
 Lottery tickets,Arvat,"[""Arpa"", ""Arpamyynti""]",Commerce,,,,,,,,,,,,,,
-"Macaroni, Dark, Whole Wheat And Dark Wheat Flour",,"[""Täysjyväspagetti""]",,,,,,,,,,,,,,,
+"Macaroni, Dark, Whole Wheat And Dark Wheat Flour",,"[""Täysjyväspagetti"", ""Täysjyvämakaroni""]",,,,,,,,,,,,,,,
 "Macaroni, Whole Wheat",,"[""Makaroni tumma""]",,,,,,,,,,,,,,,
 "Macbook Pro 13"" M2 2012 256GB SSD","Macbook Pro 13"" M2 2012 256 Gt SSD",,Electronics,185,,,,,,,,,,,,"MacBook Pro (13-inch, M1, 2020) with 256GB / 512GB storage",25
 Mackerel,Makrilli,,Fish,,"1,8",,,,,,,,,,,"Mackerel, median",1
 Magazine paper,Aikakausilehti,,Literature,,,,,,"0,32",,,,,,,,2
 Magazine paper,,,,"0,83",,,,,,,,,,,,National Geographic magazine,24
+"Maize, Kernel, Dried, Unpopped",,"[""Maissinjyvät""]",,,,,,,,,,,,,,,
 "Mandarin, Average, With Skin",,"[""Mandariini""]",,,"0,45",,,,,,,,,,,"Mandarin, median",1
 "Mango, Without Skin",,"[""Mango""]",,,"1,1",,,,,,,,,,,"Mango, whole fruit, Sweden, CarbonCloud Benchmark, Footprint at store",29
 Margarine and fat spread  < 55%,,,,,"1,75",,,,,,,,,,,"Margarine, 60% fat, including waste",7
@@ -514,6 +515,7 @@ Plastic products,Muovituotteet,,Supplies,,,,,,"1,01",,,,,,,Plastic products,2
 Pollock,Lyyraturska,,Fish,,"1,6",,,,,,,,,,,"Pollock, median",1
 Pomelo,Pomelo,,Citrus fruit,,"0,51",,,,,,,,,,,"Grapefruit and pomelo, median",1
 Pomfret,Pomfretti,,Fish,,"6,63",,,,,,,,,,,"Pomfret, median",1
+"Popcorn, Microwave Popcorn",,"[""Micropopcorn""]",,,,,,,,,,,,,,,
 Pork,,,,,"5,77",,,,,,,,,,,"Pork: world average, median",1
 Pork,,,,,5,,,,,,,,,,,"Sianliha, raaka",4
 Pork,,,,,,,,,,"17,36",,,,,,Pig Meat,63
@@ -531,7 +533,7 @@ Potato,,,,,,,,,"0,7",,,,,,,Plant based groceries,2
 Potato,,,,,,,,,,"0,88",,,,,,Potatoes,63
 Potato,,,,,,,,,,,,"3,48",,,,Potatoes,63
 Potato,,,,,,,,,,,,,,59,,Potatoes,63
-"Potato Crisps, Potato Chips, Potato Snack",,,,,"2,25",,,,,,,,,,,"Cradle-to-grave, Svenska Lantchips, Transportation to Helsinki taken into consideration, in 200 grams packets",35
+"Potato Crisps, Potato Chips, Potato Snack",,"[""Sipsit""]",,,"2,25",,,,,,,,,,,"Cradle-to-grave, Svenska Lantchips, Transportation to Helsinki taken into consideration, in 200 grams packets",35
 Potato dishes,,,,,,,,,"1,1",,,,,,,Plant based groceries,2
 "Potato Wedges, Oven-Baked",,,,,,,,,"0,7",,,,,,,Plant based groceries,2
 "Potato, Unpeeled, Avarage, Raw",,"[""Potato"", ""Potatoes"", ""Peruna"", ""Perunaa"", ""Varhaisperuna"", ""Ruokaperuna"", ""Ruokaperunapussi""]",,,,,,,,,,,,,,,
@@ -575,6 +577,7 @@ Rice,,,,,,,,,,"2,8",,,,,,Rice,63
 Rice,,,,,,,,,,,,"35,07",,,,Rice,63
 Rice,,,,,,,,,,,,,,2248,,Rice,63
 Rice Chocolate,,"[""Maitosuklaa riisikakku""]",,,,,,,"1,1",,,,,,,Animal based groceries,2
+"Rocket, Arugula",,"[""Rucola""]",,,,,,,,,,,,,,,
 Romaine Lettuce,,"[""Sydänsalaatti""]",,,"0,56",,,,,,,,,,,Including waste,8
 Root vegetables and tubers,,,,,,,,,,"0,33",,,,,,Root Vegetables,63
 Root vegetables and tubers,,,,,,,,,,,,"1,61",,,,Root Vegetables,63
@@ -620,7 +623,8 @@ Smartphone,Älypuhelin,,Electronics,,,,,,,,,,,,,,
 "Smoothie, Marli Smoothie, Fruit +Vitamins  D&C",,"[""Voima smoothie""]",,,,,,,,,,,,,,,
 Snacks,Naposteltavat,"[""Snacksit""]",,,,,,,"0,7",,,,,,,Plant based groceries,2
 Soft drink with caffeine,,,,,,,,"0,2",,,,,,,,Virvoitusjuomat,36
-"Soft Drink, Lemonade",Virvoitusjuoma,"[""Coca-Cola"", ""Coca Cola"", ""Pepsi"", ""Fanta"", ""Sprite"", ""7up"", ""Jaffa"", ""Soft Drink"", ""Lemonade""]",,,,,,"0,2",,,,,,,,Virvoitusjuomat,36
+"Soft Drink, Cola, Average",,"[""Coca-Cola"", ""Coca Cola""]",,,,,,,,,,,,,,,
+"Soft Drink, Lemonade",Virvoitusjuoma,"[""Fanta"", ""Sprite"", ""7up"", ""Jaffa"", ""Soft Drink"", ""Lemonade""]",,,,,,"0,2",,,,,,,,Virvoitusjuomat,36
 Soil,Multa,"[""Kukkamulta""]",Supplies,,,,,,"0,6",,,,,,,Garden supplies,2
 Soup vegetables,Kuivatut keittovihannekset,"[""Kuivattu keittovihannes""]",Spices,,,,,,,,,,,,,,
 Soured Cucumber,,"[""Maustekurkku""]",,,5,,,,,,,,,,,"Tomaatti, kurkku (kasvihuone talvella)",4
@@ -647,6 +651,7 @@ Spinach,Pinaatti,"[""Lehtipinaatti""]",,,"0,54",,,,,,,,,,,"Spinach, median",1
 "Spirit, Vodka, Gin",,,,,,,,"2,19",,,,,,,,"Koskenkorva Vodka, glass bottle, Life cycle (Cradle-to-Grave), Carbon footprint calculated by Gaia Consulting Oy. Calculation includes: package, barley cultivation, Koskenkorva distillery, Rajamäki alcoholic beverage plant, transportation, other ingredients/raw materials, distribution to retailer (Alko) and end-of-life of packaging",60
 "Spirit, Vodka, Gin",,,,,,,,"2,8",,,,,,,,"Smirnoff Vodka, Life cycle (Cradle-to-Grave)",61
 "Sport Beverage, Carbohydrate Drink, Powerade, Gatorade",,"[""Gatorade""]",,,,,,,,,,,,,,,
+"Sport Beverage, Protein Drink, Protein Shake, Fast",,"[""Sport Palautusjuoma suklaa""]",,,,,,,,,,,,,,,
 Sport food,,,,,,,,,"0,84",,,,,,,Other groceries,2
 Sportdrinks,,,,,,,,,"0,84",,,,,,,Other groceries,2
 Sports equipment,Urheiluvälineet,,Supplies,,,,,,"0,52",,,,,,,,2
@@ -665,7 +670,7 @@ Surgical mask,Kiruginen suu-nenäsuojus,,Healthcare products,0.059,,,,,,,,,,,,,3
 Sweet Bakery,,,,,"2,5",,,,,,,,,,,"Pastry, including waste, secondary source",7
 Sweet Bakery,,,,,,,,,"1,1",,,,,,,Animal based groceries,2
 Sweet biscuits,,,,,"2,5",,,,,,,,,,,"Biscuit, including waste, secondary source",7
-Sweet Corn Kernels,,,,,"0,47",,,,,,,,,,,"Maize/corn, median",1
+Sweet Corn Kernels,,"[""Maissi""]",,,"0,47",,,,,,,,,,,"Maize/corn, median",1
 Sweet Corn Kernels,,,,,,,,,,"2,94",,,,,,Maize,63
 Sweet Corn Kernels,,,,,,,,,,,,"4,03",,,,Maize,63
 Sweet Corn Kernels,,,,,,,,,,,,,,216,,Maize,63
