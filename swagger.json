@@ -149,7 +149,7 @@
     },
     "/api/category/diary": {
       "post": {
-        "description": "Returns Fineli diary file with GHG from uploaded diary file",
+        "description": "Returns Fineli diary file with prices and environmental foodprints colored based on recommendations from uploaded diary file",
         "parameters": [
           {
             "name": "locale",
