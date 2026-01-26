@@ -7,3 +7,4 @@ resources/uploads
 .babel_cache
 .env
 dist
+*.custom.csv
