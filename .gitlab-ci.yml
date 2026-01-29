@@ -10,7 +10,7 @@ stages:
   - release
 
 deploy:
-  image: node:16
+  image: node:24
   stage: deploy
   script:
     - |

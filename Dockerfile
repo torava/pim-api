@@ -1,4 +1,4 @@
-FROM node:16
+FROM node:24
 COPY . /opt/bookkeepr
 WORKDIR /opt/bookkeepr
 EXPOSE 42808
