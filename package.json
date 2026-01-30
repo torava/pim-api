@@ -1,6 +1,6 @@
 {
   "name": "@torava/product-api",
-  "version": "1.1.8",
+  "version": "1.1.9",
   "description": "product-api",
   "scripts": {
     "test": "jest",
@@ -23,7 +23,7 @@
   "dependencies": {
     "@napi-rs/canvas": "^0.1.42",
     "apicache": "^1.6.3",
-    "axios": "1.13.4",
+    "axios": "1.8.4",
     "body-parser": "1.20.3",
     "classnames": "^2.2.6",
     "compression": "^1.7.4",
@@ -43,7 +43,7 @@
     "natural": "^5.1.0",
     "objection": "^3.1.5",
     "path": "^0.12.7",
-    "pdfjs-dist": "^5.4.530",
+    "pdfjs-dist": "^2.6.347",
     "pg": "^8.11.3",
     "quagga": "^0.12.1",
     "stream": "0.0.2",
