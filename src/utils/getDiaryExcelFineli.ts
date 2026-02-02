@@ -327,8 +327,8 @@ export const getDiaryExcelFineliWorkbook = (
             categoryAttributes[1]?.type,
             measure
           );
-          row.getCell(11 + index * 2).value = categoryAttributes[0]?.value;
-          row.getCell(11 + index * 2 + 1).value = categoryAttributes[1]?.value || categoryAttributes[0]?.value;
+          row.getCell(11 + index * 2).value = categoryAttributes[0]?.value || 0;
+          row.getCell(11 + index * 2 + 1).value = categoryAttributes[1]?.value || categoryAttributes[0]?.value || 0;
           row.getCell(11 + index * 2).numFmt = categoryAttributes[0]?.value ? '0.00' : '0';
           row.getCell(11 + index * 2 + 1).numFmt = categoryAttributes[1]?.value || categoryAttributes[0]?.value ? '0.00' : '0';
           attributeCell.totalMealMin += categoryAttributes[0]?.value || 0;
