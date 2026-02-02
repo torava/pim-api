@@ -171,7 +171,7 @@ function loadOpenCV() {
 }
 
 installDOM();
-//loadOpenCV();
+loadOpenCV();
 
 // @ts-ignore
 global.createCanvas = (width: number, height: number) => createCanvas(width, height);
