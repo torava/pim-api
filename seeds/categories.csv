@@ -1,6 +1,7 @@
 "name[""en-US""]";"name[""fi-FI""]";aliases;parent;attribute:GHG (kgCO₂e);attribute:GHG (kgCO₂e/kg);attribute:GHG (kgCO₂/kWh);attribute:GHG (kgCO₂e/km);attribute:GHG (kgCO₂e/l);attribute:GHG (kgCO₂e/EUR);attribute:Land use (m²/kg);attribute:Land use (m²/l);attribute:Eutrophication (gPO₄eq/kg);attribute:Eutrophication (gPO₄eq/l);attribute:Freshwater footprint (l/kg);attribute:Freshwater footprint (l/l);note;sourceId
 Animal feed;Eläinruoka;"[""Kierretikku"", ""Softies herkkupala""]";Supplies;;;;;;3,36;;;;;;;Products for domestic animals;2
 Animal feed;Eläinruoka;"[""Kierretikku"", ""Softies herkkupala""]";Supplies;;;;;;3,36;;;;;;;Products for domestic animals;2
+Apple, Imported, With Skin;;;;;0,43;;;;;;;;;;;Apples;1
 Apple, Imported, With Skin;;;;;;;;;;0,63;;;;;;Apples;1
 Apple, Imported, With Skin;;;;;;;;;;;;1,45;;;;Apples;1
 Apple, Imported, With Skin;;;;;;;;;;;;;;180;;Apples;1
@@ -17,15 +18,19 @@ Baking paper;Leivinpaperi;;Kitchen;;;;;;0,72;;;;;;;Paper, carton and cardboard p
 Baking Yeast, Fresh;;"[""Kuivahiiva""]";;;;;;;0,7;;;;;;;Plant based groceries;2
 Baking Yeast, Fresh;;"[""Kuivahiiva""]";;;;;;;0,7;;;;;;;Plant based groceries;2
 Bamboo Shoots, Canned;;"[""Bamboo"", ""Bambu"", ""Bambuja""]";;;;;;;;;;;;;;;
+Banana, Without Skin;;;;;0,86;;;;;;;;;;;Bananas;1
 Banana, Without Skin;;;;;;;;;;1,93;;;;;;Bananas;1
 Banana, Without Skin;;;;;;;;;;;;3,29;;;;Bananas;1
 Banana, Without Skin;;;;;;;;;;;;;;115;;Bananas;1
 Barbeque Sausage, Meaty, Average;;"[""Eetvartti""]";;;;;;;;;;;;;;;
 Barber;Parturi;;Recreational services;;;;;;;;;;;;;;
+Barley, Rolled, Barley Flakes;;;;;;;;;1,18;;;;;;;Barley;1
 Barley, Rolled, Barley Flakes;;;;;;;;;;1,11;;;;;;Barley;1
 Barley, Rolled, Barley Flakes;;;;;;;;;;;;2,33;;;;Barley;1
 Barley, Rolled, Barley Flakes;;;;;;;;;;;;;;17;;Barley;1
 Bay leaf;Laakerinlehti;;Spices;;;;;;;;;;;;;;
+Beef;;;;;99,48;;;;;;;;;;;Beef (beef herd);1
+Beef;;;;;33,30;;;;;;;;;;;Beef (dairy herd);1
 Beef;;;;;;;;;;326,21;;;;;;Beef (beef herd);1
 Beef;;;;;;;;;;43,24;;;;;;Beef (dairy herd);1
 Beef;;;;;;;;;;;;301,41;;;;Beef (beef herd);1
@@ -85,22 +90,26 @@ Cheese, Emmental, 27-30% Fat, Red-Label;;"[""Maasdam""]";;;;;;;;;;;;;;;
 Cheese, Gouda, Average, 28-30% Fat;;"[""Gouda"", ""Vanha gouda""]";;;;;;;;;;;;;;;
 Cheese, Hard Cheese, Goat Cheese, 20-25% Fat;;"[""Manchego""]";;;;;;;;;;;;;;;
 Cheese, Mozzarella Cheese, 20% Fat;;"[""Burrata cheese"", ""Burrata""]";;;;;;;;;;;;;;;
+Cheese, ripened cheese <= 17 %;;;;;23,88;;;;;;;;;;;Cheese;1
 Cheese, ripened cheese <= 17 %;;;;;;;;;;87,79;;;;;;Cheese;1
 Cheese, ripened cheese <= 17 %;;;;;;;;;;;;98,37;;;;Cheese;1
 Cheese, ripened cheese <= 17 %;;;;;;;;;;;;;;5605;;Cheese;1
 Cheese, ripened cheese <= 17 %;;;;;;;;;2,44;;;;;;;Dairy products and ice cream;2
 Cheese, ripened cheese <= 17 %;;;;;;;;;2,44;;;;;;;Dairy products and ice cream;2
+Cheese, ripened cheese > 17 %;;;;;23,88;;;;;;;;;;;Cheese;1
 Cheese, ripened cheese > 17 %;;;;;;;;;;87,79;;;;;;Cheese;1
 Cheese, ripened cheese > 17 %;;;;;;;;;;;;98,37;;;;Cheese;1
 Cheese, ripened cheese > 17 %;;;;;;;;;;;;;;5605;;Cheese;1
 Cheese, ripened cheese > 17 %;;;;;;;;;2,44;;;;;;;Dairy products and ice cream;2
 Cheese, ripened cheese > 17 %;;;;;;;;;2,44;;;;;;;Dairy products and ice cream;2
 Cheese, Turunmaa/Oltermanni, 30% Fat;;"[""Oltermanni"", ""Kärtner Rahmlaib"", ""Appenzeller Extra"", ""Vuorijuusto"", ""Parmesan""]";;;;;;;;;;;;;;;
+Cheese, unripened, fresh cheese <=15 %;;;;;23,88;;;;;;;;;;;Cheese;1
 Cheese, unripened, fresh cheese <=15 %;;;;;;;;;;87,79;;;;;;Cheese;1
 Cheese, unripened, fresh cheese <=15 %;;;;;;;;;;;;98,37;;;;Cheese;1
 Cheese, unripened, fresh cheese <=15 %;;;;;;;;;;;;;;5605;;Cheese;1
 Cheese, unripened, fresh cheese <=15 %;;;;;;;;;2,44;;;;;;;Dairy products and ice cream;2
 Cheese, unripened, fresh cheese <=15 %;;;;;;;;;2,44;;;;;;;Dairy products and ice cream;2
+Cheese, unripened, fresh cheese >15 %;;;;;23,88;;;;;;;;;;;Cheese;1
 Cheese, unripened, fresh cheese >15 %;;;;;;;;;;87,79;;;;;;Cheese;1
 Cheese, unripened, fresh cheese >15 %;;;;;;;;;;;;98,37;;;;Cheese;1
 Cheese, unripened, fresh cheese >15 %;;;;;;;;;;;;;;5605;;Cheese;1
@@ -110,6 +119,7 @@ Chicken;;;;;9,87;;;;;;;;;;;Poultry Meat;1
 Chicken;;;;;;;;;;12,22;;;;;;Poultry Meat;1
 Chicken;;;;;;;;;;;;48,7;;;;Poultry Meat;1
 Chicken;;;;;;;;;;;;;;660;;Poultry Meat;1
+Chicken eggs;;;;;4,67;;;;;;;;;;;Eggs;1
 Chicken eggs;;;;;;;;;;6,27;;;;;;Eggs;1
 Chicken eggs;;;;;;;;;;;;21,76;;;;Eggs;1
 Chicken eggs;;;;;;;;;;;;;;578;;Eggs;1
@@ -118,9 +128,11 @@ Chocolate Bar, Average;;"[""Mountone"", ""Susu suklaapatukka"", ""Suklaapatukka"
 Chocolate Bar, Caramel And Cookie, Twix;;"[""Kismet""]";;;;;;;;;;;;;;;
 Chocolate Biscuit, Industrial, Average;;"[""Nutella B-ready""]";;;;;;;;;;;;;;;
 Chocolate Biscuit, Industrial, Average;;"[""Suklaakeksi"", ""Fazerina suklaakeksi""]";;;;;;;;;;;;;;;
+Chocolate, Plain, Dark Chocolate;;;;;46,65;;;;;;;;;;;Dark Chocolate;1
 Chocolate, Plain, Dark Chocolate;;;;;;;;;;68,96;;;;;;Dark Chocolate;1
 Chocolate, Plain, Dark Chocolate;;;;;;;;;;;;87,08;;;;Dark Chocolate;1
 Chocolate, Plain, Dark Chocolate;;;;;;;;;;;;;;541;;Dark Chocolate;1
+Citrus fruit;;;;;0,39;;;;;;;;;;;Citrus Fruit;1
 Citrus fruit;;;;;;;;;;0,86;;;;;;Citrus Fruit;1
 Citrus fruit;;;;;;;;;;;;2,24;;;;Citrus Fruit;1
 Citrus fruit;;;;;;;;;;;;;;83;;Citrus Fruit;1
@@ -132,10 +144,14 @@ Cocoa powder with sugar;;;;;;;;;;;;;;;;;
 Coconut Oil;Kookosöljy;;;;1,78;;;;0,7;;;;;;;Plant based groceries;2
 Coconut Oil;Kookosöljy;;;;1,78;;;;0,7;;;;;;;Plant based groceries;2
 Coconut Water, Unsweetened;;"[""Kookosvesi maustamaton luomu""]";;;;;;;;;;;;;;;
+Coffee;;;;;28,53;;;;;;;;;;;Coffee;1
 Coffee;;;;;;;;;;21,62;;;;;;Coffee;1
 Coffee;;;;;;;;;;;;110,52;;;;Coffee;1
+Coffee;;;;;;;;;;;;;;26;;Coffee;1
+Coffee;;;;;;;;0,42795;;;;;;;;Coffee (98,5 % water);1
+Coffee;;;;;;;;;;;0,3243;;;;;Coffee (98,5 % water);1
 Coffee;;;;;;;;;;;;;1,6578;;;Coffee (98,5 % water);1
-Coffee;;;;;;;;;;;;;;;1,375;Coffee (98,5 % water);1
+Coffee;;;;;;;;;;;;;;;0,39;Coffee (98,5 % water);1
 Colour Collector Cloth;Liankerääjä;"[""Tekst.pesu- & Puhd.ain.""]";Hygiene products;;;;;;;;;;;;;;
 Commerce;Kaupankäynti;;Services;;;;;;;;;;;;;;
 Condiments;;;;;;;;;0,7;;;;;;;Plant based groceries;2
@@ -209,6 +225,7 @@ Frozen Vegetable Mix, Root Vegetables;;"[""Keittovihannekset""]";;;;;;;;;;;;;;;
 Fruit and berry dishes;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Fruit and berry dishes;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Fruit Puree, Unsweetened, 100 % Fruit;;"[""Päärynäsose""]";;;;;;;;;;;;;;;
+Fruits;;;;;1,05;;;;;;;;;;;Other Fruit;1
 Fruits;;;;;;;;;;0,89;;;;;;Other Fruit;1
 Fruits;;;;;;;;;;;;2,43;;;;Other Fruit;1
 Fruits;;;;;;;;;;;;;;154;;Other Fruit;1
@@ -218,6 +235,7 @@ Furniture;Huonekalut;;Interior design;;;;;;0,42;;;;;;;Huonekalut, matot;2
 Furniture;Huonekalut;;Interior design;;;;;;0,42;;;;;;;Huonekalut, matot;2
 Glue stick;Liimapuikko;;Supplies;;;;;;0,46;;;;;;;Factory products;2
 Glue stick;Liimapuikko;;Supplies;;;;;;0,46;;;;;;;Factory products;2
+Grape, Average, Green Or Red;;;;;1,53;;;;;;;;;;;Berries & Grapes;1
 Grape, Average, Green Or Red;;;;;;;;;;2,41;;;;;;Berries & Grapes;1
 Grape, Average, Green Or Red;;;;;;;;;;;;6,12;;;;Berries & Grapes;1
 Grape, Average, Green Or Red;;;;;;;;;;;;;;420;;Berries & Grapes;1
@@ -246,6 +264,7 @@ Juices;Juomat;;;;;;;;0,7;;;;;;;Alkoholittomat juomat;2
 Juices;Juomat;;;;;;;;0,7;;;;;;;Alkoholittomat juomat;2
 Karelian Pasty, Rice Filling, Saarioinen;;"[""Riisipiirakka""]";;;;;;;;;;;;;;;
 Kitchen;Keittiö;;Supplies;;;;;;;;;;;;;;
+Lamb/mutton;;;;;39,72;;;;;;;;;;;Lamb & Mutton;1
 Lamb/mutton;;;;;;;;;;369,81;;;;;;Lamb & Mutton;1
 Lamb/mutton;;;;;;;;;;;;97,13;;;;Lamb & Mutton;1
 Lamb/mutton;;;;;;;;;;;;;;1803;;Lamb & Mutton;1
@@ -277,9 +296,11 @@ Milk, 1.5% Fat, 1 Ug Added Vitamin D;;"[""Kevytmaito""]";;;;;;;;;;;;;;;
 Milk, 1.5% Fat, Lactose-Free, 1 Ug Added Vitamin D;;"[""Laktoositon kevytmaitojuoma""]";;;;;;;;;;;;;;;
 Milk, 1.5% Fat, Low-Lactose, 1 Ug Added Vitamin D;;"[""Kevytmaito hyla"", ""Kevytmaito vähälaktoosinen""]";;;;;;;;;;;;;;;
 Milk, 3.5% Fat, 1 Ug Added Vitamin D;;"[""Täysmaito""]";;;;;;;;;;;;;;;
+Milks <= 2% fat;;;;;3,15;;;;;;;;;;;Milk;1
 Milks <= 2% fat;;;;;;;;;;8,95;;;;;;Milk;1
 Milks <= 2% fat;;;;;;;;;;;;10,65;;;;Milk;1
 Milks <= 2% fat;;;;;;;;;;;;;;628;;Milk;1
+Milks >2% fat;;;;;3,15;;;;;;;;;;;Milk;1
 Milks >2% fat;;;;;;;;;;8,95;;;;;;Milk;1
 Milks >2% fat;;;;;;;;;;;;10,65;;;;Milk;1
 Milks >2% fat;;;;;;;;;;;;;;628;;Milk;1
@@ -302,10 +323,15 @@ Nicotine products;Nikotiinituotteet;"[""Cigarette"", ""Tupakka"", ""Zonnic""]";S
 Nicotine products;Nikotiinituotteet;"[""Cigarette"", ""Tupakka"", ""Zonnic""]";Supplies;;;;;;0,87;;;;;;;Beverages and cigarette;2
 Notebook, plastic cover;Vihko, muovikantinen;;Office supplies;;;;;;0,4;;;;;;;Sanomalehdet, kirjat ja paperitarvikkeet;2
 Notebook, plastic cover;Vihko, muovikantinen;;Office supplies;;;;;;0,4;;;;;;;Sanomalehdet, kirjat ja paperitarvikkeet;2
+Nut, Peanut;;;;;3,23;;;;;;;;;;;Groundnuts;1
 Nut, Peanut;;;;;;;;;;9,11;;;;;;Groundnuts;1
-Nut, Peanut;;;;;;;;;;;;19,15;;;;Groundnuts;1
-Nut, Peanut;;;;;;;;;;;;;;4134;;Groundnuts;1
+Nut, Peanut;;;;;;;;;;;;14,14;;;;Groundnuts;1
+Nut, Peanut;;;;;;;;;;;;;;1852;;Groundnuts;1
+Nuts and seeds;;;;;0,43;;;;;;;;;;;Nuts;1
 Nuts and seeds;;;;;;;;;;12,96;;;;;;Nuts;1
+Nuts and seeds;;;;;;;;;;;;19,15;;;;Nuts;1
+Nuts and seeds;;;;;;;;;;;;;;4134;;Nuts;1
+Oats, Rolled, Oat Flakes;;;;;2,48;;;;;;;;;;;Oatmeal;1
 Oats, Rolled, Oat Flakes;;;;;;;;;;7,6;;;;;;Oatmeal;1
 Oats, Rolled, Oat Flakes;;;;;;;;;;;;11,23;;;;Oatmeal;1
 Oats, Rolled, Oat Flakes;;;;;;;;;;;;;;482;;Oatmeal;1
@@ -314,6 +340,7 @@ Offal dishes;;;;;;;;;1,1;;;;;;;Animal based groceries;2
 Office supplies;Toimistotarvikkeet;;Supplies;;;;;;;;;;;;;;
 Oils;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Oils;;;;;;;;;0,7;;;;;;;Plant based groceries;2
+Onion-family vegetables;;;;;0,5;;;;;;;;;;;Onions & Leeks;1
 Onion-family vegetables;;;;;;;;;;0,39;;;;;;Onions & Leeks;1
 Onion-family vegetables;;;;;;;;;;;;3,24;;;;Onions & Leeks;1
 Onion-family vegetables;;;;;;;;;;;;;;14;;Onions & Leeks;1
@@ -323,6 +350,7 @@ Other alcoholic beverages;;;;;;;;;0,3;;;;;;;Alcohol drinks;2
 Palm Oil;Palmuöljy;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Palm Oil;Palmuöljy;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Pasta, Spaghetti, Macaroni;;"[""Spaghetti"", ""Täysjyväspagetti""]";;;;;;;;;;;;;;;
+Pea, Green;;;;;0,98;;;;;;;;;;;Peas;1
 Pea, Green;;;;;;;;;;7,46;;;;;;Peas;1
 Pea, Green;;;;;;;;;;;;7,52;;;;Peas;1
 Pea, Green;;;;;;;;;;;;;;397;;Peas;1
@@ -343,6 +371,7 @@ Plants;Kasvit;;Supplies;;;;;;0,6;;;;;;;Garden supplies;2
 Plastic products;Muovituotteet;;Supplies;;;;;;1,01;;;;;;;Plastic products;2
 Plastic products;Muovituotteet;;Supplies;;;;;;1,01;;;;;;;Plastic products;2
 Popcorn, Microwave Popcorn;;"[""Micropopcorn""]";;;;;;;;;;;;;;;
+Pork;;;;;12,31;;;;;;;;;;;Pig Meat;1
 Pork;;;;;;;;;;17,36;;;;;;Pig Meat;1
 Pork;;;;;;;;;;;;76,38;;;;Pig Meat;1
 Pork;;;;;;;;;;;;;;1796;;Pig Meat;1
@@ -353,6 +382,7 @@ Postal bag;Postipussi;;Supplies;;;;;;0,72;;;;;;;Paper, carton and cardboard prod
 Postal bag;Postipussi;;Supplies;;;;;;0,72;;;;;;;Paper, carton and cardboard products;2
 Postal parcel;Posti;"[""Postipaketti"", ""Kirje""]";Services;;;;;;0,2;;;;;;;Postal and telecommunication services;2
 Postal parcel;Posti;"[""Postipaketti"", ""Kirje""]";Services;;;;;;0,2;;;;;;;Postal and telecommunication services;2
+Potato;;;;;0,46;;;;;;;;;;;Potatoes;1
 Potato;;;;;;;;;;0,88;;;;;;Potatoes;1
 Potato;;;;;;;;;;;;3,48;;;;Potatoes;1
 Potato;;;;;;;;;;;;;;59;;Potatoes;1
@@ -373,6 +403,7 @@ Pulse dishes;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Pulse dishes;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Pulses and nuts;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Pulses and nuts;;;;;;;;;0,7;;;;;;;Plant based groceries;2
+Pulses vegetables;;;;;1,79;;;;;;;;;;;Other Pulses;1
 Pulses vegetables;;;;;;;;;;15,57;;;;;;Other Pulses;1
 Pulses vegetables;;;;;;;;;;;;17,08;;;;Other Pulses;1
 Pulses vegetables;;;;;;;;;;;;;;436;;Other Pulses;1
@@ -392,15 +423,18 @@ Renovation;Remontointi;;Construction;;;;;;0,02;;;;;;;Remontointi;2
 Renovation;Remontointi;;Construction;;;;;;0,02;;;;;;;Remontointi;2
 Restaurant;Ravintola;;Services;;;;;;0,49;;;;;;;Ravintolapalvelut;2
 Restaurant;Ravintola;;Services;;;;;;0,49;;;;;;;Ravintolapalvelut;2
+Rice;;;;;4,45;;;;;;;;;;;Rice;1
 Rice;;;;;;;;;;2,8;;;;;;Rice;1
 Rice;;;;;;;;;;;;35,07;;;;Rice;1
 Rice;;;;;;;;;;;;;;2248;;Rice;1
 Rice Chocolate;;"[""Maitosuklaa riisikakku""]";;;;;;;1,1;;;;;;;Animal based groceries;2
 Rice Chocolate;;"[""Maitosuklaa riisikakku""]";;;;;;;1,1;;;;;;;Animal based groceries;2
 Rocket, Arugula;;"[""Rucola""]";;;;;;;;;;;;;;;
+Root vegetables and tubers;;;;;0,43;;;;;;;;;;;Root Vegetables;1
 Root vegetables and tubers;;;;;;;;;;0,33;;;;;;Root Vegetables;1
 Root vegetables and tubers;;;;;;;;;;;;1,61;;;;Root Vegetables;1
 Root vegetables and tubers;;;;;;;;;;;;;;28;;Root Vegetables;1
+Rye;;;;;1,57;;;;;;;;;;;Wheat & Rye;1
 Rye;;;;;;;;;;3,85;;;;;;Wheat & Rye;1
 Rye;;;;;;;;;;;;7,16;;;;Wheat & Rye;1
 Rye;;;;;;;;;;;;;;648;;Wheat & Rye;1
@@ -409,6 +443,7 @@ Rye Bread, Reissumies, Oululainen, Fazer;;"[""Reissumies""]";;;;;;;;;;;;;;;
 Salad dressings and mayonnaises;;;;;;;;;1,1;;;;;;;Animal based groceries;2
 Salad dressings and mayonnaises;;;;;;;;;1,1;;;;;;;Animal based groceries;2
 Salad, Coleslaw, Home-Made;;"[""Coleslaw"", ""Coleslaw-salaatti""]";;;;;;;;;;;;;;;
+Salmon, Farmed;;;;;13,63;;;;;;;;;;;Fish (farmed);1
 Salmon, Farmed;;;;;;;;;;8,41;;;;;;Fish (farmed);1
 Salmon, Farmed;;;;;;;;;;;;235,12;;;;Fish (farmed);1
 Salmon, Farmed;;;;;;;;;;;;;;3691;;Fish (farmed);1
@@ -440,9 +475,11 @@ Soy Sauce;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Soy Sauce;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Soya Bean Patty, Fried;;"[""Grillatut kasvisfileet"", ""Vegaaninen Pihvi Soija- Ja Vehnäproteiinista"", ""Soijapihvi"", ""Soy steak""]";;;;;;;;;;;;;;;2
 Soya Bean Patty, Fried;;"[""Grillatut kasvisfileet"", ""Vegaaninen Pihvi Soija- Ja Vehnäproteiinista"", ""Soijapihvi"", ""Soy steak""]";;;;;;;;;;;;;;;2
+Soya drink,  calcium;;;;;0,98;;;;;;;;;;;Soy milk;1
 Soya drink,  calcium;;;;;;;;;;0,66;;;;;;Soy milk;1
 Soya drink,  calcium;;;;;;;;;;;;1,06;;;;Soy milk;1
 Soya drink,  calcium;;;;;;;;;;;;;;28;;Soy milk;1
+Soya Drink, Plain, Average Of Industrial Products;;;;;0,98;;;;;;;;;;;Soy milk;1
 Soya Drink, Plain, Average Of Industrial Products;;;;;;;;;;0,66;;;;;;Soy milk;1
 Soya Drink, Plain, Average Of Industrial Products;;;;;;;;;;;;1,06;;;;Soy milk;1
 Soya Drink, Plain, Average Of Industrial Products;;;;;;;;;;;;;;28;;Soy milk;1
@@ -457,23 +494,33 @@ Sportdrinks;;;;;;;;;0,84;;;;;;;Other groceries;2
 Sportdrinks;;;;;;;;;0,84;;;;;;;Other groceries;2
 Sports equipment;Urheiluvälineet;;Supplies;;;;;;0,52;;;;;;;;2
 Sports equipment;Urheiluvälineet;;Supplies;;;;;;0,52;;;;;;;;2
+Sugar;;;;;1,81;;;;;;;;;;;Beet Sugar;1
+Sugar;;;;;3,2;;;;;;;;;;;Cane Sugar;1
 Sugar;;;;;;;;;;1,83;;;;;;Beet Sugar;1
 Sugar;;;;;;;;;;2,04;;;;;;Cane Sugar;1
 Sugar;;;;;;;;;;;;5,41;;;;Beet Sugar;1
 Sugar;;;;;;;;;;;;16,92;;;;Cane Sugar;1
+Sugar;;;;;;;;;;;;;;218;;Beet Sugar;1
+Sugar;;;;;;;;;;;;;;620;;Cane Sugar;1
 Supplies;Tarvikkeet;;;;;;;;0,51;;;;;;;Kestokulutustavarat, terveydenhoitotuotteet keskiarvo;2
 Supplies;Tarvikkeet;;;;;;;;0,51;;;;;;;Kestokulutustavarat, terveydenhoitotuotteet keskiarvo;2
 Sweet Bakery;;;;;;;;;1,1;;;;;;;Animal based groceries;2
 Sweet Bakery;;;;;;;;;1,1;;;;;;;Animal based groceries;2
+Sweet Corn Kernels;;;;;1,7;;;;;;;;;;;Maize;1
 Sweet Corn Kernels;;;;;;;;;;2,94;;;;;;Maize;1
 Sweet Corn Kernels;;;;;;;;;;;;4,03;;;;Maize;1
 Sweet Corn Kernels;;;;;;;;;;;;;;216;;Maize;1
 Sweet Corn, Cob, Grilled;;"[""Grilled corn"", ""Grillattu maissi"", ""Grillattua maissia"", ""Pariloitua maissia""]";;;;;;;;;;;;;;;
+Sweet Corn, Corn On The Cob;;;;;1,7;;;;;;;;;;;Maize;1
 Sweet Corn, Corn On The Cob;;;;;;;;;;2,94;;;;;;Maize;1
+Sweet Corn, Corn On The Cob;;;;;;;;;;;;4,03;;;;Maize;1
+Sweet Corn, Corn On The Cob;;;;;;;;;;;;;;216;;Maize;1
 Tableware;Astiat;;Kitchen;0,67;;;;;0,67;;;;;;;Kodintaloustekstiilit, sisustus, astiat keskiarvo;2
 Tableware;Astiat;;Kitchen;0,67;;;;;0,67;;;;;;;Kodintaloustekstiilit, sisustus, astiat keskiarvo;2
 Tapioca;;;;;1,32;;;;;;;;;;;Cassava;1
 Tapioca;;;;;;;;;;1,81;;;;;;Cassava;1
+Tapioca;;;;;;;;;;;;0,69;;;;Cassava;1
+Tapioca;;;;;;;;;;;;;;0;;Cassava;1
 Taxi;Taksi;;Public transport;;;;;;0,8;;;;;;;Taxi trips;2
 Taxi;Taksi;;Public transport;;;;;;0,8;;;;;;;Taxi trips;2
 Tea, Herbal Tea;;"[""Rooibos"", ""Yrttitee"", ""Tee rooibos"", ""Ruusunmarjatee""]";;;;;;;;;;;;;;;
@@ -484,12 +531,15 @@ Textiles;Tekstiilit;;Supplies;;;;;;0,67;;;;;;;Kodintaloustekstiilit, sisustus, a
 Tikka Masala, Uncle Ben'S;;"[""Masalakastike""]";;;;;;;;;;;;;;;
 Toast, Rye Toast, Vaasan 100% Ruispaahto;;"[""Taika tumma ohut paahto""]";;;;;;;;;;;;;;;
 Toast, Wheat Toast, Vaasan Arkipaahto;;"[""Vehnäpaahto""]";;;;;;;;;;;;;;;
+Tofu, Firm, Soya Product;;;;;3,16;;;;;;;;;;;Tofu;1
 Tofu, Firm, Soya Product;;;;;;;;;;3,52;;;;;;Tofu;1
 Tofu, Firm, Soya Product;;;;;;;;;;;;6,16;;;;Tofu;1
 Tofu, Firm, Soya Product;;;;;;;;;;;;;;149;;Tofu;1
+Tofu, Soft, Soya Product;;;;;3,16;;;;;;;;;;;Tofu;1
 Tofu, Soft, Soya Product;;;;;;;;;;3,52;;;;;;Tofu;1
 Tofu, Soft, Soya Product;;;;;;;;;;;;6,16;;;;Tofu;1
 Tofu, Soft, Soya Product;;;;;;;;;;;;;;149;;Tofu;1
+Tomato;;;;;2,09;;;;;;;;;;;Tomatoes;1
 Tomato;;;;;;;;;;0,8;;;;;;Tomatoes;1
 Tomato;;;;;;;;;;;;7,51;;;;Tomatoes;1
 Tomato;;;;;;;;;;;;;;370;;Tomatoes;1
@@ -514,6 +564,7 @@ Vegetable Bouillon Cube;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Vegetable Bouillon Cube;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Vegetable dishes;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Vegetable dishes;;;;;;;;;0,7;;;;;;;Plant based groceries;2
+Vegetables;;;;;0,53;;;;;;;;;;;Other Vegetables;1
 Vegetables;;;;;;;;;;0,38;;;;;;Other Vegetables;1
 Vegetables;;;;;;;;;;;;2,27;;;;Other Vegetables;1
 Vegetables;;;;;;;;;;;;;;103;;Other Vegetables;1
@@ -527,15 +578,18 @@ Washing liquid;Pesuneste;;Hygiene products;;;;;;0,6;;;;;;;Pesu-, puhdistus- ja k
 Washing liquid;Pesuneste;;Hygiene products;;;;;;0,6;;;;;;;Pesu-, puhdistus- ja kiillotusaineet, hajusteet ja toalettivalmisteet;2
 Watercolor paint;Vesivärit;"[""Akvarellivärit""]";Supplies;;;;;;0,46;;;;;;;Factory products;2
 Watercolor paint;Vesivärit;"[""Akvarellivärit""]";Supplies;;;;;;0,46;;;;;;;Factory products;2
+Wheat;;;;;1,57;;;;;;;;;;;Wheat & Rye;1
 Wheat;;;;;;;;;;3,85;;;;;;Wheat & Rye;1
 Wheat;;;;;;;;;;;;7,16;;;;Wheat & Rye;1
 Wheat;;;;;;;;;;;;;;648;;Wheat & Rye;1
 Wheat Tortilla;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Wheat Tortilla;;;;;;;;;0,7;;;;;;;Plant based groceries;2
+White Cabbage;;;;;0,51;;;;;;;;;;;Brassicas;1
 White Cabbage;;;;;;;;;;0,55;;;;;;Brassicas;1
 White Cabbage;;;;;;;;;;;;5,01;;;;Brassicas;1
 White Cabbage;;;;;;;;;;;;;;119;;Brassicas;1
 White Sauce, Low-Fat Milk, Thickened With Flour And Butter;;"[""White sauce"", ""Valkokastike""]";;;;;;;;;;;;;;;
+Wines;;;;;1,79;;;;;;;;;;;Wine;1
 Wines;;;;;;;;;;;1,78;;;;;Wine;1
 Wines;;;;;;;;;;;;;4,57;;;Wine;1
 Wines;;;;;;;;;;;;;;;79;Wine;1
