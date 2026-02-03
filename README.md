@@ -17,7 +17,7 @@ DROP DATABASE "product-api"; CREATE DATABASE "product-api"; \q
 npm run knex migrate:latest
 npm run knex seed:run
 # SEED_SUFFIX=.custom DELIMITER=, npm run knex seed:run -- --specific=categories.js
-npm run dev
+FULL_SWAGGER=1 npm run dev
 ```
 
 Open http://localhost:42809/api-docs in browser.

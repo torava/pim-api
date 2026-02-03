@@ -16,6 +16,7 @@ import fileUpload from 'express-fileupload';
 import knexConfig from '../knexfile';
 import registerApi from './api';
 import swaggerDocument from '../swagger.json';
+import fullSwaggerDocument from '../swagger.full.json';
 
 declare global {
   // eslint-disable-next-line no-unused-vars
@@ -82,7 +83,7 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(
   '/api-docs',
   swaggerUi.serve,
-  swaggerUi.setup(swaggerDocument)
+  swaggerUi.setup(process.env.FULL_SWAGGER ? fullSwaggerDocument : swaggerDocument)
 );
 
 const env = process.env.NODE_ENV || 'production';
@@ -171,7 +172,7 @@ function loadOpenCV() {
 }
 
 installDOM();
-loadOpenCV();
+//loadOpenCV();
 
 // @ts-ignore
 global.createCanvas = (width: number, height: number) => createCanvas(width, height);
