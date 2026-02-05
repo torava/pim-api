@@ -27,7 +27,7 @@ module.exports = {
       password: process.env.POSTGRES_PASSWORD || 'password',
       database: process.env.POSTGRES_DB || 'product-api',
       port: Number(process.env.POSTGRES_PORT) || 5432,
-      ssl: true,
+      ssl: { rejectUnauthorized: false },
     },
     pool: {
       min: 0,
