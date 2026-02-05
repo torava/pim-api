@@ -4,8 +4,8 @@ npm ci &&
 NODE_OPTIONS=--max_old_space_size=1024 npm run build &&
 if [ "$MIGRATE" = "true" ]
 then
-NODE_ENV=production npm run knex migrate:latest &&
-NODE_ENV=production npm run knex seed:run
+NODE_ENV=production NODE_OPTIONS=--max_old_space_size=1024 npm run knex migrate:latest &&
+NODE_ENV=production NODE_OPTIONS=--max_old_space_size=1024 npm run knex seed:run
 else
 echo Migration skipped
 fi &&
