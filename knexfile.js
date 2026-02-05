@@ -26,7 +26,8 @@ module.exports = {
       user: process.env.POSTGRES_USER || 'postgres',
       password: process.env.POSTGRES_PASSWORD || 'password',
       database: process.env.POSTGRES_DB || 'product-api',
-      port: Number(process.env.POSTGRES_PORT) || 5432
+      port: Number(process.env.POSTGRES_PORT) || 5432,
+      ssl: true,
     },
     pool: {
       min: 0,
