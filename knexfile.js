@@ -8,8 +8,9 @@ module.exports = {
       user: process.env.POSTGRES_USER || 'postgres',
       password: process.env.POSTGRES_PASSWORD || 'password',
       database: process.env.POSTGRES_DB || 'product-api',
-      port: Number(process.env.POSTGRES_PORT) || 5432
-      //filename: './example.db'
+      port: Number(process.env.POSTGRES_PORT) || 5432,
+      //filename: './example.db',
+      ssl: process.env.POSTGRES_SSL ? { rejectUnauthorized: false } : false,
     },
     pool: {
       min: 0,
@@ -27,7 +28,7 @@ module.exports = {
       password: process.env.POSTGRES_PASSWORD || 'password',
       database: process.env.POSTGRES_DB || 'product-api',
       port: Number(process.env.POSTGRES_PORT) || 5432,
-      ssl: { rejectUnauthorized: false },
+      ssl: process.env.POSTGRES_SSL ? { rejectUnauthorized: false } : false,
     },
     pool: {
       min: 0,
