@@ -160,19 +160,7 @@ function installDOM() {
   global.HTMLImageElement = Image;
 }
 
-function loadOpenCV() {
-  return new Promise(resolve => {
-    // @ts-ignore
-    global.Module = {
-      onRuntimeInitialized: resolve
-    };
-    // @ts-ignore
-    global.cv = require('./static/lib/opencv.js');
-  });
-}
-
 installDOM();
-//loadOpenCV();
 
 // @ts-ignore
 global.createCanvas = (width: number, height: number) => createCanvas(width, height);

@@ -1,3 +1,4 @@
+import cv from "@techstark/opencv-js";
 import {getDocument, GlobalWorkerOptions} from 'pdfjs-dist/build/pdf';
 
 GlobalWorkerOptions.workerSrc = '//cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.min.js';
@@ -35,6 +36,7 @@ export function getCVSrcFromBase64(base64Data) {
   try {
     const image = new Image();
     image.src = base64Data;
+    console.log('image', image);
     let src = cv.imread(image);
     return src;
   } catch(error) {
