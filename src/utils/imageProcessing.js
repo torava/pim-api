@@ -1,3 +1,4 @@
+import { Jimp } from "jimp";
 import cv from "@techstark/opencv-js";
 import {getDocument, GlobalWorkerOptions} from 'pdfjs-dist/build/pdf';
 
@@ -32,12 +33,12 @@ export function getSrc(orig, from_grayscale) {
   return data_url;
 }
 
-export function getCVSrcFromBase64(base64Data) {
+export async function getCVSrcFromBase64(buffer) {
   try {
-    const image = new Image();
-    image.src = base64Data;
-    console.log('image', image);
-    let src = cv.imread(image);
+    console.log('buffer', buffer);
+    const jimp = await Jimp.read(buffer);
+    console.log('bitmap', jimp.bitmap);
+    const src = cv.matFromImageData(jimp.bitmap);
     return src;
   } catch(error) {
     console.error('Error while reading receipt for recognition', error);

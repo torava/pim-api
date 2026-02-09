@@ -249,7 +249,7 @@ app.post('/api/receipt/recognize/', async (req, res) => {
     console.log('stdout', stdout);
 
     try {
-      let src = getCVSrcFromBase64(buffer.toString('base64'));
+      let src = await getCVSrcFromBase64(buffer);
       const rotation = stdout.match(/Rotate: (\d+)/);
       console.log('rotate', rotation);
       if (rotation && parseInt(rotation[1])) {
