@@ -9,8 +9,9 @@ import Product, { ProductShape } from '../models/Product';
 import Category, { CategoryShape } from '../models/Category';
 import Manufacturer, { ManufacturerShape } from '../models/Manufacturer';
 import Receipt, { ReceiptShape } from '../models/Receipt';
-import { decodeBase64Image, getCVSrcFromBase64, rotate, getBufferFromCVSrc, extractBarCode } from '../utils/imageProcessing';
+import { decodeBase64Image, getCVSrcFromBase64, rotate, getBufferFromCVSrc, extractBarCode, crop, receiptAdaptiveThreshold } from '../utils/imageProcessing';
 import { processReceiptImage, extractTextFromFile, getTransactionsFromReceipt } from '../utils/receipts';
+import Party, { PartyShape } from '../models/Party';
 
 export default (app: express.Application) => {
 
@@ -295,26 +296,29 @@ app.post('/api/receipt/recognize/', async (req, res) => {
 });
 
 const processReceipt = async (
-  data: ReceiptShape & { categories?: CategoryShape[], products?: ProductShape[], manufacturers?: ManufacturerShape[], transactions?: TransactionShape[] },
+  data: ReceiptShape & { categories?: CategoryShape[], products?: ProductShape[], parties?: PartyShape[], transactions?: TransactionShape[] },
   language: string,
-  id: string
+  id: string,
+  suffix: string,
 ) => {
-  let filepath = `${RECEIPT_UPLOAD_PATH}/${id}`;
+  const filePath = `${RECEIPT_UPLOAD_PATH}/${id}${suffix}`;
 
   try {
     const category = await Category.query();
     data.categories = category;
     const product = await Product.query();
     data.products = product;
-    const manufacturer = await Manufacturer.query();
-    data.manufacturers = manufacturer;
-    const response = await processReceiptImage(filepath, data, true);
-    const text = await extractTextFromFile(filepath, language);
+    const party = await Party.query();
+    data.parties = party;
+    const text = await extractTextFromFile(filePath, language);
     if (text) {
       data = await getTransactionsFromReceipt(data, text, language, id);
       //data.transactions[0].receipts = [{}];
       //data.transactions[0].receipts[0].text = text;
       data.transactions[0].receipts[0].file = id;
+      delete data.categories;
+      delete data.products;
+      delete data.parties;
     }
     else {
       data = {
@@ -327,12 +331,26 @@ const processReceipt = async (
   }
 }
 
-app.post('/api/receipt/data/:id', function(req, res) {
+app.post('/api/receipt/data/original/:id', function(req, res) {
   let data = req.body,
       language = data.language || 'fi-FI',
       id = req.params.id;
 
-  processReceipt(data, language, id).then((response) => {
+  processReceipt(data, language, id, '_original').then((response) => {
+    res.send(response);
+  })
+  .catch(error => {
+    console.error(error);
+    res.sendStatus(500);
+  });
+});
+
+app.post('/api/receipt/data/edited/:id', function(req, res) {
+  let data = req.body,
+      language = data.language || 'fi-FI',
+      id = req.params.id;
+
+  processReceipt(data, language, id, '_edited').then((response) => {
     res.send(response);
   })
   .catch(error => {
@@ -352,11 +370,15 @@ app.post('/api/receipt', async (req, res) => {
 });
 
 app.post('/api/receipt/original', (req, res) => {
-  const base64Data = req.body.src;
+  if (Array.isArray(req.files.src)) {
+    console.error('Please upload only one file');
+    return res.sendStatus(500);
+  }
+  const base64Data = req.files.src.data;
   const name = `${req.body.id}_original`;
 
   try {
-    const path = uploadReceiptFromBase64(name, base64Data);
+    const path = uploadReceipt(name, base64Data);
     res.send(path);
   } catch (error) {
     console.error(error);
@@ -364,12 +386,20 @@ app.post('/api/receipt/original', (req, res) => {
   }
 });
 
-app.post('/api/receipt/picture',  (req, res) => {
-  const base64Data = req.body.src;
+app.post('/api/receipt/edit', async (req, res) => {
+  if (Array.isArray(req.files.src)) {
+    console.error('Please upload only one file');
+    return res.sendStatus(500);
+  }
+  const buffer = req.files.src.data;
   const name = `${req.body.id}_edited`;
 
   try {
-    const path = uploadReceiptFromBase64(name, base64Data);
+    let src = await getCVSrcFromBase64(buffer);
+    const croppedSrc = crop(src);
+    const adaptiveThresholdSrc = receiptAdaptiveThreshold(croppedSrc);
+    const editedBuffer = getBufferFromCVSrc(adaptiveThresholdSrc);
+    const path = uploadReceipt(name, editedBuffer);
     res.send(path);
   } catch(error) {
     console.error(error);
@@ -378,11 +408,15 @@ app.post('/api/receipt/picture',  (req, res) => {
 });
 
 app.post('/api/receipt/pre', (req, res) => {
-  const base64Data = req.body.src;
+  if (Array.isArray(req.files.src)) {
+    console.error('Please upload only one file');
+    return res.sendStatus(500);
+  }
+  const base64Data = req.files.src.data;
   const name = `${req.body.id}_pre`;
 
   try {
-    const path = uploadReceiptFromBase64(name, base64Data);
+    const path = uploadReceipt(name, base64Data);
     res.send(path);
   } catch(error) {
     console.error(error);

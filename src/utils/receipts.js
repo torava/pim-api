@@ -1,5 +1,6 @@
 import moment from 'moment';
 import { stringSimilarity } from 'string-similarity-js';
+import { execFile } from 'child_process';
 
 import { LevenshteinDistance } from './levenshteinDistance';
 import Category from '../models/Category';
@@ -761,7 +762,7 @@ export function processReceiptImage(filepath, data, resize) {
         'PNG:'+filepath+'_edited']);
     
     console.log(script.join(' '));
-    child_process.execFile('convert', script, function(error, stdout, stderr) {
+    execFile('convert', script, function(error, stdout, stderr) {
       if (error) console.error(error);
       process.stdout.write(stdout);
       process.stderr.write(stderr);
@@ -774,12 +775,14 @@ export function extractTextFromFile(filepath, locale) {
   let language = localeToOcrLanguage(locale);
 
   return new Promise((resolve, reject) => {
-    child_process.execFile('tesseract', [
+    execFile('tesseract', [
       '-l',
       ['fin'].indexOf(language) !== -1 ? `${language}+eng` : 'eng',
       '-c', 'load_number_dawg=0',
-      '-psm', 6,
-      filepath+'_edited',
+      '--psm', 6,
+      '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890-,.:/% ',
+      '-c', 'textord_max_noise_size=15',
+      filepath,
       'stdout'
     ], function(error, stdout, stderr) {
       if (error) console.error(error);

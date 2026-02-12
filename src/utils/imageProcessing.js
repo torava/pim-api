@@ -35,9 +35,7 @@ export function getSrc(orig, from_grayscale) {
 
 export async function getCVSrcFromBase64(buffer) {
   try {
-    console.log('buffer', buffer);
     const jimp = await Jimp.read(buffer);
-    console.log('bitmap', jimp.bitmap);
     const src = cv.matFromImageData(jimp.bitmap);
     return src;
   } catch(error) {
@@ -65,8 +63,25 @@ export function decodeBase64Image(dataString) {
 export function getBufferFromCVSrc(src) {
   const canvas = createCanvas(src.cols, src.rows);
   cv.imshow(canvas, src);
-  const buffer = canvas.toBuffer();
+  console.log('canvas', canvas);
+  const buffer = canvas.toBuffer('image/png');
   return buffer;
+}
+
+// from https://stackoverflow.com/a/65082103
+export function reduceMatChannels(canvasCtx_imgData, targetChannels = 3)  {
+    const canvasCtx_imgData_Mat = cv.matFromImageData(canvasCtx_imgData);
+    let resMat = new cv.Mat();
+    let resImgVect = new cv.MatVector();
+    let rgbaPlanes = new cv.MatVector();
+    cv.split(canvasCtx_imgData_Mat, rgbaPlanes);
+    for (let i = 0; i < targetChannels; i++){
+      resImgVect.push_back(rgbaPlanes.get(i));
+    }
+    cv.merge(resImgVect, resMat);
+//This is a custom class
+    Mat.deleteMats([canvasCtx_imgData_Mat, resImgVect, rgbaPlanes]);
+    return resMat;
 }
 
 export function extractBarCode(orig) {
@@ -112,15 +127,16 @@ export function extractBarCode(orig) {
     dsize = new cv.Size(orig.cols, orig.rows*0.15);
     cv.resize(absDst, absDst, dsize, 0, 0, cv.INTER_AREA);
 
-    let contours = new cv.MatVector();
-    let hierarchy = new cv.Mat();
+    const contours = new cv.MatVector();
+    const hierarchy = new cv.Mat();
     cv.findContours(absDst, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+    console.log('contours.size()', contours.size());
     const largestIndex = getLargestContourIndex(contours);
     //let cnt = contours.get(largestIndex);
 
     //let rotatedRect = cv.minAreaRect(cnt);
     //let vertices = cv.RotatedRect.points(rotatedRect);
-    let contoursColor = new cv.Scalar(255, 255, 255, 255);
+    const contoursColor = new cv.Scalar(255, 255, 255, 255);
     //let rectangleColor = new cv.Scalar(255, 0, 0);
 
     cv.drawContours(orig, contours, largestIndex, contoursColor, -1, 8, hierarchy, 0, {x: 0, y: orig.rows*0.85});
@@ -173,17 +189,23 @@ export function rotate(src, rotate) {
   return src;
 }
 
+export function receiptAdaptiveThreshold(src) {
+  let dst = new cv.Mat();
+  cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
+  cv.adaptiveThreshold(src, dst, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 51, 15);
+  return dst;
+}
+
 export function crop(src) {
-  let M, s, dsize, anchor, ksize;
   let dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
   let absDst = new cv.Mat();
   let absDstx = new cv.Mat();
   let absDsty = new cv.Mat();
 
-  dsize = new cv.Size(800, src.rows/src.cols*800);
+  const dsize = new cv.Size(800, src.rows/src.cols*800);
   cv.resize(src, dst, dsize, 0, 0, cv.INTER_AREA);
   
-  s = new cv.Scalar(0, 0, 0);
+  const s = new cv.Scalar(0, 0, 0);
   cv.copyMakeBorder(dst, dst, 200, 200, 200, 200, cv.BORDER_CONSTANT, s);
 
   cv.Sobel(dst, absDstx, cv.CV_64F, 1, 0, 3, 1, 0, cv.BORDER_DEFAULT);
@@ -191,22 +213,22 @@ export function crop(src) {
 
   cv.subtract(absDstx, absDsty, absDst);
   cv.convertScaleAbs(absDst, absDst, 1, 0);
-  ksize = new cv.Size(37,37);
+  let ksize = new cv.Size(37,37);
   cv.GaussianBlur(absDst, absDst, ksize, 0, 0, cv.BORDER_DEFAULT);
   cv.threshold(absDst, absDst, 80, 255, cv.THRESH_BINARY);
 
-  M = new cv.Mat();
+  let M = new cv.Mat();
   ksize = new cv.Size(117,117);
   M = cv.getStructuringElement(cv.MORPH_RECT, ksize);
   cv.morphologyEx(absDst, absDst, cv.MORPH_CLOSE, M);
 
   M = cv.Mat.ones(17,17, cv.CV_8U);
-  anchor = new cv.Point(-1, -1);
-  cv.erode(absDst, absDst, M, anchor,6);
-  cv.dilate(absDst, absDst, M, anchor,9);
+  const anchor = new cv.Point(-1, -1);
+  cv.erode(absDst, absDst, M, anchor, 6);
+  cv.dilate(absDst, absDst, M, anchor, 9);
 
   const rotatedRect = getRotatedRectForLargestContour(absDst);
-  let cropped = cropMinAreaRect(src, rotatedRect, src.cols/(dst.cols-400), -200, -200);
+  const cropped = cropMinAreaRect(src, rotatedRect, src.cols/(dst.cols-400), -200, -200);
   M.delete(); dst.delete();
   absDstx.delete(); absDsty.delete(); absDst.delete();
 
@@ -215,13 +237,11 @@ export function crop(src) {
 
 export function getLargestContourIndex(contours) {
   let maxArea = 0;
-  let cnt;
   let largestIndex;
   for (let i = 0; i < contours.size(); ++i) {
     let area = cv.contourArea(contours.get(i), false);
     console.log(area);
     if (area > maxArea) {
-      cnt = contours.get(i);
       largestIndex = i;
       maxArea = area;
     }
@@ -230,12 +250,14 @@ export function getLargestContourIndex(contours) {
 }
 
 export function getRotatedRectForLargestContour(src) {
-  let contours = new cv.MatVector();
-  let hierarchy = new cv.Mat();
-  cv.findContours(src, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+  const contours = new cv.MatVector();
+  const hierarchy = new cv.Mat();
+  const cvtSrc = new cv.Mat();
+  cv.cvtColor(src, cvtSrc, cv.COLOR_BGR2GRAY);
+  cv.findContours(cvtSrc, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
   const largestIndex = getLargestContourIndex(contours);
   const cnt = contours.get(largestIndex);
-  let rotatedRect = cv.minAreaRect(cnt);
+  const rotatedRect = cv.minAreaRect(cnt);
   /*let vertices = cv.RotatedRect.points(rotatedRect);
   let contoursColor = new cv.Scalar(255, 255, 255);
   let rectangleColor = new cv.Scalar(255, 0, 0);
