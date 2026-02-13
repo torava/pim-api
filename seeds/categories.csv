@@ -197,7 +197,8 @@ Fish;;;;;;;;;1,1;;;;;;;Animal based groceries;2
 Fish Ball, Industrial;;"[""Saaristolaispyörykät""]";;;;;;;;;;;;;;;
 Fish dishes;;;;;;;;;1,1;;;;;;;Animal based groceries;2
 Fish dishes;;;;;;;;;1,1;;;;;;;Animal based groceries;2
-Fish Fingers, Oven-Baked, Industrial;;"[""Rapeita kalapaloja"", ""Rapeat kalapalat""]";;;;;;;;;;;;;;;
+Fish Fingers, High In Fibre, Findus, Oven-Baked;;"[""Fileekalapuik täys""]";;;2,37;;;;;;;;;;;Fish fingers, breaded, frozen;8
+Fish Fingers, Oven-Baked, Industrial;;"[""Rapeita kalapaloja"", ""Rapeat kalapalat""]";;;2,37;;;;;;;;;;;Fish fingers, breaded, frozen;8
 Fish oil;Kalaöljy;;Supplies;;;;;;1,1;;;;;;;Animal based groceries;2
 Fish oil;Kalaöljy;;Supplies;;;;;;1,1;;;;;;;Animal based groceries;2
 Fish, Weighted Average;;"[""Fish""]";;;;;;;;;;;;;;;
@@ -256,6 +257,7 @@ Hummus, Chick Pea Paste;;"[""Hummus""]";;;;;;;0,7;;;;;;;Plant based groceries;2
 Hummus, Chick Pea Paste;;"[""Hummus""]";;;;;;;0,7;;;;;;;Plant based groceries;2
 Hygiene products;Hygieniatuotteet;"[""Nestesaippua"", ""Käsisaippua""]";Supplies;;;;;;0,4;;;;;;;Personal items;2
 Hygiene products;Hygieniatuotteet;"[""Nestesaippua"", ""Käsisaippua""]";Supplies;;;;;;0,4;;;;;;;Personal items;2
+Iceberg Lettuce;;"[""Jäävuorisalaatti"", ""Jääsalaatti"", ""Green salad""]";;;0,461;;;;;;;;;;;Lettuce, iceberg (incl. crisphead types), raw;8
 Interior design;Sisustus;;Supplies;;;;;;0,67;;;;;;;Kodintaloustekstiilit, sisustus, astiat keskiarvo;2
 Interior design;Sisustus;;Supplies;;;;;;0,67;;;;;;;Kodintaloustekstiilit, sisustus, astiat keskiarvo;2
 Jams;;;;;;;;;0,7;;;;;;;Plant based groceries;2
@@ -430,6 +432,7 @@ Rice;;;;;;;;;;;;;;2248;;Rice;1
 Rice Chocolate;;"[""Maitosuklaa riisikakku""]";;;;;;;1,1;;;;;;;Animal based groceries;2
 Rice Chocolate;;"[""Maitosuklaa riisikakku""]";;;;;;;1,1;;;;;;;Animal based groceries;2
 Rocket, Arugula;;"[""Rucola""]";;;;;;;;;;;;;;;
+Romaine Lettuce;;"[""Sydänsalaatti""]";;;;;;;;;;;;;;;
 Root vegetables and tubers;;;;;0,43;;;;;;;;;;;Root Vegetables;1
 Root vegetables and tubers;;;;;;;;;;0,33;;;;;;Root Vegetables;1
 Root vegetables and tubers;;;;;;;;;;;;1,61;;;;Root Vegetables;1
@@ -530,7 +533,7 @@ Textiles;Tekstiilit;;Supplies;;;;;;0,67;;;;;;;Kodintaloustekstiilit, sisustus, a
 Textiles;Tekstiilit;;Supplies;;;;;;0,67;;;;;;;Kodintaloustekstiilit, sisustus, astiat keskiarvo;2
 Tikka Masala, Uncle Ben'S;;"[""Masalakastike""]";;;;;;;;;;;;;;;
 Toast, Rye Toast, Vaasan 100% Ruispaahto;;"[""Taika tumma ohut paahto""]";;;;;;;;;;;;;;;
-Toast, Wheat Toast, Vaasan Arkipaahto;;"[""Vehnäpaahto""]";;;;;;;;;;;;;;;
+Toast, Wheat Toast;;"[""Vehnäpaahto""]";;;;;;;;;;;;;;;
 Tofu, Firm, Soya Product;;;;;3,16;;;;;;;;;;;Tofu;1
 Tofu, Firm, Soya Product;;;;;;;;;;3,52;;;;;;Tofu;1
 Tofu, Firm, Soya Product;;;;;;;;;;;;6,16;;;;Tofu;1
