@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { stringSimilarity } from 'string-similarity-js';
-import { execFile } from 'child_process';
+import { createWorker } from 'tesseract.js'
 
 import { LevenshteinDistance } from './levenshteinDistance';
 import Category from '../models/Category';
@@ -705,7 +705,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
 
 export function localeToOcrLanguage(locale) {
   let ocr_languages = {
-    'fi-FI': 'fin_fast',
+    'fi-FI': 'fin',
     'es-AR': 'spa'
   }
 
@@ -774,27 +774,16 @@ export function processReceiptImage(filepath, data, resize) {
   });
 }
 
-export function extractTextFromFile(filepath, locale) {
-  let language = localeToOcrLanguage(locale);
-
-  return new Promise((resolve, reject) => {
-    execFile('tesseract', [
-      '-l',
-      ['fin'].indexOf(language) !== -1 ? `${language}+eng` : 'eng',
-      '-c', 'load_number_dawg=0',
-      '--psm', 6,
-      '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890-,.:/% ',
-      '-c', 'textord_max_noise_size=15',
-      filepath,
-      'stdout'
-    ], function(error, stdout, stderr) {
-      if (error) console.error(error);
-      process.stdout.write(stdout);
-      process.stderr.write(stderr);
-
-      resolve(stdout);
-    });
-  });
+export async function extractTextFromFile(filePath, locale) {
+  try {
+    let language = localeToOcrLanguage(locale);
+    const worker = await createWorker(language);
+    const result = await worker.recognize(filePath);
+    await worker.terminate();
+    return result.data.text;
+  } catch (error) {
+    console.error('Error while extracting text from file', error);
+  }
 }
 
 export function getClosestCategory(toCompare, locale) {

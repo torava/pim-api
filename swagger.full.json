@@ -476,46 +476,6 @@
         }
       }
     },
-    "/api/receipt/recognize": {
-      "post": {
-        "description": "Recognizes a receipt from image file",
-        "consumes": "multipart/form-data",
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "receipt": {
-                    "type": "string",
-                    "format": "binary"
-                  },
-                  "id": {
-                    "type": "number"
-                  }
-                }
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Receipt recognized",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
     "/api/receipt/original": {
       "post": {
         "description": "Uploads an original receipt file",

@@ -102,11 +102,6 @@ if (env === 'production') {
   
   app.use(cache());
 
-  // define the folder that will be used for static assets
-  app.use(express.static('src/static', {
-    index: false
-  }));
-
   app.get('/', (req, res) => {
     return res.sendStatus(404);
   });

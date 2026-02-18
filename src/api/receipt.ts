@@ -1,16 +1,15 @@
 import express from 'express';
 //import Jimp from 'jimp';
 import fs from 'fs';
-import child_process from 'child_process';
 import _ from 'lodash';
 
 import Transaction, { TransactionShape } from '../models/Transaction';
 import Product, { ProductShape } from '../models/Product';
 import Category, { CategoryShape } from '../models/Category';
-import Manufacturer, { ManufacturerShape } from '../models/Manufacturer';
+import Manufacturer from '../models/Manufacturer';
 import Receipt, { ReceiptShape } from '../models/Receipt';
-import { decodeBase64Image, getCVSrcFromBase64, rotate, getBufferFromCVSrc, extractBarCode, crop, receiptAdaptiveThreshold } from '../utils/imageProcessing';
-import { processReceiptImage, extractTextFromFile, getTransactionsFromReceipt } from '../utils/receipts';
+import { getCVSrcFromBase64, getBufferFromCVSrc, crop, receiptAdaptiveThreshold } from '../utils/imageProcessing';
+import { extractTextFromFile, getTransactionsFromReceipt } from '../utils/receipts';
 import Party, { PartyShape } from '../models/Party';
 
 export default (app: express.Application) => {
@@ -57,89 +56,6 @@ app.get('/api/receipt/data/:id', async (req, res) => {
   }
 });
 
-app.post('/api/receipt/recognize/', async (req, res) => {
-  if (Array.isArray(req.files.receipt)) {
-    console.error('Please upload only one file');
-    return res.sendStatus(500);
-  }
-  const buffer = req.files.receipt.data;
-  const id: string = req.body.id;
-  const name = `${id}_pre`;
-  const path = `${RECEIPT_UPLOAD_PATH}/${name}`;
-
-  const nameNoBarcode = `${id}_nobarcode`;
-  let pathNoBarcode = `${RECEIPT_UPLOAD_PATH}/${nameNoBarcode}`;
-
-  //console.log('cv', cv.getBuildInformation());
-
-  try {
-    uploadReceipt(name, buffer);
-  } catch (error) {
-    console.error(error);
-    return res.sendStatus(500);
-  }
-
-  return child_process.execFile('tesseract', [
-    '-l', 'fin',
-    '--psm', '0',
-    '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.-/% ',
-    '-c', 'textord_max_noise_size=15',
-    //'-c', 'textord_noise_sizelimit=1',
-    path,
-    'stdout',
-  ], async (error: Error, stdout: string, stderr: string) => {
-    if (error) console.error(error);
-    process.stdout.write(stdout);
-    process.stderr.write(stderr);
-
-    console.log('stdout', stdout);
-
-    try {
-      let src = await getCVSrcFromBase64(buffer);
-      const rotation = stdout.match(/Rotate: (\d+)/);
-      console.log('rotate', rotation);
-      if (rotation && parseInt(rotation[1])) {
-        const angle = 360-parseInt(rotation[1]);
-        src = rotate(src, angle);
-        const rotatedBuffer = getBufferFromCVSrc(src);
-        uploadReceipt(name, rotatedBuffer);
-      }
-      
-      src = extractBarCode(src);
-  
-      const extractedBuffer = getBufferFromCVSrc(src);
-      console.log('buffer', extractedBuffer);
-      uploadReceipt(nameNoBarcode, extractedBuffer);
-  
-      src.delete();
-    } catch(error) {
-      console.info('No bar code extracted', error);
-      pathNoBarcode = path;
-    }
-
-    return child_process.execFile('tesseract', [
-      '-l', 'fin',
-      '--psm', '4',
-      '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890-,.:/% ',
-      '-c', 'textord_max_noise_size=15',
-      //'-c', 'textord_noise_sizelimit=1',
-      pathNoBarcode,
-      'stdout',
-    ], function(error, stdout, stderr) {
-      if (error) console.error(error);
-      process.stdout.write(stdout);
-      process.stderr.write(stderr);
-
-      console.log(stdout);
-
-      return res.send({
-        result: stdout,
-        id
-      });
-    });
-  });
-});
-
 const processReceipt = async (
   data: ReceiptShape & { categories?: CategoryShape[], products?: ProductShape[], parties?: PartyShape[], transactions?: TransactionShape[] },
   language: string,
@@ -164,7 +80,7 @@ const processReceipt = async (
       delete data.categories;
       delete data.products;
       delete data.parties;
-      console.dir(data, { depth: null });
+      //console.dir(data, { depth: null });
       return await Transaction.query().upsertGraph(data.transactions, { relate: true });
     }
   } catch (error) {
