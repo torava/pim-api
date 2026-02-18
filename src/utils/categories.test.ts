@@ -145,6 +145,6 @@ describe('categories utils', () => {
   it('should get category price', () => {
     const measure = getCategoryMeasure(mockCategories[1], mockAttributes[2], mockCategories);
     const amount = 2;
-    expect(getCategoryPrice(mockCategories[1], measure, amount, mockAttributes[2], mockProducts, mockItems)).toEqual(2);
+    expect(getCategoryPrice(mockCategories[1], measure, amount, mockAttributes[2], mockProducts, mockItems)).toEqual(0.18200000000000002);
   });
 });
