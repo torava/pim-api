@@ -10,7 +10,7 @@ An API for Product Information Management with support for [Fineli](https://fine
   - Coloring based on recommendations for Fineli diary (POST /api/category/diary)
 - Import prices from CSV file (POST /api/transaction/csv)
 
-## Installing
+## Deployment
 ```
 psql
 DROP DATABASE "product-api"; CREATE DATABASE "product-api"; \q
