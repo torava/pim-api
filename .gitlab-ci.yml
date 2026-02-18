@@ -23,6 +23,8 @@ deploy:
     - npm run build
 
 release-image:
+  rules:   
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   image: docker:19.03.12
   services:
     - docker:19.03.12-dind
