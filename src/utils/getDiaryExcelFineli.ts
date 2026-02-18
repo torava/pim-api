@@ -360,6 +360,8 @@ export const getAttributeValue = (
     value = cellValue / (energy / 1000);
   } else if (recommendation.perUnit === 'kg') {
     value = cellValue / (mass / 1000);
+  } else if (recommendation.unit === 'MJ') {
+    value = cellValue / 1000;
   }
   return value;
 };
