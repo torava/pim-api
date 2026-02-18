@@ -129,6 +129,7 @@ export const getDiaryExcelFineliWorkbook = (
 
   worksheet.eachRow((row) => {
     const food = row.getCell(4).value;
+    const amount = Number(row.getCell(7).value);
     const unit = row.getCell(8).value;
     const mass = Number(row.getCell(9).value);
     const energy = Number(row.getCell(9 + 10).value);
@@ -303,12 +304,12 @@ export const getDiaryExcelFineliWorkbook = (
           (categoryProductItem?.quantity || 1) ||
           0;
         const measure = getCategoryMeasure(category, foodUnitAttribute, categories);
-        const priceValue = !categoryProductItem?.measure ? price : price * measure;
+        const priceValue = !categoryProductItem?.measure ? price * amount : price * measure * amount;
         priceCell.value = priceValue;
         priceCell.numFmt = priceValue ? '0.00' : '0';
         totalMealMeasure += measure;
-        totalMealPrice += price * measure;
-        console.log('price, measure', price, measure);
+        totalMealPrice += priceValue;
+        console.log('price, measure, amount', price, measure, amount);
         attributeCells.forEach((attributeCell, index) => {
           const { categoryAttributes, measure } = resolveCategoryAttributes(
             category,
@@ -327,12 +328,12 @@ export const getDiaryExcelFineliWorkbook = (
             categoryAttributes[1]?.type,
             measure
           );
-          row.getCell(11 + index * 2).value = categoryAttributes[0]?.value || 0;
-          row.getCell(11 + index * 2 + 1).value = categoryAttributes[1]?.value || categoryAttributes[0]?.value || 0;
+          row.getCell(11 + index * 2).value = categoryAttributes[0]?.value * amount || 0;
+          row.getCell(11 + index * 2 + 1).value = categoryAttributes[1]?.value || categoryAttributes[0]?.value * amount || 0;
           row.getCell(11 + index * 2).numFmt = categoryAttributes[0]?.value ? '0.00' : '0';
           row.getCell(11 + index * 2 + 1).numFmt = categoryAttributes[1]?.value || categoryAttributes[0]?.value ? '0.00' : '0';
-          attributeCell.totalMealMin += categoryAttributes[0]?.value || 0;
-          attributeCell.totalMealMax += categoryAttributes[1]?.value || categoryAttributes[0]?.value || 0;
+          attributeCell.totalMealMin += categoryAttributes[0]?.value * amount || 0;
+          attributeCell.totalMealMax += (categoryAttributes[1]?.value || categoryAttributes[0]?.value) * amount || 0;
         });
       } else {
         console.log(food, 'not found');
