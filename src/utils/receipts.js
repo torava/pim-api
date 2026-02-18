@@ -59,9 +59,11 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
       'kokonaissumma eur',
       'yhteensä',
       'yhteensa',
+      'yhteensä eur',
       'tilauksesi yhteensä:',
       'kaikki yht',
-      'yht'
+      'yht',
+      'osto eur',
     ],
     misc_words = [
       'alv',
@@ -154,7 +156,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
         if (!data.party.phone_number) {
           line_phone_number = line.replace(/\s|-/g, '').match(/\d{10}|\+\d{12}/);
           if (line_phone_number) {
-            data.party.phone_number = line_phone_number[0];
+            data.party.phoneNumber = line_phone_number[0];
 
             found_attribute = 'party.phone_number';
           }
@@ -201,9 +203,9 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
           line_address = line.match(/^([\u00C0-\u017F-a-z/\s]+)((\d{1,4})([-]\d{1,4})?)[-]?\s?(\d{5})?[,|.]?\s?([\u00C0-\u017F-a-z/]+)?$/i);
           if (line_address) {
             console.log(line_address);
-            data.party.street_name = toTitleCase(line_address[1]);
-            data.party.street_number = line_address[2];
-            data.party.postal_code = line_address[5];
+            data.party.streetName = toTitleCase(line_address[1]);
+            data.party.streetNumber = line_address[2];
+            data.party.postalCode = line_address[5];
             data.party.city = toTitleCase(line_address[6]);
 
             found_attribute = 'party.street_name';
@@ -255,7 +257,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
         // general attributes
 
         // total line
-        line_total = line_number_format.match(/^([\u00C0-\u017F-a-z0-9/\s]+)[^0-9]((\d+\.\d{2})(-)?\s)?((\d+\.\d{2})(-)?)(\s?eur(oa)?)?$/i);
+        line_total = line_number_format.match(/^([\u00C0-\u017F-a-z0-9/\s]+)[^0-9]((\d+[.,]\d{2})(-)?\s)?((\d+[.,]\d{2})(-)?)(\s?eur(oa)?)?$/i);
         if (line_total) {
           if (line_total[2]) continue;
           let found = false;
@@ -297,7 +299,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
         }
 
         // tax line
-        line_tax = line_number_format.match(/^[a-z]\s\d+%\s(\d+\.\d+\s?)+/i);
+        line_tax = line_number_format.match(/^[a-z]\s\d+[,.]\d+%\s(\d+[,.]\d+\s?)+/i);
         if (line_tax) {
           console.log('tax', line_tax);
           continue;
@@ -315,7 +317,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
           line_item_details = line.match(/^\d+$/);
 
           if (line_item_details) {
-            items[items.length-1].item_number = line;
+            items[items.length-1].itemNumber = line;
 
             previous_line = 'details';
             continue;
@@ -355,7 +357,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
             const measure = parseFloat(line_item_details[8]) || undefined;
             items[items.length-1] = {
               ...items[items.length-1],
-              item_number: line_item_details[2],
+              itemNumber: line_item_details[2],
               quantity,
               measure,
               unit: measure ? 'kg' : undefined
@@ -417,7 +419,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
 
                 item = {
                   ...item,
-                  item_number: line_item[2] || '',
+                  itemNumber: line_item[2] || '',
                   text: line_item[0],
                   product: {
                     ...item.product,
@@ -644,7 +646,7 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
             }
 
             items.push({
-              item_number: item_number,
+              itemNumber: item_number,
               text: line_text,
               //category: {},
               product: {
@@ -678,8 +680,10 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
   }
   else return;
 
-  data.total_price = Math.round((total_price_computed || data.total_price_read)*100)/100;
+  data.totalPrice = Math.round((total_price_computed || data.total_price_read)*100)/100;
   data.items = items;
+
+  delete data.total_price_read;
 
   /*return {
     store: store,
@@ -694,7 +698,6 @@ export function getTransactionsFromReceipt(result, text, locale, id) {
   result.transactions = [data];
   result.transactions[0].receipts = [{
     text,
-    id
   }];
   
   return result;

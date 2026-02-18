@@ -22,18 +22,6 @@ export default (app: express.Application) => {
 
 const RECEIPT_UPLOAD_PATH = `${__dirname}/../../resources/uploads`;
 
-const uploadReceiptFromBase64 = (name: string, base64Data: string) => {
-  try {
-    const buffer = decodeBase64Image(base64Data);
-    if (buffer && (buffer as { data: Buffer }).data) {
-      return uploadReceipt(name, (buffer as { data: Buffer }).data);
-    }
-    else console.error('Encountered invalid file while uploading receipt');
-  } catch (error) {
-    console.error(error);
-  }
-};
-
 const uploadReceipt = (name: string, data: Buffer) => {
   const path = `${RECEIPT_UPLOAD_PATH}/${name}`;
   try {
@@ -67,149 +55,6 @@ app.get('/api/receipt/data/:id', async (req, res) => {
     console.error(error);
     res.sendStatus(500);
   }
-});
-
-/*app.post('/api/receipt/prepare/', function(req, res) {
-  let script,
-      color,
-      width,
-      height,
-      originalWidth: number,
-      originalHeight: number,
-      distances = {
-        nw: 999,
-        ne: 999,
-        se: 999,
-        sw: 999
-      },
-      distance,
-      bounds,
-      ratio;
-  upload(req, res, (err) => {
-    let file = req.file;
-    script = [file.path,
-              '-auto-orient',
-              '-strip',
-              '-resize', '100',
-              //'-median', '1',
-              //'-lat', '100x100-1%',
-              '-median', 10,
-              '-normalize',
-              '-threshold', '50%',
-              'PNG:'+file.path+'_median'];
-
-    child_process.execFile('convert', script, function(error, stdout, stderr) {
-      if (error) console.error(error);
-      process.stdout.write(stdout);
-      process.stderr.write(stderr);
-      
-      Jimp.read(file.path, (err, original) => {
-        originalWidth = original.bitmap.width;
-        originalHeight = original.bitmap.height;
-        bounds = {
-          x: originalWidth,
-          y: originalHeight,
-          width: 0,
-          height: 0
-        }
-        Jimp.read(file.path+'_median', (err, image) => {
-          width = image.bitmap.width;
-          height = image.bitmap.height;
-          ratio = originalWidth/width;
-          image.scan(0, 0, width, height, function (x, y, index) {
-            color = image.getPixelColor(x, y);
-            if (color == '0xFFFFFFFF') {
-              bounds.x = Math.min(bounds.x, x*ratio);
-              bounds.y = Math.min(bounds.y, y*ratio);
-              bounds.width = Math.max(bounds.width, x*ratio-bounds.x);
-              bounds.height = Math.max(bounds.height, y*ratio-bounds.y);
-              
-              // how about polygon
-              distance = Math.sqrt(Math.pow(x-0, 2)+Math.pow(y-0, 2));
-              if (distances.nw > distance) {
-                bounds.nw = [x,y];
-                distances.nw = distance;
-                return true;
-              }
-              distance = Math.sqrt(Math.pow(x-width, 2)+Math.pow(y-0, 2));
-              if (distances.ne > distance) {
-                bounds.ne = [x,y];
-                distances.ne = distance;
-                return true;
-              }
-              distance = Math.sqrt(Math.pow(x-0, 2)+Math.pow(y-height, 2));
-              if (distances.sw > distance) {
-                bounds.sw = [x,y];
-                distances.sw = distance;
-                return true;
-              }
-              distance = Math.sqrt(Math.pow(x-width, 2)+Math.pow(y-height, 2));
-              if (distances.se > distance) {
-                bounds.se = [x,y];
-                distances.se = distance;
-                return true;
-              }
-            }
-          });
-          res.send({
-            bounds,
-            id: file.filename
-          })
-        });
-      });
-    });
-  });
-});*/
-
-app.post('/api/receipt/hocr/', (req, res) => {
-  const id = req.query.id;
-  const path = `${RECEIPT_UPLOAD_PATH}/${id}_pre`;
-
-  child_process.execFile('tesseract', [
-    '-l', 'fin',
-    '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.-% ',
-    //'-c', 'textord_max_noise_size=30',
-    //'-c', 'textord_noise_sizelimit=1',
-    path,
-    'stdout',
-    'output',
-    'hocr',
-  ], function(error, stdout, stderr) {
-    if (error) console.error(error);
-    process.stdout.write(stdout);
-    process.stderr.write(stderr);
-
-    //const json = xmlParser.parse(stdout);
-
-    res.send({
-      result: stdout,
-      id
-    });
-  });
-});
-
-app.post('/api/receipt/osd/', function(req, res) {
-  const id = req.query.id;
-  const path = RECEIPT_UPLOAD_PATH+'/'+id+'_pre';
-
-  child_process.execFile('tesseract', [
-    '-l', 'fin',
-    '--psm', '0',
-    '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzäöåABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ1234567890,.-% ',
-    //'-c', 'textord_max_noise_size=30',
-    //'-c', 'textord_noise_sizelimit=1',
-    path,
-    'stdout',
-  ], function(error, stdout, stderr) {
-    if (error) console.error(error);
-    process.stdout.write(stdout);
-    process.stderr.write(stderr);
-
-    res.send({
-      result: stdout,
-      id
-    });
-  });
 });
 
 app.post('/api/receipt/recognize/', async (req, res) => {
@@ -319,13 +164,9 @@ const processReceipt = async (
       delete data.categories;
       delete data.products;
       delete data.parties;
+      console.dir(data, { depth: null });
+      return await Transaction.query().upsertGraph(data.transactions, { relate: true });
     }
-    else {
-      data = {
-        file: id
-      }
-    }
-    return data;
   } catch (error) {
     console.error(error);
   }
