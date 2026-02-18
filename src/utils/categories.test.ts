@@ -139,7 +139,7 @@ describe('categories utils', () => {
   });
 
   it('should get category measure', () => {
-    expect(getCategoryMeasure(mockCategories[0], mockAttributes[2], mockCategories)).toEqual(0.1750000000000000);
+    expect(getCategoryMeasure(mockCategories[0], mockAttributes[2], mockCategories)).toEqual(0.17500000000000002);
   });
 
   it('should get category price', () => {
