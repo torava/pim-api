@@ -512,6 +512,7 @@ export const getCategoryPortionMeasure = (
   foodUnitAttribute: AttributeShape,
 ) => {
   const portionAttribute = getCategoryPortion(category, foodUnitAttribute);
+  console.log('portionAttribute', portionAttribute);
   return convertMeasure(portionAttribute?.value, portionAttribute?.unit, 'kg');
 };
 
@@ -532,11 +533,38 @@ export const getCategoryMeasure = (
   }
 };
 
+export const getCategoryPrice = (
+  category: CategoryShape,
+  measure: number,
+  amount: number,
+  foodUnitAttribute: AttributeShape,
+  products: ProductShape[],
+  items: ItemShape[]
+) => {
+  const categoryProduct = products.find(
+    (product) =>
+      product.categoryId === category.id &&
+      product.items.length &&
+      product.items.some((item) => item.price && ((item.measure && item.unit) || item.quantity > 1))
+  );
+  const categoryProductItem = categoryProduct?.items.find(
+    (item) => item.price && ((item.measure && item.unit) || item.quantity > 1)
+  );
+  const price =
+    resolveCategoryContributionPrices(category, products, items, foodUnitAttribute, 0.8) ||
+    categoryProductItem?.price /
+      (convertMeasure(categoryProductItem?.measure, categoryProductItem?.unit, 'kg') || 1) /
+      (categoryProductItem?.quantity || 1) ||
+    0;
+  console.log(categoryProduct, categoryProductItem, price);
+  return !categoryProductItem?.measure ? price * amount : price * measure * amount;
+};
 
 export const resolveCategoryAttributes = (
   category: CategoryShape,
   attributeIds: AttributeShape['id'][],
   foodUnitAttribute: AttributeShape,
+  amount: number,
   categories: CategoryShape[] = [],
   attributes: AttributeShape[] = [],
   contributionCoverageThreshold = 0
@@ -595,8 +623,8 @@ export const resolveCategoryAttributes = (
     );
     if (result?.minCategoryAttribute) {
       const {minCategoryAttribute} = result;
-      minValue = result.minAttributeValue;
-      maxValue = result.maxAttributeValue;
+      minValue = result.minAttributeValue * amount;
+      maxValue = result.maxAttributeValue * amount;
       unit = minCategoryAttribute.unit.split('/')[0];
     } else if (categoryContributionCoverageMeasure/categoryContributionTotalMeasure <= contributionCoverageThreshold) {
       console.log('insufficient contributions skipped for', category.name['en-US']);

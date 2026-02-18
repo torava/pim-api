@@ -1,6 +1,8 @@
 import { mockAttributes, mockCategories, mockCategoryChildren, mockItems, mockProducts } from '../setupTests';
 import {
+  getCategoryMeasure,
   getCategoryMinMaxAttributes,
+  getCategoryPrice,
   getClosestCategory,
   getContributionsFromList,
   getStrippedCategories,
@@ -92,15 +94,17 @@ describe('categories utils', () => {
   it('should resolve category attributes with food unit attribute', () => {
     const attributeIds = [1, 5];
     const foodUnitAttribute = mockAttributes[2];
+    const amount = 2;
     const { categoryAttributes } = resolveCategoryAttributes(
       mockStrippedCategories[3],
       attributeIds,
       foodUnitAttribute,
+      amount,
       mockStrippedCategories,
       mockAttributes
     );
     const value =
-      (mockStrippedCategories[3].attributes[2].value / 1000) * mockStrippedCategories[3].attributes[1].value;
+      (mockStrippedCategories[3].attributes[2].value / 1000) * mockStrippedCategories[3].attributes[1].value * amount;
     expect(categoryAttributes[0].value).toEqual(value);
     expect(categoryAttributes[0].attribute).toBe(mockAttributes[0]);
   });
@@ -108,15 +112,16 @@ describe('categories utils', () => {
   it('should resolve category attributes by contributions with food unit attribute', () => {
     const attributeIds = [1, 5];
     const foodUnitAttribute = mockAttributes[2];
+    const amount = 2;
     const { categoryAttributes, measure } = resolveCategoryAttributes(
       mockStrippedCategories[0],
       attributeIds,
       foodUnitAttribute,
+      amount,
       mockStrippedCategories,
       mockAttributes
     );
     expect(categoryAttributes[0].attribute).toBe(mockAttributes[0]);
-    console.log(categoryAttributes, measure);
   });
 
   it('should resolve category contribution prices', () => {
@@ -131,5 +136,15 @@ describe('categories utils', () => {
     const attributeWeight = convertMeasure(category.attributes[1].value, category.attributes[1].unit, 'kg');
     expect(attributeWeight).toEqual(0.17500000000000002);
     expect(price).toEqual((item.price / itemWeight) * contribution1Weight * attributeWeight);
+  });
+
+  it('should get category measure', () => {
+    expect(getCategoryMeasure(mockCategories[0], mockAttributes[2], mockCategories)).toEqual(0.1750000000000000);
+  });
+
+  it('should get category price', () => {
+    const measure = getCategoryMeasure(mockCategories[1], mockAttributes[2], mockCategories);
+    const amount = 2;
+    expect(getCategoryPrice(mockCategories[1], measure, amount, mockAttributes[2], mockProducts, mockItems)).toEqual(2);
   });
 });

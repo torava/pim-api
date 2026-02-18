@@ -10,7 +10,7 @@ import Item, { ItemShape } from '../models/Item';
 import Recommendation, { RecommendationShape } from '../models/Recommendation';
 import { convertMeasure } from './entities';
 import { Locale } from './types';
-import { resolveCategoryContributionPrices, getCategoryMeasure, resolveCategoryAttributes } from './categories';
+import { resolveCategoryContributionPrices, getCategoryMeasure, resolveCategoryAttributes, getCategoryPrice } from './categories';
 
 /**
  * Food component energy density, MJ/g
@@ -289,32 +289,19 @@ export const getDiaryExcelFineliWorkbook = (
       );
       const foodUnitAttribute = attributes.find((attribute) => attribute.code === unit);
       if (category && foodUnitAttribute) {
-        console.log('category', category.name['en-US']);
-        const categoryProduct = products.find((product) =>
-          product.categoryId === category.id && product.items.length &&
-          product.items.some((item) => item.price && (item.measure && item.unit || item.quantity > 1))
-        );
-        console.log('categoryProduct', categoryProduct);
-        const categoryProductItem = categoryProduct?.items.find((item) => item.price && (item.measure && item.unit || item.quantity > 1));
-        console.log('categoryProductItem', categoryProductItem);
-        const price =
-          resolveCategoryContributionPrices(category, products, items, foodUnitAttribute, 0.8) ||
-          categoryProductItem?.price /
-          (convertMeasure(categoryProductItem?.measure, categoryProductItem?.unit, 'kg') || 1) /
-          (categoryProductItem?.quantity || 1) ||
-          0;
         const measure = getCategoryMeasure(category, foodUnitAttribute, categories);
-        const priceValue = !categoryProductItem?.measure ? price * amount : price * measure * amount;
-        priceCell.value = priceValue;
-        priceCell.numFmt = priceValue ? '0.00' : '0';
+        const price = getCategoryPrice(category, measure, amount, foodUnitAttribute, products, items);
+        priceCell.value = price;
+        priceCell.numFmt = price ? '0.00' : '0';
         totalMealMeasure += measure;
-        totalMealPrice += priceValue;
+        totalMealPrice += price;
         console.log('price, measure, amount', price, measure, amount);
         attributeCells.forEach((attributeCell, index) => {
           const { categoryAttributes, measure } = resolveCategoryAttributes(
             category,
             [attributeCell.attribute.id],
             foodUnitAttribute,
+            amount,
             categories,
             attributes,
             0.9
@@ -328,12 +315,12 @@ export const getDiaryExcelFineliWorkbook = (
             categoryAttributes[1]?.type,
             measure
           );
-          row.getCell(11 + index * 2).value = categoryAttributes[0]?.value * amount || 0;
-          row.getCell(11 + index * 2 + 1).value = categoryAttributes[1]?.value || categoryAttributes[0]?.value * amount || 0;
+          row.getCell(11 + index * 2).value = categoryAttributes[0]?.value || 0;
+          row.getCell(11 + index * 2 + 1).value = categoryAttributes[1]?.value || categoryAttributes[0]?.value || 0;
           row.getCell(11 + index * 2).numFmt = categoryAttributes[0]?.value ? '0.00' : '0';
           row.getCell(11 + index * 2 + 1).numFmt = categoryAttributes[1]?.value || categoryAttributes[0]?.value ? '0.00' : '0';
-          attributeCell.totalMealMin += categoryAttributes[0]?.value * amount || 0;
-          attributeCell.totalMealMax += (categoryAttributes[1]?.value || categoryAttributes[0]?.value) * amount || 0;
+          attributeCell.totalMealMin += categoryAttributes[0]?.value || 0;
+          attributeCell.totalMealMax += categoryAttributes[1]?.value || categoryAttributes[0]?.value || 0;
         });
       } else {
         console.log(food, 'not found');

@@ -530,6 +530,7 @@ export const mockProducts: ProductShape[] = [
     unit: 'l',
     manufacturerId: null,
     categoryId: 670,
+    items: [mockItems[0]],
   },
   {
     id: 1,
@@ -542,6 +543,7 @@ export const mockProducts: ProductShape[] = [
       },
     ],
     categoryId: 296,
+    items: [mockItems[1]],
   },
 ];
 
