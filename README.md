@@ -9,6 +9,7 @@ An API for Product Information Management with support for [Fineli](https://fine
   - Category recognition in free text form (GET /api/product)
   - Coloring based on recommendations for Fineli diary (POST /api/category/diary)
 - Import prices from CSV file (POST /api/transaction/csv)
+- Recognize transactions from receipt image files (POST /api/receipt/*)
 
 ## Deployment
 ```
