@@ -10,7 +10,12 @@ import Item, { ItemShape } from '../models/Item';
 import Recommendation, { RecommendationShape } from '../models/Recommendation';
 import { convertMeasure } from './entities';
 import { Locale } from './types';
-import { resolveCategoryContributionPrices, getCategoryMeasure, resolveCategoryAttributes, getCategoryPrice } from './categories';
+import {
+  resolveCategoryContributionPrices,
+  getCategoryMeasure,
+  resolveCategoryAttributes,
+  getCategoryPrice,
+} from './categories';
 
 /**
  * Food component energy density, MJ/g
@@ -29,18 +34,20 @@ const PRICE_INDEX = 9;
 
 const PRICE_RECOMMENDATION = 10.1;
 
-export const getDiaryExcelFineliBuffer = async (buffer: ArrayBuffer, locale: Locale = Locale['fi-FI']) => {
-  const categories = await Category.query().withGraphFetched('[contributions.[contribution.[products, contributions]], attributes]');
+export const getDiaryExcelFineliBuffer = async (buffer: ArrayBuffer, locale: Locale = Locale['fi-FI'], sex: string) => {
+  const categories = await Category.query().withGraphFetched(
+    '[contributions.[contribution.[products, contributions]], attributes]'
+  );
   const products = await Product.query().withGraphFetched('[items]');
   const attributes = await Attribute.query();
   const items = await Item.query();
   const recommendations = await Recommendation.query();
   const workbook = new Excel.Workbook();
   await workbook.xlsx.load(buffer);
-  getDiaryExcelFineliWorkbook(workbook, categories, attributes, products, items, recommendations, locale);
+  getDiaryExcelFineliWorkbook(workbook, categories, attributes, products, items, recommendations, locale, sex);
   return await workbook.xlsx.writeBuffer();
 };
-export const writeDiaryExcelFineliFile = async (filename: string, locale: Locale = Locale['fi-FI']) => {
+export const writeDiaryExcelFineliFile = async (filename: string, locale: Locale = Locale['fi-FI'], sex: string) => {
   const categories = await Category.query().withGraphFetched('[contributions, attributes]');
   const products = await Product.query().withGraphFetched('[items]');
   const items = await Item.query();
@@ -48,7 +55,7 @@ export const writeDiaryExcelFineliFile = async (filename: string, locale: Locale
   const recommendations = await Recommendation.query();
   const workbook = new Excel.Workbook();
   await workbook.xlsx.readFile(filename);
-  getDiaryExcelFineliWorkbook(workbook, categories, attributes, products, items, recommendations, locale);
+  getDiaryExcelFineliWorkbook(workbook, categories, attributes, products, items, recommendations, locale, sex);
   await workbook.xlsx.writeFile(`${filename}_price_ghg.xlsx`);
 };
 export const getDiaryExcelFineliWorkbook = (
@@ -58,7 +65,8 @@ export const getDiaryExcelFineliWorkbook = (
   products: ProductShape[] = [],
   items: ItemShape[] = [],
   recommendations: RecommendationShape[] = [],
-  locale: Locale = Locale['fi-FI']
+  locale: Locale = Locale['fi-FI'],
+  sex: string
 ) => {
   let totalMealMeasure = 0,
     totalMealPrice = 0,
@@ -105,27 +113,34 @@ export const getDiaryExcelFineliWorkbook = (
       headerRow.getCell(index + 1).value = `${headerRow.getCell(index + 1).value} [-10,1 EUR]`;
       return true;
     }
-    const attribute = attributes.filter((attribute) => attribute.parentId !== FOOD_UNITS_ID).find((attribute) =>
-      Object.entries(attribute.name).find(([, value]) =>
-        headerRow.getCell(index + 1).value?.toString().toLocaleLowerCase().includes(value.toLocaleLowerCase())) &&
-        recommendations.find((recommendation) => recommendation.attributeId === attribute.id)
-    );
+    const attribute = attributes
+      .filter((attribute) => attribute.parentId !== FOOD_UNITS_ID)
+      .find(
+        (attribute) =>
+          Object.entries(attribute.name).find(([, value]) =>
+            headerRow
+              .getCell(index + 1)
+              .value?.toString()
+              .toLocaleLowerCase()
+              .includes(value.toLocaleLowerCase())
+          ) &&
+          getRecommendation(attribute, sex, recommendations)
+      );
     if (attribute) {
       console.log('attribute', attribute);
-      const recommendation = recommendations.find((recommendation) => recommendation.attributeId === attribute.id);
+      const recommendation = getRecommendation(attribute, sex, recommendations);
       if (recommendation) {
-        headerRow.getCell(index + 1).value =
-          `${headerRow.getCell(index + 1).value} [${
-            recommendation.minValue || ''}-${recommendation.maxValue || ''} ${
-              recommendation.unit}${recommendation.perUnit ? `/${recommendation.perUnit}` : ''}]`;
+        headerRow.getCell(index + 1).value = `${headerRow.getCell(index + 1).value} [${
+          recommendation.minValue || ''
+        }-${recommendation.maxValue || ''} ${
+          recommendation.unit
+        }${recommendation.perUnit ? `/${recommendation.perUnit}` : ''}]`;
       }
     }
   });
 
   const energyAttribute = attributes.find((attribute) => attribute.code === 'ENERC');
-  const energyRecommendation = recommendations.find(
-    (recommendation) => recommendation.attributeId === energyAttribute.id && recommendation.sex === 'male'
-  );
+  const energyRecommendation = getRecommendation(energyAttribute, sex, recommendations);
 
   worksheet.eachRow((row) => {
     const food = row.getCell(4).value;
@@ -155,7 +170,7 @@ export const getDiaryExcelFineliWorkbook = (
 
         worksheet.columns.forEach((col, index) => {
           if (index === PRICE_INDEX) {
-            // price;66;;10.1;euro;;;;;;;;male or female under 45 years living alone average
+            // price;7;;10.1;euro;;;;;;;;male or female under 45 years living alone average
             const cellValue = Number(row.getCell(index + 1).value);
             const isGood = cellValue < PRICE_RECOMMENDATION;
             row.getCell(index + 1).style = {
@@ -173,22 +188,24 @@ export const getDiaryExcelFineliWorkbook = (
             };
             return true;
           }
-          const attribute = attributes.filter((attribute) => attribute.parentId !== FOOD_UNITS_ID).find((attribute) =>
-            Object.entries(attribute.name).find(([, value]) =>
-              headerRow.getCell(index + 1).value?.toString().toLocaleLowerCase().includes(value.toLocaleLowerCase())) &&
-              recommendations.find((recommendation) => recommendation.attributeId === attribute.id)
-          );
+          const attribute = attributes
+            .filter((attribute) => attribute.parentId !== FOOD_UNITS_ID)
+            .find(
+              (attribute) =>
+                Object.entries(attribute.name).find(([, value]) =>
+                  headerRow
+                    .getCell(index + 1)
+                    .value?.toString()
+                    .toLocaleLowerCase()
+                    .includes(value.toLocaleLowerCase())
+                ) &&
+                getRecommendation(attribute, sex, recommendations)
+            );
           if (attribute) {
-            const recommendation = recommendations.find((recommendation) => recommendation.attributeId === attribute.id);
+            const recommendation = getRecommendation(attribute, sex, recommendations);
             if (recommendation) {
               const cellValue = Number(row.getCell(index + 1).value);
-              const value = getDailyAttributeValue(
-                cellValue,
-                energy,
-                mass,
-                recommendation,
-                attribute
-              );
+              const value = getDailyAttributeValue(cellValue, energy, mass, recommendation, attribute);
               const isGood = compareAttributeToRecommendation(value, recommendation);
               const argb = `FF${isGood ? '00' : 'FF'}${isGood ? 'FF' : '00'}00`;
               row.getCell(index + 1).style = {
@@ -226,7 +243,10 @@ export const getDiaryExcelFineliWorkbook = (
           if (index === PRICE_INDEX) {
             // price;66;;10.1;euro;;;;;;;;male or female under 45 years living alone average
             const cellValue = Number(row.getCell(index + 1).value);
-            const isGood = cellValue < PRICE_RECOMMENDATION * energy / convertMeasure(energyRecommendation.minValue, energyRecommendation.unit, 'kJ');
+            const isGood =
+              cellValue <
+              (PRICE_RECOMMENDATION * energy) /
+                convertMeasure(energyRecommendation.minValue, energyRecommendation.unit, 'kJ');
             row.getCell(index + 1).style = {
               fill: {
                 type: 'pattern',
@@ -242,13 +262,20 @@ export const getDiaryExcelFineliWorkbook = (
             };
             return true;
           }
-          const attribute = attributes.filter((attribute) => attribute.parentId !== 6).find((attribute) =>
-            Object.entries(attribute.name).find(([, value]) =>
-              headerRow.getCell(index + 1).value?.toString().toLocaleLowerCase().includes(value.toLocaleLowerCase())) &&
-              recommendations.find((recommendation) => recommendation.attributeId === attribute.id)
-          );
+          const attribute = attributes
+            .filter((attribute) => attribute.parentId !== 6)
+            .find(
+              (attribute) =>
+                Object.entries(attribute.name).find(([, value]) =>
+                  headerRow
+                    .getCell(index + 1)
+                    .value?.toString()
+                    .toLocaleLowerCase()
+                    .includes(value.toLocaleLowerCase())
+                ) && getRecommendation(attribute, sex, recommendations)
+            );
           if (attribute) {
-            const recommendation = recommendations.find((recommendation) => recommendation.attributeId === attribute.id);
+            const recommendation = getRecommendation(attribute, sex, recommendations);
             if (recommendation) {
               const cellValue = Number(row.getCell(index + 1).value);
               const value = getMealAttributeValue(
@@ -318,7 +345,8 @@ export const getDiaryExcelFineliWorkbook = (
           row.getCell(11 + index * 2).value = categoryAttributes[0]?.value || 0;
           row.getCell(11 + index * 2 + 1).value = categoryAttributes[1]?.value || categoryAttributes[0]?.value || 0;
           row.getCell(11 + index * 2).numFmt = categoryAttributes[0]?.value ? '0.00' : '0';
-          row.getCell(11 + index * 2 + 1).numFmt = categoryAttributes[1]?.value || categoryAttributes[0]?.value ? '0.00' : '0';
+          row.getCell(11 + index * 2 + 1).numFmt =
+            categoryAttributes[1]?.value || categoryAttributes[0]?.value ? '0.00' : '0';
           attributeCell.totalMealMin += categoryAttributes[0]?.value || 0;
           attributeCell.totalMealMax += categoryAttributes[1]?.value || categoryAttributes[0]?.value || 0;
         });
@@ -329,27 +357,13 @@ export const getDiaryExcelFineliWorkbook = (
   });
 };
 
-// Initialize knex.
-const knex = Knex(knexConfig.development);
-
-// Bind all Models to a knex instance. If you only have one database in
-// your server this is all you have to do. For multi database systems, see
-// the Model.bindKnex method.
-Model.knex(knex);
-
-(async () => {
-  const filename = process.env.DIARY_FILENAME;
-  if (filename) {
-    writeDiaryExcelFineliFile(filename);
-  }
-})();
-
 export const getAttributeValue = (
   cellValue: number,
   energy: number,
   mass: number,
   recommendation: RecommendationShape,
-  attribute: AttributeShape) => {
+  attribute: AttributeShape
+) => {
   let value;
   if (recommendation.unit === 'percent' && recommendation.perUnit === 'energy') {
     const componentEnergy = Object.entries(componentEnergyMap).find(([component]) =>
@@ -371,12 +385,12 @@ export const getDailyAttributeValue = (
   energy: number,
   mass: number,
   recommendation: RecommendationShape,
-  attribute: AttributeShape) => {
+  attribute: AttributeShape
+) => {
   const value = getAttributeValue(cellValue, energy, mass, recommendation, attribute) || cellValue;
   console.log('daily value', value, cellValue, energy, mass, recommendation, attribute);
   return value;
 };
-
 
 const getMealAttributeValue = (
   cellValue: number,
@@ -384,18 +398,27 @@ const getMealAttributeValue = (
   energyRecommendation: RecommendationShape,
   mass: number,
   recommendation: RecommendationShape,
-  attribute: AttributeShape) => {
+  attribute: AttributeShape
+) => {
   let value =
     getAttributeValue(cellValue, energy, mass, recommendation, attribute) ||
     (cellValue * energy) / convertMeasure(energyRecommendation.minValue, energyRecommendation.unit, 'kJ');
   return value;
 };
 
-export const compareAttributeToRecommendation = (
-  value: number,
-  recommendation: RecommendationShape) => {
+export const compareAttributeToRecommendation = (value: number, recommendation: RecommendationShape) => {
   const isGood =
     (!recommendation.minValue || value > recommendation.minValue) &&
     (!recommendation.maxValue || value < recommendation.maxValue);
   return isGood;
+};
+
+export const getRecommendation = (attribute: AttributeShape, sex: string, recommendations: RecommendationShape[]) => {
+  const attributeRecommendations = recommendations.filter(
+    (recommendation) => recommendation.attributeId === attribute.id
+  );
+  const hasSex = attributeRecommendations.some((recommendation) => recommendation.sex);
+  return hasSex
+    ? attributeRecommendations.find((recommendation) => recommendation.sex === sex)
+    : attributeRecommendations[0];
 };

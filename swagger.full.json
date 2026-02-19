@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "PIM API",
-    "version": "1.2.0"
+    "version": "1.2.1"
   },
   "host": "localhost:42808",
   "paths": {
@@ -156,6 +156,12 @@
             "in": "query",
             "type": "string",
             "description": "Locale"
+          },
+          {
+            "name": "sex",
+            "in": "query",
+            "type": "string",
+            "description": "Sex (female/male)"
           }
         ],
         "requestBody": {

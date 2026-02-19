@@ -10,18 +10,6 @@ import { Locale } from '../utils/types';
 
 export default (app: express.Application) => {
 
-app.get('/api/category/all', async (req, res) => {
-  try {
-    let categories = await Category.query()
-    .withGraphFetched('[contributions, attributes]');
-    resolveCategories(categories, req.query.locale as Locale);
-    return res.send(categories);
-  } catch (error) {
-    console.error(error);
-    res.sendStatus(500);
-  }
-});
-
 app.post(
   "/api/category/diary",
   bodyParser.raw({
@@ -31,10 +19,23 @@ app.post(
   async (req, res) => {
     // https://github.com/DefinitelyTyped/DefinitelyTyped/pull/40915#issuecomment-563917863
     if (Array.isArray(req.files.upload)) {
-      throw new Error('Please upload only one file');
+      res.status(500).send('Please upload only one file');
+      return;
+    }
+    if (!req.files.upload) {
+      res.status(500).send('Please choose file');
+      return;
+    }
+    if (!req.query.sex) {
+      res.status(500).send('Please specify sex');
+      return;
     }
     
-    const updatedBuffer = await getDiaryExcelFineliBuffer(req.files.upload.data as unknown as ArrayBuffer, req.query.locale as Locale);
+    const updatedBuffer = await getDiaryExcelFineliBuffer(
+      req.files.upload.data as unknown as ArrayBuffer,
+      req.query.locale as Locale,
+      String(req.query.sex)
+    );
 
     // from https://stackoverflow.com/a/45922316/3136897
     const readStream = new PassThrough();
