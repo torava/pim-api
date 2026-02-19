@@ -116,16 +116,6 @@ app.post('/api/receipt/data/edited/:id', function(req, res) {
   });
 });
 
-app.post('/api/receipt', async (req, res) => {
-  try {
-    const receipt = await Receipt.query().insert({});
-    res.send(receipt);
-  } catch (error) {
-    console.error(error);
-    res.sendStatus(500);
-  }
-});
-
 app.post('/api/receipt/original', (req, res) => {
   if (Array.isArray(req.files.src)) {
     console.error('Please upload only one file');

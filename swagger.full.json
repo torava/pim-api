@@ -456,26 +456,6 @@
         }
       }
     },
-    "/api/receipt": {
-      "post": {
-        "description": "Creates a receipt",
-        "responses": {
-          "201": {
-            "description": "Receipt created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Receipt"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
     "/api/receipt/original": {
       "post": {
         "description": "Uploads an original receipt file",
