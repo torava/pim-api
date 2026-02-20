@@ -43,7 +43,7 @@ app.post(
 
     res.set(
       "Content-disposition",
-      `attachment; filename="${req.files.upload.name}_price_ghg.xlsx"`
+      `attachment; filename="${req.files.upload.name}_pi.xlsx"`
     );
     res.set(
       "Content-Type",
