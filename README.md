@@ -21,4 +21,4 @@ npm run knex seed:run
 FULL_SWAGGER=1 npm run dev
 ```
 
-Open http://localhost:42809/api-docs in browser.
+Open http://localhost:42809/api-docs/ in browser.
