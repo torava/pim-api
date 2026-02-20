@@ -443,7 +443,7 @@ Rye;;;;;;;;;;;;7,16;;;;Wheat & Rye;1
 Rye;;;;;;;;;;;;;;648;;Wheat & Rye;1
 Rye Bread, Oululainen Jälkiuunipala, Fazer;;"[""Jälkiuuni aito ruis""]";;;;;;;;;;;;;;;
 Rye Bread, Reissumies, Oululainen, Fazer;;"[""Reissumies""]";;;;;;;;;;;;;;;
-Ryebread, Water, Wholegrain Rye Flour, Without Yeast;;"[""Aallon leipomo ruispalat""]";;;;;;;;;;;;;;;
+Rye Bread, Wholegrain Rye, 100% Rye, Vaasan;;"[""Aallon leipomo ruispalat""]";;;;;;;;;;;;;;;
 Salad dressings and mayonnaises;;;;;;;;;1,1;;;;;;;Animal based groceries;2
 Salad dressings and mayonnaises;;;;;;;;;1,1;;;;;;;Animal based groceries;2
 Salad, Coleslaw, Home-Made;;"[""Coleslaw"", ""Coleslaw-salaatti""]";;;;;;;;;;;;;;;
@@ -475,6 +475,7 @@ Soft Drink, Cola, Average;;"[""Coca-Cola"", ""Coca Cola""]";;;;;;;;;;;;;;;
 Soil;Multa;"[""Kukkamulta""]";Supplies;;;;;;0,6;;;;;;;Garden supplies;2
 Soil;Multa;"[""Kukkamulta""]";Supplies;;;;;;0,6;;;;;;;Garden supplies;2
 Soup vegetables;Kuivatut keittovihannekset;"[""Kuivattu keittovihannes""]";Spices;;;;;;;;;;;;;;
+Sour Cream, 10-12% Fat;;"[""Kermaviili""]";;;;;;;;;;;;;;;
 Soy Sauce;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Soy Sauce;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Soya Bean Patty, Fried;;"[""Grillatut kasvisfileet"", ""Vegaaninen Pihvi Soija- Ja Vehnäproteiinista"", ""Soijapihvi"", ""Soy steak""]";;;;;;;;;;;;;;;2
