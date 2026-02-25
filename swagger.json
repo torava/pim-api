@@ -2,9 +2,8 @@
   "openapi": "3.0.0",
   "info": {
     "title": "PIM API",
-    "version": "1.2.3"
+    "version": "1.3.0"
   },
-  "host": "localhost:42808",
   "paths": {
     "/api/recommendation": {
       "get": {
@@ -83,7 +82,9 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "integer",
+            "schema": {
+              "type": "integer"
+            },
             "description": "Category id to return"
           }
         ],
@@ -110,19 +111,25 @@
           {
             "name": "pageNumber",
             "in": "query",
-            "type": "integer",
+            "schema": {
+              "type": "integer"
+            },
             "description": "Zero based page number"
           },
           {
             "name": "categoriesPerPage",
             "in": "query",
-            "type": "integer",
+            "schema": {
+              "type": "integer"
+            },
             "description": "Number of categories per page"
           },
           {
             "name": "name",
             "in": "query",
-            "type": "string",
+            "schema": {
+              "type": "string"
+            },
             "description": "Part of category name for filtering"
           }
         ],
@@ -154,13 +161,17 @@
           {
             "name": "locale",
             "in": "query",
-            "type": "string",
+            "schema": {
+              "type": "string"
+            },
             "description": "Locale"
           },
           {
             "name": "sex",
             "in": "query",
-            "type": "string",
+            "schema": {
+              "type": "string"
+            },
             "description": "Sex (female/male)"
           }
         ],
@@ -205,19 +216,25 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "integer",
+            "schema": {
+              "type": "integer"
+            },
             "description": "Product id to return"
           },
           {
             "name": "attributeCodes",
             "in": "query",
-            "type": "string",
+            "schema": {
+              "type": "string"
+            },
             "description": "Attribute codes to aggregate for product"
           },
           {
             "name": "foodUnitAttributeCode",
             "in": "query",
-            "type": "string",
+            "schema": {
+              "type": "string"
+            },
             "description": "Attribute code for food unit to use in attribute aggregation"
           }
         ],
@@ -244,73 +261,97 @@
           {
             "name": "Accept-Language",
             "in": "header",
-            "type": "string",
+            "schema": {
+              "type": "string"
+            },
             "description": "Accept language header for filtering name translations"
           },
           {
             "name": "pageNumber",
             "in": "query",
-            "type": "integer",
+            "schema": {
+              "type": "integer"
+            },
             "description": "Zero based page number"
           },
           {
             "name": "productsPerPage",
             "in": "query",
-            "type": "integer",
+            "schema": {
+              "type": "integer"
+            },
             "description": "Number of products per page"
           },
           {
             "name": "name",
             "in": "query",
-            "type": "string",
+            "schema": {
+              "type": "string"
+            },
             "description": "Part of product name for filtering"
           },
           {
             "name": "contributionList",
             "in": "query",
-            "type": "string",
+            "schema": {
+              "type": "string"
+            },
             "description": "Product contributions separated with commas"
           },
           {
             "name": "brand",
             "in": "query",
-            "type": "string",
+            "schema": {
+              "type": "string"
+            },
             "description": "Product brand"
           },
           {
             "name": "category",
             "in": "query",
-            "type": "string",
+            "schema": {
+              "type": "string"
+            },
             "description": "Product category"
           },
           {
             "name": "quantity",
             "in": "query",
-            "type": "number",
+            "schema": {
+              "type": "number"
+            },
             "description": "Product quantity"
           },
           {
             "name": "measure",
             "in": "query",
-            "type": "number",
+            "schema": {
+              "type": "number"
+            },
             "description": "Product measure such as weight or volume"
           },
           {
             "name": "unit",
             "in": "query",
-            "type": "string",
+            "schema": {
+              "type": "string"
+            },
             "description": "Unit of product measure such as kg or l"
           },
           {
             "name": "attributeCodes",
             "in": "query",
-            "type": "string",
+            "schema": {
+              "type": "string"
+            },
             "description": "Attribute codes separated with commas to aggregate for product.\n\nFor example, GHG will return carbon footprint.\n\nENERC,FAT,FASAT,CHOAVL,SUGAR,FIBRC,PROT,NACL returns basic nutritional information."
           },
           {
             "name": "foodUnitAttributeCode",
             "in": "query",
-            "type": "string",
+            "schema": {
+              "type": "string"
+            },
             "description": "Attribute code for food unit to use in attribute aggregation.\n\nFor example, PORTS is small portion, PORTM is medium portion and PORTL is large portion."
           }
         ],
@@ -363,7 +404,7 @@
     "schemas": {
       "Source": {
         "type": "object",
-        "required": "name",
+        "required": ["name"],
         "properties": {
           "name": {
             "type": "string"
@@ -452,10 +493,24 @@
             "type": "integer"
           },
           "name": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "fi-FI": {
+                "type": "string"
+              },
+              "en-US": {
+                "type": "string"
+              },
+              "sv-SE": {
+                "type": "string"
+              }
+            }
           },
           "parent": {
             "$ref": "#/components/schemas/Attribute"
+          },
+          "parentId": {
+            "type": "integer"
           }
         }
       },
@@ -503,7 +558,7 @@
             "type": "integer"
           },
           "value": {
-            "type": "float"
+            "type": "number"
           },
           "unit": {
             "type": "string"
@@ -532,10 +587,10 @@
           "id": {
             "type": "integer"
           },
-          "reference_url": {
+          "referenceUrl": {
             "type": "string"
           },
-          "reference_date": {
+          "referenceDate": {
             "type": "string"
           },
           "note": {
@@ -699,8 +754,11 @@
           "id": {
             "type": "integer"
           },
-          "value": {
-            "type": "integer"
+          "minValue": {
+            "type": "number"
+          },
+          "maxValue": {
+            "type": "number"
           },
           "unit": {
             "type": "string"
@@ -728,6 +786,36 @@
           },
           "note": {
             "type": "string"
+          },
+          "attribute": {
+            "$ref": "#/components/schemas/Attribute"
+          }
+        }
+      },
+      "RecommendationSource": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "referenceUrl": {
+            "type": "string"
+          },
+          "referenceDate": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          },
+          "countryCode": {
+            "type": "string"
+          },
+          "recommendation": {
+            "$ref": "#/components/schemas/Recommendation"
+          },
+          "source": {
+            "$ref": "#/components/schemas/Source"
           }
         }
       }
