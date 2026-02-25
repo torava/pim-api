@@ -1,8 +1,5 @@
 import Excel from 'exceljs';
-import Knex from 'knex';
-import { Model } from 'objection';
 
-import knexConfig from '../../knexfile';
 import Category, { CategoryShape } from '../models/Category';
 import Attribute, { AttributeShape } from '../models/Attribute';
 import Product, { ProductShape } from '../models/Product';
@@ -10,12 +7,7 @@ import Item, { ItemShape } from '../models/Item';
 import Recommendation, { RecommendationShape } from '../models/Recommendation';
 import { convertMeasure } from './entities';
 import { Locale } from './types';
-import {
-  resolveCategoryContributionPrices,
-  getCategoryMeasure,
-  resolveCategoryAttributes,
-  getCategoryPrice,
-} from './categories';
+import { getCategoryMeasure, resolveCategoryAttributes, getCategoryPrice } from './categories';
 
 /**
  * Food component energy density, MJ/g

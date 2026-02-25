@@ -467,6 +467,7 @@ export const getTransactionsFromCsv = (rows: any, startingRow: number, indexes: 
         if (value.match(/^-?\d+(\.|,)\d+$/)) {
           columnName = columnName.replace('quantity_or_measure', 'measure');
           numberValue = getNumber(value);
+          set(transactions[columnKey], `items[${itemIndex}].unit`, 'kg');
         } else {
           columnName = columnName.replace('quantity_or_measure', 'quantity');
           numberValue = getNumber(value);

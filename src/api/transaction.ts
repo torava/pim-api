@@ -144,7 +144,7 @@ app.post('/api/transaction/csv', async (req, res) => {
   const items = await Item.query();
   const products = await Product.query();
   const categories = await Category.query().withGraphFetched('[attributes]');
-  const leafCategories = categories.filter((parent) => !categories.some((child) => child.parentId === parent.id))
+  const leafCategories = categories.filter((parent) => !categories.some((child) => child.parentId === parent.id));
   const brands = await Brand.query();
   
   let promises = [];
