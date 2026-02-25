@@ -115,8 +115,7 @@ export const getDiaryExcelFineliWorkbook = (
               .value?.toString()
               .toLocaleLowerCase()
               .includes(value.toLocaleLowerCase())
-          ) &&
-          getRecommendation(attribute, sex, recommendations)
+          ) && getRecommendation(attribute, sex, recommendations)
       );
     if (attribute) {
       console.log('attribute', attribute);
@@ -190,8 +189,7 @@ export const getDiaryExcelFineliWorkbook = (
                     .value?.toString()
                     .toLocaleLowerCase()
                     .includes(value.toLocaleLowerCase())
-                ) &&
-                getRecommendation(attribute, sex, recommendations)
+                ) && getRecommendation(attribute, sex, recommendations)
             );
           if (attribute) {
             const recommendation = getRecommendation(attribute, sex, recommendations);
@@ -254,18 +252,12 @@ export const getDiaryExcelFineliWorkbook = (
             };
             return true;
           }
-          const attribute = attributes
-            .filter((attribute) => attribute.parentId !== 6)
-            .find(
-              (attribute) =>
-                Object.entries(attribute.name).find(([, value]) =>
-                  headerRow
-                    .getCell(index + 1)
-                    .value?.toString()
-                    .toLocaleLowerCase()
-                    .includes(value.toLocaleLowerCase())
-                ) && getRecommendation(attribute, sex, recommendations)
-            );
+          const attribute = getAttribute(
+            headerRow.getCell(index + 1).value?.toString(),
+            sex,
+            attributes,
+            recommendations
+          );
           if (attribute) {
             const recommendation = getRecommendation(attribute, sex, recommendations);
             if (recommendation) {
@@ -413,4 +405,20 @@ export const getRecommendation = (attribute: AttributeShape, sex: string, recomm
   return hasSex
     ? attributeRecommendations.find((recommendation) => recommendation.sex === sex)
     : attributeRecommendations[0];
+};
+
+export const getAttribute = (
+  cellValue: string,
+  sex: string,
+  attributes: AttributeShape[],
+  recommendations: RecommendationShape[]
+) => {
+  return attributes
+    .filter((attribute) => attribute.parentId !== 6)
+    .find(
+      (attribute) =>
+        Object.entries(attribute.name).find(([, value]) =>
+          cellValue.toLocaleLowerCase().includes(value.toLocaleLowerCase())
+        ) && getRecommendation(attribute, sex, recommendations)
+    );
 };
