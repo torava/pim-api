@@ -24,6 +24,7 @@ const FOOD_UNITS_ID = 6;
 
 const PRICE_INDEX = 9;
 
+// price;7;;10.1;euro;;;;;;;;male or female under 45 years living alone average
 const PRICE_RECOMMENDATION = 10.1;
 
 export const getDiaryExcelFineliBuffer = async (buffer: ArrayBuffer, locale: Locale = Locale['fi-FI'], sex: string) => {
@@ -161,7 +162,6 @@ export const getDiaryExcelFineliWorkbook = (
 
         worksheet.columns.forEach((col, index) => {
           if (index === PRICE_INDEX) {
-            // price;7;;10.1;euro;;;;;;;;male or female under 45 years living alone average
             const cellValue = Number(row.getCell(index + 1).value);
             const isGood = cellValue < PRICE_RECOMMENDATION;
             row.getCell(index + 1).style = {
@@ -231,12 +231,8 @@ export const getDiaryExcelFineliWorkbook = (
 
         worksheet.columns.forEach((col, index) => {
           if (index === PRICE_INDEX) {
-            // price;66;;10.1;euro;;;;;;;;male or female under 45 years living alone average
             const cellValue = Number(row.getCell(index + 1).value);
-            const isGood =
-              cellValue <
-              (PRICE_RECOMMENDATION * energy) /
-                convertMeasure(energyRecommendation.minValue, energyRecommendation.unit, 'kJ');
+            const isGood = compareMealPriceToRecommendation(cellValue, energy, energyRecommendation);
             row.getCell(index + 1).style = {
               fill: {
                 type: 'pattern',
@@ -390,12 +386,17 @@ const getMealAttributeValue = (
   return value;
 };
 
-export const compareAttributeToRecommendation = (value: number, recommendation: RecommendationShape) => {
-  const isGood =
-    (!recommendation.minValue || value > recommendation.minValue) &&
-    (!recommendation.maxValue || value < recommendation.maxValue);
-  return isGood;
-};
+export const compareAttributeToRecommendation = (value: number, recommendation: RecommendationShape) =>
+  (!recommendation.minValue || value > recommendation.minValue) &&
+  (!recommendation.maxValue || value < recommendation.maxValue);
+
+export const compareMealPriceToRecommendation = (
+  value: number,
+  energy: number,
+  energyRecommendation: RecommendationShape
+) =>
+  value <
+  (PRICE_RECOMMENDATION * energy) / convertMeasure(energyRecommendation.minValue, energyRecommendation.unit, 'kJ');
 
 export const getRecommendation = (attribute: AttributeShape, sex: string, recommendations: RecommendationShape[]) => {
   const attributeRecommendations = recommendations.filter(
