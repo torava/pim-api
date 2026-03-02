@@ -7,6 +7,7 @@ import { getExternalCategoriesFineli, getEntitiesFromCsv } from '../src/utils/im
 import Attribute from '../src/models/Attribute';
 import Recommendation from '../src/models/Recommendation';
 import RecommendationSource from '../src/models/RecommendationSource';
+import { getLeafEntities } from '../src/utils/entities';
 
 const SEED_SUFFIX = process.env.SEED_SUFFIX || '';
 const DELIMITER = process.env.DELIMITER || ';';
@@ -48,7 +49,7 @@ exports.seed = async knex => {
   }
 
   if (!SEED_SUFFIX) {
-    const attributes = await Attribute.query();
+    const attributes = getLeafEntities(await Attribute.query());
 
     const recommendationsCsv = fs.readFileSync(`${__dirname}/recommendations.csv`, 'utf8');
     getEntitiesFromCsv(recommendationsCsv, { delimiter: DELIMITER }).filter(entity => entity.minValue || entity.maxValue).forEach(async entity => {

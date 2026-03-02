@@ -27,6 +27,8 @@ const PRICE_INDEX = 9;
 // price;7;;10.1;euro;;;;;;;;male or female under 45 years living alone average
 const PRICE_RECOMMENDATION = 10.1;
 
+const CURRENCY = 'EUR';
+
 export const getDiaryExcelFineliBuffer = async (buffer: ArrayBuffer, locale: Locale = Locale['fi-FI'], sex: string) => {
   const categories = await Category.query().withGraphFetched(
     '[contributions.[contribution.[products, contributions]], attributes]'
@@ -79,7 +81,7 @@ export const getDiaryExcelFineliWorkbook = (
   const headerRow = worksheet.getRow(1);
   // @ts-ignore
   worksheet.spliceColumns.apply(worksheet, [10, 0, [], ...attributeCells.map(() => [[], []]).flat()]);
-  headerRow.getCell(10).value = 'Price (EUR)';
+  headerRow.getCell(10).value = `price (${CURRENCY})`;
   headerRow.getCell(10).style = {
     alignment: { vertical: 'top', wrapText: true },
     font: { bold: true },
@@ -87,8 +89,11 @@ export const getDiaryExcelFineliWorkbook = (
   };
   attributeCells.forEach((attributeCell, index) => {
     const attribute = attributes.find((attribute) => attribute.code === attributeCell.attribute.code);
-    headerRow.getCell(11 + index * 2).value = `Min. ${attribute.name[locale]}`;
-    headerRow.getCell(11 + index * 2 + 1).value = `Max. ${attribute.name[locale]}`;
+    const recommendation = getRecommendation(attribute, sex, recommendations);
+    headerRow.getCell(11 + index * 2).value =
+      `min. ${attribute.name[locale]}${recommendation.unit ? ` (${recommendation.unit})` : ''}`;
+    headerRow.getCell(11 + index * 2 + 1).value =
+      `max. ${attribute.name[locale]}${recommendation.unit ? ` (${recommendation.unit})` : ''}`;
     headerRow.getCell(11 + index * 2).style = {
       alignment: { vertical: 'top', wrapText: true },
       font: { bold: true },
@@ -106,20 +111,13 @@ export const getDiaryExcelFineliWorkbook = (
       headerRow.getCell(index + 1).value = `${headerRow.getCell(index + 1).value} [-10,1 EUR]`;
       return true;
     }
-    const attribute = attributes
-      .filter((attribute) => attribute.parentId !== FOOD_UNITS_ID)
-      .find(
-        (attribute) =>
-          Object.entries(attribute.name).find(([, value]) =>
-            headerRow
-              .getCell(index + 1)
-              .value?.toString()
-              .toLocaleLowerCase()
-              .includes(value.toLocaleLowerCase())
-          ) && getRecommendation(attribute, sex, recommendations)
-      );
+    const attribute = getAttribute(
+      headerRow.getCell(index + 1).value?.toString(),
+      sex,
+      attributes,
+      recommendations
+    );
     if (attribute) {
-      console.log('attribute', attribute);
       const recommendation = getRecommendation(attribute, sex, recommendations);
       if (recommendation) {
         headerRow.getCell(index + 1).value = `${headerRow.getCell(index + 1).value} [${
@@ -179,18 +177,12 @@ export const getDiaryExcelFineliWorkbook = (
             };
             return true;
           }
-          const attribute = attributes
-            .filter((attribute) => attribute.parentId !== FOOD_UNITS_ID)
-            .find(
-              (attribute) =>
-                Object.entries(attribute.name).find(([, value]) =>
-                  headerRow
-                    .getCell(index + 1)
-                    .value?.toString()
-                    .toLocaleLowerCase()
-                    .includes(value.toLocaleLowerCase())
-                ) && getRecommendation(attribute, sex, recommendations)
-            );
+          const attribute = getAttribute(
+            headerRow.getCell(index + 1).value?.toString(),
+            sex,
+            attributes,
+            recommendations
+          );
           if (attribute) {
             const recommendation = getRecommendation(attribute, sex, recommendations);
             if (recommendation) {
@@ -413,13 +405,15 @@ export const getAttribute = (
   sex: string,
   attributes: AttributeShape[],
   recommendations: RecommendationShape[]
-) => {
-  return attributes
-    .filter((attribute) => attribute.parentId !== 6)
+) =>
+  cellValue &&
+  attributes
+    .filter((attribute) => attribute.parentId !== FOOD_UNITS_ID)
     .find(
       (attribute) =>
-        Object.entries(attribute.name).find(([, value]) =>
-          cellValue.toLocaleLowerCase().includes(value.toLocaleLowerCase())
+        Object.entries(attribute.name).find(
+          ([, value]) =>
+            cellValue.match(/^((min|max)\.\s)?(.*)\s\((.*)\)(\s\[(.*)\])?$/i)?.[3].toLocaleLowerCase() ===
+            value.toLocaleLowerCase()
         ) && getRecommendation(attribute, sex, recommendations)
     );
-};

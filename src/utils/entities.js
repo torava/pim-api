@@ -56,6 +56,12 @@ export const getLeafIds = (entities, parentId, leafIds = []) => {
   return result;
 };
 
+export const hasChildren = (id, rows) =>
+  rows.some((row) => row.parentId === id);
+
+export const getLeafEntities = (entities) =>
+  entities.filter((parent) => !hasChildren(parent.id, entities));
+
 export const convertMeasure = (measure, fromUnit, toUnit) => {
   let offset = 0;
   // assumes that 1 l = 1 kg
