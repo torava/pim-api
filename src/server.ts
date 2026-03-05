@@ -105,36 +105,6 @@ if (env === 'production') {
   app.get('/', (req, res) => {
     return res.sendStatus(404);
   });
-
-  app.get('/*', (req, res, next) => {
-    const {
-      USER,
-      PASSWORD
-    } = process.env;
-    // parse login and password from headers
-    const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
-    const strauth = Buffer.from(b64auth, 'base64').toString();
-    const [, user, password] = strauth.match(/(.*?):(.*)/) || [];
-
-    if (process.env.ACCESS_CONTROL_ALLOW_ORIGIN) {
-      res.set('Access-Control-Allow-Origin', process.env.ACCESS_CONTROL_ALLOW_ORIGIN);
-    }
-    // Verify login and password are set and correct
-    if ((USER && user != USER) || (PASSWORD && password != PASSWORD)) {
-      // Access denied...
-      res.set('WWW-Authenticate', 'Basic realm="401"') // change this
-      res.status(401).send('Authentication required.') // custom message
-    } else if (req.originalUrl.match(/^\/api\//)) {
-      next();
-    } else {
-      res.sendFile(path.resolve(__dirname, 'static', 'index.html'), error => {
-        console.error(error);
-        if (error) {
-          res.status(500);
-        }
-      });
-    }
-  });
 } else {
   port = Number(process.env.PORT) || 42809;
 }
