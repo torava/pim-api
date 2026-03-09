@@ -22,3 +22,7 @@ FULL_SWAGGER=1 npm run dev
 ```
 
 Open http://localhost:42809/api-docs/ in browser.
+
+## Try out
+
+Go to [http://54.93.218.198:42808/api-docs/](http://54.93.218.198:42808/api-docs/)
