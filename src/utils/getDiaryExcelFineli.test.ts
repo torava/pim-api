@@ -1,5 +1,5 @@
 import { compareAttributeToRecommendation, getDailyAttributeValue } from './getDiaryExcelFineli';
-import { mockAttributes, mockCategories, mockRecommendations } from '../setupTests';
+import { mockAttributes, mockRecommendations } from '../setupTests';
 
 describe('get daily attribute value', () => {
   it('should return daily attribute value', () => {

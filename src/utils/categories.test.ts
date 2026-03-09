@@ -113,7 +113,7 @@ describe('categories utils', () => {
     const attributeIds = [1, 5];
     const foodUnitAttribute = mockAttributes[2];
     const amount = 2;
-    const { categoryAttributes, measure } = resolveCategoryAttributes(
+    const { categoryAttributes } = resolveCategoryAttributes(
       mockStrippedCategories[0],
       attributeIds,
       foodUnitAttribute,
