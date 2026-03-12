@@ -2,15 +2,19 @@ import csvParse from 'csv-parse';
 import parse from 'csv-parse/lib/sync';
 import fs from 'fs';
 import moment from 'moment';
+import AttributeShape from '@torava/pim-utils/dist/models/Attribute';
+import CategoryShape from '@torava/pim-utils/dist/models/Category';
+import CategoryAttributeShape from '@torava/pim-utils/dist/models/CategoryAttribute';
+import CategoryAttributeSourceShape from '@torava/pim-utils/dist/models/CategoryAttributeSource';
+import PartyShape from '@torava/pim-utils/dist/models/Party';
 
-import Attribute, { AttributeShape } from '../models/Attribute';
-import Category, { CategoryShape } from '../models/Category';
-import CategoryAttribute, { CategoryAttributeShape } from '../models/CategoryAttribute';
+import Attribute from '../models/Attribute';
+import Category from '../models/Category';
+import CategoryAttribute from '../models/CategoryAttribute';
 import CategoryContribution from '../models/CategoryContribution';
-import Party, { PartyShape } from '../models/Party';
+import Party from '../models/Party';
 import Source from '../models/Source';
 import { Id, Ids, NameTranslations, Parent } from './types';
-import { CategoryAttributeSourceShape } from '../models/CategoryAttributeSource';
 
 const convertFirstLetterCapital = (text: string) => {
   return text ? text.substring(0,1).toUpperCase()+text.substring(1).toLowerCase() : text;

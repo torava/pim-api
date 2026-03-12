@@ -1,16 +1,19 @@
 import _ from 'lodash';
 import moment from 'moment';
+import { convertMeasure, getTranslation, measureRegExp } from '@torava/pim-utils';
+import AttributeShape from '@torava/pim-utils/dist/models/Attribute';
+import BrandShape from '@torava/pim-utils/dist/models/Brand';
+import CategoryShape from '@torava/pim-utils/dist/models/Category';
+import CategoryAttributeShape from '@torava/pim-utils/dist/models/CategoryAttribute';
+import CategoryContributionShape from '@torava/pim-utils/dist/models/CategoryContribution';
+import ItemShape from '@torava/pim-utils/dist/models/Item';
+import ProductShape from '@torava/pim-utils/dist/models/Product';
+import SourceShape from '@torava/pim-utils/dist/models/Source';
 
-import Attribute, { AttributeShape } from '../models/Attribute';
-import Category, { CategoryShape } from '../models/Category';
-import Source, { SourceShape } from '../models/Source';
+import Attribute from '../models/Attribute';
+import Category from '../models/Category';
+import Source from '../models/Source';
 import { Locale, NameTranslations, ObjectEntries, Token } from './types';
-import { convertMeasure, getTranslation, measureRegExp } from './entities';
-import { BrandShape } from '../models/Brand';
-import { CategoryAttributeShape } from '../models/CategoryAttribute';
-import { CategoryContributionShape } from '../models/CategoryContribution';
-import { ItemShape } from '../models/Item';
-import { ProductShape } from '../models/Product';
 import { getAttributeValues, getMinAttributeValue, getMaxAttributeValue } from './attributes';
 import { getDetails, stripDetails, stripName } from './transactions';
 import { LevenshteinDistance } from './levenshteinDistance';

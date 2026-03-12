@@ -1,11 +1,12 @@
 import _, { at } from 'lodash';
 import express from 'express';
+import TransactionShape from '@torava/pim-utils/dist/models/Transaction';
 
 import Category from '../models/Category';
 import Item from '../models/Item';
 import Brand from '../models/Brand';
 import Product from '../models/Product';
-import Transaction, { TransactionShape } from '../models/Transaction';
+import Transaction from '../models/Transaction';
 import { getEntitiesFromCsv } from '../utils/import';
 import { getTransactionsFromCsv, resolveTransactionCategories } from '../utils/transactions';
 import { DeepPartial } from '../utils/types';

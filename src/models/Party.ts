@@ -1,22 +1,7 @@
 import {Model} from 'objection';
+import PartyShape from '@torava/pim-utils/dist/models/Party';
 
-import Transaction, { TransactionShape } from './Transaction';
-
-export interface PartyShape {
-	id?: number;
-
-	name?: string;
-	vat?: string;
-	streetName?: string;
-	streetNumber?: string;
-	postalCode?: string;
-	city?: string;
-	phoneNumber?: string;
-	email?: string;
-
-	transaction?: TransactionShape;
-	transactionId?: TransactionShape['id'];
-}
+import Transaction from './Transaction';
 
 interface Party extends PartyShape {}
 class Party extends Model {

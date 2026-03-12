@@ -1,22 +1,8 @@
 import { Model } from 'objection';
+import CategoryAttributeSourceShape from '@torava/pim-utils/dist/models/CategoryAttributeSource';
 
-import CategoryAttribute, { CategoryAttributeShape } from './CategoryAttribute';
-import Source, { SourceShape } from './Source';
-import { AttributeShape } from './Attribute';
-
-export interface CategoryAttributeSourceShape {
-	id?: number;
-
-	referenceUrl?: string;
-	referenceDate?: string;
-	note?: string;
-	countryCode?: string;
-
-	attribute?: CategoryAttributeShape;
-	attributeId?: AttributeShape['id'];
-	source?: SourceShape;
-	sourceId?: SourceShape['id'];
-}
+import CategoryAttribute from './CategoryAttribute';
+import Source from './Source';
 
 interface CategoryAttributeSource extends CategoryAttributeSourceShape {}
 class CategoryAttributeSource extends Model {

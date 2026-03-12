@@ -1,22 +1,9 @@
 import { Model, QueryBuilder } from 'objection';
+import CategoryAttributeShape from '@torava/pim-utils/dist/models/CategoryAttribute';
 
-import Category, { CategoryShape } from './Category';
-import Attribute, { AttributeShape } from './Attribute';
-import CategoryAttributeSource, { CategoryAttributeSourceShape } from './CategoryAttributeSource';
-
-export interface CategoryAttributeShape {
-	id?: number;
-
-	value?: number;
-	unit?: string;
-	type?: string;
-
-	category?: CategoryShape;
-	categoryId?: CategoryShape['id'];
-	attribute?: AttributeShape;
-	attributeId?: AttributeShape['id'];
-	sources?: CategoryAttributeSourceShape[];
-}
+import Category from './Category';
+import Attribute from './Attribute';
+import CategoryAttributeSource from './CategoryAttributeSource';
 
 interface CategoryAttribute extends CategoryAttributeShape {}
 class CategoryAttribute extends Model {

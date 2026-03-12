@@ -3,14 +3,18 @@ import express from 'express';
 import fs from 'fs';
 import _ from 'lodash';
 
-import Transaction, { TransactionShape } from '../models/Transaction';
-import Product, { ProductShape } from '../models/Product';
-import Category, { CategoryShape } from '../models/Category';
+import Transaction from '../models/Transaction';
+import Product from '../models/Product';
+import Category from '../models/Category';
 import Manufacturer from '../models/Manufacturer';
-import Receipt, { ReceiptShape } from '../models/Receipt';
 import { getCVSrcFromBase64, getBufferFromCVSrc, crop, receiptAdaptiveThreshold } from '../utils/imageProcessing';
 import { extractTextFromFile, getTransactionsFromReceipt } from '../utils/receipts';
-import Party, { PartyShape } from '../models/Party';
+import Party from '../models/Party';
+import CategoryShape from '@torava/pim-utils/dist/models/Category';
+import PartyShape from '@torava/pim-utils/dist/models/Party';
+import ProductShape from '@torava/pim-utils/dist/models/Product';
+import ReceiptShape from '@torava/pim-utils/dist/models/Receipt';
+import TransactionShape from '@torava/pim-utils/dist/models/Transaction';
 
 export default (app: express.Application) => {
 
@@ -57,10 +61,15 @@ app.get('/api/receipt/data/:id', async (req, res) => {
 });
 
 const processReceipt = async (
-  data: ReceiptShape & { categories?: CategoryShape[], products?: ProductShape[], parties?: PartyShape[], transactions?: TransactionShape[] },
+  data: ReceiptShape & {
+    categories?: CategoryShape[];
+    products?: ProductShape[];
+    parties?: PartyShape[];
+    transactions?: TransactionShape[];
+  },
   language: string,
   id: string,
-  suffix: string,
+  suffix: string
 ) => {
   const filePath = `${RECEIPT_UPLOAD_PATH}/${id}${suffix}`;
 
@@ -86,7 +95,7 @@ const processReceipt = async (
   } catch (error) {
     console.error(error);
   }
-}
+};
 
 app.post('/api/receipt/data/original/:id', function(req, res) {
   let data = req.body,

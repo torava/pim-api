@@ -1,7 +1,7 @@
-import { AttributeShape } from "../models/Attribute";
-import { CategoryAttributeShape } from "../models/CategoryAttribute";
-import { ProductAttributeShape } from "../models/ProductAttribute";
-import { convertMeasure } from "./entities";
+import { convertMeasure } from '@torava/pim-utils';
+import AttributeShape from '@torava/pim-utils/dist/models/Attribute';
+import CategoryAttributeShape from '@torava/pim-utils/dist/models/CategoryAttribute';
+import ProductAttributeShape from '@torava/pim-utils/dist/models/ProductAttribute';
 
 export const getAttributeValues = (
   unit: CategoryAttributeShape['unit'],
@@ -13,19 +13,19 @@ export const getAttributeValues = (
 ) => {
   const result: [number, CategoryAttributeShape][] = [];
   for (const categoryAttribute of attributeValues) {
-    const foundAttributes = attributes.filter(a => a.id === categoryAttribute.attributeId);
+    const foundAttributes = attributes.filter((a) => a.id === categoryAttribute.attributeId);
     foundAttributes.forEach(() => {
       const perUnit = categoryAttribute?.unit?.split('/')?.[1];
-      
+
       let value,
-          rate = 1;
+        rate = 1;
 
       if (perUnit === 'EUR' && !isNaN(price)) {
-        value = rate*categoryAttribute.value;
+        value = rate * categoryAttribute.value;
       } else if (perUnit && perUnit.match(/l|g$/i)) {
-        value = rate*categoryAttribute?.value*convertMeasure(measure, unit, perUnit)*quantity;
+        value = rate * categoryAttribute?.value * convertMeasure(measure, unit, perUnit) * quantity;
       } else if (!unit || !perUnit) {
-        value = rate*categoryAttribute?.value*quantity;
+        value = rate * categoryAttribute?.value * quantity;
       }
       if (!isNaN(value)) {
         result.push([value, categoryAttribute]);
@@ -35,9 +35,11 @@ export const getAttributeValues = (
   return result;
 };
 
-export const getMinAttributeValue = (attributeResult: [number, CategoryAttributeShape][]): [number?, CategoryAttributeShape?] => (
-  attributeResult.reduce((a, b) => a[0] < b[0] ? a : b) || [undefined, undefined]
-);
-export const getMaxAttributeValue = (attributeResult: [number, CategoryAttributeShape][]): [number?, CategoryAttributeShape?] => (
-  attributeResult.reduce((a, b) => a[0] > b[0] ? a : b) || [undefined, undefined]
-);
+export const getMinAttributeValue = (
+  attributeResult: [number, CategoryAttributeShape][]
+): [number?, CategoryAttributeShape?] =>
+  attributeResult.reduce((a, b) => (a[0] < b[0] ? a : b)) || [undefined, undefined];
+export const getMaxAttributeValue = (
+  attributeResult: [number, CategoryAttributeShape][]
+): [number?, CategoryAttributeShape?] =>
+  attributeResult.reduce((a, b) => (a[0] > b[0] ? a : b)) || [undefined, undefined];

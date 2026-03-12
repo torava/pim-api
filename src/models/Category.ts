@@ -1,26 +1,11 @@
 import {Model, QueryBuilder} from 'objection';
+import CategoryShape from '@torava/pim-utils/dist/models/Category';
 
-import CategoryAttribute, { CategoryAttributeShape } from './CategoryAttribute';
-import CategoryContribution, { CategoryContributionShape } from './CategoryContribution';
+import CategoryAttribute from './CategoryAttribute';
+import CategoryContribution from './CategoryContribution';
 import Product from './Product';
-import { NameTranslations } from '../utils/types';
-import ProductShape from './Product';
 
 // https://dev.to/tylerlwsmith/using-a-typescript-interface-to-define-model-properties-in-objection-js-1231
-export interface CategoryShape {
-	id?: number;
-	
-	name?: NameTranslations;
-	aliases?: string[];
-
-	products?: ProductShape[];
-	attributes?: CategoryAttributeShape[];
-	contributions?: CategoryContributionShape[];
-	children?: CategoryShape[];
-	parent?: CategoryShape;
-	parentId?: number;
-}
-
 interface Category extends CategoryShape {
 	'#id': string;
 	'#ref': string;

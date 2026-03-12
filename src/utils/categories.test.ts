@@ -1,3 +1,4 @@
+import { convertMeasure } from '@torava/pim-utils';
 import { mockAttributes, mockCategories, mockCategoryChildren, mockItems, mockProducts } from '../setupTests';
 import {
   getCategoryMeasure,
@@ -10,7 +11,6 @@ import {
   resolveCategoryAttributes,
   resolveCategoryContributionPrices,
 } from './categories';
-import { convertMeasure } from './entities';
 import { stripDetails } from './transactions';
 
 describe('categories utils', () => {

@@ -1,16 +1,5 @@
 import { Model } from 'objection';
-
-export interface ManufacturerShape {
-	id?: number;
-
-	name?: string;
-	aliases?: string[];
-	factoryLocation?: string[];
-	headquartersLocation?: string[];
-
-	parent?: ManufacturerShape;
-	parentId?: ManufacturerShape['id'];
-}
+import ManufacturerShape from '@torava/pim-utils/dist/models/Manufacturer';
 
 interface Manufacturer extends ManufacturerShape {}
 class Manufacturer extends Model {

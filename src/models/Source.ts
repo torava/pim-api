@@ -1,14 +1,5 @@
 import { Model } from 'objection';
-
-export interface SourceShape {
-	id?: number;
-	
-	name?: string;
-	authors?: string;
-	publicationUrl?: string;
-	publicationDate?: string;
-	countryCode?: string;
-}
+import SourceShape from '@torava/pim-utils/dist/models/Source';
 
 interface Source extends SourceShape {
 	'#id'?: string

@@ -1,15 +1,16 @@
 import { get, set } from 'lodash';
 import moment from 'moment';
+import { first, measureRegExp } from '@torava/pim-utils';
+import BrandShape from '@torava/pim-utils/dist/models/Brand';
+import CategoryShape from '@torava/pim-utils/dist/models/Category';
+import ItemShape from '@torava/pim-utils/dist/models/Item';
+import ProductShape from '@torava/pim-utils/dist/models/Product';
+import TransactionShape from '@torava/pim-utils/dist/models/Transaction';
 
 import { TRANSACTION_CSV_COLUMNS } from '../api/transaction';
-import Transaction, { TransactionShape } from '../models/Transaction';
+import Transaction from '../models/Transaction';
 import { DeepPartial, Locale, NameTranslations } from './types';
 import stringSimilarity from 'string-similarity-js';
-import { BrandShape } from '../models/Brand';
-import { CategoryShape } from '../models/Category';
-import { ItemShape } from '../models/Item';
-import { ProductShape } from '../models/Product';
-import { first, measureRegExp } from './entities';
 import { detailsFi } from './details/detailsFi';
 import { LevenshteinDistance } from './levenshteinDistance';
 
@@ -177,7 +178,7 @@ export function getParentPath(item: any) {
     while ((parent = parent.parent)) {
       name = getNameLocale(parent.name, Locale['fi-FI']);
       if (!name) continue;
-      result = stringToSlug(name, '_') + (result ? '.' + result : '');
+      result = stringToSlug(name as string, '_') + (result ? '.' + result : '');
     }
   }
   return result;

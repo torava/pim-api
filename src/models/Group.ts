@@ -1,11 +1,7 @@
-import {Model} from 'objection';
+import { Model } from 'objection';
+import GroupShape from '@torava/pim-utils/dist/models/Group';
 
-import Transaction, { TransactionShape } from './Transaction';
-
-export interface GroupShape {
-	name?: string;
-	transactions?: TransactionShape;
-}
+import Transaction from './Transaction';
 
 interface Group extends GroupShape {}
 class Group extends Model {

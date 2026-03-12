@@ -1,22 +1,9 @@
 import { Model } from 'objection';
+import ProductAttributeShape from '@torava/pim-utils/dist/models/ProductAttribute';
 
-import Attribute, { AttributeShape } from './Attribute';
-import ProductAttributeSource, { ProductAttributeSourceShape } from './ProductAttributeSource';
-import Product, { ProductShape } from './Product';
-
-export interface ProductAttributeShape {
-	id?: number;
-	
-	value?: number;
-	unit?: string;
-	type?: string;
-
-	product?: ProductShape;
-	productId?: ProductShape['id'];
-	attribute?: AttributeShape;
-	attributeId?: AttributeShape['id'];
-	sources?: ProductAttributeSourceShape[];
-}
+import Attribute from './Attribute';
+import ProductAttributeSource from './ProductAttributeSource';
+import Product from './Product';
 
 interface ProductAttribute extends ProductAttributeShape {}
 class ProductAttribute extends Model {

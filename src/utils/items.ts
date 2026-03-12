@@ -1,12 +1,17 @@
 import moment from "moment";
+import AttributeShape from "@torava/pim-utils/dist/models/Attribute";
+import ItemShape from "@torava/pim-utils/dist/models/Item";
+import PartyShape from "@torava/pim-utils/dist/models/Party";
+import ProductShape from "@torava/pim-utils/dist/models/Product";
+import SourceShape from "@torava/pim-utils/dist/models/Source";
 
-import Attribute, { AttributeShape } from "../models/Attribute";
+import Attribute from "../models/Attribute";
 import Brand from "../models/Brand";
 import Category from "../models/Category";
-import Item, { ItemShape } from "../models/Item";
-import Party, { PartyShape } from "../models/Party";
-import Product, { ProductShape } from "../models/Product";
-import Source, { SourceShape } from "../models/Source";
+import Item from "../models/Item";
+import Party from "../models/Party";
+import Product from "../models/Product";
+import Source from "../models/Source";
 import Transaction from "../models/Transaction";
 import { insertFromRecords } from "./import";
 

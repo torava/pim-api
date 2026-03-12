@@ -1,19 +1,8 @@
 
 import { Model } from 'objection';
+import CategoryContributionShape from '@torava/pim-utils/dist/models/CategoryContribution';
 
-import Category, { CategoryShape } from './Category';
-
-export interface CategoryContributionShape {
-	id?: number;
-
-	amount?: number;
-	unit?: string;
-
-	category?: CategoryShape;
-	categoryId?: CategoryShape['id'];
-	contribution?: CategoryShape;
-	contributionId?: CategoryShape['id'];
-}
+import Category from './Category';
 
 interface CategoryContribution extends CategoryContributionShape {}
 class CategoryContribution extends Model {

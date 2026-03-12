@@ -1,14 +1,16 @@
 import express, { Request } from 'express';
 import { Page } from 'objection';
+import { getLeafIds } from '@torava/pim-utils';
+import AttributeShape from '@torava/pim-utils/dist/models/Attribute';
+import CategoryAttributeShape from '@torava/pim-utils/dist/models/CategoryAttribute';
+import CategoryContributionShape from '@torava/pim-utils/dist/models/CategoryContribution';
+import ProductShape from '@torava/pim-utils/dist/models/Product';
 
-import Product, { ProductShape } from '../models/Product';
-import Attribute, { AttributeShape } from '../models/Attribute';
+import Product from '../models/Product';
+import Attribute from '../models/Attribute';
 import Category from '../models/Category';
 import { resolveProductAttributes, getClosestProduct } from '../utils/products';
-import { getLeafIds } from '../utils/entities';
 import Brand from '../models/Brand';
-import { CategoryAttributeShape } from '../models/CategoryAttribute';
-import { CategoryContributionShape } from '../models/CategoryContribution';
 import {
   findMeasure,
   findFoodUnitAttribute,

@@ -1,31 +1,28 @@
 import Excel from 'exceljs';
+import {
+  compareAttributeToRecommendation,
+  compareMealPriceToRecommendation,
+  getAttribute,
+  getDailyAttributeValue,
+  getMealAttributeValue,
+  getRecommendation,
+  PRICE_RECOMMENDATION,
+} from '@torava/pim-utils';
+import AttributeShape from '@torava/pim-utils/dist/models/Attribute';
+import CategoryShape from '@torava/pim-utils/dist/models/Category';
+import ItemShape from '@torava/pim-utils/dist/models/Item';
+import ProductShape from '@torava/pim-utils/dist/models/Product';
+import RecommendationShape from '@torava/pim-utils/dist/models/Recommendation';
 
-import Category, { CategoryShape } from '../models/Category';
-import Attribute, { AttributeShape } from '../models/Attribute';
-import Product, { ProductShape } from '../models/Product';
-import Item, { ItemShape } from '../models/Item';
-import Recommendation, { RecommendationShape } from '../models/Recommendation';
-import { convertMeasure } from './entities';
+import Category from '../models/Category';
+import Attribute from '../models/Attribute';
+import Product from '../models/Product';
+import Item from '../models/Item';
+import Recommendation from '../models/Recommendation';
 import { Locale } from './types';
 import { getCategoryMeasure, resolveCategoryAttributes, getCategoryPrice } from './categories';
 
-/**
- * Food component energy density, MJ/g
- */
-const componentEnergyMap = {
-  fat: 0.037,
-  protein: 0.017,
-  carbohydrate: 0.017,
-  sugar: 0.017,
-  fibre: 0.008,
-};
-
-const FOOD_UNITS_ID = 6;
-
 const PRICE_INDEX = 9;
-
-// price;7;;10.1;euro;;;;;;;;male or female under 45 years living alone average
-const PRICE_RECOMMENDATION = 10.1;
 
 const CURRENCY = 'EUR';
 
@@ -328,92 +325,3 @@ export const getDiaryExcelFineliWorkbook = (
     }
   });
 };
-
-export const getAttributeValue = (
-  cellValue: number,
-  energy: number,
-  mass: number,
-  recommendation: RecommendationShape,
-  attribute: AttributeShape
-) => {
-  let value;
-  if (recommendation.unit === 'percent' && recommendation.perUnit === 'energy') {
-    const componentEnergy = Object.entries(componentEnergyMap).find(([component]) =>
-      attribute.name['en-US'].toLocaleLowerCase().includes(component)
-    )?.[1];
-    value = ((cellValue * componentEnergy) / (energy / 1000)) * 100;
-  } else if (recommendation.unit === 'g' && recommendation.perUnit === 'MJ') {
-    value = cellValue / (energy / 1000);
-  } else if (recommendation.perUnit === 'kg') {
-    value = cellValue / (mass / 1000);
-  } else if (recommendation.unit === 'MJ') {
-    value = cellValue / 1000;
-  }
-  return value;
-};
-
-export const getDailyAttributeValue = (
-  cellValue: number,
-  energy: number,
-  mass: number,
-  recommendation: RecommendationShape,
-  attribute: AttributeShape
-) => {
-  const value = getAttributeValue(cellValue, energy, mass, recommendation, attribute) || cellValue;
-  console.log('daily value', value, cellValue, energy, mass, recommendation, attribute);
-  return value;
-};
-
-const getMealAttributeValue = (
-  cellValue: number,
-  energy: number,
-  energyRecommendation: RecommendationShape,
-  mass: number,
-  recommendation: RecommendationShape,
-  attribute: AttributeShape
-) => {
-  let value =
-    getAttributeValue(cellValue, energy, mass, recommendation, attribute) ||
-    (cellValue * energy) / convertMeasure(energyRecommendation.minValue, energyRecommendation.unit, 'kJ');
-  return value;
-};
-
-export const compareAttributeToRecommendation = (value: number, recommendation: RecommendationShape) =>
-  (!recommendation.minValue || value > recommendation.minValue) &&
-  (!recommendation.maxValue || value < recommendation.maxValue);
-
-export const compareMealPriceToRecommendation = (
-  value: number,
-  energy: number,
-  energyRecommendation: RecommendationShape
-) =>
-  value <
-  (PRICE_RECOMMENDATION * energy) / convertMeasure(energyRecommendation.minValue, energyRecommendation.unit, 'kJ');
-
-export const getRecommendation = (attribute: AttributeShape, sex: string, recommendations: RecommendationShape[]) => {
-  const attributeRecommendations = recommendations.filter(
-    (recommendation) => recommendation.attributeId === attribute.id
-  );
-  const hasSex = attributeRecommendations.some((recommendation) => recommendation.sex);
-  return hasSex
-    ? attributeRecommendations.find((recommendation) => recommendation.sex === sex)
-    : attributeRecommendations[0];
-};
-
-export const getAttribute = (
-  cellValue: string,
-  sex: string,
-  attributes: AttributeShape[],
-  recommendations: RecommendationShape[]
-) =>
-  cellValue &&
-  attributes
-    .filter((attribute) => attribute.parentId !== FOOD_UNITS_ID)
-    .find(
-      (attribute) =>
-        Object.entries(attribute.name).find(
-          ([, value]) =>
-            cellValue.match(/^((min|max)\.\s)?(.*)\s\((.*)\)(\s\[(.*)\])?$/i)?.[3].toLocaleLowerCase() ===
-            value.toLocaleLowerCase()
-        ) && getRecommendation(attribute, sex, recommendations)
-    );

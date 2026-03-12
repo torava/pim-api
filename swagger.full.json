@@ -781,8 +781,14 @@
           "product": {
             "$ref": "#/components/schemas/Product"
           },
+          "productId": {
+            "type": "integer"
+          },
           "attribute": {
             "$ref": "#/components/schemas/Attribute"
+          },
+          "attributeId": {
+            "type": "integer"
           }
         }
       },
@@ -800,7 +806,7 @@
       },
       "CategoryAttribute": {
         "type": "object",
-        "required": ["id", "value", "unit", "type"],
+        "required": ["id", "value"],
         "properties": {
           "id": {
             "type": "integer"
@@ -817,8 +823,14 @@
           "category": {
             "$ref": "#/components/schemas/Category"
           },
+          "categoryId": {
+            "type": "integer"
+          },
           "attribute": {
             "$ref": "#/components/schemas/Attribute"
+          },
+          "attributeId": {
+            "type": "integer"
           },
           "sources": {
             "type": "array",

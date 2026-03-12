@@ -1,34 +1,12 @@
 import { Model } from 'objection';
+import ProductShape from '@torava/pim-utils/dist/models/Product';
 
-import Item, { ItemShape } from './Item';
-import ProductAttribute, { ProductAttributeShape } from './ProductAttribute';
-import Category, { CategoryShape } from './Category';
-import Manufacturer, { ManufacturerShape } from './Manufacturer';
-import ProductContribution, { ProductContributionShape } from './ProductContribution';
-import Brand, { BrandShape } from './Brand';
-
-export interface ProductShape {
-	id?: number;
-	
-	name?: string;
-
-	contributionList?: string;
-	aliases?: string[];
-	productNumber?: string;
-	quantity?: number;
-	measure?: number;
-	unit?: string;
-
-	items?: ItemShape[];
-	attributes?: ProductAttributeShape[];
-	category?: CategoryShape;
-	categoryId?: CategoryShape['id'];
-	manufacturer?: ManufacturerShape;
-	manufacturerId?: ManufacturerShape['id'];
-	brand?: BrandShape;
-	brandId?: BrandShape['id'];
-	contributions?: ProductContributionShape[];
-}
+import Item from './Item';
+import ProductAttribute from './ProductAttribute';
+import Category from './Category';
+import Manufacturer from './Manufacturer';
+import ProductContribution from './ProductContribution';
+import Brand from './Brand';
 
 interface Product extends ProductShape {
 	items: Item[];

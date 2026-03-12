@@ -1,20 +1,8 @@
 import { Model } from 'objection';
+import ProductContributionShape from '@torava/pim-utils/dist/models/ProductContribution';
 
-import { DeepPartial } from '../utils/types';
-import Category, { CategoryShape } from './Category';
-import Product, { ProductShape } from './Product';
-
-export interface ProductContributionShape {
-	id?: number;
-
-	amount?: number;
-	unit?: string;
-
-	product?: ProductShape;
-	productId?: ProductShape['id'];
-	contribution?: CategoryShape;
-	contributionId?: CategoryShape['id'];
-}
+import Category from './Category';
+import Product from './Product';
 
 interface ProductContribution extends ProductContributionShape {}
 class ProductContribution extends Model {

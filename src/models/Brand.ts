@@ -1,16 +1,5 @@
 import { Model } from 'objection';
-
-export interface BrandShape {
-	id?: number;
-
-	name?: string;
-	aliases?: string[];
-	factoryLocation?: string;
-	headquartersLocation?: string;
-
-	parent?: BrandShape;
-	parentId?: BrandShape['id'];
-}
+import BrandShape from '@torava/pim-utils/dist/models/Brand';
 
 interface Brand extends BrandShape {}
 class Brand extends Model {

@@ -1,16 +1,18 @@
 import moment from "moment";
 import stringSimilarity from "string-similarity-js";
+import { convertMeasure } from "@torava/pim-utils";
+import AttributeShape from "@torava/pim-utils/dist/models/Attribute";
+import CategoryShape from "@torava/pim-utils/dist/models/Category";
+import CategoryContributionShape from "@torava/pim-utils/dist/models/CategoryContribution";
+import ProductShape from "@torava/pim-utils/dist/models/Product";
+import ProductAttributeShape from "@torava/pim-utils/dist/models/ProductAttribute";
+import ProductContributionShape from "@torava/pim-utils/dist/models/ProductContribution";
 
-import Category, { CategoryShape } from "../models/Category";
-import Product, { ProductShape } from "../models/Product";
+import Category from "../models/Category";
+import Product from "../models/Product";
 import { getAttributeValues, getMaxAttributeValue, getMinAttributeValue } from "./attributes";
-import { convertMeasure } from "./entities";
 import { NameTranslations, ObjectEntries, Token } from "./types";
 import Brand from "../models/Brand";
-import { AttributeShape } from "../models/Attribute";
-import { CategoryContributionShape } from "../models/CategoryContribution";
-import { ProductAttributeShape } from "../models/ProductAttribute";
-import { ProductContributionShape } from "../models/ProductContribution";
 import { getCategoriesWithAttributes } from "./categories";
 import { LevenshteinDistance } from "./levenshteinDistance";
 import { stripDetails, stripName } from "./transactions";
