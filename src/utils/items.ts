@@ -1,41 +1,41 @@
-import moment from "moment";
-import AttributeShape from "@torava/pim-utils/dist/models/Attribute";
-import ItemShape from "@torava/pim-utils/dist/models/Item";
-import PartyShape from "@torava/pim-utils/dist/models/Party";
-import ProductShape from "@torava/pim-utils/dist/models/Product";
-import SourceShape from "@torava/pim-utils/dist/models/Source";
+import moment from 'moment';
+import AttributeShape from '@torava/pim-utils/dist/models/Attribute';
+import ItemShape from '@torava/pim-utils/dist/models/Item';
+import PartyShape from '@torava/pim-utils/dist/models/Party';
+import ProductShape from '@torava/pim-utils/dist/models/Product';
+import SourceShape from '@torava/pim-utils/dist/models/Source';
 
-import Attribute from "../models/Attribute";
-import Brand from "../models/Brand";
-import Category from "../models/Category";
-import Item from "../models/Item";
-import Party from "../models/Party";
-import Product from "../models/Product";
-import Source from "../models/Source";
-import Transaction from "../models/Transaction";
-import { insertFromRecords } from "./import";
+import Attribute from '../models/Attribute';
+import Brand from '../models/Brand';
+import Category from '../models/Category';
+import Item from '../models/Item';
+import Party from '../models/Party';
+import Product from '../models/Product';
+import Source from '../models/Source';
+import Transaction from '../models/Transaction';
+import { insertFromRecords } from './import';
 
 export const getItemNameByDepth = (item: ItemShape, depth: number) => {
   let name,
-      id = undefined;
+    id = undefined;
   if (!item || !item.product) {
     id = 0;
     name = 'Uncategorized';
-    return {id, name};
+    return { id, name };
   }
   if (depth > 2) {
-    let current_depth, child = undefined;
+    let current_depth,
+      child = undefined;
     if (item.product.category) {
       //child = item.product.category;
       if (item.product.category.parent) {
-        current_depth = depth-2;
+        current_depth = depth - 2;
         child = item.product.category.parent;
         while (current_depth > 0) {
           if (child && child.parent) {
             child = child.parent;
-            current_depth-= 1;
-          }
-          else {
+            current_depth -= 1;
+          } else {
             //child = false;
             break;
           }
@@ -63,7 +63,7 @@ export const getItemNameByDepth = (item: ItemShape, depth: number) => {
     id = 0;
     name = 'Uncategorized';
   }
-  return {id, name};
+  return { id, name };
 };
 
 export const getItemQuantity = (item: ItemShape) => item.quantity || item.product.quantity;
@@ -72,18 +72,18 @@ export const getItemUnit = (item: ItemShape) => item.unit || item.product.unit;
 
 export const getItemsFromCsv = async (
   itemRecords: Item[],
-  productRecords: {[key: string]: any}[],
+  productRecords: { [key: string]: any }[],
   partyRecords: PartyShape[],
   transactionRecords: Transaction[],
   sourceRecords: SourceShape[] = []
 ) => {
-  let transactionRecordIdMap: {[key: number]: Transaction} = {},
-      partyRecordIdMap: {[key: string]: Party} = {},
-      productRecordIdMap: {[key: string]: Product} = {},
-      categories = await Category.query(),
-      attributes = await Attribute.query(),
-      sources = await Source.query(),
-      brands = await Brand.query();
+  let transactionRecordIdMap: { [key: number]: Transaction } = {},
+    partyRecordIdMap: { [key: string]: Party } = {},
+    productRecordIdMap: { [key: string]: Product } = {},
+    categories = await Category.query(),
+    attributes = await Attribute.query(),
+    sources = await Source.query(),
+    brands = await Brand.query();
 
   insertFromRecords(partyRecords, Party, partyRecordIdMap);
 
@@ -94,35 +94,28 @@ export const getItemsFromCsv = async (
     const entity = await Transaction.query()
       .insertAndFetch({
         ...record,
-        id: undefined
+        id: undefined,
       })
-      .returning("*");
+      .returning('*');
     transactionRecordIdMap[record.id] = entity;
   }
 
-  console.log(
-    `${transactionRecords.length} transactions inserted`,
-    moment().format()
-  );
+  console.log(`${transactionRecords.length} transactions inserted`, moment().format());
 
   for (let record of productRecords) {
     let note;
     const recordId = record.id;
     for (const [columnName, column] of Object.entries(record)) {
-      if (columnName !== "") {
-        const categoryNameMatch = columnName.match(
-          /^category:name\["([a-z-]+)"\]$/i
-        );
+      if (columnName !== '') {
+        const categoryNameMatch = columnName.match(/^category:name\["([a-z-]+)"\]$/i);
         const locale = categoryNameMatch?.[1];
-        const attribute =
-          columnName.match(/^attribute:(.*)(\s\((.*)\))/i) ||
-          columnName.match(/^attribute:(.*)/i);
+        const attribute = columnName.match(/^attribute:(.*)(\s\((.*)\))/i) || columnName.match(/^attribute:(.*)/i);
         if (attribute) {
           delete record[columnName as keyof ProductShape];
           if (column) {
             let found = false,
-                attributeEntity: AttributeShape,
-                value;
+              attributeEntity: AttributeShape,
+              value;
             for (let m in attributes) {
               if (Object.values(attributes[m].name).includes(attribute[1])) {
                 attributeEntity = {
@@ -135,12 +128,12 @@ export const getItemsFromCsv = async (
             if (!found) {
               attributeEntity = {
                 name: {
-                  "fi-FI": attribute[1],
-                  "en-US": attribute[1],
+                  'fi-FI': attribute[1],
+                  'en-US': attribute[1],
                 },
               };
             }
-            value = parseFloat(column.replace(",", "."));
+            value = parseFloat(column.replace(',', '.'));
             record.attributes = [
               ...(record.attributes || []),
               {
@@ -150,7 +143,7 @@ export const getItemsFromCsv = async (
               },
             ];
           }
-        } else if (columnName === "brand:name") {
+        } else if (columnName === 'brand:name') {
           if (column) {
             for (const b of brands) {
               if (b.name.toLowerCase() === column.toLowerCase()) {
@@ -165,12 +158,7 @@ export const getItemsFromCsv = async (
             let found = false;
             let categoryEntity;
             for (const c of categories) {
-              if (
-                c.name &&
-                Object.values(c.name).some(
-                  (name) => name.toLowerCase() === column.toLowerCase()
-                )
-              ) {
+              if (c.name && Object.values(c.name).some((name) => name.toLowerCase() === column.toLowerCase())) {
                 categoryEntity = {
                   id: c.id,
                 };
@@ -193,15 +181,11 @@ export const getItemsFromCsv = async (
           delete record[columnName];
         } else if (columnName.toLowerCase() === 'sourceid') {
           if (column) {
-            const sourceRecord = sourceRecords.find(
-              (source) => source.id === column
-            );
+            const sourceRecord = sourceRecords.find((source) => source.id === column);
             if (sourceRecord) {
               const source = sources.find(
                 (s) =>
-                  !Object.entries(sourceRecord).some(
-                    ([key, value]) => key !== "id" && value != s[key as keyof Source]
-                  )
+                  !Object.entries(sourceRecord).some(([key, value]) => key !== 'id' && value != s[key as keyof Source])
               );
               if (source) {
                 for (const m in record.attributes) {
@@ -215,7 +199,7 @@ export const getItemsFromCsv = async (
                 }
               }
             } else {
-              console.error("Source not found for id", column);
+              console.error('Source not found for id', column);
             }
           }
           delete record[columnName];
@@ -234,7 +218,7 @@ export const getItemsFromCsv = async (
         noDelete: true,
         relate: true,
       })
-      .returning("*");
+      .returning('*');
 
     productRecordIdMap[recordId] = entity;
   }
@@ -250,7 +234,7 @@ export const getItemsFromCsv = async (
         price: Number(record.price) || null,
         id: undefined,
       })
-      .returning("*");
+      .returning('*');
   }
 
   console.log(`${itemRecords.length} items inserted`, moment().format());
