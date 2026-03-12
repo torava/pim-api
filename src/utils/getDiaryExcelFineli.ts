@@ -86,7 +86,7 @@ export const getDiaryExcelFineliWorkbook = (
   };
   attributeCells.forEach((attributeCell, index) => {
     const attribute = attributes.find((attribute) => attribute.code === attributeCell.attribute.code);
-    const recommendation = getRecommendation(attribute, sex, recommendations);
+    const recommendation = getRecommendation(attribute, recommendations, sex);
     headerRow.getCell(11 + index * 2).value =
       `min. ${attribute.name[locale]}${recommendation.unit ? ` (${recommendation.unit})` : ''}`;
     headerRow.getCell(11 + index * 2 + 1).value =
@@ -110,12 +110,12 @@ export const getDiaryExcelFineliWorkbook = (
     }
     const attribute = getAttribute(
       headerRow.getCell(index + 1).value?.toString(),
-      sex,
       attributes,
-      recommendations
+      recommendations,
+      sex
     );
     if (attribute) {
-      const recommendation = getRecommendation(attribute, sex, recommendations);
+      const recommendation = getRecommendation(attribute, recommendations, sex);
       if (recommendation) {
         headerRow.getCell(index + 1).value = `${headerRow.getCell(index + 1).value} [${
           recommendation.minValue || ''
@@ -127,7 +127,7 @@ export const getDiaryExcelFineliWorkbook = (
   });
 
   const energyAttribute = attributes.find((attribute) => attribute.code === 'ENERC');
-  const energyRecommendation = getRecommendation(energyAttribute, sex, recommendations);
+  const energyRecommendation = getRecommendation(energyAttribute, recommendations, sex);
 
   worksheet.eachRow((row) => {
     const food = row.getCell(4).value;
@@ -176,12 +176,12 @@ export const getDiaryExcelFineliWorkbook = (
           }
           const attribute = getAttribute(
             headerRow.getCell(index + 1).value?.toString(),
-            sex,
             attributes,
-            recommendations
+            recommendations,
+            sex
           );
           if (attribute) {
-            const recommendation = getRecommendation(attribute, sex, recommendations);
+            const recommendation = getRecommendation(attribute, recommendations, sex);
             if (recommendation) {
               const cellValue = Number(row.getCell(index + 1).value);
               const value = getDailyAttributeValue(cellValue, energy, mass, recommendation, attribute);
@@ -239,12 +239,12 @@ export const getDiaryExcelFineliWorkbook = (
           }
           const attribute = getAttribute(
             headerRow.getCell(index + 1).value?.toString(),
-            sex,
             attributes,
-            recommendations
+            recommendations,
+            sex
           );
           if (attribute) {
-            const recommendation = getRecommendation(attribute, sex, recommendations);
+            const recommendation = getRecommendation(attribute, recommendations, sex);
             if (recommendation) {
               const cellValue = Number(row.getCell(index + 1).value);
               const value = getMealAttributeValue(
