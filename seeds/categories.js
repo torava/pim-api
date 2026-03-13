@@ -1,5 +1,6 @@
 import fs from 'fs';
 import { Model } from 'objection';
+import { getLeafEntities } from '@torava/pim-utils';
 
 import Category from '../src/models/Category';
 import { getCategoriesFromCsv, getCategoryParentsFromCsv } from '../src/utils/categories';
@@ -7,7 +8,6 @@ import { getExternalCategoriesFineli, getEntitiesFromCsv } from '../src/utils/im
 import Attribute from '../src/models/Attribute';
 import Recommendation from '../src/models/Recommendation';
 import RecommendationSource from '../src/models/RecommendationSource';
-import { getLeafEntities } from '../src/utils/entities';
 
 const SEED_SUFFIX = process.env.SEED_SUFFIX || '';
 const DELIMITER = process.env.DELIMITER || ';';
