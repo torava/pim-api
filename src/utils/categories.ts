@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import moment from 'moment';
-import { convertMeasure, getTranslation, measureRegExp } from '@torava/pim-utils';
+import { convertMeasure, getTranslation, Locale, measureRegExp, NameTranslations } from '@torava/pim-utils';
 import AttributeShape from '@torava/pim-utils/dist/models/Attribute';
 import BrandShape from '@torava/pim-utils/dist/models/Brand';
 import CategoryShape from '@torava/pim-utils/dist/models/Category';
@@ -13,7 +13,7 @@ import SourceShape from '@torava/pim-utils/dist/models/Source';
 import Attribute from '../models/Attribute';
 import Category from '../models/Category';
 import Source from '../models/Source';
-import { Locale, NameTranslations, ObjectEntries, Token } from './types';
+import { ObjectEntries, Token } from './types';
 import { getAttributeValues, getMinAttributeValue, getMaxAttributeValue } from './attributes';
 import { getDetails, stripDetails, stripName } from './transactions';
 import { LevenshteinDistance } from './levenshteinDistance';
