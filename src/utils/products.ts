@@ -1,6 +1,6 @@
 import moment from 'moment';
 import stringSimilarity from 'string-similarity-js';
-import { convertMeasure } from '@torava/pim-utils';
+import { convertMeasure, NameTranslations } from '@torava/pim-utils';
 import AttributeShape from '@torava/pim-utils/dist/models/Attribute';
 import CategoryShape from '@torava/pim-utils/dist/models/Category';
 import CategoryContributionShape from '@torava/pim-utils/dist/models/CategoryContribution';
@@ -11,7 +11,7 @@ import ProductContributionShape from '@torava/pim-utils/dist/models/ProductContr
 import Category from '../models/Category';
 import Product from '../models/Product';
 import { getAttributeValues, getMaxAttributeValue, getMinAttributeValue } from './attributes';
-import { NameTranslations, ObjectEntries, Token } from './types';
+import { ObjectEntries, Token } from './types';
 import Brand from '../models/Brand';
 import { getCategoriesWithAttributes } from './categories';
 import { LevenshteinDistance } from './levenshteinDistance';

@@ -17,13 +17,13 @@ app.post(
     limit: '50mb'
   }),
   async (req, res) => {
+    if (!req.files?.upload) {
+      res.status(500).send('Please choose file');
+      return;
+    }
     // https://github.com/DefinitelyTyped/DefinitelyTyped/pull/40915#issuecomment-563917863
     if (Array.isArray(req.files.upload)) {
       res.status(500).send('Please upload only one file');
-      return;
-    }
-    if (!req.files.upload) {
-      res.status(500).send('Please choose file');
       return;
     }
     if (!req.query.sex) {

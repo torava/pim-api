@@ -7,6 +7,7 @@ import CategoryShape from '@torava/pim-utils/dist/models/Category';
 import CategoryAttributeShape from '@torava/pim-utils/dist/models/CategoryAttribute';
 import CategoryAttributeSourceShape from '@torava/pim-utils/dist/models/CategoryAttributeSource';
 import PartyShape from '@torava/pim-utils/dist/models/Party';
+import { NameTranslations } from '@torava/pim-utils';
 
 import Attribute from '../models/Attribute';
 import Category from '../models/Category';
@@ -14,7 +15,7 @@ import CategoryAttribute from '../models/CategoryAttribute';
 import CategoryContribution from '../models/CategoryContribution';
 import Party from '../models/Party';
 import Source from '../models/Source';
-import { Id, Ids, NameTranslations, Parent } from './types';
+import { Id, Ids, Parent } from './types';
 
 const convertFirstLetterCapital = (text: string) => {
   return text ? text.substring(0,1).toUpperCase()+text.substring(1).toLowerCase() : text;

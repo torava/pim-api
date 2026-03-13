@@ -1,6 +1,6 @@
 import { get, set } from 'lodash';
 import moment from 'moment';
-import { first, measureRegExp } from '@torava/pim-utils';
+import { first, Locale, measureRegExp, NameTranslations } from '@torava/pim-utils';
 import BrandShape from '@torava/pim-utils/dist/models/Brand';
 import CategoryShape from '@torava/pim-utils/dist/models/Category';
 import ItemShape from '@torava/pim-utils/dist/models/Item';
@@ -9,7 +9,7 @@ import TransactionShape from '@torava/pim-utils/dist/models/Transaction';
 
 import { TRANSACTION_CSV_COLUMNS } from '../api/transaction';
 import Transaction from '../models/Transaction';
-import { DeepPartial, Locale, NameTranslations } from './types';
+import { DeepPartial } from './types';
 import stringSimilarity from 'string-similarity-js';
 import { detailsFi } from './details/detailsFi';
 import { LevenshteinDistance } from './levenshteinDistance';
