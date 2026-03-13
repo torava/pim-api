@@ -6,6 +6,7 @@ import {
   getDailyAttributeValue,
   getMealAttributeValue,
   getRecommendation,
+  Locale,
   PRICE_RECOMMENDATION,
 } from '@torava/pim-utils';
 import AttributeShape from '@torava/pim-utils/dist/models/Attribute';
@@ -19,7 +20,6 @@ import Attribute from '../models/Attribute';
 import Product from '../models/Product';
 import Item from '../models/Item';
 import Recommendation from '../models/Recommendation';
-import { Locale } from './types';
 import { getCategoryMeasure, resolveCategoryAttributes, getCategoryPrice } from './categories';
 
 const PRICE_INDEX = 9;
@@ -250,8 +250,8 @@ export const getDiaryExcelFineliWorkbook = (
               const value = getMealAttributeValue(
                 cellValue,
                 energy,
-                energyRecommendation,
                 mass,
+                energyRecommendation,
                 recommendation,
                 attribute
               );

@@ -1,6 +1,6 @@
 import express, { Request } from 'express';
 import { Page } from 'objection';
-import { getLeafIds } from '@torava/pim-utils';
+import { getLeafIds, Locale } from '@torava/pim-utils';
 import AttributeShape from '@torava/pim-utils/dist/models/Attribute';
 import CategoryAttributeShape from '@torava/pim-utils/dist/models/CategoryAttribute';
 import CategoryContributionShape from '@torava/pim-utils/dist/models/CategoryContribution';
@@ -18,7 +18,6 @@ import {
   getClosestCategory,
   getContributionsFromList,
 } from '../utils/categories';
-import { Locale } from '../utils/types';
 
 export default async (app: express.Application) => {
 

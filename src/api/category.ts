@@ -1,12 +1,11 @@
 import { PassThrough } from 'stream';
 import express from 'express';
 import bodyParser from 'body-parser';
-import fileUpload from 'express-fileupload';
+import { Locale } from '@torava/pim-utils';
 
 import Category from '../models/Category';
 import { getDiaryExcelFineliBuffer } from '../utils/getDiaryExcelFineli';
 import { resolveCategories, resolveCategoryPrices } from '../utils/categories';
-import { Locale } from '../utils/types';
 
 export default (app: express.Application) => {
 
