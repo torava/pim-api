@@ -25,4 +25,4 @@ Open http://localhost:42809/api-docs/ in browser.
 
 ## Try out
 
-Go to [http://3.64.193.222:42808/api-docs/](http://3.64.193.222:42808/api-docs/)
+Go to [http://3.71.179.190:42808/api-docs/](http://3.71.179.190:42808/api-docs/)
