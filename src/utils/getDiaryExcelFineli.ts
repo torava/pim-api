@@ -118,8 +118,8 @@ export const getDiaryExcelFineliWorkbook = (
       const recommendation = getRecommendation(attribute, recommendations, sex);
       if (recommendation) {
         headerRow.getCell(index + 1).value = `${headerRow.getCell(index + 1).value} [${
-          recommendation.minValue || ''
-        }-${recommendation.maxValue || ''} ${
+          recommendation.minValue ? formatNumber(recommendation.minValue, locale) : ''
+        }-${recommendation.maxValue ? formatNumber(recommendation.maxValue, locale) : ''} ${
           recommendation.unit
         }${recommendation.perUnit ? `/${recommendation.perUnit}` : ''}]`;
       }
@@ -325,3 +325,6 @@ export const getDiaryExcelFineliWorkbook = (
     }
   });
 };
+
+export const formatNumber = (value: number, locale?: Locale) =>
+  new Intl.NumberFormat(locale).format(value);
