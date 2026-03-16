@@ -61,14 +61,13 @@ exports.seed = async knex => {
         const recommendation = await Recommendation.query().insert({
           ...entity,
           attributeId,
-          minValue: parseFloat(entity.minValue) || undefined,
-          maxValue: parseFloat(entity.maxValue) || undefined,
-          avgValue: parseFloat(entity.avgValue) || undefined,
+          minValue: parseFloat(entity.minValue.replace(',', '.')) || undefined,
+          maxValue: parseFloat(entity.maxValue.replace(',', '.')) || undefined,
           minimumAge: parseInt(entity.minimumAge) || undefined,
           maximumAge: parseInt(entity.maximumAge) || undefined,
-          weight: parseFloat(entity.weight) || undefined,
+          weight: parseFloat(entity.weight.replace(',', '.')) || undefined,
           pav: parseInt(entity.pav) || undefined,
-          pal: parseFloat(entity.pal) || undefined
+          pal: parseFloat(entity.pal.replace(',', '.')) || undefined
         });
         await RecommendationSource.query().insert({
           recommendationId: recommendation.id,
