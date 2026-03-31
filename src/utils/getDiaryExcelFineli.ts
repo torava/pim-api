@@ -48,7 +48,7 @@ export const writeDiaryExcelFineliFile = async (filename: string, locale: Locale
   const workbook = new Excel.Workbook();
   await workbook.xlsx.readFile(filename);
   getDiaryExcelFineliWorkbook(workbook, categories, attributes, products, items, recommendations, locale, sex);
-  await workbook.xlsx.writeFile(`${filename}_price_ghg.xlsx`);
+  await workbook.xlsx.writeFile(`${filename}_pi.xlsx`);
 };
 export const getDiaryExcelFineliWorkbook = (
   workbook: Excel.Workbook,
