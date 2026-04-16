@@ -18,66 +18,6 @@ import { getAttributeValues, getMinAttributeValue, getMaxAttributeValue } from '
 import { getDetails, stripDetails, stripName } from './transactions';
 import { LevenshteinDistance } from './levenshteinDistance';
 
-export const getAverageRate = (filter: {start_date: string, end_date: string}, averageRange: number) => {
-  const {start_date, end_date} = filter;
-  const rate = averageRange ? averageRange/moment.duration(moment(end_date).diff(moment(start_date))).asDays() : 1;
-  //console.log(rate, this.state, moment(start_date));
-  return rate;
-};
-
-export const aggregateCategoryPrice = (resolvedCategories: (CategoryShape & {
-  price_sum: number,
-  weight_sum: number,
-  volume_sum: number
-})[], averageRate: number) => {
-  const categories = [...resolvedCategories];
-  categories.reduce(function resolver(sum, category) {
-    if (category.products?.length) {
-      let itemPrices = 0,
-          itemWeights = 0,
-          itemVolumes = 0;
-      category.products.map(product => {
-        product.items.map(item => {
-          itemPrices+= item.price;
-          if (item.unit == 'l' || product.unit == 'l') {
-            itemVolumes+= (product.quantity || item.quantity || 1)*(product.measure || item.measure || 0);
-          }
-          else {
-            itemWeights+= (product.quantity || item.quantity || 1)*convertMeasure(product.measure || item.measure, product.unit || item.unit, 'kg');
-          }
-        });
-      });
-      category.price_sum = itemPrices*averageRate;
-      category.weight_sum = itemWeights*averageRate;
-      category.volume_sum = itemVolumes*averageRate;
-    }
-    if (category.children?.length) {
-      const sum: {
-        price_sum: number,
-        weight_sum: number,
-        volume_sum: number
-      } = category.children.reduce(resolver, {
-        price_sum: 0,
-        volume_sum: 0,
-        weight_sum: 0
-      });
-      category.price_sum = sum.price_sum;
-      category.weight_sum = sum.weight_sum;
-      category.volume_sum = sum.volume_sum;
-    }
-    return {
-      price_sum: sum.price_sum+(category.price_sum || 0),
-      weight_sum: sum.weight_sum+(category.weight_sum || 0),
-      volume_sum: sum.volume_sum+(category.volume_sum || 0)
-    };
-  }, {
-    price_sum: 0,
-    volume_sum: 0,
-    weight_sum: 0
-  });
-  return categories;
-};
-
 export const getCategoryById = (categories: CategoryShape[], categoryId: CategoryShape['id']) => (
   categories.find(c => c.id === categoryId)
 );
@@ -91,7 +31,7 @@ export const getCategoryWithAttributes = (
   categoryId: CategoryShape['id'],
   attributeId: CategoryAttributeShape['id']
 ): [
-  CategoryShape,
+  CategoryShape | undefined,
   CategoryAttributeShape[]
 ] | undefined => {
   if (!categories.length || !categoryId || !attributeId) return;
@@ -117,19 +57,19 @@ export const getCategoriesWithAttributes = (
 ) => {
   if (!categoryId) return;
 
-  const results: [CategoryShape, CategoryAttributeShape[]][] = [];
+  const results: [CategoryShape | undefined, CategoryAttributeShape[]][] = [];
   
   const result = getCategoryWithAttributes(categories, categoryId, attributeId);
   if (result) {
     let [populatedCategory, attributes] = result;
     results.push([populatedCategory, attributes]);
     while (attributes?.length) {
-      const result = getCategoryWithAttributes(categories, populatedCategory.parentId, attributeId);
+      const result = getCategoryWithAttributes(categories, populatedCategory?.parentId, attributeId);
       if (result) {
         [populatedCategory, attributes] = result;
         results.push([populatedCategory, attributes]);
       } else {
-        attributes = undefined;
+        attributes = [];
       }
     }
   }
@@ -139,12 +79,12 @@ export const getCategoriesWithAttributes = (
 export function resolveCategories(items: CategoryShape[], locale: Locale) {
   if (!locale) return;
   let itemAttributes: CategoryAttributeShape[],
-      resolvedAttributes: {[key: CategoryAttributeShape['id']]: CategoryAttributeShape},
+      resolvedAttributes: {[key: number]: CategoryAttributeShape},
       item;
   for (const i in items) {
     item = items[i];
     resolvedAttributes = {};
-    itemAttributes = item.attributes;
+    itemAttributes = item.attributes || [];
     for (const n in itemAttributes) {
       if (itemAttributes[n].attribute) {
         itemAttributes[n].attribute.name = getTranslation(itemAttributes[n].attribute.name, locale);
@@ -155,7 +95,9 @@ export function resolveCategories(items: CategoryShape[], locale: Locale) {
           parent = parent.parent;
         }
       }
-      resolvedAttributes[itemAttributes[n].attributeId] = itemAttributes[n];
+      if (itemAttributes[n].attributeId) {
+        resolvedAttributes[itemAttributes[n].attributeId] = itemAttributes[n];
+      }
     }
     item.attributes = Object.values(resolvedAttributes);
     if (item.children) {
@@ -174,12 +116,12 @@ export function resolveCategories(items: CategoryShape[], locale: Locale) {
 export const resolveCategoryPrices = (categories: (CategoryShape & {
   priceSum?: number
 })[]) => {
-  categories && categories.reduce(function resolver(sum, category) {
+  categories && categories.reduce(function resolver(sum, category): number {
     if (category.products?.length) {
       let itemPrices = 0;
       category.products.map(product => {
-        product.items.map(item => {
-          itemPrices+= item.price;
+        product.items?.map(item => {
+          itemPrices+= item.price || 0;
         });
       });
       category.priceSum = (category.priceSum || 0)+itemPrices; 
@@ -199,15 +141,15 @@ export const resolveCategoryContributionPrices = (
   contributionCoverageThreshold = 0) => {
   let categoryContributionCoverageMeasure = 0;
     
-  const portionAttribute = category.attributes.find(a => a.attributeId === foodUnitAttribute.id);
+  const portionAttribute = category.attributes?.find(a => a.attributeId === foodUnitAttribute.id);
   const portionMeasure = convertMeasure(portionAttribute?.value, portionAttribute?.unit, 'kg');
 
   let totalMeasure = 0;
   
-  const sum = category?.contributions.reduce(function resolver(sum, categoryContribution) {
+  const sum = category?.contributions?.reduce(function resolver(sum, categoryContribution) {
     console.log('categoryContribution', categoryContribution);
     const convertedAmount = convertMeasure(categoryContribution.amount, categoryContribution.unit, 'kg');
-    totalMeasure+= categoryContribution.contribution?.contributions.length ? 0 : convertedAmount;
+    totalMeasure+= categoryContribution.contribution?.contributions?.length ? 0 : convertedAmount;
     products.every(product => {
       if (product.categoryId === categoryContribution.contributionId) {
         const productItem = items.find(item => {
@@ -238,7 +180,7 @@ export const resolveCategoryContributionPrices = (
     totalMeasure,
     contributionCoverageThreshold
   );
-  return categoryContributionCoverageMeasure/totalMeasure > contributionCoverageThreshold ? sum*portionMeasure : undefined;
+  return categoryContributionCoverageMeasure/totalMeasure > contributionCoverageThreshold ? (sum || 0) * portionMeasure : undefined;
 };
 
 export const getStrippedCategories = (categories: (CategoryShape & {
@@ -246,7 +188,7 @@ export const getStrippedCategories = (categories: (CategoryShape & {
 })[], brands: BrandShape[] = []) => {
   return categories.map(category => {
     const name = category.name;
-    category.strippedName = stripName(name, brands);
+    category.strippedName = name && stripName(name, brands);
     return category;
   });
 };
@@ -256,7 +198,7 @@ export const getClosestCategory = (
   categories: (CategoryShape & {
     strippedName?: NameTranslations
   })[],
-  acceptLocale: Locale,
+  acceptLocale?: Locale,
   strippedName?: string
 ): [
   CategoryShape | undefined,
@@ -266,33 +208,32 @@ export const getClosestCategory = (
 
   if (!strippedName) strippedName = stripDetails(name);
 
-  let bestToken: Token, bestCategory: CategoryShape;
-
-  console.log('strippedName', strippedName);
+  let bestToken!: Token, bestCategory!: CategoryShape;
 
   categories.forEach((category) => {
-    ObjectEntries(category.strippedName).forEach(([locale, translation]) => {
+    Object.entries(category.strippedName || {}).forEach(([locale, translation]) => {
       if (acceptLocale && locale !== acceptLocale) return true;
       if (translation) {
         const tokens: [Token, string, number?][] = [];
         tokens.push([LevenshteinDistance(translation.toLowerCase(), strippedName.toLowerCase(), {search: true}) as Token, translation.toLowerCase(), 0.1]);
-        tokens.push([LevenshteinDistance(category.name[locale].toLowerCase(), name.toLowerCase(), {search: true}) as Token, category.name[locale].toLowerCase()]);
+        tokens.push([
+          LevenshteinDistance(category.name?.[locale as Locale]?.toLowerCase() || '',
+          name.toLowerCase(), {search: true}) as Token, category.name?.[locale as Locale]?.toLowerCase() || ''
+        ]);
         category.aliases?.forEach(alias => {
           tokens.push([LevenshteinDistance(alias.toLowerCase(), strippedName.toLowerCase(), {search: true}) as Token, alias.toLowerCase(), 0.1]);
           tokens.push([LevenshteinDistance(alias.toLowerCase(), name.toLowerCase(), {search: true}) as Token, alias.toLowerCase()]);
         });
-        //tokens.push([LevenshteinDistance(category.parent?.name[locale]?.toLowerCase() || '', strippedName.toLowerCase(), {search: true}), category.parent?.name[locale]?.toLowerCase() || '']);
 
-        let token: Token;
+        let token!: Token;
         tokens.forEach(t => {
           t[0].accuracy = (t[0].substring.length-t[0].distance-(t[2] || 0))/name.length;
-          if (t[0].distance < 1 && t[0].accuracy > 0.1 && t[0].accuracy >= (token ? token.accuracy : 0)) {
+          if (t[0].distance < 1 && t[0].accuracy > 0.1 && t[0].accuracy >= (token?.accuracy || 0)) {
             token = t[0];
-            console.log('name', name, 'translation', translation, 'token', t);
           }
         });
 
-        if (token?.accuracy > (bestToken ? bestToken.accuracy : 0)) {
+        if (token?.accuracy && token.accuracy > (bestToken?.accuracy || 0)) {
           bestCategory = category;
           bestToken = token;
         }
@@ -316,13 +257,13 @@ export const findMeasure = (text?: string) => {
     const measureMatch = text.match(measureRegExp);
     measure = measureMatch && parseFloat(measureMatch[1].replace(',', '.'));
     if (measure && !isNaN(measure)) {
-      if (measureMatch[4]) {
+      if (measureMatch?.[4]) {
         unit = 'kg';
       }
-      else if (measureMatch[5]) {
+      else if (measureMatch?.[5]) {
         unit = 'g';
       }
-      else if (measureMatch[6]) {
+      else if (measureMatch?.[6]) {
         unit = 'l';
       }
     }
@@ -331,7 +272,7 @@ export const findMeasure = (text?: string) => {
 };
 
 export const findFoodUnitAttribute = (text?: string, attributes: AttributeShape[] = []) => {
-  let foodUnitAttribute: AttributeShape;
+  let foodUnitAttribute: AttributeShape | undefined;
   if (text) {
     const {size} = getDetails();
     Object.entries(size).forEach(([code, details]) => {
@@ -352,7 +293,7 @@ export const getTokensFromContributionList = (list: string) => (
 
 export const getContributionsFromList = (
   list: string,
-  contentLanguage: Locale,
+  contentLanguage: Locale | undefined,
   categories: CategoryShape[] = [],
   attributes: AttributeShape[] = []
 ) => {
@@ -361,7 +302,7 @@ export const getContributionsFromList = (
   tokens?.forEach(contributionToken => {
     const measureMatch = contributionToken.match(measureRegExp);
     const measure = measureMatch && parseFloat(measureMatch[1]);
-    let foodUnitAttribute: AttributeShape;
+    let foodUnitAttribute: AttributeShape | undefined;
     let unit;
     if (measure && !isNaN(measure)) {
       if (measureMatch[4]) {
@@ -388,7 +329,7 @@ export const getContributionsFromList = (
     };
     if (contribution.contribution) {
       if (foodUnitAttribute) {
-        const {value, unit} = contribution.contribution.attributes.find(attribute => attribute.attributeId === foodUnitAttribute.id) || {};
+        const {value, unit} = contribution.contribution.attributes?.find(attribute => attribute.attributeId === foodUnitAttribute?.id) || {};
         if (value) {
           contribution.amount = value;
           contribution.unit = unit;
@@ -400,8 +341,8 @@ export const getContributionsFromList = (
     }
     if (contributionToken.split(' ').length > 2) {
       while (contributionContribution && contributionToken && strippedContributionToken) {
-        contributionToken = contributionToken.replace(new RegExp(token.substring, 'i'), '').trim();
-        strippedContributionToken = stripDetails(contributionToken).replace(new RegExp(token.substring, 'i'), '').trim();
+        contributionToken = contributionToken.replace(new RegExp(token?.substring || '', 'i'), '').trim();
+        strippedContributionToken = stripDetails(contributionToken).replace(new RegExp(token?.substring || '', 'i'), '').trim();
         contributions.push(contribution);
         [contributionContribution, token] = getClosestCategory(contributionToken, categories, contentLanguage);
         contribution = {
@@ -410,7 +351,9 @@ export const getContributionsFromList = (
         };
         if (contribution) {
           if (foodUnitAttribute) {
-            const {value, unit} = contribution.contribution.attributes.find(attribute => attribute.attributeId === foodUnitAttribute.id) || {};
+            const {value, unit} = contribution.contribution?.attributes?.find(attribute =>
+              attribute.attributeId === foodUnitAttribute?.id
+            ) || {};
             if (value) {
               contribution.amount = value;
               contribution.unit = unit;
@@ -440,7 +383,7 @@ export const getStrippedChildCategories = async (categories: CategoryShape[] = [
 };
 
 export const getCategoryMinMaxAttributesWithMeasure = (
-  category: CategoryShape,
+  category: CategoryShape | undefined,
   measure: CategoryContributionShape['amount'],
   unit: CategoryContributionShape['unit'],
   attributeId: AttributeShape['id'],
@@ -449,7 +392,7 @@ export const getCategoryMinMaxAttributesWithMeasure = (
   attributes: AttributeShape[] = []
 ) => {
   let minAttributeValue, minCategoryAttribute, maxAttributeValue, maxCategoryAttribute;
-  const result = getCategoriesWithAttributes(categories, category.id, attributeId);
+  const result = getCategoriesWithAttributes(categories, category?.id, attributeId);
   const [, categoryAttributes] = result?.[0] || [undefined, undefined];
   let attributeResult = getAttributeValues(unit, measure, 1, undefined, categoryOwnAttributes, attributes);
   if (!attributeResult.length) {
@@ -459,7 +402,7 @@ export const getCategoryMinMaxAttributesWithMeasure = (
     [minAttributeValue, minCategoryAttribute] = getMinAttributeValue(attributeResult);
     [maxAttributeValue, maxCategoryAttribute] = getMaxAttributeValue(attributeResult);
   }
-  if (!minAttributeValue && !maxAttributeValue && category.contributions?.length) {
+  if (!minAttributeValue && !maxAttributeValue && category?.contributions?.length) {
     category.contributions.forEach(contributionContribution => {
       const result = getCategoriesWithAttributes(categories, contributionContribution.contributionId, Number(attributeId));
       const [, categoryAttributes] = result?.[0] || [undefined, undefined];
@@ -477,8 +420,8 @@ export const getCategoryMinMaxAttributesWithMeasure = (
 };
 
 export const getCategoryMinMaxAttributes = (
-  category: CategoryShape,
-  contribution: CategoryContributionShape,
+  category: CategoryShape | undefined,
+  contribution: CategoryContributionShape | undefined,
   foodUnitAttribute: AttributeShape,
   attributeId: AttributeShape['id'],
   categories: CategoryShape[] = [],
@@ -490,7 +433,7 @@ export const getCategoryMinMaxAttributes = (
       portionAttribute;
   
   if (foodUnitAttribute) {
-    portionAttribute = category.attributes.find(a => a.attributeId === foodUnitAttribute.id);
+    portionAttribute = category?.attributes?.find(a => a.attributeId === foodUnitAttribute.id);
   }
   if (contribution?.amount) {
     measure = contribution.amount;
@@ -506,16 +449,15 @@ export const getCategoryMinMaxAttributes = (
 };
 
 export const getCategoryPortion = (
-  category: CategoryShape,
-  foodUnitAttribute: AttributeShape,
-) => category.attributes.find(a => a.attributeId === foodUnitAttribute.id);
+  category?: CategoryShape,
+  foodUnitAttribute?: AttributeShape,
+) => category?.attributes?.find(a => a.attributeId === foodUnitAttribute?.id);
 
 export const getCategoryPortionMeasure = (
-  category: CategoryShape,
-  foodUnitAttribute: AttributeShape,
+  category?: CategoryShape,
+  foodUnitAttribute?: AttributeShape,
 ) => {
   const portionAttribute = getCategoryPortion(category, foodUnitAttribute);
-  console.log('portionAttribute', portionAttribute);
   return convertMeasure(portionAttribute?.value, portionAttribute?.unit, 'kg');
 };
 
@@ -538,7 +480,7 @@ export const getCategoryMeasure = (
 
 export const getCategoryPrice = (
   category: CategoryShape,
-  measure: number,
+  measure: number = 0,
   amount: number,
   foodUnitAttribute: AttributeShape,
   products: ProductShape[],
@@ -547,15 +489,15 @@ export const getCategoryPrice = (
   const categoryProduct = products.find(
     (product) =>
       product.categoryId === category.id &&
-      product.items.length &&
-      product.items.some((item) => item.price && ((item.measure && item.unit) || item.quantity > 1))
+      product.items?.length &&
+      product.items.some((item) => item.price && ((item.measure && item.unit) || (item.quantity && item.quantity > 1)))
   );
-  const categoryProductItem = categoryProduct?.items.find(
-    (item) => item.price && ((item.measure && item.unit) || item.quantity > 1)
+  const categoryProductItem = categoryProduct?.items?.find(
+    (item) => item.price && ((item.measure && item.unit) || (item.quantity && item.quantity > 1))
   );
   const price =
     resolveCategoryContributionPrices(category, products, items, foodUnitAttribute, 0.8) ||
-    categoryProductItem?.price /
+    (categoryProductItem?.price || 0) /
       (convertMeasure(categoryProductItem?.measure, categoryProductItem?.unit, 'kg') || 1) /
       (categoryProductItem?.quantity || 1) ||
     0;
@@ -599,9 +541,9 @@ export const resolveCategoryAttributes = (
       categoryContributionTotalMeasure+= convertMeasure(categoryContribution.amount, categoryContribution.unit, 'kg');
       if (result?.minCategoryAttribute) {
         const {minAttributeValue, minCategoryAttribute, maxAttributeValue} = result;
-        minValue+= minAttributeValue;
-        maxValue+= maxAttributeValue;
-        unit = minCategoryAttribute.unit.split('/')[0];
+        minValue+= minAttributeValue || 0;
+        maxValue+= maxAttributeValue || 0;
+        unit = minCategoryAttribute.unit?.split('/')[0] || '';
         categoryContributionCoverageMeasure+= convertMeasure(categoryContribution.amount, categoryContribution.unit, 'kg');
       } else {
         return true;
@@ -626,11 +568,11 @@ export const resolveCategoryAttributes = (
     );
     if (result?.minCategoryAttribute) {
       const {minCategoryAttribute} = result;
-      minValue = result.minAttributeValue * amount;
-      maxValue = result.maxAttributeValue * amount;
-      unit = minCategoryAttribute.unit.split('/')[0];
+      minValue = (result.minAttributeValue || 0) * amount;
+      maxValue = (result.maxAttributeValue || 0) * amount;
+      unit = minCategoryAttribute.unit?.split('/')[0] || '';
     } else if (categoryContributionCoverageMeasure/categoryContributionTotalMeasure <= contributionCoverageThreshold) {
-      console.log('insufficient contributions skipped for', category.name['en-US']);
+      console.log('insufficient contributions skipped for', category.name?.['en-US']);
       return true;
     }
     
@@ -703,7 +645,7 @@ export const getCategoriesFromCsv = async (records: {[key: string]: string}[], s
           if (attribute) {
             found = false;
             for (let m in attributes) {
-              if (Object.values(attributes[m].name).includes(attribute[1])) {
+              if (Object.values(attributes[m].name || {}).includes(attribute[1])) {
                 attributeObject = {
                   id: attributes[m].id
                 }
@@ -735,13 +677,13 @@ export const getCategoriesFromCsv = async (records: {[key: string]: string}[], s
             note = column;
           } else if (columnName.toLowerCase() === 'sourceid') {
             const sourceRecord = sourceRecords.find(source => source.id === column);
-            let source = sourceRecordIdMap[sourceRecord.id];
+            let source = sourceRecordIdMap[sourceRecord?.id || ''];
             if (sourceRecord) {
-              for (const m in item.attributes) {
-                if (!item.attributes[m].sources) {
-                  item.attributes[m].sources = [];
+              for (const attribute of item.attributes || []) {
+                if (!attribute.sources) {
+                  attribute.sources = [];
                 }
-                item.attributes[m].sources.push({
+                attribute.sources.push({
                   sourceId: source.id,
                   note
                 });
@@ -752,7 +694,7 @@ export const getCategoriesFromCsv = async (records: {[key: string]: string}[], s
           } else if (name && locale) {
             if (!item.id) {
               for (const category of categories) {
-                if (category.name?.[locale] && category.name[locale].toLowerCase().trim() === column?.toLowerCase().trim()) {
+                if (category.name?.[locale] && category.name[locale]?.toLowerCase().trim() === column?.toLowerCase().trim()) {
                   item.id = category.id;
                   ids.push(category.id);
                   delete item.name;
@@ -820,7 +762,7 @@ export const getCategoryParentsFromCsv = async (records: {[key: string]: string}
           if (column === '') return true;
           if (!item.id) {
             for (let i in categories) {
-              if (categories[i].name?.[locale] && categories[i].name[locale].toLowerCase().trim() === column?.toLowerCase().trim()) {
+              if (categories[i].name?.[locale] && categories[i].name[locale]?.toLowerCase().trim() === column?.toLowerCase().trim()) {
                 item.id = categories[i].id;
                 break;
               }

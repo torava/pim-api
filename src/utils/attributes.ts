@@ -5,9 +5,9 @@ import ProductAttributeShape from '@torava/pim-utils/dist/models/ProductAttribut
 
 export const getAttributeValues = (
   unit: CategoryAttributeShape['unit'],
-  measure: number,
+  measure: number = 0,
   quantity: number = 1,
-  price: number = undefined,
+  price: number = 0,
   attributeValues: ProductAttributeShape[] | CategoryAttributeShape[] = [],
   attributes: AttributeShape[] = []
 ) => {
@@ -17,17 +17,17 @@ export const getAttributeValues = (
     foundAttributes.forEach(() => {
       const perUnit = categoryAttribute?.unit?.split('/')?.[1];
 
-      let value,
-        rate = 1;
+      let value = 0;
+      const rate = 1;
 
-      if (perUnit === 'EUR' && !isNaN(price)) {
-        value = rate * categoryAttribute.value;
+      if (perUnit === 'EUR' && !isNaN(price as number)) {
+        value = rate * (categoryAttribute.value || 0);
       } else if (perUnit && perUnit.match(/l|g$/i)) {
-        value = rate * categoryAttribute?.value * convertMeasure(measure, unit, perUnit) * quantity;
+        value = rate * (categoryAttribute?.value || 0) * convertMeasure(measure, unit, perUnit) * quantity;
       } else if (!unit || !perUnit) {
-        value = rate * categoryAttribute?.value * quantity;
+        value = rate * (categoryAttribute?.value || 0) * quantity;
       }
-      if (!isNaN(value)) {
+      if (!isNaN(value as number)) {
         result.push([value, categoryAttribute]);
       }
     });

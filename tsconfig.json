@@ -2,15 +2,17 @@
   "compilerOptions": {
     "outDir": "dist/",
     "noImplicitAny": true,
-    "module": "CommonJS",
+    "module": "nodenext",
     "lib": ["es2020"],
-    "target": "es5",
+    "target": "es2017",
     "jsx": "react",
     "allowJs": true,
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "declaration": true
+    "declaration": true,
+    "skipLibCheck": true,
+    "types": ["node", "jest"]
   },
   "include": ["src/**/*"],
   "exclude": ["src/static"]

@@ -111,7 +111,7 @@ app.get('/api/category', async (req, res) => {
       let categories = await Category.query();
       if (name?.length) {
         categories = categories.filter(category => (
-          Object.values(category.name).find(n => n.toLowerCase().match(String(name).toLowerCase()))
+          Object.values(category.name || {}).find(n => n.toLowerCase().match(String(name).toLowerCase()))
         ));
       }
       resolveCategories(categories, req.query.locale as Locale);

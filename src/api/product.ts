@@ -48,15 +48,15 @@ app.get('/api/product/:id', async (req: Request<
     const attributeIds = req.query.attributeCodes?.split(',').map(code => (
       attributes.find(attribute => attribute.code === code)?.id
     )) || attributes.map(a => a.id);
-    const foodUnitParentAttribute = attributes.find(attribute => attribute.name['en-US'] === 'Food units');
+    const foodUnitParentAttribute = attributes.find(attribute => attribute.name?.['en-US'] === 'Food units');
     const foodUnitAttribute = attributes.find(attribute => (
-      attribute.code === req.query.foodUnitAttributeCode && attribute.parentId === foodUnitParentAttribute.id
+      attribute.code === req.query.foodUnitAttributeCode && attribute.parentId === foodUnitParentAttribute?.id
     ));
 
     const categories = (await Category.query()
     .withGraphFetched('[children, parent, contributions, attributes.[attribute]]')
     .modifiers({
-      filterByGivenAttributeIds: query => query.modify('filterByAttributeIds', [...attributeIds, foodUnitAttribute.id])
+      filterByGivenAttributeIds: query => query.modify('filterByAttributeIds', [...attributeIds, foodUnitAttribute?.id])
     }));
 
     const product = (await Product.query().findById(id)
@@ -66,9 +66,9 @@ app.get('/api/product/:id', async (req: Request<
 
     const resolvedProduct: ProductShape = {
       ...product,
-      measure: measure || product.measure,
-      unit: measure ? 'kg' : product.unit,
-      attributes: productAttributes || product.attributes
+      measure: measure || product?.measure,
+      unit: measure ? 'kg' : product?.unit,
+      attributes: productAttributes || product?.attributes
     };
     
     res.send(resolvedProduct);
@@ -117,7 +117,7 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductSh
       attributeCodes?.split(',').forEach(code => {
         const id = attributes.find(attribute => attribute.code === code)?.id;
         if (id) {
-          let ids: Attribute['id'][] = [];
+          let ids: number[] = [];
           getLeafIds(attributes, id, ids);
           if (ids.length) {
             attributeIds = attributeIds.concat(ids);
@@ -130,22 +130,22 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductSh
         attributeIds = attributes.map(a => a.id);
       }
 
-      let foodUnitAttribute: AttributeShape;
+      let foodUnitAttribute: AttributeShape | undefined;
       
       if (foodUnitAttributeCode) {
-        const foodUnitParentAttribute = attributes.find(a => a.name['en-US'] === 'Food units');
+        const foodUnitParentAttribute = attributes.find(a => a.name?.['en-US'] === 'Food units');
         foodUnitAttribute = attributes.find(attribute => (
-          attribute.code === foodUnitAttributeCode && attribute.parentId === foodUnitParentAttribute.id
+          attribute.code === foodUnitAttributeCode && attribute.parentId === foodUnitParentAttribute?.id
         ));
       }
 
       const productEntries = await Product.query().withGraphFetched('[attributes.[attribute], brand]');
 
-      let product: ProductShape;
+      let product: ProductShape | undefined;
 
       const measureResult = findMeasure(name);
       if (measureResult.unit) {
-        measure = measureResult.measure;
+        measure = measureResult.measure || 0;
         unit = measureResult.unit;
       }
       foodUnitAttribute = findFoodUnitAttribute(name, attributes) || foodUnitAttribute;
@@ -153,7 +153,7 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductSh
       product = {
         measure,
         unit
-      }
+      };
 
       if (brand) {
         const productEntriesWithBrand = productEntries.filter(filterableProduct => filterableProduct.brand?.name === brand);
@@ -163,9 +163,9 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductSh
         [product] = getClosestProduct(name, productEntries);
       }
 
-      const contentLanguage = req.headers['accept-language'].toString().split(',')[0];
+      const contentLanguage = req.headers['accept-language']?.toString().split(',')[0];
 
-      console.log(contentLanguage);
+      console.log('contentLanguage', contentLanguage);
 
       let contributions = [];
 
@@ -176,7 +176,7 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductSh
         const [category] = getClosestCategory(name, strippedCategories, contentLanguage as Locale, undefined);
         if (category) {
           product = {
-            ...product,
+            ...product || {},
             categoryId: category?.id
           };
         }
@@ -215,11 +215,11 @@ app.get('/api/product', async (req: Request<undefined, Page<Product> | ProductSh
       const categories = (await Category.query()
       .withGraphFetched('[children, parent, contributions, attributes.[attribute]]')
       .modifiers({
-        filterByGivenAttributeIds: query => query.modify('filterByAttributeIds', [...attributeIds, foodUnitAttribute.id])
+        filterByGivenAttributeIds: query => query.modify('filterByAttributeIds', [...attributeIds, foodUnitAttribute?.id])
       }));
       const productAttributeResult = resolveProductAttributes(product, attributeIds, foodUnitAttribute, categories, attributes);
       const productAttributes = productAttributeResult.productAttributes;
-      measure = productAttributeResult.measure;
+      measure = productAttributeResult.measure || 0;
       product = {
         name: product.name,
         contributionList: product.contributionList,

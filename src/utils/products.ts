@@ -1,6 +1,6 @@
 import moment from 'moment';
 import stringSimilarity from 'string-similarity-js';
-import { convertMeasure, NameTranslations } from '@torava/pim-utils';
+import { convertMeasure, Locale, NameTranslations } from '@torava/pim-utils';
 import AttributeShape from '@torava/pim-utils/dist/models/Attribute';
 import CategoryShape from '@torava/pim-utils/dist/models/Category';
 import CategoryContributionShape from '@torava/pim-utils/dist/models/CategoryContribution';
@@ -34,7 +34,7 @@ export const getProductCategoryMinMaxAttributes = (
   if (!category) return;
 
   if (foodUnitAttribute) {
-    portionAttribute = category.attributes.find((a) => a.attributeId === foodUnitAttribute.id);
+    portionAttribute = category.attributes?.find((a) => a.attributeId === foodUnitAttribute.id);
   }
   if (contribution?.amount) {
     measure = contribution.amount;
@@ -61,7 +61,7 @@ export const getProductCategoryMinMaxAttributes = (
 
   if (!minAttributeValue && !maxAttributeValue && category.contributions?.length) {
     const totalAmount = category.contributions.reduce((previousValue, currentValue) => {
-      return previousValue + currentValue.amount;
+      return previousValue + (currentValue.amount || 0);
     }, 0);
     category.contributions.forEach((contributionContribution) => {
       const result = getCategoriesWithAttributes(
@@ -72,7 +72,7 @@ export const getProductCategoryMinMaxAttributes = (
       const [, categoryAttributes] = result?.[0] || [undefined, undefined];
       let attributeResult = getAttributeValues(
         unit,
-        (measure * contributionContribution.amount) / totalAmount,
+        ((measure || 0) * (contributionContribution.amount || 0)) / totalAmount,
         1,
         undefined,
         productAttributes,
@@ -81,7 +81,7 @@ export const getProductCategoryMinMaxAttributes = (
       if (!attributeResult.length) {
         attributeResult = getAttributeValues(
           unit,
-          (measure * contributionContribution.amount) / totalAmount,
+          ((measure || 0) * (contributionContribution.amount || 0)) / totalAmount,
           1,
           undefined,
           categoryAttributes,
@@ -98,26 +98,26 @@ export const getProductCategoryMinMaxAttributes = (
 };
 
 export const resolveProductAttributes = (
-  product: ProductShape,
+  product: ProductShape | undefined,
   attributeIds: AttributeShape['id'][],
-  foodUnitAttribute: AttributeShape,
+  foodUnitAttribute: AttributeShape | undefined,
   categories: CategoryShape[] = [],
   attributes: AttributeShape[] = []
 ) => {
   let measure,
     productAttributes: ProductAttributeShape[] = [];
 
-  const category = categories.find((c) => c.id === product.categoryId);
+  const category = categories.find((c) => c.id === product?.categoryId);
 
   attributeIds.forEach((attributeId) => {
     let minValue = 0,
       maxValue = 0,
       unit,
-      initialProductAttributes = product.attributes?.filter(
+      initialProductAttributes = product?.attributes?.filter(
         (productAttribute) => productAttribute.attributeId === attributeId
       );
 
-    product.contributions?.forEach((productContribution) => {
+    product?.contributions?.forEach((productContribution) => {
       const contribution = categories.find((category) => category.id === productContribution.contributionId);
       const result = getProductCategoryMinMaxAttributes(
         contribution,
@@ -133,7 +133,7 @@ export const resolveProductAttributes = (
         const { minAttributeValue, minCategoryAttribute, maxAttributeValue } = result;
         minValue += minAttributeValue || 0;
         maxValue += maxAttributeValue || 0;
-        unit = minCategoryAttribute.unit.split('/')[0];
+        unit = minCategoryAttribute.unit?.split('/')[0];
       } else {
         return true;
       }
@@ -152,9 +152,9 @@ export const resolveProductAttributes = (
       );
       if (result?.minCategoryAttribute) {
         const { minCategoryAttribute } = result;
-        minValue = result.minAttributeValue;
-        maxValue = result.maxAttributeValue;
-        unit = minCategoryAttribute.unit.split('/')[0];
+        minValue = result.minAttributeValue || 0;
+        maxValue = result.maxAttributeValue || 0;
+        unit = minCategoryAttribute.unit?.split('/')[0];
       }
     }
 
@@ -181,20 +181,21 @@ export const resolveProductAttributes = (
     }
   });
 
-  measure = product.contributions?.reduce((total, productContribution) => {
+  measure = product?.contributions?.reduce((total, productContribution) => {
     if (foodUnitAttribute) {
       const contribution = categories.find((category) => category.id === productContribution.contributionId);
       if (contribution) {
-        const portionAttribute = contribution.attributes.find((a) => a.attributeId === foodUnitAttribute.id);
+        const portionAttribute = contribution.attributes?.find((a) => a.attributeId === foodUnitAttribute.id);
         return total + convertMeasure(portionAttribute?.value, portionAttribute?.unit, 'kg');
       }
     } else if (productContribution.amount) {
       return total + convertMeasure(productContribution.amount, productContribution.unit, 'kg');
     }
+    return total;
   }, 0);
 
   if (category && foodUnitAttribute) {
-    const portionAttribute = category.attributes.find((a) => a.attributeId === foodUnitAttribute.id);
+    const portionAttribute = category.attributes?.find((a) => a.attributeId === foodUnitAttribute.id);
     measure = convertMeasure(portionAttribute?.value, portionAttribute?.unit, 'kg');
   }
 
@@ -206,18 +207,18 @@ export const getClosestProduct = (name: Product['name'], products: Product[]): [
 
   const strippedName = stripDetails(name);
 
-  let bestToken: Token, bestProduct: Product;
+  let bestToken!: Token, bestProduct!: Product;
 
   products.forEach((product) => {
     const { aliases } = product;
     const tokens: [Token, string][] = [];
     tokens.push([
-      LevenshteinDistance(product.name.toLowerCase(), name.toLowerCase(), { search: true }) as Token,
-      product.name.toLowerCase(),
+      LevenshteinDistance(product.name?.toLowerCase() || '', name.toLowerCase(), { search: true }) as Token,
+      product.name?.toLowerCase() || '',
     ]);
     tokens.push([
-      LevenshteinDistance(product.name.toLowerCase(), strippedName.toLowerCase(), { search: true }) as Token,
-      product.name.toLowerCase(),
+      LevenshteinDistance(product.name?.toLowerCase() || '', strippedName.toLowerCase(), { search: true }) as Token,
+      product.name?.toLowerCase() || '',
     ]);
     aliases?.forEach((alias) => {
       tokens.push([
@@ -231,20 +232,20 @@ export const getClosestProduct = (name: Product['name'], products: Product[]): [
     });
     //tokens.push([LevenshteinDistance(category.parent?.name[locale]?.toLowerCase() || '', strippedName.toLowerCase(), {search: true}), category.parent?.name[locale]?.toLowerCase() || '']);
 
-    let token: Token;
+    let token!: Token;
     tokens.forEach((comparableToken) => {
       comparableToken[0].accuracy = (comparableToken[0].substring.length - comparableToken[0].distance) / name.length;
       if (
         comparableToken[0].distance < 1 &&
         comparableToken[0].accuracy > 0.1 &&
-        comparableToken[0].accuracy >= (token ? token.accuracy : 0)
+        comparableToken[0].accuracy >= (token?.accuracy || 0)
       ) {
         token = comparableToken[0];
         console.log('name', name, 'product', product.name, 'token', comparableToken);
       }
     });
 
-    if (token?.accuracy >= (bestToken ? bestToken.accuracy : 0)) {
+    if (token?.accuracy && token?.accuracy >= (bestToken?.accuracy || 0)) {
       bestProduct = product;
       bestToken = token;
     }
@@ -269,7 +270,7 @@ export const getProductsFromOpenFoodFactsRecords = async (
     .filter((category) => (category.attributes?.length ? true : false))
     .map((category) => {
       const name = category.name;
-      category.strippedName = stripName(name, brands);
+      category.strippedName = stripName(name || {}, brands);
       return category;
     });
 
@@ -289,12 +290,12 @@ export const getProductsFromOpenFoodFactsRecords = async (
       let bestDistance = 0.4,
         categoryId;
       strippedCategories.forEach((category) => {
-        ObjectEntries(category.strippedName).forEach(([locale, translation]) => {
+        Object.entries(category.strippedName || {}).forEach(([locale, translation]) => {
           if (translation) {
             let distance = stringSimilarity(strippedProductName.toLowerCase() || '', translation.toLowerCase() || '');
             distance = Math.max(
               distance,
-              stringSimilarity(productNameWithBrand.toLowerCase() || '', category.name[locale].toLowerCase() || '') +
+              stringSimilarity(productNameWithBrand.toLowerCase() || '', category.name?.[locale as Locale]?.toLowerCase() || '') +
                 0.1
             );
             category.aliases?.forEach((alias) => {
@@ -310,7 +311,7 @@ export const getProductsFromOpenFoodFactsRecords = async (
             if (category.parent) {
               distance = Math.max(
                 distance,
-                stringSimilarity(strippedProductName || '', category.parent.name[locale] || '')
+                stringSimilarity(strippedProductName || '', category.parent.name?.[locale as Locale] || '')
               );
             }
 

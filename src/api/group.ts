@@ -1,6 +1,8 @@
+import express from 'express';
+
 import Group from '../models/Group';
 
-export default app => {
+export default (app: express.Application) => {
   app.get('/api/group', async (req, res) => {
     try {
       const result = await Group.query();

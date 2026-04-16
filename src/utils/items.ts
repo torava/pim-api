@@ -66,9 +66,9 @@ export const getItemNameByDepth = (item: ItemShape, depth: number) => {
   return { id, name };
 };
 
-export const getItemQuantity = (item: ItemShape) => item.quantity || item.product.quantity;
-export const getItemMeasure = (item: ItemShape) => item.measure || item.product.measure;
-export const getItemUnit = (item: ItemShape) => item.unit || item.product.unit;
+export const getItemQuantity = (item: ItemShape) => item.quantity || item.product?.quantity;
+export const getItemMeasure = (item: ItemShape) => item.measure || item.product?.measure;
+export const getItemUnit = (item: ItemShape) => item.unit || item.product?.unit;
 
 export const getItemsFromCsv = async (
   itemRecords: Item[],
@@ -90,14 +90,14 @@ export const getItemsFromCsv = async (
   console.log(`${partyRecords.length} parties inserted`, moment().format());
 
   for (const record of transactionRecords) {
-    record.partyId = partyRecordIdMap[record.partyId]?.id;
+    if (record.partyId) record.partyId = partyRecordIdMap[record.partyId]?.id;
     const entity = await Transaction.query()
       .insertAndFetch({
         ...record,
         id: undefined,
       })
       .returning('*');
-    transactionRecordIdMap[record.id] = entity;
+    if (record.id) transactionRecordIdMap[record.id] = entity;
   }
 
   console.log(`${transactionRecords.length} transactions inserted`, moment().format());
@@ -114,10 +114,10 @@ export const getItemsFromCsv = async (
           delete record[columnName as keyof ProductShape];
           if (column) {
             let found = false,
-              attributeEntity: AttributeShape,
+              attributeEntity!: AttributeShape,
               value;
             for (let m in attributes) {
-              if (Object.values(attributes[m].name).includes(attribute[1])) {
+              if (Object.values(attributes[m].name || {}).includes(attribute[1])) {
                 attributeEntity = {
                   id: attributes[m].id,
                 };
@@ -146,7 +146,7 @@ export const getItemsFromCsv = async (
         } else if (columnName === 'brand:name') {
           if (column) {
             for (const b of brands) {
-              if (b.name.toLowerCase() === column.toLowerCase()) {
+              if (b.name?.toLowerCase() === column.toLowerCase()) {
                 record.brandId = b.id;
                 break;
               }
@@ -166,7 +166,7 @@ export const getItemsFromCsv = async (
                 break;
               }
             }
-            if (!found) {
+            if (!found && locale) {
               categoryEntity = {
                 name: {
                   [locale]: column,
@@ -226,12 +226,12 @@ export const getItemsFromCsv = async (
   console.log(`${productRecords.length} products inserted`, moment().format());
 
   for (const record of itemRecords) {
-    record.productId = productRecordIdMap[record.productId]?.id;
-    record.transactionId = transactionRecordIdMap[record.transactionId]?.id;
+    if (record.productId) record.productId = productRecordIdMap[record.productId]?.id;
+    if (record.transactionId) record.transactionId = transactionRecordIdMap[record.transactionId]?.id;
     await Item.query()
       .insertAndFetch({
         ...record,
-        price: Number(record.price) || null,
+        price: Number(record.price) || 0,
         id: undefined,
       })
       .returning('*');

@@ -1,6 +1,8 @@
+import express from 'express';
+
 import Item from '../models/Item';
 
-export default app => {
+export default (app: express.Application) => {
 
 app.get('/api/item', async (req, res) => {
   const items = await Item.query()

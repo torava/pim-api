@@ -121,10 +121,10 @@ export default (app: express.Application) => {
 
   app.post('/api/transaction/csv', async (req, res) => {
     // https://github.com/DefinitelyTyped/DefinitelyTyped/pull/40915#issuecomment-563917863
-    if (Array.isArray(req.files.transactions)) {
+    if (Array.isArray(req.files?.transactions)) {
       throw new Error('Please upload only one file');
     }
-    let transactions: Record<string, DeepPartial<Transaction>>;
+    let transactions!: Record<string, DeepPartial<Transaction>>;
     const template = String(req.query.template) || 'default';
     console.log('template', template);
     const indexes =
@@ -134,7 +134,7 @@ export default (app: express.Application) => {
       TRANSACTION_CSV_STARTING_ROW.default;
 
     try {
-      const rows = getEntitiesFromCsv(req.files.transactions.data, {
+      const rows = getEntitiesFromCsv(req.files?.transactions.data || '', {
         delimiter: CSV_SEPARATOR[template as keyof typeof CSV_SEPARATOR],
         columns: false,
       });
@@ -151,7 +151,7 @@ export default (app: express.Application) => {
 
     let promises = [];
     for await (let transaction of Object.values(transactions)) {
-      transaction.items = transaction.items.filter((item) => item);
+      transaction.items = transaction.items?.filter((item) => item);
       try {
         await resolveTransactionCategories(transaction as Transaction, items, products, leafCategories, brands);
       } catch (error) {

@@ -22,7 +22,7 @@ export const getDetails = (brands: BrandShape[] = []) => {
   details.brands = {};
 
   brands.forEach((brand) => {
-    details.brands[brand.name] = [brand.name, ...(brand.aliases || [])];
+    if (brand.name) details.brands[brand.name] = [brand.name, ...(brand.aliases || [])];
   });
 
   return details;
@@ -116,17 +116,17 @@ export function escapeRegExp(stringToGoIntoTheRegex: string) {
 export function stripName(name: NameTranslations, brands: BrandShape[]) {
   const details = getDetails(brands);
   let strippedName: NameTranslations = {};
-  Object.entries(name).forEach(([locale, translation]: [Locale, string]) => {
-    strippedName[locale] = translation;
+  Object.entries(name).forEach(([locale, translation]) => {
+    strippedName[locale as Locale] = translation;
     for (const i in details) {
       for (const j in details[i]) {
         details[i][j].forEach((detail) => {
-          strippedName[locale] = strippedName[locale].replace(new RegExp(escapeRegExp(detail)), '');
+          strippedName[locale as Locale] = strippedName[locale as Locale]?.replace(new RegExp(escapeRegExp(detail)), '');
         });
       }
     }
-    strippedName[locale] = strippedName[locale]
-      .replace(/,/g, '')
+    strippedName[locale as Locale] = strippedName[locale as Locale]
+      ?.replace(/,/g, '')
       .replace(/\s{2,}/, ' ')
       .trim();
   });
@@ -221,12 +221,12 @@ export const resolveTransactionCategories = async (
     console.log('categories length', categories.length);
 
     const trimmedCategories = categories
-      .filter((category) => (category.attributes.length ? true : false))
+      .filter((category) => (category.attributes?.length ? true : false))
       .map((category) => {
         const trimmedCategory: CategoryShape & { trimmedName: NameTranslations } = { ...category, trimmedName: {} };
-        if (trimmedCategory.attributes.length) {
+        if (trimmedCategory.attributes?.length) {
           let name = trimmedCategory.name;
-          trimmedCategory.trimmedName = stripName(name, brands);
+          trimmedCategory.trimmedName = stripName(name || {}, brands);
         } else {
           trimmedCategory.trimmedName = {};
         }
@@ -234,22 +234,20 @@ export const resolveTransactionCategories = async (
       });
     //fs.writeFileSync('./ner.json', JSON.stringify(manager.save()));
 
-    for (const item of transaction.items) {
+    for (const item of transaction.items || []) {
       if (!item) continue;
 
       const itemCategories: any[] = [];
       const itemProducts: any[] = [];
-      const trimmedItemName = stripDetails(item.product.name, brands);
+      const strippedItemName = stripDetails(item.product?.name || '', brands);
 
       let distance: number;
 
-      console.log('trimmed item name', trimmedItemName);
-
       items.forEach((comparableItem) => {
         if (comparableItem.product && comparableItem.product.category && comparableItem.text) {
-          const productName = item.product.name.toLowerCase() || '';
+          const productName = item.product?.name?.toLowerCase() || '';
           const itemName = comparableItem.text.toLowerCase() || '';
-          const comparableProductName = comparableItem.product?.name.toLowerCase() || '';
+          const comparableProductName = comparableItem.product?.name?.toLowerCase() || '';
           distance = Math.max(
             stringSimilarity(productName, itemName),
             stringSimilarity(productName, comparableProductName)
@@ -257,11 +255,11 @@ export const resolveTransactionCategories = async (
 
           if (distance > 0.4) {
             console.log('comparing product to items', productName, itemName, distance);
-            console.log(item.product.name, comparableItem.text, distance);
+            console.log(item.product?.name, comparableItem.text, distance);
             itemProducts.push({
               category: comparableItem.product.category,
-              itemName: item.product.name,
-              trimmedItemName,
+              itemName: item.product?.name,
+              trimmedItemName: strippedItemName,
               distance: distance,
               product: comparableItem.product,
             });
@@ -271,9 +269,9 @@ export const resolveTransactionCategories = async (
 
       products.forEach((comparableProduct) => {
         if (comparableProduct && comparableProduct.categoryId) {
-          const productName = item.product.name.toLowerCase() || '';
-          const itemName = comparableProduct.name.toLowerCase() || '';
-          const comparableProductName = comparableProduct.name.toLowerCase() || '';
+          const productName = item.product?.name?.toLowerCase() || '';
+          const itemName = comparableProduct.name?.toLowerCase() || '';
+          const comparableProductName = comparableProduct.name?.toLowerCase() || '';
           distance = Math.max(
             stringSimilarity(productName, itemName),
             stringSimilarity(productName, comparableProductName)
@@ -281,10 +279,10 @@ export const resolveTransactionCategories = async (
 
           if (distance > 0.4) {
             console.log('comparing product to products', productName, itemName, distance);
-            console.log(item.product.name, comparableProduct.name, distance);
+            console.log(item.product?.name, comparableProduct.name, distance);
             itemProducts.push({
-              itemName: item.product.name,
-              trimmedItemName,
+              itemName: item.product?.name,
+              trimmedItemName: strippedItemName,
               distance: distance,
               product: comparableProduct,
             });
@@ -293,27 +291,27 @@ export const resolveTransactionCategories = async (
       });
 
       trimmedCategories.forEach((category) => {
-        Object.entries(category.trimmedName).forEach(([locale, translation]: [Locale, string]) => {
+        Object.entries(category.trimmedName).forEach(([locale, translation]) => {
           if (category.trimmedName && translation) {
-            distance = stringSimilarity(trimmedItemName.toLowerCase() || '', translation.toLowerCase() || '');
+            distance = stringSimilarity(strippedItemName.toLowerCase() || '', translation.toLowerCase() || '');
             distance = Math.max(
               distance,
-              stringSimilarity(item.product.name.toLowerCase() || '', category.name[locale].toLowerCase() || '') + 0.1
+              stringSimilarity(item.product?.name?.toLowerCase() || '', category.name?.[locale as Locale]?.toLowerCase() || '') + 0.1
             );
             category.aliases?.forEach((alias) => {
               distance = Math.max(
                 distance,
-                stringSimilarity(trimmedItemName.toLowerCase() || '', alias.toLowerCase() || '') + 0.1
+                stringSimilarity(strippedItemName.toLowerCase() || '', alias.toLowerCase() || '') + 0.1
               );
               distance = Math.max(
                 distance,
-                stringSimilarity(item.product.name.toLowerCase() || '', alias.toLowerCase() || '') + 0.1
+                stringSimilarity(item.product?.name?.toLowerCase() || '', alias.toLowerCase() || '') + 0.1
               );
             });
             if (category.parent) {
               distance = Math.max(
                 distance,
-                stringSimilarity(trimmedItemName || '', category.parent.name[locale] || '')
+                stringSimilarity(strippedItemName || '', category.parent.name?.[locale as Locale] || '')
               );
             }
             //accuracy = (trimmedItemName.length-distance)/trimmedItemName.length;
@@ -322,20 +320,20 @@ export const resolveTransactionCategories = async (
               console.log(
                 'comparing item to categories',
                 'product name',
-                item.product.name,
+                item.product?.name,
                 'category name',
-                category.name[locale],
+                category.name?.[locale as Locale],
                 'aliases',
                 category.aliases,
                 'parent',
-                category.parent?.name[locale],
+                category.parent?.name?.[locale as Locale],
                 'distance',
                 distance
               );
               itemCategories.push({
                 category,
-                itemName: item.product.name,
-                trimmedItemName,
+                itemName: item.product?.name,
+                trimmedItemName: strippedItemName,
                 name: translation,
                 distance,
               });
@@ -346,7 +344,7 @@ export const resolveTransactionCategories = async (
                 itemProducts.push({
                   category,
                   //itemName: product.name,
-                  trimmedItemName,
+                  trimmedItemName: strippedItemName,
                   name: translation,
                   distance,
                   product,
@@ -357,10 +355,10 @@ export const resolveTransactionCategories = async (
         });
       });
 
-      if (item.product.category && item.product.category.name) {
+      if (item.product?.category && item.product.category.name) {
         trimmedCategories.forEach((category) => {
-          Object.entries(category.name).forEach(([locale, categoryTranslation]: [Locale, string]) => {
-            const productCategoryName = item.product.category.name[locale]?.toLowerCase();
+          Object.entries(category.name || {}).forEach(([locale, categoryTranslation]) => {
+            const productCategoryName = item.product?.category?.name?.[locale as Locale]?.toLowerCase();
             const categoryName = categoryTranslation.toLowerCase();
             distance = stringSimilarity(productCategoryName || '', categoryName || '');
             //accuracy = (trimmedItemName.length-distance)/trimmedItemName.length;
@@ -369,8 +367,8 @@ export const resolveTransactionCategories = async (
               console.log('comparing product category to categories', productCategoryName, categoryName, distance);
               itemCategories.push({
                 category,
-                itemName: item.product.name,
-                trimmedItemName,
+                itemName: item.product?.name,
+                trimmedItemName: strippedItemName,
                 distance: distance,
               });
 
@@ -380,7 +378,7 @@ export const resolveTransactionCategories = async (
                 itemProducts.push({
                   category,
                   //itemName: product.name,
-                  trimmedItemName,
+                  trimmedItemName: strippedItemName,
                   distance: distance,
                   product: product,
                 });
@@ -401,7 +399,7 @@ export const resolveTransactionCategories = async (
 
         console.log('itemProduct', itemProduct);
         continue;
-      } else if (itemCategory) {
+      } else if (itemCategory && item.product) {
         item.product.categoryId = itemCategory.category.id;
         delete item.product.category;
 
@@ -433,7 +431,7 @@ export const getTransactionsFromCsv = (rows: any, startingRow: number, indexes: 
       let columnName = TRANSACTION_CSV_COLUMNS[template as keyof typeof TRANSACTION_CSV_COLUMNS](itemIndex)[n];
 
       let value = columns[n];
-      let numberValue: number;
+      let numberValue!: number;
 
       if (!columnName || !value) continue;
 
@@ -483,7 +481,7 @@ export const getTransactionsFromCsv = (rows: any, startingRow: number, indexes: 
         columnName = 'date';
       } else if (columnName.split('.')[1] === 'price') {
         numberValue = getNumber(value);
-        transactions[columnKey].totalPrice += numberValue;
+        transactions[columnKey].totalPrice!+= numberValue;
       }
       if (columnName !== 'id') {
         if (typeof numberValue === 'number') {

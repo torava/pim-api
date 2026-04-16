@@ -85,12 +85,12 @@ export const getDiaryExcelFineliWorkbook = (
     border: { bottom: { color: { argb: 'FF000000' }, style: 'medium' } },
   };
   attributeCells.forEach((attributeCell, index) => {
-    const attribute = attributes.find((attribute) => attribute.code === attributeCell.attribute.code);
+    const attribute = attributes.find((attribute) => attribute.code === attributeCell.attribute?.code);
     const recommendation = getRecommendation(attribute, recommendations, sex);
     headerRow.getCell(11 + index * 2).value =
-      `min. ${attribute.name[locale]}${recommendation.unit ? ` (${recommendation.unit})` : ''}`;
+      `min. ${attribute?.name?.[locale]}${recommendation.unit ? ` (${recommendation.unit})` : ''}`;
     headerRow.getCell(11 + index * 2 + 1).value =
-      `max. ${attribute.name[locale]}${recommendation.unit ? ` (${recommendation.unit})` : ''}`;
+      `max. ${attribute?.name?.[locale]}${recommendation.unit ? ` (${recommendation.unit})` : ''}`;
     headerRow.getCell(11 + index * 2).style = {
       alignment: { vertical: 'top', wrapText: true },
       font: { bold: true },
@@ -109,7 +109,7 @@ export const getDiaryExcelFineliWorkbook = (
       return true;
     }
     const attribute = getAttribute(
-      headerRow.getCell(index + 1).value?.toString(),
+      headerRow.getCell(index + 1).value?.toString() || '',
       attributes,
       recommendations,
       sex
@@ -175,7 +175,7 @@ export const getDiaryExcelFineliWorkbook = (
             return true;
           }
           const attribute = getAttribute(
-            headerRow.getCell(index + 1).value?.toString(),
+            headerRow.getCell(index + 1).value?.toString() || '',
             attributes,
             recommendations,
             sex
@@ -238,7 +238,7 @@ export const getDiaryExcelFineliWorkbook = (
             return true;
           }
           const attribute = getAttribute(
-            headerRow.getCell(index + 1).value?.toString(),
+            headerRow.getCell(index + 1).value?.toString() || '',
             attributes,
             recommendations,
             sex
@@ -289,13 +289,13 @@ export const getDiaryExcelFineliWorkbook = (
         const price = getCategoryPrice(category, measure, amount, foodUnitAttribute, products, items);
         priceCell.value = price;
         priceCell.numFmt = price ? '0.00' : '0';
-        totalMealMeasure += measure;
+        totalMealMeasure += measure || 0;
         totalMealPrice += price;
         console.log('price, measure, amount', price, measure, amount);
         attributeCells.forEach((attributeCell, index) => {
           const { categoryAttributes, measure } = resolveCategoryAttributes(
             category,
-            [attributeCell.attribute.id],
+            [attributeCell.attribute?.id],
             foodUnitAttribute,
             amount,
             categories,

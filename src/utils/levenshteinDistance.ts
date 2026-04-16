@@ -74,8 +74,8 @@ function _getMatchStart(distanceMatrix: DistanceMatrix, matchEnd: number, source
   while (row > 1 && column > 1) {
     tmpRow = row;
     tmpColumn = column;
-    row = distanceMatrix[tmpRow][tmpColumn].parentCell.row;
-    column = distanceMatrix[tmpRow][tmpColumn].parentCell.column;
+    row = distanceMatrix[tmpRow][tmpColumn].parentCell?.row || 0;
+    column = distanceMatrix[tmpRow][tmpColumn].parentCell?.column || 0;
   }
 
   return column - 1;
@@ -135,16 +135,16 @@ export function LevenshteinDistance(source: string, target: string, options: Opt
 }
 
 function levenshteinDistance(source: string, target: string, options: Options) {
-  if (isNaN(options.insertion_cost)) options.insertion_cost = 1;
-  if (isNaN(options.deletion_cost)) options.deletion_cost = 1;
-  if (isNaN(options.substitution_cost)) options.substitution_cost = 1;
+  if (isNaN(options.insertion_cost as number)) options.insertion_cost = 1;
+  if (isNaN(options.deletion_cost as number)) options.deletion_cost = 1;
+  if (isNaN(options.substitution_cost as number)) options.substitution_cost = 1;
 
   if (typeof options.search !== 'boolean') options.search = false;
 
   const isUnrestrictedDamerau = options.damerau && !options.restricted;
   const isRestrictedDamerau = options.damerau && options.restricted;
 
-  let lastRowMap: Record<string, number>;
+  let lastRowMap!: Record<string, number>;
 
   if (isUnrestrictedDamerau) {
     lastRowMap = {};
@@ -157,7 +157,7 @@ function levenshteinDistance(source: string, target: string, options: Options) {
   for (let row = 1; row <= sourceLength; row++) {
     distanceMatrix[row] = [];
     distanceMatrix[row][0] = {
-      cost: distanceMatrix[row - 1][0].cost + options.deletion_cost,
+      cost: distanceMatrix[row - 1][0].cost + (options.deletion_cost || 0),
       parentCell: { row: row - 1, column: 0 },
     };
   }
@@ -167,7 +167,7 @@ function levenshteinDistance(source: string, target: string, options: Options) {
       distanceMatrix[0][column] = { cost: 0 };
     } else {
       distanceMatrix[0][column] = {
-        cost: distanceMatrix[0][column - 1].cost + options.insertion_cost,
+        cost: distanceMatrix[0][column - 1].cost + (options.insertion_cost || 0),
         parentCell: { row: 0, column: column - 1 },
       };
     }
@@ -178,15 +178,15 @@ function levenshteinDistance(source: string, target: string, options: Options) {
       var lastColMatch = null;
     }
     for (let column = 1; column <= targetLength; column++) {
-      const costToInsert = distanceMatrix[row][column - 1].cost + options.insertion_cost;
-      const costToDelete = distanceMatrix[row - 1][column].cost + options.deletion_cost;
+      const costToInsert = distanceMatrix[row][column - 1].cost + (options.insertion_cost || 0);
+      const costToDelete = distanceMatrix[row - 1][column].cost + (options.deletion_cost || 0);
 
       const sourceElement = source[row - 1];
       const targetElement = target[column - 1];
 
       let costToSubstitute = distanceMatrix[row - 1][column - 1].cost;
       if (sourceElement !== targetElement) {
-        costToSubstitute = costToSubstitute + options.substitution_cost;
+        costToSubstitute = costToSubstitute + (options.substitution_cost || 0);
       }
 
       const possibleParents: PossibleParent[] = [
@@ -203,17 +203,17 @@ function levenshteinDistance(source: string, target: string, options: Options) {
 
       if (canDamerau) {
         const lastRowMatch = lastRowMap[targetElement] || 0;
-        const costBeforeTransposition = distanceMatrix[lastRowMatch - 1][lastColMatch - 1].cost;
+        const costBeforeTransposition = distanceMatrix[lastRowMatch - 1][(lastColMatch || 0) - 1].cost;
         const costToTranspose =
           costBeforeTransposition +
-          (row - lastRowMatch - 1) * options.deletion_cost +
-          (column - lastColMatch - 1) * options.insertion_cost +
-          options.transposition_cost;
+          (row - lastRowMatch - 1) * (options.deletion_cost || 0) +
+          (column - (lastColMatch || 0) - 1) * (options.insertion_cost || 0) +
+          (options.transposition_cost || 0);
         possibleParents.push({
           cost: costToTranspose,
           coordinates: {
             row: lastRowMatch - 1,
-            column: lastColMatch - 1,
+            column: (lastColMatch || 0) - 1,
           },
         });
       }
@@ -229,7 +229,7 @@ function levenshteinDistance(source: string, target: string, options: Options) {
       if (canDoRestrictedDamerau) {
         const costBeforeTransposition = distanceMatrix[row - 2][column - 2].cost;
         possibleParents.push({
-          cost: costBeforeTransposition + options.transposition_cost,
+          cost: costBeforeTransposition + (options.transposition_cost || 0),
           coordinates: { row: row - 2, column: column - 2 },
         });
       }

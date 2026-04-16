@@ -39,7 +39,9 @@ export const insertFromRecords = async (
       ...record,
       id: undefined
     }).returning('*');
-    recordIdMap[record.id] = entity;
+    if (record.id) {
+      recordIdMap[record.id] = entity;
+    }
   }
   return recordIdMap;
 };
@@ -353,12 +355,15 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
     console.log('written '+moment().format());
 
     // get values from database to object with Fineli id
-    for (let i in categories) {
-      categories[i] = category.shift();
+    for (const i in categories) {
+      const newCategory = category.shift();
+      if (newCategory) {
+        categories[i] = newCategory;
+      }
     }
 
     // go through contributions
-    for (let i in contribfoodRows) {
+    for (const i in contribfoodRows) {
       row = contribfoodRows[i].split(';');
 
       if (!row[0] || row[0] == 'FOODID' || !row[2]) {
@@ -452,11 +457,11 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
           .upsertGraph(attribute, {relate: true})
           .then(result => {
             // set database id as reference
-            if (!(attrRef in attrRefs))
+            if (!(attrRef in attrRefs) && result.id)
               attrRefs[attrRef] = result.id;
-            if (!(parentRef in parentAttrRefs))
+            if (!(parentRef in parentAttrRefs) && result.parent?.id)
               parentAttrRefs[parentRef] = result.parent.id;
-            if (!(secondParentRef in secondParentAttrRefs))
+            if (!(secondParentRef in secondParentAttrRefs) && result.parent?.parent?.id)
               secondParentAttrRefs[secondParentRef] = result.parent.parent.id;
 
             attribute = {id: result.id};
@@ -477,7 +482,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
             sourceId: baseSources[0].id
           }
         ];
-        attributes[row[0]].attributes.push({
+        attributes[row[0]].attributes?.push({
           attribute: attribute as AttributeShape,
           value,
           unit,
@@ -514,7 +519,7 @@ export const getExternalCategoriesFineli = async (directory = 'fineli') => {
     for (const unit of foodaddunitRecords) {
       const sources: CategoryAttributeSourceShape[] = [
         {
-          referenceUrl: `https://fineli.fi/fineli/en/elintarvikkeet/${row[0]}`,
+          referenceUrl: `https://fineli.fi/fineli/en/elintarvikkeet/${row?.[0]}`,
           sourceId: baseSources[0].id
         }
       ];

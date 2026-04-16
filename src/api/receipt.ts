@@ -85,12 +85,14 @@ const processReceipt = async (
       data = await getTransactionsFromReceipt(data, text, language, id);
       //data.transactions[0].receipts = [{}];
       //data.transactions[0].receipts[0].text = text;
-      data.transactions[0].receipts[0].file = id;
+      data.transactions![0].receipts![0].file = id;
       delete data.categories;
       delete data.products;
       delete data.parties;
       //console.dir(data, { depth: null });
-      return await Transaction.query().upsertGraph(data.transactions, { relate: true });
+      if (data.transactions) {
+        return await Transaction.query().upsertGraph(data.transactions, { relate: true });
+      }
     }
   } catch (error) {
     console.error(error);
@@ -126,16 +128,18 @@ app.post('/api/receipt/data/edited/:id', function(req, res) {
 });
 
 app.post('/api/receipt/original', (req, res) => {
-  if (Array.isArray(req.files.src)) {
+  if (Array.isArray(req.files?.src)) {
     console.error('Please upload only one file');
     return res.sendStatus(500);
   }
-  const base64Data = req.files.src.data;
+  const base64Data = req.files?.src.data;
   const name = `${req.body.id}_original`;
 
   try {
-    const path = uploadReceipt(name, base64Data);
-    res.send(path);
+    if (base64Data) {
+      const path = uploadReceipt(name, base64Data);
+      res.send(path);
+    } else res.sendStatus(500);
   } catch (error) {
     console.error(error);
     res.sendStatus(500);
@@ -143,11 +147,11 @@ app.post('/api/receipt/original', (req, res) => {
 });
 
 app.post('/api/receipt/edit', async (req, res) => {
-  if (Array.isArray(req.files.src)) {
+  if (Array.isArray(req.files?.src)) {
     console.error('Please upload only one file');
     return res.sendStatus(500);
   }
-  const buffer = req.files.src.data;
+  const buffer = req.files?.src.data;
   const name = `${req.body.id}_edited`;
 
   try {
@@ -164,16 +168,18 @@ app.post('/api/receipt/edit', async (req, res) => {
 });
 
 app.post('/api/receipt/pre', (req, res) => {
-  if (Array.isArray(req.files.src)) {
+  if (Array.isArray(req.files?.src)) {
     console.error('Please upload only one file');
     return res.sendStatus(500);
   }
-  const base64Data = req.files.src.data;
+  const base64Data = req.files?.src.data;
   const name = `${req.body.id}_pre`;
 
   try {
-    const path = uploadReceipt(name, base64Data);
-    res.send(path);
+    if (base64Data) {
+      const path = uploadReceipt(name, base64Data);
+      res.send(path);
+    } else res.sendStatus(500);
   } catch(error) {
     console.error(error);
     res.sendStatus(500);
