@@ -568,11 +568,12 @@ export const resolveCategoryAttributes = (
       categoryContributionCoverageMeasure, '/', categoryContributionTotalMeasure, '=',
       categoryContributionCoverageMeasure/categoryContributionTotalMeasure, contributionCoverageThreshold
     );
-    if (result?.minCategoryAttribute) {
-      const {minCategoryAttribute} = result;
-      minValue = (result.minAttributeValue || 0) * amount;
-      maxValue = (result.maxAttributeValue || 0) * amount;
-      unit = minCategoryAttribute.unit?.split('/')[0] || '';
+    const unitSubstrings = result?.minCategoryAttribute?.unit?.split('/');
+    if (result?.minCategoryAttribute && unitSubstrings?.[1] !== 'EUR') {
+      const {minAttributeValue, maxAttributeValue} = result;
+      minValue = (minAttributeValue || 0) * amount;
+      maxValue = (maxAttributeValue || 0) * amount;
+      unit = unitSubstrings?.[0] || '';
     } else if (categoryContributionCoverageMeasure/categoryContributionTotalMeasure <= contributionCoverageThreshold) {
       console.log('insufficient contributions skipped for', category.name?.['en-US']);
       return true;
