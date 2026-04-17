@@ -22,9 +22,11 @@ export const getCategoryById = (categories: CategoryShape[], categoryId: Categor
   categories.find(c => c.id === categoryId)
 );
 
-export const getCategoryAttributes = (category?: CategoryShape, attributeId?: CategoryAttributeShape['id']) => (
-  Object.values(category?.attributes || {}).filter(attribute => attribute.attributeId === attributeId)
-);
+export const getCategoryAttributes = (category?: CategoryShape, attributeId?: CategoryAttributeShape['id']) =>
+  Object.values(category?.attributes || {}).filter(
+    // Ignore price based attributes for now
+    (attribute) => attribute.attributeId === attributeId && attribute.unit?.split('/')[1] !== 'EUR'
+  );
 
 export const getCategoryWithAttributes = (
   categories: CategoryShape[],
@@ -550,8 +552,8 @@ export const resolveCategoryAttributes = (
       }
     });
 
-    minValue*= portionMeasure/categoryContributionTotalMeasure || 1;
-    maxValue*= portionMeasure/categoryContributionTotalMeasure || 1;
+    minValue*= portionMeasure/(categoryContributionTotalMeasure || 1);
+    maxValue*= portionMeasure/(categoryContributionTotalMeasure || 1);
 
     const result = getCategoryMinMaxAttributes(
       { ...category, contributions: [] },

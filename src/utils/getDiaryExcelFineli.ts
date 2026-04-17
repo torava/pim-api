@@ -303,6 +303,7 @@ export const getDiaryExcelFineliWorkbook = (
             0.9
           );
           console.log(
+            category.name?.['en-US'],
             categoryAttributes[0]?.value,
             categoryAttributes[0]?.unit,
             categoryAttributes[0]?.type,
