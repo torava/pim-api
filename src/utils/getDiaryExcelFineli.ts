@@ -6,6 +6,7 @@ import {
   getDailyAttributeValue,
   getMealAttributeValue,
   getRecommendation,
+  hasChildren,
   Locale,
   PRICE_RECOMMENDATION,
 } from '@torava/pim-utils';
@@ -281,7 +282,9 @@ export const getDiaryExcelFineliWorkbook = (
       }
     } else {
       const category = categories.find(
-        (category) => category.name?.[locale] === food && !categories.some((child) => child.parentId === category.id)
+        (category) =>
+          category.name?.[locale]?.toLocaleLowerCase() === food.toLocaleString().toLocaleLowerCase() &&
+          !hasChildren(category.id, categories)
       );
       const foodUnitAttribute = attributes.find((attribute) => attribute.code === unit);
       if (category && foodUnitAttribute) {
