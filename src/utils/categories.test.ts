@@ -95,7 +95,7 @@ describe('categories utils', () => {
     const attributeIds = [1, 5];
     const foodUnitAttribute = mockAttributes[2];
     const amount = 2;
-    const { categoryAttributes } = resolveCategoryAttributes(
+    const { categoryAttributes, measure } = resolveCategoryAttributes(
       mockStrippedCategories[3],
       attributeIds,
       foodUnitAttribute,
@@ -107,13 +107,31 @@ describe('categories utils', () => {
       ((mockStrippedCategories[3].attributes?.[2].value || 0) / 1000) * (mockStrippedCategories[3].attributes?.[1].value || 0) * amount;
     expect(categoryAttributes[0].value).toEqual(value);
     expect(categoryAttributes[0].attribute).toBe(mockAttributes[0]);
+    expect(measure).toEqual(0.4);
+  });
+
+  it('should resolve category attributes with food unit attribute as zero if attribute does not exist', () => {
+    const attributeIds = [-1];
+    const foodUnitAttribute = mockAttributes[2];
+    const amount = 2;
+    const { categoryAttributes, measure } = resolveCategoryAttributes(
+      mockStrippedCategories[3],
+      attributeIds,
+      foodUnitAttribute,
+      amount,
+      mockStrippedCategories,
+      mockAttributes
+    );
+    expect(categoryAttributes[0].value).toEqual(0);
+    expect(categoryAttributes[0].attribute).toBe(undefined);
+    expect(measure).toEqual(0.4);
   });
 
   it('should resolve category attributes by contributions with food unit attribute', () => {
     const attributeIds = [1, 5];
     const foodUnitAttribute = mockAttributes[2];
     const amount = 2;
-    const { categoryAttributes } = resolveCategoryAttributes(
+    const { categoryAttributes, measure } = resolveCategoryAttributes(
       mockStrippedCategories[0],
       attributeIds,
       foodUnitAttribute,
@@ -121,7 +139,9 @@ describe('categories utils', () => {
       mockStrippedCategories,
       mockAttributes
     );
+    expect(categoryAttributes[0].value).toEqual(0.0385);
     expect(categoryAttributes[0].attribute).toBe(mockAttributes[0]);
+    expect(measure).toEqual(0.17500000000000002);
   });
 
   it('should resolve category contribution prices', () => {
