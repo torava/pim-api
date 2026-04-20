@@ -15,6 +15,7 @@ import PartyShape from '@torava/pim-utils/dist/models/Party';
 import ProductShape from '@torava/pim-utils/dist/models/Product';
 import ReceiptShape from '@torava/pim-utils/dist/models/Receipt';
 import TransactionShape from '@torava/pim-utils/dist/models/Transaction';
+import Receipt from '../models/Receipt';
 
 export default (app: express.Application) => {
 
@@ -36,24 +37,13 @@ const uploadReceipt = (name: string, data: Buffer) => {
   }
 };
 
-app.get('/api/receipt/data/:id', async (req, res) => {
-  const data = req.body;
+app.get('/api/receipt/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    const category = await Category.query();
-    data.categories = category;
-    const product = await Product.query()
-    data.products = product;
-    const manufacturer = await Manufacturer.query();
-    data.manufacturers = manufacturer;
-    const transaction = await Transaction.query()
+    const receipt = await Receipt.query()
     .where('id', id)
-    .withGraphFetched('[items.[product.[category, manufacturer]], party, receipts]')
-    .modifyGraph('items.product.category', builder => {
-      builder.select('id', 'name');
-    });
-    data.transactions = transaction;
-    res.json(data);
+    .withGraphFetched('transaction.[party, group, items]');
+    res.json(receipt);
   } catch (error) {
     console.error(error);
     res.sendStatus(500);

@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "PIM API",
-    "version": "1.4.15"
+    "version": "1.5.0"
   },
   "paths": {
     "/api/recommendation": {
@@ -344,7 +344,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Attribute codes separated with commas to aggregate for product.\n\nFor example, GHG will return carbon footprint.\n\nENERC,FAT,FASAT,CHOAVL,SUGAR,FIBRC,PROT,NACL returns basic nutritional information."
+            "description": "Attribute codes separated with commas to aggregate for product.\n\nFor example, GHG,LAND,EUTRO,FRESHW,FRESHWW will return environmental footprints.\n\nENERC,FAT,FASAT,CHOAVL,SUGAR,FIBRC,PROT,NACL returns basic nutritional information."
           },
           {
             "name": "foodUnitAttributeCode",
@@ -494,6 +494,37 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Transaction"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/receipt/{id}": {
+      "get": {
+        "description": "Returns receipt by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Receipt ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Receipt"
                 }
               }
             }
