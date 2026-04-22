@@ -7,7 +7,6 @@ import Knex from 'knex';
 import {Model} from 'objection';
 import {JSDOM} from 'jsdom';
 import { Canvas, createCanvas, Image, ImageData } from '@napi-rs/canvas';
-import path from 'path';
 import bodyParser from 'body-parser';
 import swaggerUi from 'swagger-ui-express';
 import pg from 'pg';
