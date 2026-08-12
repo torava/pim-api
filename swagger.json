@@ -131,6 +131,14 @@
               "type": "string"
             },
             "description": "Part of category name for filtering"
+          },
+          {
+            "name": "attributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Get category attributes"
           }
         ],
         "description": "Returns a list of categories",
@@ -389,37 +397,6 @@
                   "items": {
                     "$ref": "#/components/schemas/Source"
                   }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
-    "/api/receipt/{id}": {
-      "get": {
-        "description": "Returns receipt by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Receipt ID"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Receipt"
                 }
               }
             }

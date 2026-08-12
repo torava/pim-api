@@ -75,7 +75,8 @@ app.get('/api/category', async (req, res) => {
     categoriesPerPage = 20,
     name,
     parent,
-    transactions
+    transactions,
+    attributes
   } = req.query;
   if ('parent' in req.query) {
     return Category.query()
@@ -108,7 +109,12 @@ app.get('/api/category', async (req, res) => {
   }
   else {
     try {
-      let categories = await Category.query();
+      let categories;
+      if (attributes) {
+        categories = await Category.query().withGraphFetched('[attributes]');
+      } else {
+        categories = await Category.query();
+      }
       if (name?.length) {
         categories = categories.filter(category => (
           Object.values(category.name || {}).find(n => n.toLowerCase().match(String(name).toLowerCase()))

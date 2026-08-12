@@ -131,6 +131,14 @@
               "type": "string"
             },
             "description": "Part of category name for filtering"
+          },
+          {
+            "name": "attributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Get category attributes"
           }
         ],
         "description": "Returns a list of categories",
