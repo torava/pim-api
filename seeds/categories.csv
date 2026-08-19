@@ -1,21 +1,15 @@
 "name[""en-US""]";"name[""fi-FI""]";aliases;parent;attribute:GHG (kgCO₂e);attribute:GHG (kgCO₂e/kg);attribute:GHG (kgCO₂/kWh);attribute:GHG (kgCO₂e/km);attribute:GHG (kgCO₂e/l);attribute:GHG (kgCO₂e/EUR);attribute:Land use (m²/kg);attribute:Land use (m²/l);attribute:Eutrophication (gPO₄eq/kg);attribute:Eutrophication (gPO₄eq/l);attribute:Freshwater footprint (l/kg);attribute:Freshwater footprint (l/l);note;sourceId
 Animal feed;Eläinruoka;"[""Kierretikku"", ""Softies herkkupala""]";Supplies;;;;;;3,36;;;;;;;Products for domestic animals;2
-Animal feed;Eläinruoka;"[""Kierretikku"", ""Softies herkkupala""]";Supplies;;;;;;3,36;;;;;;;Products for domestic animals;2
 Apple, Imported, With Skin;;;;;0,43;;;;;;;;;;;Apples;1
 Apple, Imported, With Skin;;;;;;;;;;0,63;;;;;;Apples;1
 Apple, Imported, With Skin;;;;;;;;;;;;1,45;;;;Apples;1
 Apple, Imported, With Skin;;;;;;;;;;;;;;180;;Apples;1
 Appliances;Kodinkoneet;;Supplies;;;;;;0,51;;;;;;;Kodinkoneet ja työkalut;2
-Appliances;Kodinkoneet;;Supplies;;;;;;0,51;;;;;;;Kodinkoneet ja työkalut;2
-Aquarelle paper;Akvarellipaperi;;Arts and crafts;;;;;;0,32;;;;;;;Paperitarvikkeet, kirjat, lehdet;2
 Aquarelle paper;Akvarellipaperi;;Arts and crafts;;;;;;0,32;;;;;;;Paperitarvikkeet, kirjat, lehdet;2
 Arts and crafts;Askartelu ja taide;;Supplies;;;;;;;;;;;;;;
 Avocado Sauce, Guacamole, Industrial;;;;;;;;;0,7;;;;;;;Plant based groceries;2
-Avocado Sauce, Guacamole, Industrial;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Baby toy;Vauvanlelu;"[""Vauvan- Ja Kehityslelut""]";Children's supplies;;;;;;;;;;;;;;
 Baking paper;Leivinpaperi;;Kitchen;;;;;;0,72;;;;;;;Paper, carton and cardboard products;2
-Baking paper;Leivinpaperi;;Kitchen;;;;;;0,72;;;;;;;Paper, carton and cardboard products;2
-Baking Yeast, Fresh;;"[""Kuivahiiva""]";;;;;;;0,7;;;;;;;Plant based groceries;2
 Baking Yeast, Fresh;;"[""Kuivahiiva""]";;;;;;;0,7;;;;;;;Plant based groceries;2
 Bamboo Shoots, Canned;;"[""Bamboo"", ""Bambu"", ""Bambuja""]";;;;;;;;;;;;;;;
 Banana, Without Skin;;;;;0,86;;;;;;;;;;;Bananas;1
@@ -46,42 +40,29 @@ Berries;;;;;;;;;;2,41;;;;;;Berries & Grapes;1
 Berries;;;;;;;;;;;;6,12;;;;Berries & Grapes;1
 Berries;;;;;;;;;;;;;;420;;Berries & Grapes;1
 Berries;;;;;;;;;0,7;;;;;;;Plant based groceries;2
-Berries;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Berry, Average;"[""Pakkasmarja marjaseos""]";;;;;;;;;;;;;;;;
 Biscuit;;"[""Sydänhyvä pikkuleipä""]";;;;;;;;;;;;;;;
 Blueberry, Bilberry;;"[""Kotimainen pakastemustikka""]";;;;;;;0,7;;;;;;;Plant based groceries;2
-Blueberry, Bilberry;;"[""Kotimainen pakastemustikka""]";;;;;;;0,7;;;;;;;Plant based groceries;2
 Body lotion;Vartalovoide;;Skincare products;;;;;;;;;;;;;;
-Bread, mixed flour;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Bread, mixed flour;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Breakfast Cereal, Chocolate Cereal, Average;;"[""Suklaavehnärenkaita""]";;;;;;;;;;;;;;;
 Breakfast Cereal, Chocolate Cereal, Weetos Choco, Weetabix;;"[""Suklaa vehnämuroke""]";;;;;;;;;;;;;;;
 Breakfast cereals;;;;;;;;;0,7;;;;;;;Plant based groceries;2
-Breakfast cereals;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Brush;Sivellin;"[""Siveltimet""]";Supplies;;;;;;0,46;;;;;;;Factory products;2
-Brush;Sivellin;"[""Siveltimet""]";Supplies;;;;;;0,46;;;;;;;Factory products;2
+Bus, city;Linja-auto, kaupunkiliikenne;;Public transport;;;;0,063;;;;;;;;;Linja-auto, kaupunkiliikenne;70
 Bus, city;;;;;;;;;0,8;;;;;;;Bus trips;2
-Bus, city;;;;;;;;;0,8;;;;;;;Bus trips;2
+Bus, long-distance;Linja-auto, pitkänmatkanliikenne;;Public transport;;;;0,054;;;;;;;;;Linja-auto, pitkänmatkanliikenne;70
 Bus, long-distance;;;;;;;;;0,8;;;;;;;Bus trips;2
-Bus, long-distance;;;;;;;;;0,8;;;;;;;Bus trips;2
-Café;Kahvila;;Services;;;;;;0,49;;;;;;;Ravintolapalvelut;2
 Café;Kahvila;;Services;;;;;;0,49;;;;;;;Ravintolapalvelut;2
 Cake, Mocha Cake;;"[""Brownie""]";;;;;;;;;;;;;;;
 Canned fruits;;;;;;;;;0,7;;;;;;;Plant based groceries;2
-Canned fruits;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Canned vegetables;;;;;;;;;0,7;;;;;;;Plant based groceries;2
-Canned vegetables;;;;;;;;;0,7;;;;;;;Plant based groceries;2
-Car supplies;Autotarvikkeet;"[""Lasinpesuneste""]";Supplies;;;;;;0,86;;;;;;;Motor vehicle and motor parts and supplies;2
 Car supplies;Autotarvikkeet;"[""Lasinpesuneste""]";Supplies;;;;;;0,86;;;;;;;Motor vehicle and motor parts and supplies;2
 Car wash;Autopesu;"[""Pesut"", ""Peruspesu""]";Services;;;;;;;;;;;;;;
 Cardboard box;Pahvilaatikko;;Supplies;;;;;;0,72;;;;;;;Paper, carton and cardboard products;2
-Cardboard box;Pahvilaatikko;;Supplies;;;;;;0,72;;;;;;;Paper, carton and cardboard products;2
-Carpets;Matot;;Interior design;;;;;;0,42;;;;;;;Huonekalut, matot;2
 Carpets;Matot;;Interior design;;;;;;0,42;;;;;;;Huonekalut, matot;2
 Cashew Cranberry Mix;;;Snacks;;;;;;;;;;;;;;
 Ceramics;Keramiikka;;Supplies;;;;;;0,65;;;;;;;Ceramic products for other than construction purposes;2
-Ceramics;Keramiikka;;Supplies;;;;;;0,65;;;;;;;Ceramic products for other than construction purposes;2
-Cereals;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Cereals;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Cheese Pasty, Vaasan Kotiuunin;;"[""Mozzarella pasteija""]";;;;;;;;;;;;;;;
 Cheese, average;;"[""Juusto"", ""Juustoa""]";;;;;;;;;;;;;;;
@@ -137,11 +118,8 @@ Citrus fruit;;;;;;;;;;0,86;;;;;;Citrus Fruit;1
 Citrus fruit;;;;;;;;;;;;2,24;;;;Citrus Fruit;1
 Citrus fruit;;;;;;;;;;;;;;83;;Citrus Fruit;1
 Cleaning Services;Siivouspalvelut;;Services;;;;;;0,1;;;;;;;Siivouspalvelut arvio;2
-Cleaning Services;Siivouspalvelut;;Services;;;;;;0,1;;;;;;;Siivouspalvelut arvio;2
-Clothes;Vaatteet;"[""Käsineet"", ""Sukat"", ""Tights""]";Supplies;;;;;;0,4;;;;;;;Vaatteet;2
 Clothes;Vaatteet;"[""Käsineet"", ""Sukat"", ""Tights""]";Supplies;;;;;;0,4;;;;;;;Vaatteet;2
 Cocoa powder with sugar;;;;;;;;;;;;;;;;;
-Coconut Oil;Kookosöljy;;;;1,78;;;;0,7;;;;;;;Plant based groceries;2
 Coconut Oil;Kookosöljy;;;;1,78;;;;0,7;;;;;;;Plant based groceries;2
 Coconut Water, Unsweetened;;"[""Kookosvesi maustamaton luomu""]";;;;;;;;;;;;;;;
 Coffee;;;;;28,53;;;;;;;;;;;Coffee;1
@@ -155,69 +133,48 @@ Coffee;;;;;;;;;;;;;;;0,39;Coffee (98,5 % water);1
 Colour Collector Cloth;Liankerääjä;"[""Tekst.pesu- & Puhd.ain.""]";Hygiene products;;;;;;;;;;;;;;
 Commerce;Kaupankäynti;;Services;;;;;;;;;;;;;;
 Condiments;;;;;;;;;0,7;;;;;;;Plant based groceries;2
-Condiments;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Construction;Rakentaminen;;Supplies;;;;;;;;;;;;;;
 Cooking Cream, 15% Fat;;"[""Creamy""]";;;;;;;;;;;;;;;
 Corn Cookie, Lentil and Sea Salt;Maissikakut Linssi ja Merisuola;;Savoury biscuits;;;;;;;;;;;;;;
 Corn Snack, Puffed, Corn Puffs Without Added Salt;;"[""Maissikakku""]";;;;;;;;;;;;;;;
 Coriander, fresh;;"[""Korianteri rkk""]";;;;;;;;;;;;;;;
 Cosmetic products;Kosmetiikka;;Supplies;;;;;;0,4;;;;;;;Personal items;2
-Cosmetic products;Kosmetiikka;;Supplies;;;;;;0,4;;;;;;;Personal items;2
 Cream Cheese, 30% Fat, Flavoured, Creme Bonjour/Cantadou;;"[""Tuorejuusto yrtti""]";;;;;;;;;;;;;;;
 Cream sauce with meat bouillon;;"[""Creamy sauce""]";;;;;;;;;;;;;;;
 Creatine;Kreatiini;"[""Monohydrate""]";Sport food;;;;;;;;;;;;;;
 Crispbread, Rye, 17% Fibre;;"[""Pyöreäruutu""]";;;;;;;;;;;;;;;
 Deep-Fried Vegetable Pasty, Hoviruoka;;"[""Vegaaninen piirakka""]";;;;;;;0,7;;;;;;;Plant based groceries;2
-Deep-Fried Vegetable Pasty, Hoviruoka;;"[""Vegaaninen piirakka""]";;;;;;;0,7;;;;;;;Plant based groceries;2
-Delivery;Toimitus;"[""Utkörning""]";Services;;;;;;0,4;;;;;;;Transportation services;2
 Delivery;Toimitus;"[""Utkörning""]";Services;;;;;;0,4;;;;;;;Transportation services;2
 Dental care products;Hammashoitotuotteet;"[""Dental flosh"", ""Hammaslanka"", ""Suuvesi""]";Hygiene products;;;;;;;;;;;;;;
-Dental care services;Hammashoitopalvelut;;Services;;;;;;0,2;;;;;;;Health care services;2
 Dental care services;Hammashoitopalvelut;;Services;;;;;;0,2;;;;;;;Health care services;2
 Deposit;Pantti;"[""Pullopantti"", ""Panttipalautus""]";Commerce;;;;;;;;;;;;;;
 Deposit return;Pullopalautus;;Commerce;;;;;;;;;;;;;;
 Dessert sauces;;;;;;;;;1,1;;;;;;;Animal based groceries;2
-Dessert sauces;;;;;;;;;1,1;;;;;;;Animal based groceries;2
-Dipmix, Milk-Free;;"[""Dipmix Valkosipuli""]";;;;;;;0,7;;;;;;;Plant based groceries;2
 Dipmix, Milk-Free;;"[""Dipmix Valkosipuli""]";;;;;;;0,7;;;;;;;Plant based groceries;2
 Discount;Alennus;;Commerce;;;;;;;;;;;;;;
 Disposable Dish;Kertakäyttöastiat;"[""Kertak.kattaustuott.""]";Kitchen;;;;;;;;;;;;;;
 Earbuds;Nappikuulokkeet;;Electronics;;;;;;;;;;;;;;
 Egg;;;;;;;;;1,1;;;;;;;Animal based groceries;2
-Egg;;;;;;;;;1,1;;;;;;;Animal based groceries;2
-Electric cable;Sähköjohto;"[""Jatkojohto""]";Supplies;;;;;;0,73;;;;;;;Insulated wires and cables;2
 Electric cable;Sähköjohto;"[""Jatkojohto""]";Supplies;;;;;;0,73;;;;;;;Insulated wires and cables;2
 Electronics;Elektroniikka;;Supplies;;;;;;0,82;;;;;;;Elektroniikka;2
-Electronics;Elektroniikka;;Supplies;;;;;;0,82;;;;;;;Elektroniikka;2
 Eraser;Pyyhemuovi;;Supplies;;;;;;1,01;;;;;;;Plastic products;2
-Eraser;Pyyhemuovi;;Supplies;;;;;;1,01;;;;;;;Plastic products;2
+Ferry;Autolautta;;Public transport;;;;0,144;;;;;;;;;Car ferry, 18 knots;19
 Ferry;;;;;;;;;1,4;;;;;;;Boat trips;2
-Ferry;;;;;;;;;1,4;;;;;;;Boat trips;2
-Fish;;;;;;;;;1,1;;;;;;;Animal based groceries;2
 Fish;;;;;;;;;1,1;;;;;;;Animal based groceries;2
 Fish Ball, Industrial;;"[""Saaristolaispyörykät""]";;;;;;;;;;;;;;;
-Fish dishes;;;;;;;;;1,1;;;;;;;Animal based groceries;2
 Fish dishes;;;;;;;;;1,1;;;;;;;Animal based groceries;2
 Fish Fingers, High In Fibre, Findus, Oven-Baked;;"[""Fileekalapuik täys""]";;;2,37;;;;;;;;;;;Fish fingers, breaded, frozen;8
 Fish Fingers, Oven-Baked, Industrial;;"[""Rapeita kalapaloja"", ""Rapeat kalapalat""]";;;2,37;;;;;;;;;;;Fish fingers, breaded, frozen;8
 Fish oil;Kalaöljy;;Supplies;;;;;;1,1;;;;;;;Animal based groceries;2
-Fish oil;Kalaöljy;;Supplies;;;;;;1,1;;;;;;;Animal based groceries;2
 Fish, Weighted Average;;"[""Fish""]";;;;;;;;;;;;;;;
 Fishing equipment;Kalastustarvikkeet;"[""Jäänaskali"", ""Jigger"", ""Kuusamo Sinfonia"", ""Viehe"", ""Onkivapa"", ""Pilkkivapa"", ""Unyl Winter Line""]";Supplies;;;;;;1,31;;;;;;;Fishing products and services;2
-Fishing equipment;Kalastustarvikkeet;"[""Jäänaskali"", ""Jigger"", ""Kuusamo Sinfonia"", ""Viehe"", ""Onkivapa"", ""Pilkkivapa"", ""Unyl Winter Line""]";Supplies;;;;;;1,31;;;;;;;Fishing products and services;2
-Flour;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Flour;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Flowers;Kukat;;Supplies;;;;;;;;;;;;;;
 Flowers;Kukat;;Supplies;;;;;;0,6;;;;;;;Garden supplies;2
-Flowers;Kukat;;Supplies;;;;;;0,6;;;;;;;Garden supplies;2
-French Fries, Deep-Fried;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 French Fries, Deep-Fried;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 French Fries, Frozen;;;;;;;;;0,7;;;;;;;Plant based groceries;2
-French Fries, Frozen;;;;;;;;;0,7;;;;;;;Plant based groceries;2
-French Fries, Oven-Baked;;"[""Kuorellinen tikkuperuna pakaste""]";;;;;;;0,7;;;;;;;Plant based groceries;2
 French Fries, Oven-Baked;;"[""Kuorellinen tikkuperuna pakaste""]";;;;;;;0,7;;;;;;;Plant based groceries;2
 Fresh Pasta, Contains Egg;;"[""Fettuccine"", ""Fettuccine pasta""]";;;;;;;;;;;;;;;
-Fresh Pasta, Contains Egg;;;;;;;;;1,1;;;;;;;Animal based groceries;2
 Fresh Pasta, Contains Egg;;;;;;;;;1,1;;;;;;;Animal based groceries;2
 Fried onions;Paahdettu sipulirouhe;;Spices;;;;;;;;;;;;;;
 Frozen Vegetable Mix, Average, Boiled Without Salt;;"[""Lämpimiä kasviksia"", ""Lämpimät kasvikset""]";;;;;;;;;;;;;;;
@@ -225,17 +182,13 @@ Frozen Vegetable Mix, Broccoli-Carrot-Sweet Pepper, Kartanon Kasvikset;;"[""Cook
 Frozen Vegetable Mix, Pea-Sweet Corn-Sweet Pepper;;"[""Herne-maissi-paprika""]";;;;;;;;;;;;;;;
 Frozen Vegetable Mix, Root Vegetables;;"[""Keittovihannekset""]";;;;;;;;;;;;;;;
 Fruit and berry dishes;;;;;;;;;0,7;;;;;;;Plant based groceries;2
-Fruit and berry dishes;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Fruit Puree, Unsweetened, 100 % Fruit;;"[""Päärynäsose""]";;;;;;;;;;;;;;;
 Fruits;;;;;1,05;;;;;;;;;;;Other Fruit;1
 Fruits;;;;;;;;;;0,89;;;;;;Other Fruit;1
 Fruits;;;;;;;;;;;;2,43;;;;Other Fruit;1
 Fruits;;;;;;;;;;;;;;154;;Other Fruit;1
 Fruits;;;;;;;;;0,7;;;;;;;Plant based groceries;2
-Fruits;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Furniture;Huonekalut;;Interior design;;;;;;0,42;;;;;;;Huonekalut, matot;2
-Furniture;Huonekalut;;Interior design;;;;;;0,42;;;;;;;Huonekalut, matot;2
-Glue stick;Liimapuikko;;Supplies;;;;;;0,46;;;;;;;Factory products;2
 Glue stick;Liimapuikko;;Supplies;;;;;;0,46;;;;;;;Factory products;2
 Grape, Average, Green Or Red;;;;;1,53;;;;;;;;;;;Berries & Grapes;1
 Grape, Average, Green Or Red;;;;;;;;;;2,41;;;;;;Berries & Grapes;1
@@ -243,27 +196,17 @@ Grape, Average, Green Or Red;;;;;;;;;;;;6,12;;;;Berries & Grapes;1
 Grape, Average, Green Or Red;;;;;;;;;;;;;;420;;Berries & Grapes;1
 Grapefruit Juice, Unsweetened, Vitamin C;;"[""Verigreippitäysmehu""]";;;;;;;;;;;;;;;
 Hair products;Hiustuotteet;"[""Hiuslenkki""]";Supplies;;;;;;0,4;;;;;;;Personal items;2
-Hair products;Hiustuotteet;"[""Hiuslenkki""]";Supplies;;;;;;0,4;;;;;;;Personal items;2
 Hairdresser;Kampaamo;;Recreational services;;;;;;0,2;;;;;;;;
 Headphones;Kuulokkeet;;Electronics;;;;;;;;;;;;;;
 Healthcare products;Terveydenhoitotuotteet;;Supplies;;;;;;0,51;;;;;;;Kestokulutustavarat, terveydenhoitotuotteet keskiarvo;2
-Healthcare products;Terveydenhoitotuotteet;;Supplies;;;;;;0,51;;;;;;;Kestokulutustavarat, terveydenhoitotuotteet keskiarvo;2
-Healthcare services;Terveydenhuoltopalvelut;;Services;;;;;;0,2;;;;;;;Terveydenhuolto- ja eläinlääkintäpalvelut;2
 Healthcare services;Terveydenhuoltopalvelut;;Services;;;;;;0,2;;;;;;;Terveydenhuolto- ja eläinlääkintäpalvelut;2
 Housekeeping products;Kodinhoitotuotteet;;Supplies;;;;;;0,4;;;;;;;Housekeeping products and services;2
-Housekeeping products;Kodinhoitotuotteet;;Supplies;;;;;;0,4;;;;;;;Housekeeping products and services;2
-Housekeeping tools;Kodinhoitotyökalut;;Supplies;;;;;;0,5;;;;;;;Tools and appliances for housekeeping and gardening;2
 Housekeeping tools;Kodinhoitotyökalut;;Supplies;;;;;;0,5;;;;;;;Tools and appliances for housekeeping and gardening;2
 Hummus, Chick Pea Paste;;"[""Hummus""]";;;;;;;0,7;;;;;;;Plant based groceries;2
-Hummus, Chick Pea Paste;;"[""Hummus""]";;;;;;;0,7;;;;;;;Plant based groceries;2
-Hygiene products;Hygieniatuotteet;"[""Nestesaippua"", ""Käsisaippua""]";Supplies;;;;;;0,4;;;;;;;Personal items;2
 Hygiene products;Hygieniatuotteet;"[""Nestesaippua"", ""Käsisaippua""]";Supplies;;;;;;0,4;;;;;;;Personal items;2
 Iceberg Lettuce;;"[""Jäävuorisalaatti"", ""Jääsalaatti"", ""Green salad""]";;;0,461;;;;;;;;;;;Lettuce, iceberg (incl. crisphead types), raw;8
 Interior design;Sisustus;;Supplies;;;;;;0,67;;;;;;;Kodintaloustekstiilit, sisustus, astiat keskiarvo;2
-Interior design;Sisustus;;Supplies;;;;;;0,67;;;;;;;Kodintaloustekstiilit, sisustus, astiat keskiarvo;2
 Jams;;;;;;;;;0,7;;;;;;;Plant based groceries;2
-Jams;;;;;;;;;0,7;;;;;;;Plant based groceries;2
-Juices;Juomat;;;;;;;;0,7;;;;;;;Alkoholittomat juomat;2
 Juices;Juomat;;;;;;;;0,7;;;;;;;Alkoholittomat juomat;2
 Karelian Pasty, Rice Filling, Saarioinen;;"[""Riisipiirakka""]";;;;;;;;;;;;;;;
 Kitchen;Keittiö;;Supplies;;;;;;;;;;;;;;
@@ -272,13 +215,10 @@ Lamb/mutton;;;;;;;;;;369,81;;;;;;Lamb & Mutton;1
 Lamb/mutton;;;;;;;;;;;;97,13;;;;Lamb & Mutton;1
 Lamb/mutton;;;;;;;;;;;;;;1803;;Lamb & Mutton;1
 Liquorice, licorice;;"[""Lakupala"", ""Lakupala mansikka""]";;;;;;;0,7;;;;;;;Plant based groceries;2
-Liquorice, licorice;;"[""Lakupala"", ""Lakupala mansikka""]";;;;;;;0,7;;;;;;;Plant based groceries;2
-Literature;Kirjallisuus;"[""Book"", ""Kirja""]";Supplies;;;;;;0,4;;;;;;;Sanomalehdet, kirjat ja paperitarvikkeet;2
 Literature;Kirjallisuus;"[""Book"", ""Kirja""]";Supplies;;;;;;0,4;;;;;;;Sanomalehdet, kirjat ja paperitarvikkeet;2
 Lottery tickets;Arvat;"[""Arpa"", ""Arpamyynti""]";Commerce;;;;;;;;;;;;;;
 Macaroni, Dark, Whole Wheat And Dark Wheat Flour;;"[""Täysjyväspagetti"", ""Täysjyvämakaroni""]";;;;;;;;;;;;;;;
 Macaroni, Whole Wheat;;"[""Makaroni tumma""]";;;;;;;;;;;;;;;
-Magazine paper;Aikakausilehti;;Literature;;;;;;0,32;;;;;;;;2
 Magazine paper;Aikakausilehti;;Literature;;;;;;0,32;;;;;;;;2
 Maize, Kernel, Dried, Unpopped;;"[""Maissinjyvät""]";;;;;;;;;;;;;;;
 Mayonnaise, Home-Made;;"[""Majoneesi"", ""Majoneesidippi"", ""Mayonnaise"", ""Mayonnaise dip""]";;;;;;;;;;;;;;;
@@ -286,12 +226,8 @@ Meal Replacement, Protein Bar, Average, C. 20% Protein;;;;;;;;;0,7;;;;;;;Plant b
 Meal Replacement, Protein Bar, Average, C. 20% Protein;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Meal Replacement, Protein Bar, Average, C. 40% Protein;;"[""Barebells proteiinipatukka""]";;;;;;;;;;;;;;;
 Meat dishes;;;;;;;;;1,1;;;;;;;Animal based groceries;2
-Meat dishes;;;;;;;;;1,1;;;;;;;Animal based groceries;2
-Media duplication services;Tallenteiden jäljentämispalvelut;;Services;;;;;;0,9;;;;;;;;2
 Media duplication services;Tallenteiden jäljentämispalvelut;;Services;;;;;;0,9;;;;;;;;2
 Medicine;Lääkkeet;;Supplies;;;;;;0,48;;;;;;;Medicine, raw materials and chemicals;2
-Medicine;Lääkkeet;;Supplies;;;;;;0,48;;;;;;;Medicine, raw materials and chemicals;2
-Metal;Metalli;;Construction;;;;;;0,81;;;;;;;Other metal products;2
 Metal;Metalli;;Construction;;;;;;0,81;;;;;;;Other metal products;2
 Milk desserts;;;;;;;;;1,1;;;;;;;Animal based groceries;2
 Milk desserts;;;;;;;;;1,1;;;;;;;Animal based groceries;2
@@ -323,8 +259,6 @@ Multigrain Bread, Seed Bread, Water, Wheat Flour, Crushed Wheat Grains, Seeds;;"
 Multigrain Bread, Tummempi Tuhatjyvä, Linkosuo;;"[""Rouhepatonki""]";;;;;;;;;;;;;;;
 Multigrain Bread, Water, Wheat Flour, Crushed Wheat Grains;;"[""Ciabatta""]";;;;;;;;;;;;;;;
 Nicotine products;Nikotiinituotteet;"[""Cigarette"", ""Tupakka"", ""Zonnic""]";Supplies;;;;;;0,87;;;;;;;Beverages and cigarette;2
-Nicotine products;Nikotiinituotteet;"[""Cigarette"", ""Tupakka"", ""Zonnic""]";Supplies;;;;;;0,87;;;;;;;Beverages and cigarette;2
-Notebook, plastic cover;Vihko, muovikantinen;;Office supplies;;;;;;0,4;;;;;;;Sanomalehdet, kirjat ja paperitarvikkeet;2
 Notebook, plastic cover;Vihko, muovikantinen;;Office supplies;;;;;;0,4;;;;;;;Sanomalehdet, kirjat ja paperitarvikkeet;2
 Nut, Peanut;;;;;3,23;;;;;;;;;;;Groundnuts;1
 Nut, Peanut;;;;;;;;;;9,11;;;;;;Groundnuts;1
@@ -339,9 +273,7 @@ Oats, Rolled, Oat Flakes;;;;;;;;;;7,6;;;;;;Oatmeal;1
 Oats, Rolled, Oat Flakes;;;;;;;;;;;;11,23;;;;Oatmeal;1
 Oats, Rolled, Oat Flakes;;;;;;;;;;;;;;482;;Oatmeal;1
 Offal dishes;;;;;;;;;1,1;;;;;;;Animal based groceries;2
-Offal dishes;;;;;;;;;1,1;;;;;;;Animal based groceries;2
 Office supplies;Toimistotarvikkeet;;Supplies;;;;;;;;;;;;;;
-Oils;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Oils;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Onion-family vegetables;;;;;0,5;;;;;;;;;;;Onions & Leeks;1
 Onion-family vegetables;;;;;;;;;;0,39;;;;;;Onions & Leeks;1
@@ -349,8 +281,6 @@ Onion-family vegetables;;;;;;;;;;;;3,24;;;;Onions & Leeks;1
 Onion-family vegetables;;;;;;;;;;;;;;14;;Onions & Leeks;1
 Onion, Red Onion;;"[""Punasipuli""]";;;;;;;;;;;;;;;
 Other alcoholic beverages;;;;;;;;;0,3;;;;;;;Alcohol drinks;2
-Other alcoholic beverages;;;;;;;;;0,3;;;;;;;Alcohol drinks;2
-Palm Oil;Palmuöljy;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Palm Oil;Palmuöljy;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Pasta, Spaghetti, Macaroni;;"[""Spaghetti"", ""Täysjyväspagetti""]";;;;;;;;;;;;;;;
 Pea, Green;;;;;0,98;;;;;;;;;;;Peas;1
@@ -358,20 +288,14 @@ Pea, Green;;;;;;;;;;7,46;;;;;;Peas;1
 Pea, Green;;;;;;;;;;;;7,52;;;;Peas;1
 Pea, Green;;;;;;;;;;;;;;397;;Peas;1
 Peanut Oil;Maapähkinäöljy;;;;;;;;0,7;;;;;;;Plant based groceries;2
-Peanut Oil;Maapähkinäöljy;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Pelmeni, Dumpling Filled With Minced Meat;;"[""Pelmienit""]";;;;;;;;;;;;;;;
 Pencil lead;Irtolyijy;;Office supplies;;;;;;0,46;;;;;;;Factory products;2
-Pencil lead;Irtolyijy;;Office supplies;;;;;;0,46;;;;;;;Factory products;2
-Pesto Sauce, Herb Sauce;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Pesto Sauce, Herb Sauce;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Phone case;Puhelimen suojakotelo;;Electronics;;;;;;;;;;;;;;
 Phone screen protector;Puhelimen näytönsuoja;;Electronics;;;;;;;;;;;;;;
 Pickled Cucumber, Sweet, Flavoured;;"[""Pickled cucumber"", ""Maustekurkku""]";;;;;;;;;;;;;;;
 Pizza Crust, Basic Pizza Dough;;;;;;;;;1,1;;;;;;;Animal based groceries;2
-Pizza Crust, Basic Pizza Dough;;;;;;;;;1,1;;;;;;;Animal based groceries;2
 Plants;Kasvit;;Supplies;;;;;;0,6;;;;;;;Garden supplies;2
-Plants;Kasvit;;Supplies;;;;;;0,6;;;;;;;Garden supplies;2
-Plastic products;Muovituotteet;;Supplies;;;;;;1,01;;;;;;;Plastic products;2
 Plastic products;Muovituotteet;;Supplies;;;;;;1,01;;;;;;;Plastic products;2
 Popcorn, Microwave Popcorn;;"[""Micropopcorn""]";;;;;;;;;;;;;;;
 Pork;;;;;12,31;;;;;;;;;;;Pig Meat;1
@@ -380,25 +304,17 @@ Pork;;;;;;;;;;;;76,38;;;;Pig Meat;1
 Pork;;;;;;;;;;;;;;1796;;Pig Meat;1
 Pork Ribs, Fried Without Fat;;"[""Possun ribsit"", ""Possun ribsejä"", ""Possun ribs""]";;;;;;;;;;;;;;;
 Post-it notes;Teippimerkit;;Supplies;;;;;;0,46;;;;;;;Factory products;2
-Post-it notes;Teippimerkit;;Supplies;;;;;;0,46;;;;;;;Factory products;2
 Postal bag;Postipussi;;Supplies;;;;;;0,72;;;;;;;Paper, carton and cardboard products;2
-Postal bag;Postipussi;;Supplies;;;;;;0,72;;;;;;;Paper, carton and cardboard products;2
-Postal parcel;Posti;"[""Postipaketti"", ""Kirje""]";Services;;;;;;0,2;;;;;;;Postal and telecommunication services;2
 Postal parcel;Posti;"[""Postipaketti"", ""Kirje""]";Services;;;;;;0,2;;;;;;;Postal and telecommunication services;2
 Potato;;;;;0,46;;;;;;;;;;;Potatoes;1
 Potato;;;;;;;;;;0,88;;;;;;Potatoes;1
 Potato;;;;;;;;;;;;3,48;;;;Potatoes;1
 Potato;;;;;;;;;;;;;;59;;Potatoes;1
 Potato;;;;;;;;;0,7;;;;;;;Plant based groceries;2
-Potato;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Potato dishes;;;;;;;;;1,1;;;;;;;Plant based groceries;2
-Potato dishes;;;;;;;;;1,1;;;;;;;Plant based groceries;2
-Potato Wedges, Oven-Baked;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Potato Wedges, Oven-Baked;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Potato, Unpeeled, Avarage, Raw;;"[""Potato"", ""Potatoes"", ""Peruna"", ""Perunaa"", ""Varhaisperuna"", ""Ruokaperuna"", ""Ruokaperunapussi""]";;;;;;;;;;;;;;;
 Potatoes;;;;;;;;;0,7;;;;;;;Plant based groceries;2
-Potatoes;;;;;;;;;0,7;;;;;;;Plant based groceries;2
-Printer paper;Tulostuspaperi;;Office supplies;;;;;;0,32;;;;;;;Paperitarvikkeet, kirjat, lehdet;2
 Printer paper;Tulostuspaperi;;Office supplies;;;;;;0,32;;;;;;;Paperitarvikkeet, kirjat, lehdet;2
 Public transport;Julkinen liikenne;;Travel;;;;;;;;;;;;;;
 Pudding, Rice Pudding With Vanilla;;"[""Vadelmariisi""]";;;;;;;;;;;;;;;
@@ -412,25 +328,17 @@ Pulses vegetables;;;;;;;;;;;;17,08;;;;Other Pulses;1
 Pulses vegetables;;;;;;;;;;;;;;436;;Other Pulses;1
 Pumpkin Seed;;"[""Kurpitsansiemenet""]";;;;;;;;;;;;;;;
 Quark;;;;;;;;;1,1;;;;;;;Animal based groceries;2
-Quark;;;;;;;;;1,1;;;;;;;Animal based groceries;2
 Quark, Flavoured, Fat-Free, Artificially Sweetened;;"[""Mansikkarahka""]";;;;;;;;;;;;;;;
 Quorn, Fillet, Pieces, Mince;;;;;;;;;1,1;;;;;;;Animal based groceries;2
-Quorn, Fillet, Pieces, Mince;;;;;;;;;1,1;;;;;;;Animal based groceries;2
-Ravioli With Spinach Filling, Boiled;;"[""de Angelis tortell""]";;;;;;;0,7;;;;;;;Plant based groceries;2
 Ravioli With Spinach Filling, Boiled;;"[""de Angelis tortell""]";;;;;;;0,7;;;;;;;Plant based groceries;2
 Recreational products;Vapaa-ajan tuotteet;;Supplies;;;;;;0,8;;;;;;;Large scale durable goods for recreational and cultural activities;2
-Recreational products;Vapaa-ajan tuotteet;;Supplies;;;;;;0,8;;;;;;;Large scale durable goods for recreational and cultural activities;2
-Recreational services;Vapaa-ajan palvelut;;Services;;;;;;0,2;;;;;;;Recreational and culture services;2
 Recreational services;Vapaa-ajan palvelut;;Services;;;;;;0,2;;;;;;;Recreational and culture services;2
 Renovation;Remontointi;;Construction;;;;;;0,02;;;;;;;Remontointi;2
-Renovation;Remontointi;;Construction;;;;;;0,02;;;;;;;Remontointi;2
-Restaurant;Ravintola;;Services;;;;;;0,49;;;;;;;Ravintolapalvelut;2
 Restaurant;Ravintola;;Services;;;;;;0,49;;;;;;;Ravintolapalvelut;2
 Rice;;;;;4,45;;;;;;;;;;;Rice;1
 Rice;;;;;;;;;;2,8;;;;;;Rice;1
 Rice;;;;;;;;;;;;35,07;;;;Rice;1
 Rice;;;;;;;;;;;;;;2248;;Rice;1
-Rice Chocolate;;"[""Maitosuklaa riisikakku""]";;;;;;;1,1;;;;;;;Animal based groceries;2
 Rice Chocolate;;"[""Maitosuklaa riisikakku""]";;;;;;;1,1;;;;;;;Animal based groceries;2
 Rocket, Arugula;;"[""Rucola""]";;;;;;;;;;;;;;;
 Romaine Lettuce;;"[""Sydänsalaatti""]";;;;;;;;;;;;;;;
@@ -455,31 +363,22 @@ Salmon, Farmed;;;;;;;;;;;;;;3691;;Fish (farmed);1
 Salty Liqourice;;"[""Pätkä sitruspippuri""]";;;;;;;;;;;;;;;
 Saucepan;Kasari;;Housekeeping tools;;;;;;;;;;;;;;
 Savoury bakery;;;;;;;;;1,1;;;;;;;Animal based groceries;2
-Savoury bakery;;;;;;;;;1,1;;;;;;;Animal based groceries;2
 Savoury biscuits;;;;;;;;;0,7;;;;;;;Plant based groceries;2
-Savoury biscuits;;;;;;;;;0,7;;;;;;;Plant based groceries;2
-Seitan, Wheat Gluten;Seitan, vehnägluteeni;;Wheat;;;;;;0,7;;;;;;;Plant based groceries;2
 Seitan, Wheat Gluten;Seitan, vehnägluteeni;;Wheat;;;;;;0,7;;;;;;;Plant based groceries;2
 Semolina;;"[""Bulgur""]";;;;;;;;;;;;;;;
 Services;Palvelut;;;;;;;;0,3;;;;;;;Muut palvelut;2
-Services;Palvelut;;;;;;;;0,3;;;;;;;Muut palvelut;2
-Shoes;Jalkineet;;Clothes;;;;;;0,64;;;;;;;Jalkineet;2
-Shoes;Jalkineet;;Clothes;;;;;;0,64;;;;;;;Jalkineet;2
+Shoes;Jalkineet;;Clothes;;;;;;0,64;;;;;;;Jalkineet;
 Skincare products;Ihonhoitotuotteet;;Hygiene products;;;;;;;;;;;;;;
 Slicing Sausage, Balkan, 21.5% Fat;;"[""Alpenfest lihaleikkele""]";;;;;;;;;;;;;;;
 Small engine fuel;Pienkonepolttoaine;;Supplies;;;;;;;;;;;;;;
 Smartphone;Älypuhelin;;Electronics;;;;;;;;;;;;;;
 Smoothie, Marli Smoothie, Fruit +Vitamins  D&C;;"[""Voima smoothie""]";;;;;;;;;;;;;;;
 Snacks;Naposteltavat;"[""Snacksit""]";;;;;;;0,7;;;;;;;Plant based groceries;2
-Snacks;Naposteltavat;"[""Snacksit""]";;;;;;;0,7;;;;;;;Plant based groceries;2
 Soft Drink, Cola, Average;;"[""Coca-Cola"", ""Coca Cola""]";;;;;;;;;;;;;;;
-Soil;Multa;"[""Kukkamulta""]";Supplies;;;;;;0,6;;;;;;;Garden supplies;2
 Soil;Multa;"[""Kukkamulta""]";Supplies;;;;;;0,6;;;;;;;Garden supplies;2
 Soup vegetables;Kuivatut keittovihannekset;"[""Kuivattu keittovihannes""]";Spices;;;;;;;;;;;;;;
 Sour Cream, 10-12% Fat;;"[""Kermaviili""]";;;;;;;;;;;;;;;
 Soy Sauce;;;;;;;;;0,7;;;;;;;Plant based groceries;2
-Soy Sauce;;;;;;;;;0,7;;;;;;;Plant based groceries;2
-Soya Bean Patty, Fried;;"[""Grillatut kasvisfileet"", ""Vegaaninen Pihvi Soija- Ja Vehnäproteiinista"", ""Soijapihvi"", ""Soy steak""]";;;;;;;;;;;;;;;2
 Soya Bean Patty, Fried;;"[""Grillatut kasvisfileet"", ""Vegaaninen Pihvi Soija- Ja Vehnäproteiinista"", ""Soijapihvi"", ""Soy steak""]";;;;;;;;;;;;;;;2
 Soya drink,  calcium;;;;;0,98;;;;;;;;;;;Soy milk;1
 Soya drink,  calcium;;;;;;;;;;0,66;;;;;;Soy milk;1
@@ -490,7 +389,6 @@ Soya Drink, Plain, Average Of Industrial Products;;;;;;;;;;0,66;;;;;;Soy milk;1
 Soya Drink, Plain, Average Of Industrial Products;;;;;;;;;;;;1,06;;;;Soy milk;1
 Soya Drink, Plain, Average Of Industrial Products;;;;;;;;;;;;;;28;;Soy milk;1
 Soya Product, Non-Dairy Cream Substitute, 17.5% Fat;;"[""Soijavalmiste ruoanlaittoon""]";;;;;;;;;;;;;;;
-Spices;;"[""Spice Mix"", ""Mausteseos"", ""Sipulijauhe"", ""Chipotle""]";;;;;;;0,7;;;;;;;Plant based groceries;2
 Spices;;"[""Spice Mix"", ""Mausteseos"", ""Sipulijauhe"", ""Chipotle""]";;;;;;;0,7;;;;;;;Plant based groceries;2
 Sport Beverage, Carbohydrate Drink, Powerade, Gatorade;;"[""Gatorade""]";;;;;;;;;;;;;;;
 Sport Beverage, Protein Drink, Protein Shake, Fast;;"[""Sport Palautusjuoma suklaa""]";;;;;;;;;;;;;;;
@@ -509,7 +407,6 @@ Sugar;;;;;;;;;;;;16,92;;;;Cane Sugar;1
 Sugar;;;;;;;;;;;;;;218;;Beet Sugar;1
 Sugar;;;;;;;;;;;;;;620;;Cane Sugar;1
 Supplies;Tarvikkeet;;;;;;;;0,51;;;;;;;Kestokulutustavarat, terveydenhoitotuotteet keskiarvo;2
-Supplies;Tarvikkeet;;;;;;;;0,51;;;;;;;Kestokulutustavarat, terveydenhoitotuotteet keskiarvo;2
 Sweet Bakery;;;;;;;;;1,1;;;;;;;Animal based groceries;2
 Sweet Bakery;;;;;;;;;1,1;;;;;;;Animal based groceries;2
 Sweet Corn Kernels;;;;;1,7;;;;;;;;;;;Maize;1
@@ -522,17 +419,13 @@ Sweet Corn, Corn On The Cob;;;;;;;;;;2,94;;;;;;Maize;1
 Sweet Corn, Corn On The Cob;;;;;;;;;;;;4,03;;;;Maize;1
 Sweet Corn, Corn On The Cob;;;;;;;;;;;;;;216;;Maize;1
 Tableware;Astiat;;Kitchen;0,67;;;;;0,67;;;;;;;Kodintaloustekstiilit, sisustus, astiat keskiarvo;2
-Tableware;Astiat;;Kitchen;0,67;;;;;0,67;;;;;;;Kodintaloustekstiilit, sisustus, astiat keskiarvo;2
 Tapioca;;;;;1,32;;;;;;;;;;;Cassava;1
 Tapioca;;;;;;;;;;1,81;;;;;;Cassava;1
 Tapioca;;;;;;;;;;;;0,69;;;;Cassava;1
 Tapioca;;;;;;;;;;;;;;0;;Cassava;1
 Taxi;Taksi;;Public transport;;;;;;0,8;;;;;;;Taxi trips;2
-Taxi;Taksi;;Public transport;;;;;;0,8;;;;;;;Taxi trips;2
 Tea, Herbal Tea;;"[""Rooibos"", ""Yrttitee"", ""Tee rooibos"", ""Ruusunmarjatee""]";;;;;;;;;;;;;;;
 Telecommunication services;Tietoliikennepalvelut;;Services;;;;;;0,28;;;;;;;Telephone, the internet, etc. (communication);2
-Telecommunication services;Tietoliikennepalvelut;;Services;;;;;;0,28;;;;;;;Telephone, the internet, etc. (communication);2
-Textiles;Tekstiilit;;Supplies;;;;;;0,67;;;;;;;Kodintaloustekstiilit, sisustus, astiat keskiarvo;2
 Textiles;Tekstiilit;;Supplies;;;;;;0,67;;;;;;;Kodintaloustekstiilit, sisustus, astiat keskiarvo;2
 Tikka Masala, Uncle Ben'S;;"[""Masalakastike""]";;;;;;;;;;;;;;;
 Toast, Rye Toast, Vaasan 100% Ruispaahto;;"[""Taika tumma ohut paahto""]";;;;;;;;;;;;;;;
@@ -552,36 +445,26 @@ Tomato;;;;;;;;;;;;;;370;;Tomatoes;1
 Tomato Salsa;;"[""Pico de gallo""]";;;;;;;;;;;;;;;
 Tomato Sauce;;"[""Tomaattikastikkeessa"", ""Marinara""]";;;;;;;;;;;;;;;
 Tools;Työkalut;;Supplies;;;;;;0,51;;;;;;;Kodinkoneet ja työkalut;2
-Tools;Työkalut;;Supplies;;;;;;0,51;;;;;;;Kodinkoneet ja työkalut;2
 Tooth brush;Hammasharja;;Hygiene products;;;;;;;;;;;;;;
 Toothpaste;Hammastahna;;Hygiene products;;;;;;;;;;;;;;
 Train, local;;;Public transport;;;;;;0,6;;;;;;;Train, tram, subway trips;2
-Train, local;;;Public transport;;;;;;0,6;;;;;;;Train, tram, subway trips;2
-Train, long-distance;;;Public transport;;;;;;0,6;;;;;;;Train, tram, subway trips;2
 Train, long-distance;;;Public transport;;;;;;0,6;;;;;;;Train, tram, subway trips;2
 Train, subway;;;Public transport;;;;;;0,6;;;;;;;Train, tram, subway trips;2
-Train, subway;;;Public transport;;;;;;0,6;;;;;;;Train, tram, subway trips;2
-Tram;;;Public transport;;;;;;0,6;;;;;;;Train, tram, subway trips;2
 Tram;;;Public transport;;;;;;0,6;;;;;;;Train, tram, subway trips;2
 Travel;Matkustus;;;;;;;;;;;;;;;;
 Tuna, in oil, canned;;;;;;;;;;;;;;;;;
 Vegan Frankfurter, Tofu Sausage;;"[""Kasvisnakki""]";;;;;;;;;;;;;;;
 Vegetable Bouillon Cube;;;;;;;;;0,7;;;;;;;Plant based groceries;2
-Vegetable Bouillon Cube;;;;;;;;;0,7;;;;;;;Plant based groceries;2
-Vegetable dishes;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Vegetable dishes;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Vegetables;;;;;0,53;;;;;;;;;;;Other Vegetables;1
 Vegetables;;;;;;;;;;0,38;;;;;;Other Vegetables;1
 Vegetables;;;;;;;;;;;;2,27;;;;Other Vegetables;1
 Vegetables;;;;;;;;;;;;;;103;;Other Vegetables;1
 Vegetables;;;;;;;;;0,7;;;;;;;Plant based groceries;2
-Vegetables;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Vegetarian Pea Soup;;"[""Hernekeitto luomu""]";;;;;;;;;;;;;;;
 Vendace, Smoked Lake Fish;;"[""Savustettu muikku""]";;;;;;;;;;;;;;;
 Vöner Wheat Protein Strips;Vöner, vehnäproteiini, suikale;"[""Vöner Original suikale""]";Wheat;;;;;;0,7;;;;;;;Plant based groceries;2
-Vöner Wheat Protein Strips;Vöner, vehnäproteiini, suikale;"[""Vöner Original suikale""]";Wheat;;;;;;0,7;;;;;;;Plant based groceries;2
 Wasabi;Maustekrassi, wasabi;;Spices;;;;;;;;;;;;;;
-Washing liquid;Pesuneste;;Hygiene products;;;;;;0,6;;;;;;;Pesu-, puhdistus- ja kiillotusaineet, hajusteet ja toalettivalmisteet;2
 Washing liquid;Pesuneste;;Hygiene products;;;;;;0,6;;;;;;;Pesu-, puhdistus- ja kiillotusaineet, hajusteet ja toalettivalmisteet;2
 Watercolor paint;Vesivärit;"[""Akvarellivärit""]";Supplies;;;;;;0,46;;;;;;;Factory products;2
 Watercolor paint;Vesivärit;"[""Akvarellivärit""]";Supplies;;;;;;0,46;;;;;;;Factory products;2
@@ -589,7 +472,6 @@ Wheat;;;;;1,57;;;;;;;;;;;Wheat & Rye;1
 Wheat;;;;;;;;;;3,85;;;;;;Wheat & Rye;1
 Wheat;;;;;;;;;;;;7,16;;;;Wheat & Rye;1
 Wheat;;;;;;;;;;;;;;648;;Wheat & Rye;1
-Wheat Tortilla;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 Wheat Tortilla;;;;;;;;;0,7;;;;;;;Plant based groceries;2
 White Cabbage;;;;;0,51;;;;;;;;;;;Brassicas;1
 White Cabbage;;;;;;;;;;0,55;;;;;;Brassicas;1
