@@ -66,10 +66,6 @@ export const getItemNameByDepth = (item: ItemShape, depth: number) => {
   return { id, name };
 };
 
-export const getItemQuantity = (item: ItemShape) => item.quantity || item.product?.quantity;
-export const getItemMeasure = (item: ItemShape) => item.measure || item.product?.measure;
-export const getItemUnit = (item: ItemShape) => item.unit || item.product?.unit;
-
 export const getItemsFromCsv = async (
   itemRecords: Item[],
   productRecords: { [key: string]: any }[],
