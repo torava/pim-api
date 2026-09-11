@@ -6,7 +6,7 @@ export default (app: express.Application) => {
 
 app.get('/api/item', async (req, res) => {
   const items = await Item.query()
-    .withGraphFetched('[product.[category.[parent.^], manufacturer], transaction.[party]]');
+    .withGraphFetched('[product.[category, manufacturer], transaction.[party]]');
   res.send(items);
 });
 
